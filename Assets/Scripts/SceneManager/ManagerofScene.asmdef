@@ -1,0 +1,16 @@
+{
+    "name": "ManagerofScene",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4a934ce0abc65c8498623e207ceaeabd"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
