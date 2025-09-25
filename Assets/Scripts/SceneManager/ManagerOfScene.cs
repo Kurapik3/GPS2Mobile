@@ -4,6 +4,7 @@ using DG.Tweening;
 using UnityEngine.SceneManagement;
 using System.Runtime.CompilerServices;
 using System;
+using EasyTransition;
 
 public class ManagerOfScene : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class ManagerOfScene : MonoBehaviour
 
     [SerializeField] private RectTransform creditsAnimatedPanel;
     [SerializeField] private RectTransform settingsAnimatedPanel;
+
+    [SerializeField] private TransitionSettings transition;
 
     private Vector2 centrePos;
     private Vector2 offScreenPos;
@@ -28,9 +31,14 @@ public class ManagerOfScene : MonoBehaviour
         creditsAnimatedPanel.anchoredPosition = offScreenPos;
         settingsAnimatedPanel.anchoredPosition = offScreenPos;
     }
+
+    public void LoadNextScene(string sceneName)
+    {
+        TransitionManager.Instance().Transition(sceneName, transition, 2f);
+    }
     public void GameStart()
     {
-        SceneManager.LoadScene("Gameplay Scene");
+        LoadNextScene("GameplayScene");
     }
 
     public void Credits()

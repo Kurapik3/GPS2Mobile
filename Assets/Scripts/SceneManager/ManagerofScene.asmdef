@@ -2,7 +2,8 @@
     "name": "ManagerofScene",
     "rootNamespace": "",
     "references": [
-        "GUID:4a934ce0abc65c8498623e207ceaeabd"
+        "GUID:4a934ce0abc65c8498623e207ceaeabd",
+        "GUID:74d9bd366ce7cbb48925ce76e4a7200f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
