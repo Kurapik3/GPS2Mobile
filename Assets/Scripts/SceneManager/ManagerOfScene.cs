@@ -38,27 +38,36 @@ public class ManagerOfScene : MonoBehaviour
     }
     public void GameStart()
     {
+        
         LoadNextScene("GameplayScene");
+        ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
     public void Credits()
     {
+        
         CreditsAppearPanel();
+        ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
     public void Settings()
     {
+        
         SettingsAppearPanel();
+        ManagerAudio.instance.PlaySFX("ButtonPressed");
+
     }
 
     public void CloseCreditsPopUp()
     {
         creditsAnimatedPanel.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+        ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
     public void CloseSettingsPopUp()
     {
         settingsAnimatedPanel.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+        ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
     private void CreditsAppearPanel()
