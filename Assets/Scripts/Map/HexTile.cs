@@ -92,6 +92,19 @@ public class HexTile : MonoBehaviour
             tile.AddComponent<MeshCollider>().sharedMesh = mf.sharedMesh;
         }
     }
+    public void FindNeighbors()
+    {
+        neighbours.Clear();
+        foreach (var dir in HexCoordinates.Directions)
+        {
+            Vector2Int key = new Vector2Int(q + dir.x, r + dir.y);
+            if (MapGenerator.AllTiles.TryGetValue(key, out HexTile neighbor))
+            {
+                neighbours.Add(neighbor);
+            }
+        }
+    }
+
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {

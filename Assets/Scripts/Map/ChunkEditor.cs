@@ -7,9 +7,13 @@ public enum ChunkShape { Square, Hexagon }
 [ExecuteInEditMode]
 public class ChunkEditor : MonoBehaviour
 {
+    [Tooltip("For Square")]
     [SerializeField] private Vector2Int gridSize = new(5, 5);
+    
     [SerializeField] private ChunkShape shape = ChunkShape.Square;
     [SerializeField] private float hexSize = 1f;
+    [Tooltip("For Hexagon")]
+    [SerializeField] private int chunkRadius = 2;
     [SerializeField] private HexTileGenerationSettings generationSettings;
 
     [ContextMenu("Layout Grid")]
@@ -27,12 +31,11 @@ public class ChunkEditor : MonoBehaviour
     }
     private void LayoutSquareGrid()
     {
-        // Use offset (col, row) for square layout
         for (int row = 0; row < gridSize.y; row++)
         {
             for (int col = 0; col < gridSize.x; col++)
             {
-                // Convert offset to axial
+                // Even-r offset to axial (for pointy-top)
                 int q = col - (row + (row % 2)) / 2;
                 int r = row;
 
@@ -43,18 +46,15 @@ public class ChunkEditor : MonoBehaviour
     }
     private void LayoutHexagonGrid()
     {
-        int radius = gridSize.x / 2; 
+        int radius = chunkRadius;
 
-        // Loop in axial coordinates around center (0,0)
-        for (int dq = -radius; dq <= radius; dq++)
+        for (int r = -radius; r <= radius; r++)
         {
-            for (int dr = -radius; dr <= radius; dr++)
-            {
-                if (Mathf.Abs(dq) + Mathf.Abs(dr) + Mathf.Abs(dq + dr) > radius * 2)
-                    continue;
+            int qMin = Mathf.Max(-radius, -r - radius);
+            int qMax = Mathf.Min(radius, -r + radius);
 
-                int q = dq;
-                int r = dr;
+            for (int q = qMin; q <= qMax; q++)
+            {
                 Vector3 pos = HexCoordinates.ToWorld(q, r, hexSize);
                 CreateTile(q, r, pos);
             }
@@ -80,6 +80,7 @@ public class ChunkEditor : MonoBehaviour
         tile.r = r;
         tile.tileType = HexTile.TileType.Normal;
     }
+    
     [ContextMenu("Save As Prefab")]
     public void SaveChunk()
     {

@@ -29,6 +29,12 @@ public class MapGenerator : MonoBehaviour
     public int mapHeight = 4;
     public float hexSize = 1f;
 
+    [Header("Chunk Settings")]
+    public int chunkWidth = 5;  // Must match ChunkEditor gridSize.x for square
+    public int chunkHeight = 5; // Must match ChunkEditor gridSize.y for square
+    public int chunkRadius = 2;// chunk radius in tiles (radius 2, diameter 5)
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -63,44 +69,128 @@ public class MapGenerator : MonoBehaviour
             for (int x = 0; x < mapWidth; x++)
             {
                 GameObject prefab = chunkPrefabs[Random.Range(0, chunkPrefabs.Count)];
-                // Use axial-based spacing (not arbitrary 1.8f/1.6f)
-                Vector3 pos = HexCoordinates.ToWorld(x * 5, y * 5, hexSize); // 5 = chunk width/height
-            
+
+                // Get world position for this chunk
+                Vector3 pos = ChunkToWorld(x, y, hexSize, chunkWidth, chunkHeight);
+
                 GameObject chunk = Instantiate(prefab, pos, Quaternion.identity, transform);
-                RegisterTilesInChunk(chunk);
+
+                // Calculate global axial offset for tiles inside this chunk
+                int chunkQ = x - (y + (y % 2)) / 2;  // even-r offset to axial
+                int chunkR = y;
+
+                RegisterTilesInChunk(chunk, chunkQ * chunkWidth, chunkR * chunkHeight);
             }
+        }
+        //set neighbours
+        foreach (var tile in AllTiles.Values)
+        {
+            tile.FindNeighbors();
         }
     }
     private void GenerateHexagonalMap()
     {
-        int radius = mapWidth / 2;
-        for (int q = -radius; q <= radius; q++)
+        int mapRadius = mapWidth; // use mapWidth as radius (symmetric)
+        int chunkSpacing = (chunkRadius * 2) + 1; // diameter in tiles
+
+        for (int cq = -mapRadius; cq <= mapRadius; cq++)
         {
-            int r1 = Mathf.Max(-radius, -q - radius);
-            int r2 = Mathf.Min(radius, -q + radius);
-            for (int r = r1; r <= r2; r++)
+            for (int cr = -mapRadius; cr <= mapRadius; cr++)
             {
+                int cs = -cq - cr;
+                if (Mathf.Abs(cq) > mapRadius || Mathf.Abs(cr) > mapRadius || Mathf.Abs(cs) > mapRadius)
+                    continue; // outside map shape
+
                 GameObject prefab = chunkPrefabs[Random.Range(0, chunkPrefabs.Count)];
-                Vector3 pos = HexCoordinates.ToWorld(q * 5, r * 5, hexSize);
-           
+
+                int chunkOriginQ = cq * chunkSpacing;
+                int chunkOriginR = cr * chunkSpacing;
+
+                //Use pointy-top chunk spacing
+                Vector3 pos = HexCoordinates.ToWorld(chunkOriginQ, chunkOriginR, hexSize);
+
                 GameObject chunk = Instantiate(prefab, pos, Quaternion.identity, transform);
-                RegisterTilesInChunk(chunk);
+                RegisterTilesInChunk(chunk, chunkOriginQ, chunkOriginR);
             }
         }
     }
-    private void RegisterTilesInChunk(GameObject chunkInstance)
+ 
+    private void RegisterTilesInChunk(GameObject chunkInstance, int chunkOriginQ, int chunkOriginR)
     {
         foreach (HexTile tile in chunkInstance.GetComponentsInChildren<HexTile>())
         {
-            Vector2Int key = new(tile.q, tile.r);
-            // Optional: warn if duplicate
+            // Add chunk's global offset to tile's local coordinates
+            int globalQ = tile.q + chunkOriginQ;
+            int globalR = tile.r + chunkOriginR;
+
+            tile.q = globalQ;
+            tile.r = globalR;
+            
+            Vector2Int key = new(globalQ, globalR);
             if (AllTiles.ContainsKey(key))
-                Debug.LogWarning($"Duplicate tile at ({tile.q}, {tile.r})!");
+                Debug.LogWarning($"Duplicate tile at ({globalQ}, {globalR})!");
             else
                 AllTiles[key] = tile;
         }
     }
-    //private void SpawnChunk(ChunkData chunk, int cx, int cy)
+
+    private void ClearMap()
+    {
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            DestroyImmediate(transform.GetChild(i).gameObject);
+        }
+        AllTiles.Clear();
+    }
+    // Converts chunk grid position (col, row) to world position for chunk origin
+    private Vector3 ChunkToWorld(int chunkCol, int chunkRow, float hexSize, int chunkWidth, int chunkHeight)
+    {
+        // Width and height of ONE hex tile
+        float hexWidth = Mathf.Sqrt(3f) * hexSize;      // pointy-top hex width
+        float rowHeight = 1.5f * hexSize;               // vertical spacing between rows
+
+        // Total width/height of the entire chunk
+        float chunkWorldWidth = chunkWidth * hexWidth;
+        float chunkWorldHeight = chunkHeight * rowHeight;
+
+        // X position: shift odd rows by half a hex width
+        float x = chunkCol * chunkWorldWidth;
+        if (chunkRow % 2 == 1)
+        {
+            x += hexWidth / 2f; 
+        }
+
+        // Z position: spaced by chunk height
+        float z = chunkRow * chunkWorldHeight;
+
+        return new Vector3(x, 0, z);
+    }
+#if UNITY_EDITOR
+    [CustomEditor(typeof(MapGenerator))]
+    public class MapGeneratorInspector : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+
+            MapGenerator editor = (MapGenerator)target;
+
+            if (GUILayout.Button("Generate Map"))
+            {
+                editor.GenerateRandomMap();
+            }
+
+            if (GUILayout.Button("Clear Map"))
+            {
+                editor.ClearMap();
+            }
+        }
+    }
+#endif
+    
+}
+
+//private void SpawnChunk(ChunkData chunk, int cx, int cy)
     //{
     //    Vector3 chunkOffset = new Vector3(cx * chunk.width * hexSize * 1.8f, 0, cy * chunk.height * hexSize * 1.6f);
 
@@ -130,40 +220,3 @@ public class MapGenerator : MonoBehaviour
     //        }
     //    }
     //}
-
-    private void ClearMap()
-    {
-        for (int i = transform.childCount - 1; i >= 0; i--)
-        {
-            DestroyImmediate(transform.GetChild(i).gameObject);
-        }
-    }
-    //private Vector3 HexToWorld(int q, int r, float size)
-    //{
-    //    float x = size * (Mathf.Sqrt(3) * q + Mathf.Sqrt(3) / 2f * r);
-    //    float z = size * (3f / 2f * r);
-    //    return new Vector3(x, 0, z);
-    //}
-#if UNITY_EDITOR
-    [CustomEditor(typeof(MapGenerator))]
-    public class MapGeneratorInspector : Editor
-    {
-        public override void OnInspectorGUI()
-        {
-            DrawDefaultInspector();
-
-            MapGenerator editor = (MapGenerator)target;
-
-            if (GUILayout.Button("Generate Map"))
-            {
-                editor.GenerateRandomMap();
-            }
-
-            if (GUILayout.Button("Clear Map"))
-            {
-                editor.ClearMap();
-            }
-        }
-    }
-#endif
-}
