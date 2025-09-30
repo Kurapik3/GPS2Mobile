@@ -30,17 +30,26 @@ public class BasicAI : ISubAI
         {
             Vector3 currentPos = context.GetUnitPosition(unitId);
 
+            //==================== Movement ====================  
+            Vector3 enemyPos = context.GetNearestEnemy(currentPos);
+            //Vector3 targetPos = new Vector3(enemyPos.x - 1, currentPos.y, enemyPos.z);
+
+            //if (targetPos != currentPos)
+            //{
+            //    actor.MoveTo(unitId, targetPos);
+            //    Debug.Log($"BasicAI: unit {unitId} currentPos={currentPos}, destination={targetPos}");
+            //}
             //==================== Attack ====================
             //If any enemy is within attack range, attack the closest one
-            var nearbyEnemies = context.GetEnemiesInRange(currentPos, 1.5f); //Short attack range
+            var nearbyEnemies = context.GetEnemiesInRange(currentPos, 2f); //Short attack range
             if (nearbyEnemies.Count > 0)
             {
                 int target = nearbyEnemies[0]; //Pick the first or closest
                 actor.AttackTarget(unitId, target);
-                continue; //Skip movement if attack is performed
+                //continue; //Skip movement if attack is performed
             }
 
-            //==================== Movement ====================         
+
             //Vector3 destination = currentPos;
             //switch (difficulty)
             //{
@@ -64,13 +73,16 @@ public class BasicAI : ISubAI
             //        break;
             //}
 
-            //Random step (1 tile in any direction)
-            Vector3 destination = currentPos + new Vector3(rng.Next(-1, 2), 0, rng.Next(-1, 2)
-            );
+            ////Random step (1 tile in any direction)
+            //Vector3 destination = currentPos + new Vector3(rng.Next(-1, 2), 0, rng.Next(-1, 2));
 
-            //Move only if destination is different from current position
-            if (destination != currentPos)
-                actor.MoveTo(unitId, destination);
+            ////Move only if destination is different from current position
+            //if (destination != currentPos)
+            //{
+            //    actor.MoveTo(unitId, destination);
+
+            //}
+
         }
     }
 }
