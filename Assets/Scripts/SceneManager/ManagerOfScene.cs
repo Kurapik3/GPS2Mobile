@@ -5,9 +5,12 @@ using UnityEngine.SceneManagement;
 using System.Runtime.CompilerServices;
 using System;
 using EasyTransition;
+using UnityEditor;
 
 public class ManagerOfScene : MonoBehaviour
 {
+    public static ManagerOfScene instance;
+
     [SerializeField] private RectTransform title;
     [SerializeField] private RectTransform[] buttons;
     [SerializeField] private Ease easing = Ease.InOutBack;
@@ -19,9 +22,13 @@ public class ManagerOfScene : MonoBehaviour
 
     [SerializeField] private TransitionSettings transition;
 
+    [SerializeField] private CanvasGroup settingButton;
+    [SerializeField] private CanvasGroup creditsButton;
+
     private Vector2 centrePos;
     private Vector2 offScreenPos;
-
+     
+    public static bool isGameStarted = false;
 
     private void Start()
     {
@@ -34,13 +41,22 @@ public class ManagerOfScene : MonoBehaviour
 
     public void LoadNextScene(string sceneName)
     {
-        TransitionManager.Instance().Transition(sceneName, transition, 2f);
+        TransitionManager.Instance().Transition(sceneName, transition, 0.1f);
+
+        settingButton.interactable = false;
+        creditsButton.interactable = false;
+
+        //settingButton.blocksRaycasts = false;
+        //creditsButton.interactable = false;
     }
     public void GameStart()
     {
         
-        LoadNextScene("GameplayScene");
+        //LoadNextScene("GameplayScene");
+        LoadNextScene("MainGameplayScene");
         ManagerAudio.instance.PlaySFX("ButtonPressed");
+        ManagerAudio.instance.StopMusic();
+
     }
 
     public void Credits()
@@ -48,6 +64,7 @@ public class ManagerOfScene : MonoBehaviour
         
         CreditsAppearPanel();
         ManagerAudio.instance.PlaySFX("ButtonPressed");
+        
     }
 
     public void Settings()

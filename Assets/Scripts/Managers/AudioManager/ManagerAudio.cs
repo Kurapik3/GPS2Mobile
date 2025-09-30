@@ -44,6 +44,11 @@ public class ManagerAudio : MonoBehaviour
         musicSource.Play();
     }
 
+    public void StopMusic()
+    {
+        musicSource.Stop();
+    }
+
     public void PlaySFX(string name)
     {
         Sound s = Array.Find(sfxs, x => x.name == name);
