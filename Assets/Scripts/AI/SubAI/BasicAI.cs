@@ -4,15 +4,8 @@ public class BasicAI : ISubAI
 {
     private IAIContext context;
     private IAIActor actor;
-    private AIController.Difficulty difficulty;
-    private System.Random rng = new System.Random();
 
     public int Priority => 0; //Lowest priority (PLACEHOLDER_LOGIC) 
-
-    public BasicAI(AIController.Difficulty difficulty)
-    {
-        this.difficulty = difficulty;
-    }
 
     public void Initialize(IAIContext context, IAIActor actor)
     {
