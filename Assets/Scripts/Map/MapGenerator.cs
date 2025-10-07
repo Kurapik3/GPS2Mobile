@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEditor.SceneManagement;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -8,16 +10,65 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class MapGenerator : MonoBehaviour
 {
-    //[Tooltip("For Square")]
-    //[SerializeField] private Vector2Int gridSize = new(5, 5);
-    
-    //[SerializeField] private ChunkShape shape = ChunkShape.Square;
     [SerializeField] private float hexSize = 1f;
     [Tooltip("For Hexagon")]
     [SerializeField] private int mapRadius = 2;
     [SerializeField] private HexTileGenerationSettings generationSettings;
     public static Dictionary<Vector2Int, HexTile> AllTiles { get; private set; } = new();
+    private void Awake()
+    {
+        RebuildTileDictionary();
+    }
+    private void OnEnable()
+    {
+        if (Application.isPlaying)
+        {
+            RebuildTileDictionary();
+        }
+    }
+    private void Start()
+    {
+        //RebuildAllStructures();
+        var fog = GetComponent<FogSystem>();
+        if (fog != null)
+            fog.InitializeFog();
 
+        var dynamic = GetComponent<DynamicTileGenerator>();
+        if (dynamic != null)
+            dynamic.GenerateDynamicElements();
+    }
+    public void RebuildAllStructures()
+    {
+        foreach (var tile in MapGenerator.AllTiles.Values)
+        {
+            if (tile.HasStructure)
+            {
+                tile.RebuildStructure();
+            }
+        }
+    }
+    
+    public void RebuildTileDictionary()
+    {
+        AllTiles.Clear();
+        HexTile[] tiles = GetComponentsInChildren<HexTile>(true);
+        Debug.Log($"[MapGenerator] Found {tiles.Length} HexTile components");
+        foreach (var tile in tiles)
+        {
+            Vector2Int key = new Vector2Int(tile.q, tile.r);
+            AllTiles[key] = tile;
+        }
+        Debug.Log($"Map Generator: Rebuilt dictionary with {AllTiles.Count} tiles.");
+    }
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (!Application.isPlaying)
+        {
+            RebuildTileDictionary();
+        }
+    }
+#endif
     [ContextMenu("Layout Grid")]
     public void LayoutGrid()
     {
@@ -28,21 +79,7 @@ public class MapGenerator : MonoBehaviour
             tile.FindNeighbors();
         }
     }
-    //private void LayoutSquareGrid()
-    //{
-    //    for (int row = 0; row < gridSize.y; row++)
-    //    {
-    //        for (int col = 0; col < gridSize.x; col++)
-    //        {
-    //            // Even-r offset to axial (for pointy-top)
-    //            int q = col - (row + (row % 2)) / 2;
-    //            int r = row;
-
-    //            Vector3 pos = HexCoordinates.ToWorld(q, r, hexSize);
-    //            CreateTile(q, r, pos);
-    //        }
-    //    }
-    //}
+    
     private void LayoutHexagonGrid()
     {
         int radius = mapRadius;
@@ -86,19 +123,6 @@ public class MapGenerator : MonoBehaviour
         {
             Debug.LogError("No prefab assigned!");
         }
-
-        //GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, transform);
-        //go.name = $"Hex_{q}_{r}";
-        //go.transform.localPosition = pos;
-
-        //HexTile tile = go.GetComponent<HexTile>();
-        //if (tile == null) tile = go.AddComponent<HexTile>();
-        //tile.settings = generationSettings;
-        //tile.q = q;
-        //tile.r = r;
-        //tile.tileType = HexTile.TileType.Normal;
-
-        //Register tile in dictionary
         Vector2Int key = new(q, r);
         if(AllTiles.ContainsKey(key))
         {
@@ -109,11 +133,23 @@ public class MapGenerator : MonoBehaviour
             AllTiles[key] = tile;
         }
     }
-    
+
     [ContextMenu("Save As Prefab")]
     public void SaveChunk()
     {
 #if UNITY_EDITOR
+        
+        if (GetComponent<FogSystem>() == null)
+        {
+            gameObject.AddComponent<FogSystem>();
+            Debug.Log("Added FogSystem component automatically");
+        }
+        if(GetComponent<DynamicTileGenerator>() == null)
+        {
+            gameObject.AddComponent<DynamicTileGenerator>();
+            Debug.Log("Added DynamicTileGenerator component automatically");
+        }
+       
         string path = EditorUtility.SaveFilePanelInProject
         (
             "Save Map Prefab",
@@ -125,8 +161,10 @@ public class MapGenerator : MonoBehaviour
         if (!string.IsNullOrEmpty(path))
         {
             PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, path, InteractionMode.UserAction);
-            Debug.Log($"Chunk saved as Prefab at {path}");
+            EditorSceneManager.MarkSceneDirty(gameObject.scene);
+            Debug.Log($"Map saved as Prefab at {path}");
         }
+        
 #endif
     }
     private void Clear()
@@ -137,18 +175,7 @@ public class MapGenerator : MonoBehaviour
         }
         AllTiles.Clear();
     }
-    //private Vector3 HexToWorld(int q, int r, float size)
-    //{
-    //    float x = size * (Mathf.Sqrt(3) * q + Mathf.Sqrt(3) / 2f * r);
-    //    float z = size * (3f / 2f * r);
-    //    return new Vector3(x, 0, z);
-    //}
-    //public static Vector3Int OffsetToCube(Vector2Int offset)
-    //{
-    //    var q = offset.x - (offset.y + (offset.y % 2)) / 2;
-    //    var r = offset.y;
-    //    return new Vector3Int(q, r, -q - r);
-    //}
+    
 #if UNITY_EDITOR
     [CustomEditor(typeof(MapGenerator))]
     public class MapGeneratorInspector : Editor

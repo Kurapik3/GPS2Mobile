@@ -1,0 +1,39 @@
+using UnityEngine;
+using System.Collections.Generic;
+public class DynamicTileGenerator : MonoBehaviour
+{
+    [SerializeField] private GameObject fishPrefab;
+    [SerializeField] private GameObject debrisPrefab;
+    [Range(0f, 1f)] public float fishChance = 0.2f;
+    [Range(0f, 1f)] public float debrisChance = 0.1f;
+    
+    public void GenerateDynamicElements()
+    {
+        var allTiles = MapGenerator.AllTiles;
+        foreach (var tile in allTiles.Values)
+        {
+            //Checks if tiles already have a structure on it
+            if(tile.GetComponent<StructureTile>() != null)
+            {
+                continue;
+            }
+            float rand = Random.value;
+            GameObject toSpawn = null;
+            if (rand < fishChance)
+            {
+                toSpawn = fishPrefab;
+            }
+            else if(rand <fishChance +debrisChance)
+            {
+                toSpawn = debrisPrefab;
+            }
+
+            if(toSpawn != null)
+            {
+                var obj = Instantiate(toSpawn, tile.transform);
+                obj.transform.localPosition = Vector3.zero;
+                obj.name = toSpawn.name;
+            }
+        }
+    }
+}
