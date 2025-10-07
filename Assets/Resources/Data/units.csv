@@ -1,0 +1,6 @@
+Unit Name,Cost (AP),Range,Movement,HP,ATK,Combat,Ability
+Builder,2,1,3,3,1,FALSE,Groves
+Scout,3,2,3,5,3,FALSE,MovementTwice
+Tanker,3,1,3,20,5,TRUE,CounterAttack
+Shooter,5,5,2,10,5,TRUE,CannotAttack2tile
+Bomber,12,3,2,15,10,TRUE,SplashDmg
