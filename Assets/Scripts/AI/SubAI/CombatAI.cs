@@ -23,18 +23,18 @@ public class CombatAI : ISubAI
     public void Execute()
     {
         var units = context.GetOwnedUnitIds();
-        if (units == null || units.Count == 0) 
+        if (units == null || units.Count == 0)
             return;
 
         foreach (var unitId in units)
         {
             //Skip dormant (invisible) units
-            if (!context.IsUnitVisibleToPlayer(unitId)) 
+            if (!context.IsUnitVisibleToPlayer(unitId))
                 continue;
 
             string unitType = context.GetUnitType(unitId);
             Vector3 pos = context.GetUnitPosition(unitId);
-            float attackRange = context.GetUnitAttackRange(unitId);
+            int attackRange = context.GetUnitAttackRange(unitId);
 
             //Skip combat for Builder & Scout
             if (unitType == "Builder" || unitType == "Scout")
@@ -53,7 +53,7 @@ public class CombatAI : ISubAI
                 int selected = ChoosePriorityTarget(targets, pos);
 
                 //60% chance to attack
-                if (rng.NextDouble() < 0.6) 
+                if (rng.NextDouble() < 0.6)
                 {
                     actor.AttackTarget(unitId, selected);
                     Debug.Log($"[CombatAI] Unit {unitType} #{unitId} attacks entity {selected}");
@@ -72,9 +72,18 @@ public class CombatAI : ISubAI
 
     private void MoveIdle(int unitId, Vector3 pos)
     {
+        Vector2Int currentHex = context.WorldToHex(pos);
+        int moveRange = context.GetUnitMoveRange(unitId);
+        List<Vector2Int> reachableHexes = context.GetReachableHexes(currentHex, moveRange);
+
+        if (reachableHexes.Count == 0)
+            return;
+
         bool moveToOrigin = rng.NextDouble() < 0.7;
-        Vector3 dir = (moveToOrigin ? (Vector3.zero - pos) : (pos - Vector3.zero)).normalized;
-        Vector3 destination = pos + dir * 1f;
+        Vector2Int originHex = Vector2Int.zero;
+        Vector2Int targetHex = ChooseTargetHex(reachableHexes, currentHex, originHex, moveToOrigin);
+        Vector3 destination = context.HexToWorld(targetHex);
+
         actor.MoveTo(unitId, destination);
         Debug.Log($"[CombatAI] Unit {unitId} moves {(moveToOrigin ? "towards" : "away from")} origin to {destination}");
     }
@@ -119,5 +128,24 @@ public class CombatAI : ISubAI
             return unitTarget.Value;
 
         return candidateIds[0]; //fallback
+    }
+
+    private Vector2Int ChooseTargetHex(List<Vector2Int> candidates, Vector2Int current, Vector2Int origin, bool moveTowards)
+    {
+        List<Vector2Int> valid = new List<Vector2Int>();
+        int currentDist = context.GetHexDistance(current, origin);
+
+        foreach (var hex in candidates)
+        {
+            int d = context.GetHexDistance(hex, origin);
+            if (moveTowards && d < currentDist) valid.Add(hex);
+            if (!moveTowards && d > currentDist) valid.Add(hex);
+        }
+
+        //Fallback
+        if (valid.Count == 0)
+            valid = candidates;
+
+        return valid[rng.Next(valid.Count)];
     }
 }

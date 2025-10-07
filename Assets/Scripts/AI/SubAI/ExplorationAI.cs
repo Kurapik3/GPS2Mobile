@@ -23,27 +23,61 @@ public class ExplorationAI : ISubAI
     public void Execute()
     {
         var units = context.GetOwnedUnitIds();
-        if (units == null || units.Count == 0) 
+        if (units == null || units.Count == 0)
             return;
+
+        Vector2Int origin = new Vector2Int(0, 0);
 
         foreach (var unitId in units)
         {
             //Skip units that are already aggressive (visible to player)
-            if (context.IsUnitVisibleToPlayer(unitId)) 
+            if (context.IsUnitVisibleToPlayer(unitId))
                 continue;
 
             Vector3 pos = context.GetUnitPosition(unitId);
+            Vector2Int currentHex = context.WorldToHex(pos);
+            int moveRange = context.GetUnitMoveRange(unitId);
+            List<Vector2Int> reachableHexes = context.GetReachableHexes(currentHex, moveRange);
+
+            if (reachableHexes.Count == 0)
+                continue;
 
             //50% towards origin (0,0), 50% away
             bool moveTowards = rng.NextDouble() < 0.5;
-            Vector3 dir = (moveTowards ? (Vector3.zero - pos) : (pos - Vector3.zero)).normalized;
 
-            //Move roughly 1 tile
-            Vector3 destination = pos + dir * 1f;
+            //Find the best hex direction
+            Vector2Int targetHex = ChooseHexDirection(reachableHexes, currentHex, origin, moveTowards);
+
+            //Convert target hex to world position
+            Vector3 destination = context.HexToWorld(targetHex);
 
             actor.MoveTo(unitId, destination);
 
             Debug.Log($"[ExplorationAI] Unit {unitId} moving {(moveTowards ? "towards" : "away from")} origin to {destination}");
         }
+    }
+
+    //Choose the best hex direction based on movement strategy (towards/away from origin)
+    private Vector2Int ChooseHexDirection(List<Vector2Int> candidates, Vector2Int current, Vector2Int origin, bool moveTowards)
+    {
+        List<Vector2Int> validMoves = new List<Vector2Int>();
+        int currentDist = context.GetHexDistance(current, origin);
+
+        foreach (var hex in candidates)
+        {
+            int dist = context.GetHexDistance(hex, origin);
+
+            if (moveTowards && dist < currentDist) //Choose tiles that are closer to origin
+                validMoves.Add(hex);
+            if (moveTowards && dist > currentDist) //Choose tiles that are farther from origin
+                validMoves.Add(hex);
+        }
+
+        //If no valid moves, pick a random adjacent hex (fallback)
+        if (validMoves.Count == 0)
+            validMoves = candidates;
+
+        //Pick random from valid moves
+        return validMoves[rng.Next(validMoves.Count)];
     }
 }

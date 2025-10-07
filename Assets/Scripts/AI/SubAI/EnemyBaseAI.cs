@@ -17,7 +17,7 @@ public class EnemyBaseAI : ISubAI
     public void Execute()
     {
         var baseIds = context.GetOwnedBaseIds();
-        if (baseIds == null || baseIds.Count == 0) 
+        if (baseIds == null || baseIds.Count == 0)
             return;
 
         currentTurn = context.GetTurnNumber();
