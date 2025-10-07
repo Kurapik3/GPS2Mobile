@@ -48,17 +48,31 @@ public class HexTile : MonoBehaviour
         if (!isDirty) return;
 
         // Destroy old visual if it exists
-        if (tile != null)
+        for(int i = transform.childCount - 1; i >= 0; i--)
         {
-            if (Application.isPlaying)
-            { 
-                Destroy(tile); 
+            if(Application.isPlaying)
+            {
+                Destroy(transform.GetChild(i).gameObject);
             }
             else
-            { 
-                DestroyImmediate(tile);
+            {
+                DestroyImmediate(transform.GetChild(i).gameObject);
             }
         }
+        tile = null;
+
+        //if (tile != null)
+        //{
+        //    if (Application.isPlaying)
+        //    { 
+        //        Destroy(tile); 
+        //    }
+        //    else
+        //    { 
+        //        DestroyImmediate(tile);
+        //    }
+        //}
+
         // Spawn new one
         AddTile();
 
@@ -83,9 +97,10 @@ public class HexTile : MonoBehaviour
         }
         // Instantiate as child so it stays local
         tile = Application.isPlaying?Instantiate(prefab, transform):(GameObject)PrefabUtility.InstantiatePrefab(prefab, transform);
+        tile.name = "Mesh";
         tile.transform.localPosition = Vector3.zero;
         tile.transform.localRotation = Quaternion.identity;
-        tile.transform.localScale = Vector3.one;
+        //tile.transform.localScale = Vector3.one;
 
         if (tile.TryGetComponent(out MeshFilter mf) && !tile.GetComponent<MeshCollider>())
         {
@@ -118,8 +133,8 @@ public class HexTile : MonoBehaviour
             Gizmos.color = Color.white;
             Gizmos.DrawLine(transform.position, neighbour.transform.position);
         }
-
     }
+    
 #endif
 
     private Material originalMaterial;

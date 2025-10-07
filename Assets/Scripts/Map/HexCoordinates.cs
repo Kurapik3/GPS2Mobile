@@ -2,11 +2,11 @@ using UnityEngine;
 
 public static class HexCoordinates
 {
-    // Axial (q, r) to World (pointy-top)
+    // Axial (q, r) to World (flat-top)
     public static Vector3 ToWorld(int q, int r, float size)
     {
-        float x = size * (Mathf.Sqrt(3) * q + Mathf.Sqrt(3) / 2f * r);
-        float z = size * (3f / 2f * r);
+        float x = size * (3f / 2f * q);
+        float z = size * (Mathf.Sqrt(3) / 2f * q + Mathf.Sqrt(3) * r);
         return new Vector3(x, 0, z);
     }
 

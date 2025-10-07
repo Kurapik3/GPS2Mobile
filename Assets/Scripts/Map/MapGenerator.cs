@@ -1,140 +1,135 @@
-
-// - Every HexTile has .q and .r (axial coordinates)
-// - All tiles are in MapGenerator.AllTiles[new Vector2Int(q, r)]
-// - World position: HexCoordinates.ToWorld(q, r, hexSize)
-// - Distance: HexCoordinates.Distance(q1, r1, q2, r2)
-// - Directions: HexCoordinates.Directions (6 neighbors)
-// 
-// EXAMPLE:
-//   if (MapGenerator.AllTiles.TryGetValue(new(3,2), out HexTile t))
-//       unit.transform.position = t.transform.position;
-
 using UnityEngine;
 using System.Collections.Generic;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-public enum MapShape { Rectangular, Hexagonal }
+
+[ExecuteInEditMode]
 public class MapGenerator : MonoBehaviour
 {
-    public static MapGenerator Instance { get; private set; }
+    //[Tooltip("For Square")]
+    //[SerializeField] private Vector2Int gridSize = new(5, 5);
+    
+    //[SerializeField] private ChunkShape shape = ChunkShape.Square;
+    [SerializeField] private float hexSize = 1f;
+    [Tooltip("For Hexagon")]
+    [SerializeField] private int mapRadius = 2;
+    [SerializeField] private HexTileGenerationSettings generationSettings;
     public static Dictionary<Vector2Int, HexTile> AllTiles { get; private set; } = new();
-    [Header("Chunks")]
-    [SerializeField] private List<GameObject> chunkPrefabs;
-    public HexTileGenerationSettings generationSettings;
 
-    [Header("Map Settings")]
-    public MapShape mapShape = MapShape.Rectangular;
-    public int mapWidth = 4;
-    public int mapHeight = 4;
-    public float hexSize = 1f;
-
-    [Header("Chunk Settings")]
-    public int chunkWidth = 5;  // Must match ChunkEditor gridSize.x for square
-    public int chunkHeight = 5; // Must match ChunkEditor gridSize.y for square
-    public int chunkRadius = 2;// chunk radius in tiles (radius 2, diameter 5)
-
-
-    private void Awake()
+    [ContextMenu("Layout Grid")]
+    public void LayoutGrid()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-    }
-
-    [ContextMenu("Generate Random Map")]
-    public void GenerateRandomMap()
-    {
-        ClearMap();
-
-        if (mapShape == MapShape.Rectangular)
-        {
-            GenerateRectangularMap();
-        }
-        else
-        {
-            GenerateHexagonalMap();
-        }
-    }
-    private void GenerateRectangularMap()
-    {
-        for (int y = 0; y < mapHeight; y++)
-        {
-            for (int x = 0; x < mapWidth; x++)
-            {
-                GameObject prefab = chunkPrefabs[Random.Range(0, chunkPrefabs.Count)];
-
-                // Get world position for this chunk
-                Vector3 pos = ChunkToWorld(x, y, hexSize, chunkWidth, chunkHeight);
-
-                GameObject chunk = Instantiate(prefab, pos, Quaternion.identity, transform);
-
-                // Calculate global axial offset for tiles inside this chunk
-                int chunkQ = x - (y + (y % 2)) / 2;  // even-r offset to axial
-                int chunkR = y;
-
-                RegisterTilesInChunk(chunk, chunkQ * chunkWidth, chunkR * chunkHeight);
-            }
-        }
-        //set neighbours
-        foreach (var tile in AllTiles.Values)
+        Clear();
+        LayoutHexagonGrid();
+        foreach (var tile in AllTiles.Values) //set neighbouring tiles
         {
             tile.FindNeighbors();
         }
     }
-    private void GenerateHexagonalMap()
+    //private void LayoutSquareGrid()
+    //{
+    //    for (int row = 0; row < gridSize.y; row++)
+    //    {
+    //        for (int col = 0; col < gridSize.x; col++)
+    //        {
+    //            // Even-r offset to axial (for pointy-top)
+    //            int q = col - (row + (row % 2)) / 2;
+    //            int r = row;
+
+    //            Vector3 pos = HexCoordinates.ToWorld(q, r, hexSize);
+    //            CreateTile(q, r, pos);
+    //        }
+    //    }
+    //}
+    private void LayoutHexagonGrid()
     {
-        int mapRadius = mapWidth; // use mapWidth as radius (symmetric)
-        int chunkSpacing = (chunkRadius * 2) + 1; // diameter in tiles
+        int radius = mapRadius;
 
-        for (int cq = -mapRadius; cq <= mapRadius; cq++)
+        for (int r = -radius; r <= radius; r++)
         {
-            for (int cr = -mapRadius; cr <= mapRadius; cr++)
+            int qMin = Mathf.Max(-radius, -r - radius);
+            int qMax = Mathf.Min(radius, -r + radius);
+
+            for (int q = qMin; q <= qMax; q++)
             {
-                int cs = -cq - cr;
-                if (Mathf.Abs(cq) > mapRadius || Mathf.Abs(cr) > mapRadius || Mathf.Abs(cs) > mapRadius)
-                    continue; // outside map shape
-
-                GameObject prefab = chunkPrefabs[Random.Range(0, chunkPrefabs.Count)];
-
-                int chunkOriginQ = cq * chunkSpacing;
-                int chunkOriginR = cr * chunkSpacing;
-
-                //Use pointy-top chunk spacing
-                Vector3 pos = HexCoordinates.ToWorld(chunkOriginQ, chunkOriginR, hexSize);
-
-                GameObject chunk = Instantiate(prefab, pos, Quaternion.identity, transform);
-                RegisterTilesInChunk(chunk, chunkOriginQ, chunkOriginR);
+                Vector3 pos = HexCoordinates.ToWorld(q, r, hexSize);
+                CreateTile(q, r, pos);
             }
         }
+        
     }
- 
-    private void RegisterTilesInChunk(GameObject chunkInstance, int chunkOriginQ, int chunkOriginR)
+    private void CreateTile(int q, int r, Vector3 pos)
     {
-        foreach (HexTile tile in chunkInstance.GetComponentsInChildren<HexTile>())
-        {
-            // Add chunk's global offset to tile's local coordinates
-            int globalQ = tile.q + chunkOriginQ;
-            int globalR = tile.r + chunkOriginR;
+        //Create empty parent
+        GameObject container = new GameObject($"Hex_{q}_{r}");
+        container.transform.parent = transform;
+        container.transform.localPosition = pos;
 
-            tile.q = globalQ;
-            tile.r = globalR;
-            
-            Vector2Int key = new(globalQ, globalR);
-            if (AllTiles.ContainsKey(key))
-                Debug.LogWarning($"Duplicate tile at ({globalQ}, {globalR})!");
-            else
-                AllTiles[key] = tile;
+        //Attach HexTile script to parent
+        HexTile tile = container.AddComponent<HexTile>();
+        tile.settings = generationSettings;
+        tile.q = q;
+        tile.r = r;
+        tile.tileType = HexTile.TileType.Normal;
+
+        //Spawn the mesh prefab as a child
+        GameObject prefab = generationSettings.GetTile(tile.tileType);
+        if (prefab != null)
+        {
+            GameObject mesh = (GameObject)PrefabUtility.InstantiatePrefab(prefab,container.transform);
+            mesh.name = "Mesh";
+            mesh.transform.localPosition = Vector3.zero;
+        }
+        else
+        {
+            Debug.LogError("No prefab assigned!");
+        }
+
+        //GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, transform);
+        //go.name = $"Hex_{q}_{r}";
+        //go.transform.localPosition = pos;
+
+        //HexTile tile = go.GetComponent<HexTile>();
+        //if (tile == null) tile = go.AddComponent<HexTile>();
+        //tile.settings = generationSettings;
+        //tile.q = q;
+        //tile.r = r;
+        //tile.tileType = HexTile.TileType.Normal;
+
+        //Register tile in dictionary
+        Vector2Int key = new(q, r);
+        if(AllTiles.ContainsKey(key))
+        {
+            Debug.LogWarning($"Duplicate tile at {q},{r}");
+        }
+        else
+        {
+            AllTiles[key] = tile;
         }
     }
+    
+    [ContextMenu("Save As Prefab")]
+    public void SaveChunk()
+    {
+#if UNITY_EDITOR
+        string path = EditorUtility.SaveFilePanelInProject
+        (
+            "Save Map Prefab",
+            "Map",
+            "prefab",
+            "Save this Map as a prefab"
+        );
 
-    private void ClearMap()
+        if (!string.IsNullOrEmpty(path))
+        {
+            PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, path, InteractionMode.UserAction);
+            Debug.Log($"Chunk saved as Prefab at {path}");
+        }
+#endif
+    }
+    private void Clear()
     {
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
@@ -142,29 +137,18 @@ public class MapGenerator : MonoBehaviour
         }
         AllTiles.Clear();
     }
-    // Converts chunk grid position (col, row) to world position for chunk origin
-    private Vector3 ChunkToWorld(int chunkCol, int chunkRow, float hexSize, int chunkWidth, int chunkHeight)
-    {
-        // Width and height of ONE hex tile
-        float hexWidth = Mathf.Sqrt(3f) * hexSize;      // pointy-top hex width
-        float rowHeight = 1.5f * hexSize;               // vertical spacing between rows
-
-        // Total width/height of the entire chunk
-        float chunkWorldWidth = chunkWidth * hexWidth;
-        float chunkWorldHeight = chunkHeight * rowHeight;
-
-        // X position: shift odd rows by half a hex width
-        float x = chunkCol * chunkWorldWidth;
-        if (chunkRow % 2 == 1)
-        {
-            x += hexWidth / 2f; 
-        }
-
-        // Z position: spaced by chunk height
-        float z = chunkRow * chunkWorldHeight;
-
-        return new Vector3(x, 0, z);
-    }
+    //private Vector3 HexToWorld(int q, int r, float size)
+    //{
+    //    float x = size * (Mathf.Sqrt(3) * q + Mathf.Sqrt(3) / 2f * r);
+    //    float z = size * (3f / 2f * r);
+    //    return new Vector3(x, 0, z);
+    //}
+    //public static Vector3Int OffsetToCube(Vector2Int offset)
+    //{
+    //    var q = offset.x - (offset.y + (offset.y % 2)) / 2;
+    //    var r = offset.y;
+    //    return new Vector3Int(q, r, -q - r);
+    //}
 #if UNITY_EDITOR
     [CustomEditor(typeof(MapGenerator))]
     public class MapGeneratorInspector : Editor
@@ -175,48 +159,21 @@ public class MapGenerator : MonoBehaviour
 
             MapGenerator editor = (MapGenerator)target;
 
-            if (GUILayout.Button("Generate Map"))
+            if (GUILayout.Button("Layout Grid"))
             {
-                editor.GenerateRandomMap();
+                editor.LayoutGrid();
             }
 
-            if (GUILayout.Button("Clear Map"))
+            if (GUILayout.Button("Clear Grid"))
             {
-                editor.ClearMap();
+                editor.Clear();
+            }
+
+            if (GUILayout.Button("Save As Prefab"))
+            {
+                editor.SaveChunk();
             }
         }
     }
 #endif
-    
 }
-
-//private void SpawnChunk(ChunkData chunk, int cx, int cy)
-    //{
-    //    Vector3 chunkOffset = new Vector3(cx * chunk.width * hexSize * 1.8f, 0, cy * chunk.height * hexSize * 1.6f);
-
-    //    foreach (var record in chunk.tiles)
-    //    {
-    //        GameObject prefab = generationSettings.GetTile(record.type);
-    //        if (prefab != null)
-    //        {
-    //            int globalQ = record.q + cx * chunk.width;
-    //            int globalR = record.r + cy * chunk.height;
-
-    //            Vector3 pos = HexToWorld(globalQ, globalR, hexSize);
-    //            GameObject go = Instantiate(prefab, pos, Quaternion.identity, transform);
-
-    //            // Attach HexTile if not present
-    //            HexTile tile = go.GetComponent<HexTile>();
-    //            if (tile == null)
-    //            {
-    //                tile = go.AddComponent<HexTile>();
-    //            }
-    //            tile.q = globalQ;
-    //            tile.r = globalR;
-    //            tile.tileType = record.type;
-
-    //            //Pathfinding Hook(later)
-    //            // tile.cubeCoordinate = OffsetToCube(tile.q, tile.r);
-    //        }
-    //    }
-    //}
