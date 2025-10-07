@@ -22,6 +22,7 @@ public interface IAIContext
     bool CanProduceUnit(int baseId); //Check whether the Base can produce unit
     bool CanUpgradeBase(int baseId); //Check whether the Base can be upgraded
     int GetBaseUnitCount(int baseId); //Returns how many units are currently stationed or linked to the base
+    bool IsBaseOccupied(int baseId);
 
     //==================== Structure Tiles Objects ====================
     List<Vector3> GetRuinLocations(); //All _KNOWN_ Ruin positions

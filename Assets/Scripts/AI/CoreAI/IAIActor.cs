@@ -10,7 +10,7 @@ public interface IAIActor
     void UpgradeBase(int baseId);
 
     //==================== Exploit ====================
-    void ProduceUnit(int baseId, string unitType);
+    void SpawnUnit(int baseId, string unitType);
 
     //==================== Exterminate ====================
     void AttackTarget(int unitId, int targetId); //Attack enemy unit or base

@@ -32,8 +32,18 @@ public class CombatAI : ISubAI
             if (!context.IsUnitVisibleToPlayer(unitId)) 
                 continue;
 
+            string unitType = context.GetUnitType(unitId);
             Vector3 pos = context.GetUnitPosition(unitId);
             float attackRange = context.GetUnitAttackRange(unitId);
+
+            //Skip combat for Builder & Scout
+            if (unitType == "Builder" || unitType == "Scout")
+            {
+                MoveIdle(unitId, pos);
+                Debug.Log($"[CombatAI] {unitType} #{unitId} cannot attack, moving instead.");
+                continue;
+
+            }
 
             //Check for player bases in range first
             List<int> targets = context.GetEnemiesInRange(pos, attackRange); //"Enemies" means player entities from enemy AI POV
@@ -46,22 +56,27 @@ public class CombatAI : ISubAI
                 if (rng.NextDouble() < 0.6) 
                 {
                     actor.AttackTarget(unitId, selected);
-                    Debug.Log($"[CombatAI] Unit {unitId} attacks entity {selected}");
+                    Debug.Log($"[CombatAI] Unit {unitType} #{unitId} attacks entity {selected}");
                     continue;
                 }
                 else
                 {
-                    Debug.Log($"[CombatAI] Unit {unitId} rolled to not attack");
+                    Debug.Log($"[CombatAI] Unit {unitType} #{unitId} rolled to not attack");
                 }
             }
 
             //If no valid target or skipped attack: decide movement (70% towards origin)
-            bool moveToOrigin = rng.NextDouble() < 0.7;
-            Vector3 dir = (moveToOrigin ? (Vector3.zero - pos) : (pos - Vector3.zero)).normalized;
-            Vector3 destination = pos + dir * 1f;
-            actor.MoveTo(unitId, destination);
-            Debug.Log($"[CombatAI] Unit {unitId} moves {(moveToOrigin ? "towards" : "away from")} origin to {destination}");
+            MoveIdle(unitId, pos);
         }
+    }
+
+    private void MoveIdle(int unitId, Vector3 pos)
+    {
+        bool moveToOrigin = rng.NextDouble() < 0.7;
+        Vector3 dir = (moveToOrigin ? (Vector3.zero - pos) : (pos - Vector3.zero)).normalized;
+        Vector3 destination = pos + dir * 1f;
+        actor.MoveTo(unitId, destination);
+        Debug.Log($"[CombatAI] Unit {unitId} moves {(moveToOrigin ? "towards" : "away from")} origin to {destination}");
     }
 
     //Chooses the most appropriate target —> prioritize bases, then units

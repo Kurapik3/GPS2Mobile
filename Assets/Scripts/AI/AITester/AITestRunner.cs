@@ -12,6 +12,9 @@ public class AITestRunner : MonoBehaviour
     private TestContext context;
     private TestActor actor;
 
+    private float tileRadius = 1.0f;
+    private Dictionary<Vector2Int, Vector3> hexTiles = new();
+
     void Start()
     {
         //Spawn Base (AI-owned)
@@ -51,7 +54,7 @@ public class AITestRunner : MonoBehaviour
 
         ai = new AIController(context, actor);
 
-        // Run AI turn gradually
+        //Run AI turn gradually
         StartCoroutine(RunTurnStepByStep());
     }
 
@@ -59,32 +62,20 @@ public class AITestRunner : MonoBehaviour
     {
         Debug.Log("<color=yellow>=== AI Turn Start ===</color>");
 
-        // Sort AIs manually (Base, Explore, Combat)
-        var subAIs = new ISubAI[]
-        {
-            new EnemyBaseAI(),
-            new ExplorationAI(),
-            new CombatAI()
-        };
-
-        foreach (var subAI in subAIs)
-        {
-            subAI.Initialize(context, actor);
-        }
-
-        // Step 1: Base
+        yield return new WaitForSeconds(1.2f);
+        //Base
         Debug.Log("<color=orange>[Step 1] EnemyBaseAI executing...</color>");
-        subAIs[0].Execute();
+        ai.subAIs[0].Execute();
         yield return new WaitForSeconds(1.2f);
 
-        // Step 2: Exploration
+        //Exploration
         Debug.Log("<color=orange>[Step 2] ExplorationAI executing...</color>");
-        subAIs[1].Execute();
+        ai.subAIs[1].Execute();
         yield return new WaitForSeconds(1.2f);
 
-        // Step 3: Combat
+        //Combat
         Debug.Log("<color=orange>[Step 3] CombatAI executing...</color>");
-        subAIs[2].Execute();
+        ai.subAIs[2].Execute();
         yield return new WaitForSeconds(1.2f);
 
         Debug.Log("<color=yellow>=== AI Turn End ===</color>");
@@ -109,21 +100,36 @@ public class TestContext : IAIContext
 
     public List<int> GetOwnedUnitIds() => new List<int> { 1, 2 };
     public Vector3 GetUnitPosition(int unitId) => aiUnits[unitId - 1].transform.position;
-    public string GetUnitType(int unitId) => "Soldier";
+    public string GetUnitType(int unitId) => "Builder";
     public float GetUnitAttackRange(int unitId) => 2.5f;
 
     public bool IsUnitVisibleToPlayer(int unitId)
-    {
-        //Unit 2 is "aggressive" (yellow), unit 1 is not
-        return unitId == 2;
+    {        
+        return unitId == 2; //Unit 1 (yellow) is dormant, Unit 2 (orange) is aggressive
     }
 
     public List<int> GetOwnedBaseIds() => new List<int> { 10 };
     public Vector3 GetBasePosition(int baseId) => aiBase.transform.position;
     public int GetBaseHP(int baseId) => 100;
-    public bool CanProduceUnit(int baseId) => true;
+    public bool CanProduceUnit(int baseId)
+    {
+        if (IsBaseOccupied(baseId)) 
+            return false;
+        return aiUnits.Count < 3;
+    }
+
     public bool CanUpgradeBase(int baseId) => false;
-    public int GetBaseUnitCount(int baseId) => 2;
+    public int GetBaseUnitCount(int baseId) => aiUnits.Count;
+
+    public bool IsBaseOccupied(int baseId)
+    {
+        foreach (var unit in aiUnits)
+        {
+            if (Vector3.Distance(unit.transform.position, aiBase.transform.position) < 1.5f)
+                return true;
+        }
+        return false;
+    }
 
     public List<Vector3> GetRuinLocations() => new List<Vector3> { new Vector3(-2, 0, 2) };
     public List<Vector3> GetCacheLocations() => new List<Vector3> { new Vector3(3, 0, -3) };
@@ -213,12 +219,13 @@ public class TestActor : MonoBehaviour, IAIActor
     }
 
     //Base Actions
-    public void ProduceUnit(int baseId, string unitType)
+    public void SpawnUnit(int baseId, string unitType)
     {
         Debug.Log($"[TestActor] Base {baseId} produces {unitType}");
         var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.position = baseObj.transform.position + new Vector3(0, 1, 2);
         cube.GetComponent<Renderer>().material.color = new Color(1f, 0.6f, 0.6f);
+        units.Add(cube);
     }
 
     public void UpgradeBase(int baseId)

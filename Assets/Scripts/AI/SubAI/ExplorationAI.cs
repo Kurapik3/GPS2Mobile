@@ -23,12 +23,14 @@ public class ExplorationAI : ISubAI
     public void Execute()
     {
         var units = context.GetOwnedUnitIds();
-        if (units == null || units.Count == 0) return;
+        if (units == null || units.Count == 0) 
+            return;
 
         foreach (var unitId in units)
         {
             //Skip units that are already aggressive (visible to player)
-            if (context.IsUnitVisibleToPlayer(unitId)) continue;
+            if (context.IsUnitVisibleToPlayer(unitId)) 
+                continue;
 
             Vector3 pos = context.GetUnitPosition(unitId);
 
