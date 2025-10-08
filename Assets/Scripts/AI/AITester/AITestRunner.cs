@@ -11,7 +11,6 @@ using static UnityEngine.GraphicsBuffer;
 public class AITestRunner : MonoBehaviour
 {
     [Header("Map Reference")]
-    [SerializeField] private GameObject mapPrefabInstance;
     [SerializeField] private float hexSize = 1f;
 
     private AIController ai;
@@ -21,17 +20,15 @@ public class AITestRunner : MonoBehaviour
 
     void Start()
     {
-        //Find or use the map instance
-        if (mapPrefabInstance == null)
+        mapGenerator = FindFirstObjectByType<MapGenerator>();
+        if (mapGenerator == null)
         {
-            Debug.LogError("No map prefab assigned!");
+            Debug.LogError("No MapGenerator found in the scene!");
             return;
         }
 
-        // Instantiate prefab in scene
-        GameObject mapInstance = Instantiate(mapPrefabInstance);
-        mapGenerator = mapInstance.GetComponent<MapGenerator>();
         mapGenerator.LayoutGrid();
+
 
         Debug.Log($"[AITestRunner] Map loaded with {MapGenerator.AllTiles.Count} tiles");
 
