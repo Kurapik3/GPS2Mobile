@@ -14,7 +14,7 @@ public class MapGenerator : MonoBehaviour
     [Tooltip("For Hexagon")]
     [SerializeField] private int mapRadius = 2;
     [SerializeField] private HexTileGenerationSettings generationSettings;
-    public static Dictionary<Vector2Int, HexTile> AllTiles { get; private set; } = new();
+    public Dictionary<Vector2Int, HexTile> AllTiles { get; private set; } = new();
     private void Awake()
     {
         RebuildTileDictionary();
@@ -28,23 +28,16 @@ public class MapGenerator : MonoBehaviour
     }
     private void Start()
     {
-        //RebuildAllStructures();
+        RebuildTileDictionary();
         var fog = GetComponent<FogSystem>();
         if (fog != null)
+        {
             fog.InitializeFog();
-
+        }
         var dynamic = GetComponent<DynamicTileGenerator>();
         if (dynamic != null)
-            dynamic.GenerateDynamicElements();
-    }
-    public void RebuildAllStructures()
-    {
-        foreach (var tile in MapGenerator.AllTiles.Values)
         {
-            if (tile.HasStructure)
-            {
-                tile.RebuildStructure();
-            }
+            dynamic.GenerateDynamicElements();
         }
     }
     
@@ -52,13 +45,12 @@ public class MapGenerator : MonoBehaviour
     {
         AllTiles.Clear();
         HexTile[] tiles = GetComponentsInChildren<HexTile>(true);
-        Debug.Log($"[MapGenerator] Found {tiles.Length} HexTile components");
         foreach (var tile in tiles)
         {
             Vector2Int key = new Vector2Int(tile.q, tile.r);
             AllTiles[key] = tile;
         }
-        Debug.Log($"Map Generator: Rebuilt dictionary with {AllTiles.Count} tiles.");
+        MapManager.Instance?.RegisterTiles(new Dictionary<Vector2Int, HexTile>(AllTiles));
     }
 #if UNITY_EDITOR
     private void OnValidate()
@@ -74,6 +66,7 @@ public class MapGenerator : MonoBehaviour
     {
         Clear();
         LayoutHexagonGrid();
+        RebuildTileDictionary();
         foreach (var tile in AllTiles.Values) //set neighbouring tiles
         {
             tile.FindNeighbors();
@@ -123,15 +116,15 @@ public class MapGenerator : MonoBehaviour
         {
             Debug.LogError("No prefab assigned!");
         }
-        Vector2Int key = new(q, r);
-        if(AllTiles.ContainsKey(key))
-        {
-            Debug.LogWarning($"Duplicate tile at {q},{r}");
-        }
-        else
-        {
-            AllTiles[key] = tile;
-        }
+        //Vector2Int key = new(q, r);
+        //if(AllTiles.ContainsKey(key))
+        //{
+        //    Debug.LogWarning($"Duplicate tile at {q},{r}");
+        //}
+        //else
+        //{
+        //    AllTiles[key] = tile;
+        //}
     }
 
     [ContextMenu("Save As Prefab")]
@@ -174,6 +167,7 @@ public class MapGenerator : MonoBehaviour
             DestroyImmediate(transform.GetChild(i).gameObject);
         }
         AllTiles.Clear();
+        MapManager.Instance?.Clear();
     }
     
 #if UNITY_EDITOR

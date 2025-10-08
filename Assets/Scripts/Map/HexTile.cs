@@ -98,13 +98,26 @@ public class HexTile : MonoBehaviour
             tile.AddComponent<MeshCollider>().sharedMesh = mf.sharedMesh;
         }
     }
+    public bool IsWalkable
+    {
+        get
+        {
+            //putt condition here
+            //if(tile has an unwalkable object)
+            //return false
+
+            //otherwise it is true
+            return true;
+        }
+    }
+
     public void FindNeighbors()
     {
         neighbours.Clear();
         foreach (var dir in HexCoordinates.Directions)
         {
             Vector2Int key = new Vector2Int(q + dir.x, r + dir.y);
-            if (MapGenerator.AllTiles.TryGetValue(key, out HexTile neighbor))
+            if (MapManager.Instance.TryGetTile(key, out HexTile neighbor))
             {
                 neighbours.Add(neighbor);
             }
@@ -137,49 +150,7 @@ public class HexTile : MonoBehaviour
         }
         fogInstance = null;
     }
-    public void SetStructure(int index)
-    {
-        structureIndex = index;
 
-        RebuildStructure();
-    }
-
-    public void ClearStructure()
-    {
-        structureIndex = -1;
-        if (structureTile != null)
-        {
-            if (Application.isPlaying)
-                Destroy(structureTile.gameObject);
-            else
-                DestroyImmediate(structureTile.gameObject);
-        }
-    }
-
-    public void RebuildStructure()
-    {
-        // Remove old
-        if (structureTile != null)
-        {
-            Destroy(structureTile.gameObject);
-            structureTile = null;
-        }
-
-        if (structureIndex >= 0)
-        {
-            GameObject go = new GameObject("Structure");
-            go.transform.SetParent(transform, false);
-            structureTile = go.AddComponent<StructureTile>();
-            structureTile.selectedIndex = structureIndex;
-            structureTile.structureDatabase = Resources.Load<StructureDatabase>("StructureDatabase"); // or assign via reference
-
-            // At runtime, apply immediately
-            if (Application.isPlaying)
-            {
-                structureTile.ApplyStructure(); // You'll need a runtime version!
-            }
-        }
-    }
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {

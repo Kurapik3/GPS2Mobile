@@ -3,31 +3,31 @@ using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.SceneManagement;
 #endif
 public class StructureTile : MonoBehaviour
 {
     [Header("Structure Settings")]
     [SerializeField] public StructureDatabase structureDatabase;
     //[HideInInspector] public string selectedStructureName;
-    [SerializeField] public int selectedIndex = 0;
+    [HideInInspector] public int selectedIndex = 0;
     private GameObject structureInstance;
 
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        // auto-assign global DB if missing
         if (structureDatabase == null)
         {
             structureDatabase = Resources.Load<StructureDatabase>("StructureDatabase");
         }
         if (!Application.isPlaying && structureDatabase != null)
         {
-            // Delay call to avoid OnValidate restrictions
             EditorApplication.delayCall += () =>
             {
-                if (this != null) // check if object still exists
+                if (this != null)
+                {
                     ApplyStructure();
+                }
+                    
             };
         }
     }
@@ -41,7 +41,15 @@ public class StructureTile : MonoBehaviour
 
     public void ApplyStructure()
     {
-#if UNITY_EDITOR
+        //if (PrefabUtility.IsPartOfPrefabAsset(gameObject))
+        //{
+        //    if (structureInstance != null)
+        //    {
+        //        DestroyImmediate(structureInstance);
+        //        structureInstance = null;
+        //    }
+        //    return;
+        //}
         if (structureDatabase == null || structureDatabase.structures == null || structureDatabase.structures.Count == 0)
         {
             Debug.LogWarning($"[{name}] No StructureDatabase or entries found!");
@@ -55,25 +63,26 @@ public class StructureTile : MonoBehaviour
             return;
         }
 
-        Transform meshChild = transform.Find("Mesh");
-        Transform parentTarget = meshChild != null ? meshChild : transform;
+        //Transform meshChild = transform.Find("Mesh");
+        //Transform parentTarget = meshChild != null ? meshChild : transform;
 
         if (structureInstance != null)
         {
             if (Application.isPlaying)
+            {
                 Destroy(structureInstance);
+            }
             else
+            {
                 DestroyImmediate(structureInstance);
+            }
         }
 
-        structureInstance = Instantiate(data.prefab, transform);
+        structureInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.prefab, transform);
         structureInstance.name = "Structure";
         structureInstance.transform.localPosition = data.yOffset;
         structureInstance.transform.localRotation = Quaternion.identity;
         structureInstance.transform.localScale = Vector3.one;
-
-        Debug.Log($"[{name}] Structure '{data.name}' applied correctly under '{parentTarget.name}'");
-#endif
     }
 
 #endif

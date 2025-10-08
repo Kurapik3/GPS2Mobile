@@ -9,11 +9,10 @@ public class DynamicTileGenerator : MonoBehaviour
     
     public void GenerateDynamicElements()
     {
-        var allTiles = MapGenerator.AllTiles;
-        foreach (var tile in allTiles.Values)
+        foreach (var tile in MapManager.Instance.GetTiles())
         {
             //Checks if tiles already have a structure on it
-            if(tile.GetComponent<StructureTile>() != null)
+            if(tile.HasStructure)
             {
                 continue;
             }

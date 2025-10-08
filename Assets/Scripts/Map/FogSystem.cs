@@ -15,13 +15,9 @@ public class FogSystem : MonoBehaviour
     }
     private void GenerateInitialFog()
     {
-        var allTiles = MapGenerator.AllTiles;
-        foreach (var tile in allTiles.Values)
+        foreach (var tile in MapManager.Instance.GetTiles())
         {
             tile.RemoveFog();
-        }
-        foreach (var tile in allTiles.Values)
-        {
             tile.AddFog(fogPrefab);
         }
         // Reveal starting area
@@ -30,11 +26,8 @@ public class FogSystem : MonoBehaviour
 
     public void RevealTilesAround(Vector2Int center, int radius)
     {
-        var allTiles = MapGenerator.AllTiles;
-        foreach (var k in allTiles)
+        foreach (var (coord,tile) in MapManager.Instance.GetAllTiles())
         {
-            Vector2Int coord = k.Key;
-            HexTile tile = k.Value;
             int dist = HexCoordinates.Distance(center.x, center.y, coord.x, coord.y);
             if (dist <= radius)
             {
@@ -45,8 +38,7 @@ public class FogSystem : MonoBehaviour
 
     public void ResetFog()
     {
-        var allTiles = MapGenerator.AllTiles;
-        foreach (var tile in allTiles.Values)
+        foreach (var tile in MapManager.Instance.GetTiles())
         {
             tile.RemoveFog();
             tile.AddFog(fogPrefab);
