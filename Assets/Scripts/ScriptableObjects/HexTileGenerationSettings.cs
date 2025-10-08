@@ -4,7 +4,7 @@ public class HexTileGenerationSettings : ScriptableObject
 {
     [SerializeField] private GameObject normalPrefab;
     [SerializeField] private GameObject structurePrefab;
-    [SerializeField] private GameObject developmentPrefab;
+    //[SerializeField] private GameObject developmentPrefab;
 
     public GameObject GetTile(HexTile.TileType tileType)
     {
@@ -14,8 +14,8 @@ public class HexTileGenerationSettings : ScriptableObject
                 return normalPrefab;
             case HexTile.TileType.Structure:
                 return structurePrefab;
-            case HexTile.TileType.Development:
-                return developmentPrefab;
+            //case HexTile.TileType.Development:
+            //    return developmentPrefab;
         }
         return null;
     }
