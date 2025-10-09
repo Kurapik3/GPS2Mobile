@@ -10,7 +10,7 @@ public class HexTile : MonoBehaviour
     {
         Normal,
         Structure,
-        Development
+        //Development
     }
 
     [Header("References")]
@@ -22,7 +22,8 @@ public class HexTile : MonoBehaviour
 
     [Header("Tile Data")]
     [SerializeField] public TileType tileType;
-    public GameObject tile;
+    
+    [HideInInspector] public GameObject tile;
     //public GameObject fow; //"fog of war"
     //public Vector2Int offsetCoordinate;
     //public Vector3Int cubeCoordinate;
@@ -31,7 +32,12 @@ public class HexTile : MonoBehaviour
     //Computed properties
     public Vector2Int OffsetCoord => new Vector2Int(q + (r + (r % 2)) / 2, r);
     public Vector3Int CubeCoord => new Vector3Int(q, -q - r, r);
-
+    public GameObject fogInstance;
+    public bool IsFogged => fogInstance != null;
+    [Header("Structure Data (Saved)")]
+    public int structureIndex = -1; // -1 = no structure
+    private StructureTile structureTile;
+    public bool HasStructure => structureIndex >= 0;
     private void OnValidate()
     {
         // Only trigger update if we have settings assigned
@@ -41,6 +47,7 @@ public class HexTile : MonoBehaviour
         }
         // Mark dirty whenever tileType is changed in inspector
         isDirty = true;
+        EditorApplication.delayCall += HandleStructureComponent;
     }
 
     private void Update()
@@ -48,30 +55,14 @@ public class HexTile : MonoBehaviour
         if (!isDirty) return;
 
         // Destroy old visual if it exists
-        for(int i = transform.childCount - 1; i >= 0; i--)
+        var oldMesh = transform.Find("Mesh");
+        if (oldMesh != null)
         {
-            if(Application.isPlaying)
-            {
-                Destroy(transform.GetChild(i).gameObject);
-            }
+            if (Application.isPlaying)
+                Destroy(oldMesh.gameObject);
             else
-            {
-                DestroyImmediate(transform.GetChild(i).gameObject);
-            }
+                DestroyImmediate(oldMesh.gameObject);
         }
-        tile = null;
-
-        //if (tile != null)
-        //{
-        //    if (Application.isPlaying)
-        //    { 
-        //        Destroy(tile); 
-        //    }
-        //    else
-        //    { 
-        //        DestroyImmediate(tile);
-        //    }
-        //}
 
         // Spawn new one
         AddTile();
@@ -107,17 +98,57 @@ public class HexTile : MonoBehaviour
             tile.AddComponent<MeshCollider>().sharedMesh = mf.sharedMesh;
         }
     }
+    public bool IsWalkable
+    {
+        get
+        {
+            //putt condition here
+            //if(tile has an unwalkable object)
+            //return false
+
+            //otherwise it is true
+            return true;
+        }
+    }
+
     public void FindNeighbors()
     {
         neighbours.Clear();
         foreach (var dir in HexCoordinates.Directions)
         {
             Vector2Int key = new Vector2Int(q + dir.x, r + dir.y);
-            if (MapGenerator.AllTiles.TryGetValue(key, out HexTile neighbor))
+            if (MapManager.Instance.TryGetTile(key, out HexTile neighbor))
             {
                 neighbours.Add(neighbor);
             }
         }
+    }
+    public void AddFog(GameObject fogPrefab)
+    {
+        if (fogInstance != null || fogPrefab == null)
+        {
+            return;
+        }
+        fogInstance = Instantiate(fogPrefab, transform);
+        fogInstance.name = "Fog";
+        fogInstance.transform.localPosition = Vector3.zero;
+        
+    }
+    public void RemoveFog()
+    {
+        if (fogInstance == null)
+        {
+            return;
+        }
+        if (Application.isPlaying)
+        {
+            Destroy(fogInstance);
+        }
+        else
+        {
+            DestroyImmediate(fogInstance);
+        }
+        fogInstance = null;
     }
 
 #if UNITY_EDITOR
@@ -134,7 +165,6 @@ public class HexTile : MonoBehaviour
             Gizmos.DrawLine(transform.position, neighbour.transform.position);
         }
     }
-    
 #endif
 
     private Material originalMaterial;
@@ -167,71 +197,31 @@ public class HexTile : MonoBehaviour
                 renderer.material = originalMaterial;
         }
     }
+#if UNITY_EDITOR
+    private void HandleStructureComponent()
+    {
+        if (this == null) return;
+        
+        var structureTile = GetComponent<StructureTile>();
+
+        if (tileType == TileType.Structure)
+        {
+            if (structureTile == null)
+            {
+                gameObject.AddComponent<StructureTile>();
+            }
+        }
+        else
+        {
+            if (structureTile != null)
+            {
+                DestroyImmediate(structureTile, true);
+            }
+        }
+
+        // Force inspector refresh
+        EditorUtility.SetDirty(this);
+    }
+#endif
 }
 
-/*
-using System.Collections.Generic;
-using NUnit.Framework;
-using UnityEngine;
-[ExecuteInEditMode]
-public class HexTile : MonoBehaviour
-{
-    public HexTileGenerationSettings settings;
-    public HexTileGenerationSettings.TileType tileType;
-    public GameObject tile;
-    public GameObject fow;
-    public Vector2Int offsetCoordinate;
-    public Vector3Int cubeCoordinate;
-    public List<HexTile> neighbours;
-    private bool isDirty = false;
-    private void OnValidate()
-    {
-        if (tile == null) 
-        { 
-            return;
-        }
-        isDirty = true;
-    }
-    private void Update()
-    {
-        if(!isDirty)
-        {
-            if(Application.isPlaying)
-            {
-                GameObject.Destroy(tile);
-            }
-            else
-            {
-                GameObject.DestroyImmediate(tile);
-            }
-            AddTile();
-            isDirty = false;
-        }
-    }
-    public void RollTileType()
-    {
-        tileType = (HexTileGenerationSettings.TileType)Random.Range(0, 3);
-    }
-    public void AddTile()
-    {
-        tile = GameObject.Instantiate(settings.GetTile(tileType));
-        if(gameObject.GetComponent<MeshCollider>() == null )
-        {
-            MeshCollider collider = gameObject.AddComponent<MeshCollider>();
-            collider.sharedMesh = GetComponentInChildren<MeshFilter>().mesh;
-        }
-        //transform.AddChild(tile);
-    }
-
-    public void OnDrawGizmosSelected()
-    {
-        foreach(HexTile neighbour in neighbours)
-        {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(transform.position, 0.1f);
-            Gizmos.color = Color.white;
-            Gizmos.DrawLine(transform.position,neighbour.transform.position);
-        }
-    }
-}
-*/
