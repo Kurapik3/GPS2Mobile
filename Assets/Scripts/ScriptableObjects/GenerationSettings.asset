@@ -12,6 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce37140bc6138174294a7a24d21b3502, type: 3}
   m_Name: GenerationSettings
   m_EditorClassIdentifier: 
-  normalPrefab: {fileID: 7944917379638234725, guid: d840b92bddd637143a2a3699d8970dc4, type: 3}
-  structurePrefab: {fileID: 5140168461320588190, guid: 8ed1200ae237a7545b9c8783c232ec86, type: 3}
-  developmentPrefab: {fileID: 7705312782598831549, guid: b5f8f2b1d2ae3194d9f213e2fc578362, type: 3}
+  normalPrefab: {fileID: 1708273452855279110, guid: 191b27ee6c488004b957c8d0ab60f700, type: 3}
+  structurePrefab: {fileID: 1708273452855279110, guid: 191b27ee6c488004b957c8d0ab60f700, type: 3}
