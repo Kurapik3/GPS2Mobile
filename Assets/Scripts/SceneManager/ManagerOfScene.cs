@@ -24,6 +24,7 @@ public class ManagerOfScene : MonoBehaviour
 
     [SerializeField] private CanvasGroup settingButton;
     [SerializeField] private CanvasGroup creditsButton;
+    
 
     private Vector2 centrePos;
     private Vector2 offScreenPos;

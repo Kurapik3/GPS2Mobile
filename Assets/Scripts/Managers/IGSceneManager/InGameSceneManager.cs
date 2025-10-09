@@ -7,6 +7,7 @@ public class InGameSceneManager : MonoBehaviour
     [SerializeField] private CanvasGroup settingButton;
     [SerializeField] private CanvasGroup techTreeButton;
     [SerializeField] private CanvasGroup endTurnButton;
+    [SerializeField] private CanvasGroup unitInteractable;
 
     [SerializeField] private RectTransform settingPanelMove;
 
@@ -29,14 +30,14 @@ public class InGameSceneManager : MonoBehaviour
     public void Setting()
     {
         SettingPopUp();
-
+        unitInteractable.interactable = false;
         ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
     public void CloseSetting()
     {
         settingPanelMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
-
+        unitInteractable.interactable = true;
         ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
