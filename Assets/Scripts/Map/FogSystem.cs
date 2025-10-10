@@ -26,8 +26,10 @@ public class FogSystem : MonoBehaviour
 
     public void RevealTilesAround(Vector2Int center, int radius)
     {
-        foreach (var (coord,tile) in MapManager.Instance.GetAllTiles())
+        foreach (var kv in MapManager.Instance.GetAllTiles())
         {
+            Vector2Int coord = kv.Key;
+            HexTile tile = kv.Value;
             int dist = HexCoordinates.Distance(center.x, center.y, coord.x, coord.y);
             if (dist <= radius)
             {
