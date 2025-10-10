@@ -1,44 +1,20 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEditor.Experimental.SceneManagement;
+using UnityEngine.SceneManagement;
 #endif
 public class StructureTile : MonoBehaviour
 {
     [Header("Structure Settings")]
     [SerializeField] public StructureDatabase structureDatabase;
-    //[HideInInspector] public string selectedStructureName;
-    [HideInInspector] public int selectedIndex = 0;
-    private GameObject structureInstance;
+    [HideInInspector] public int selectedIndex = -1;
+
+    // runtime/scene instance (created by ApplyStructure)
+    [HideInInspector] public GameObject structureInstance;
 
 #if UNITY_EDITOR
-    private void OnValidate()
-    {
-        if (structureDatabase == null)
-        {
-            structureDatabase = Resources.Load<StructureDatabase>("StructureDatabase");
-        }
-        if (!Application.isPlaying && structureDatabase != null)
-        {
-            EditorApplication.delayCall += () =>
-            {
-                if (this != null)
-                {
-                    ApplyStructure();
-                }
-                    
-            };
-        }
-    }
-    private void OnEnable()
-    {
-        if (!Application.isPlaying && structureDatabase != null)
-        {
-            ApplyStructure();
-        }
-    }
-
     public void ApplyStructure()
     {
         //if (PrefabUtility.IsPartOfPrefabAsset(gameObject))
@@ -55,37 +31,138 @@ public class StructureTile : MonoBehaviour
             Debug.LogWarning($"[{name}] No StructureDatabase or entries found!");
             return;
         }
-
-        var data = structureDatabase.structures[Mathf.Clamp(selectedIndex, 0, structureDatabase.structures.Count - 1)];
-        if (data.prefab == null)
+        selectedIndex = Mathf.Clamp(selectedIndex, 0, structureDatabase.structures.Count - 1);
+        var data = structureDatabase.structures[selectedIndex];
+        if (data == null || data.prefab == null)
         {
             Debug.LogWarning($"[{name}] Structure prefab missing!");
             return;
         }
 
-        //Transform meshChild = transform.Find("Mesh");
-        //Transform parentTarget = meshChild != null ? meshChild : transform;
+        Transform meshChild = transform.Find("Mesh");
+        Transform parentTarget = meshChild != null ? meshChild : transform;
 
-        if (structureInstance != null)
+
+        //remove old
+        Transform old = parentTarget.Find("Structure");
+        if (old != null)
         {
-            if (Application.isPlaying)
-            {
-                Destroy(structureInstance);
-            }
-            else
-            {
-                DestroyImmediate(structureInstance);
-            }
+            DestroyImmediate(old.gameObject);
         }
 
-        structureInstance = (GameObject)PrefabUtility.InstantiatePrefab(data.prefab, transform);
-        structureInstance.name = "Structure";
-        structureInstance.transform.localPosition = data.yOffset;
-        structureInstance.transform.localRotation = Quaternion.identity;
-        structureInstance.transform.localScale = Vector3.one;
+        PrefabStage stage = PrefabStageUtility.GetCurrentPrefabStage();
+        bool inPrefabStage = stage != null && stage.IsPartOfPrefabContents(gameObject);
+        bool isPrefabAsset = PrefabUtility.IsPartOfPrefabAsset(gameObject);
+
+        GameObject inst = null;
+        if (inPrefabStage)
+        {
+            // Prefab Mode (editing the prefab contents scene) — instantiate without parent,
+            // move to the prefab contents scene, then parent it to the Mesh child.
+            inst = (GameObject)PrefabUtility.InstantiatePrefab(data.prefab);
+            SceneManager.MoveGameObjectToScene(inst, stage.scene);
+            inst.transform.SetParent(parentTarget, false);
+        }
+        else if (!isPrefabAsset)
+        {
+            // Scene instance — safe to instantiate directly with parent
+            inst = (GameObject)PrefabUtility.InstantiatePrefab(data.prefab, parentTarget);
+        }
+        else
+        {
+            // Prefab asset in Project inspector — this is a tricky case and we don't modify asset here.
+            Debug.LogWarning($"Cannot instantiate structure into prefab asset directly. Open the prefab in Prefab Mode or place the map in a scene and apply there: {name}");
+            // still update metadata on HexTile if present
+        }
+
+        if (inst != null)
+        {
+            inst.name = "Structure";
+            inst.transform.localPosition = data.yOffset;
+            inst.transform.localRotation = Quaternion.identity;
+            inst.transform.localScale = Vector3.one;
+
+            structureInstance = inst;
+            EditorUtility.SetDirty(inst);
+        }
+
+        // update HexTile metadata so SaveMapData captures it
+        HexTile hex = GetComponent<HexTile>();
+        if (hex != null)
+        {
+            hex.structureIndex = selectedIndex;
+            hex.StructureName = data.structureName;
+            EditorUtility.SetDirty(hex);
+        }
+
+        EditorUtility.SetDirty(this);
+        // mark scene/prefab-dirty so user can save
+        if (inPrefabStage)
+        {
+            EditorSceneManager.MarkSceneDirty(stage.scene);
+        }
+        else
+        { 
+            EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        }
+
+        Debug.Log($"[{name}] Structure '{data.structureName}' applied.");
+
+        //add new
+        //GameObject structure = (GameObject)PrefabUtility.InstantiatePrefab(data.prefab, transform);
+        //structure.name = "Structure";
+        //structure.transform.localPosition = data.yOffset;
+        //EditorUtility.SetDirty(this);
     }
 
+    // Apply by name (used when loading MapData)
+    public void ApplyStructureByName(string name)
+    {
+        if (structureDatabase == null)
+        { 
+            structureDatabase = Resources.Load<StructureDatabase>("StructureDatabase"); 
+        }
+
+        if (structureDatabase == null)
+        {
+            Debug.LogWarning("StructureDatabase missing (Resources/StructureDatabase not found).");
+            return;
+        }
+
+        int idx = structureDatabase.structures.FindIndex(s => s.structureName == name);
+        if (idx >= 0)
+        {
+            selectedIndex = idx;
+            ApplyStructure();
+        }
+        else
+        {
+            Debug.LogWarning($"Structure '{name}' not found in StructureDatabase.");
+        }
+    }
+
+    // remove structure object and clear hex metadata
+    public void ClearStructure()
+    {
+        Transform old = transform.Find("Structure");
+        if (old != null)
+        {
+            DestroyImmediate(old.gameObject);
+        }
+
+        HexTile hex = GetComponent<HexTile>();
+        if (hex != null)
+        {
+            hex.structureIndex = -1;
+            hex.StructureName = null;
+            EditorUtility.SetDirty(hex);
+        }
+
+        EditorUtility.SetDirty(this);
+        EditorSceneManager.MarkSceneDirty(gameObject.scene);
+    }
 #endif
+    
 }
 #if UNITY_EDITOR
 [CustomEditor(typeof(StructureTile))]
@@ -95,28 +172,37 @@ public class StructureTileEditor : Editor
     {
         serializedObject.Update();
         StructureTile tile = (StructureTile)target;
-        // Show database field
         EditorGUILayout.PropertyField(serializedObject.FindProperty("structureDatabase"));
 
-        // If database exists, show dropdown    
-        StructureDatabase db = (StructureDatabase)serializedObject.FindProperty("structureDatabase").objectReferenceValue;
 
+        var dbProp = serializedObject.FindProperty("structureDatabase");
+        var db = dbProp.objectReferenceValue as StructureDatabase;
         if (db != null && db.structures != null && db.structures.Count > 0)
         {
-            SerializedProperty selectedIndexProp = serializedObject.FindProperty("selectedIndex");
-            string[] options = db.structures.ConvertAll(s => s.name).ToArray();
+            SerializedProperty idxProp = serializedObject.FindProperty("selectedIndex");
+            string[] names = db.GetAllNames();
 
             EditorGUI.BeginChangeCheck();
-            selectedIndexProp.intValue = EditorGUILayout.Popup("Structure Type", selectedIndexProp.intValue, options);
+            idxProp.intValue = EditorGUILayout.Popup("Structure Type", Mathf.Clamp(idxProp.intValue, 0, names.Length - 1), names);
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
                 tile.ApplyStructure(); // Auto-update when changed
             }
+
+            GUILayout.Space(6);
+            if (GUILayout.Button("Apply Structure (force)"))
+            {
+                tile.ApplyStructure();
+            }
+            if (GUILayout.Button("Clear Structure"))
+            {
+                tile.ClearStructure();
+            }
         }
         else
         {
-            EditorGUILayout.HelpBox("No StructureDatabase assigned or empty!", MessageType.Warning);
+            EditorGUILayout.HelpBox("No StructureDatabase assigned or empty! Create/assign one to choose structures.", MessageType.Warning);
         }
         serializedObject.ApplyModifiedProperties();
     }
