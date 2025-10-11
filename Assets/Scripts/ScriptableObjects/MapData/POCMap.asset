@@ -71,8 +71,8 @@ MonoBehaviour:
   - q: 1
     r: -7
     tileType: 1
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: 2
     r: -7
     tileType: 0
@@ -115,9 +115,9 @@ MonoBehaviour:
     structureName: 
   - q: -1
     r: -6
-    tileType: 0
-    hasStructure: 0
-    structureName: 
+    tileType: 1
+    hasStructure: 1
+    structureName: EnemyBase
   - q: 0
     r: -6
     tileType: 0
@@ -130,9 +130,9 @@ MonoBehaviour:
     structureName: 
   - q: 2
     r: -6
-    tileType: 0
-    hasStructure: 0
-    structureName: 
+    tileType: 1
+    hasStructure: 1
+    structureName: EnemyBase
   - q: 3
     r: -6
     tileType: 0
@@ -152,7 +152,7 @@ MonoBehaviour:
     r: -6
     tileType: 1
     hasStructure: 1
-    structureName: Ruin
+    structureName: EnemyBase
   - q: 7
     r: -6
     tileType: 0
@@ -171,8 +171,8 @@ MonoBehaviour:
   - q: -2
     r: -5
     tileType: 1
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: -1
     r: -5
     tileType: 0
@@ -282,7 +282,7 @@ MonoBehaviour:
     r: -4
     tileType: 1
     hasStructure: 1
-    structureName: Ruin
+    structureName: Grove
   - q: 8
     r: -4
     tileType: 0
@@ -305,9 +305,9 @@ MonoBehaviour:
     structureName: 
   - q: -2
     r: -3
-    tileType: 0
-    hasStructure: 0
-    structureName: 
+    tileType: 1
+    hasStructure: 1
+    structureName: EnemyBase
   - q: -1
     r: -3
     tileType: 0
@@ -316,8 +316,8 @@ MonoBehaviour:
   - q: 0
     r: -3
     tileType: 1
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: 1
     r: -3
     tileType: 0
@@ -346,164 +346,164 @@ MonoBehaviour:
   - q: 6
     r: -3
     tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 7
+    r: -3
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 8
+    r: -3
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -6
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -5
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -4
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -3
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -2
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -1
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 0
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 1
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 2
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 3
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 4
+    r: -2
+    tileType: 1
+    hasStructure: 0
+    structureName: 
+  - q: 5
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 6
+    r: -2
+    tileType: 1
+    hasStructure: 0
+    structureName: 
+  - q: 7
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 8
+    r: -2
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -7
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -6
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -5
+    r: -1
+    tileType: 1
+    hasStructure: 1
+    structureName: EnemyBase
+  - q: -4
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -3
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -2
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: -1
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 0
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 1
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 2
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 3
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 4
+    r: -1
+    tileType: 1
+    hasStructure: 1
+    structureName: Grove
+  - q: 5
+    r: -1
+    tileType: 0
+    hasStructure: 0
+    structureName: 
+  - q: 6
+    r: -1
+    tileType: 1
     hasStructure: 1
     structureName: Base
   - q: 7
-    r: -3
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 8
-    r: -3
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -6
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -5
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -4
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -3
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -2
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -1
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 0
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 1
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 2
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 3
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 4
-    r: -2
-    tileType: 1
-    hasStructure: 1
-    structureName: Ruin
-  - q: 5
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 6
-    r: -2
-    tileType: 1
-    hasStructure: 1
-    structureName: Base
-  - q: 7
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 8
-    r: -2
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -7
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -6
-    r: -1
-    tileType: 0
-    hasStructure: 1
-    structureName: EnemyBase
-  - q: -5
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -4
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -3
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -2
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: -1
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 0
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 1
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 2
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 3
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 4
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 5
-    r: -1
-    tileType: 0
-    hasStructure: 0
-    structureName: 
-  - q: 6
-    r: -1
-    tileType: 1
-    hasStructure: 1
-    structureName: Base
-  - q: 7
     r: -1
     tileType: 0
     hasStructure: 0
@@ -536,8 +536,8 @@ MonoBehaviour:
   - q: -4
     r: 0
     tileType: 1
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: -3
     r: 0
     tileType: 0
@@ -545,9 +545,9 @@ MonoBehaviour:
     structureName: 
   - q: -2
     r: 0
-    tileType: 0
-    hasStructure: 0
-    structureName: 
+    tileType: 1
+    hasStructure: 1
+    structureName: EnemyBase
   - q: -1
     r: 0
     tileType: 0
@@ -556,8 +556,8 @@ MonoBehaviour:
   - q: 0
     r: 0
     tileType: 0
-    hasStructure: 1
-    structureName: Base
+    hasStructure: 0
+    structureName: 
   - q: 1
     r: 0
     tileType: 0
@@ -686,8 +686,8 @@ MonoBehaviour:
   - q: -7
     r: 2
     tileType: 1
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: -6
     r: 2
     tileType: 0
@@ -716,8 +716,8 @@ MonoBehaviour:
   - q: -1
     r: 2
     tileType: 1
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: 0
     r: 2
     tileType: 0
@@ -731,23 +731,23 @@ MonoBehaviour:
   - q: 2
     r: 2
     tileType: 1
-    hasStructure: 1
-    structureName: Ruin
-  - q: 3
-    r: 2
-    tileType: 0
     hasStructure: 0
     structureName: 
-  - q: 4
+  - q: 3
     r: 2
     tileType: 1
     hasStructure: 1
-    structureName: Ruin
-  - q: 5
+    structureName: Grove
+  - q: 4
     r: 2
-    tileType: 0
+    tileType: 1
     hasStructure: 0
     structureName: 
+  - q: 5
+    r: 2
+    tileType: 1
+    hasStructure: 1
+    structureName: Grove
   - q: 6
     r: 2
     tileType: 0
@@ -760,9 +760,9 @@ MonoBehaviour:
     structureName: 
   - q: -7
     r: 3
-    tileType: 0
-    hasStructure: 0
-    structureName: 
+    tileType: 1
+    hasStructure: 1
+    structureName: EnemyBase
   - q: -6
     r: 3
     tileType: 0
@@ -775,9 +775,9 @@ MonoBehaviour:
     structureName: 
   - q: -4
     r: 3
-    tileType: 0
-    hasStructure: 0
-    structureName: 
+    tileType: 1
+    hasStructure: 1
+    structureName: EnemyBase
   - q: -3
     r: 3
     tileType: 0
@@ -896,8 +896,8 @@ MonoBehaviour:
   - q: -7
     r: 5
     tileType: 1
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: -6
     r: 5
     tileType: 0
@@ -911,8 +911,8 @@ MonoBehaviour:
   - q: -4
     r: 5
     tileType: 1
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: -3
     r: 5
     tileType: 0
@@ -936,8 +936,8 @@ MonoBehaviour:
   - q: 1
     r: 5
     tileType: 0
-    hasStructure: 1
-    structureName: Ruin
+    hasStructure: 0
+    structureName: 
   - q: 2
     r: 5
     tileType: 0
@@ -975,9 +975,9 @@ MonoBehaviour:
     structureName: 
   - q: -3
     r: 6
-    tileType: 0
-    hasStructure: 0
-    structureName: 
+    tileType: 1
+    hasStructure: 1
+    structureName: EnemyBase
   - q: -2
     r: 6
     tileType: 0
@@ -986,8 +986,8 @@ MonoBehaviour:
   - q: -1
     r: 6
     tileType: 1
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: 0
     r: 6
     tileType: 0
@@ -1016,8 +1016,8 @@ MonoBehaviour:
   - q: -6
     r: 7
     tileType: 0
-    hasStructure: 1
-    structureName: EnemyBase
+    hasStructure: 0
+    structureName: 
   - q: -5
     r: 7
     tileType: 0
