@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureName: 
   prefab: {fileID: 0}
-  yOffset: {x: 0, y: 0, z: 0}
+  yOffset: {x: 0, y: 2, z: 0}
   blocksDynamic: 1

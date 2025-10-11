@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureName: Base
   prefab: {fileID: 7043572503555029761, guid: dd1a1d5dfd2fb884ab621715d1ee845a, type: 3}
-  yOffset: {x: 0, y: 0, z: 0}
+  yOffset: {x: 0, y: 2, z: 0}
   blocksDynamic: 1
