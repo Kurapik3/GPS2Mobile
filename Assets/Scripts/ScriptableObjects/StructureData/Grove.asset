@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09e3d7758c92bb94a922755c84ae15a6, type: 3}
   m_Name: Grove
   m_EditorClassIdentifier: 
-  structureName: 
-  prefab: {fileID: 0}
+  structureName: Grove
+  prefab: {fileID: 919132149155446097, guid: cb274335626acc94dbbef2be70d71bcd, type: 3}
   yOffset: {x: 0, y: 2, z: 0}
   blocksDynamic: 1
