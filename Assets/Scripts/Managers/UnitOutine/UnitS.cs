@@ -15,7 +15,6 @@ public class UnitS : MonoBehaviour
     public List<GameObject> unitsSelected = new List<GameObject>();
 
     [SerializeField] private LayerMask clickable;
-    [SerializeField] private LayerMask ground;
 
     [SerializeField] private RectTransform unitInfoPanelMove;
     [SerializeField] private RectTransform unitStatusWindowMove;
