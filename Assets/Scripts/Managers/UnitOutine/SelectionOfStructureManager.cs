@@ -1,23 +1,21 @@
-﻿using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
-using UnityEngine.UI;
 
-public class UnitS : MonoBehaviour
+public class SelectionOfStructureManager : MonoBehaviour
 {
-    public static UnitS instance;
+    public static SelectionOfStructureManager instance;
 
-    public List<GameObject> allUnitList = new List<GameObject>();
-    public List<GameObject> unitsSelected = new List<GameObject>();
+    public List<GameObject> allStructureList = new List<GameObject>();
+    public List<GameObject> structureSelected = new List<GameObject>();
 
-    [SerializeField] private LayerMask clickable;
+    [SerializeField] private LayerMask structure;
 
-    [SerializeField] private RectTransform unitInfoPanelMove;
-    [SerializeField] private RectTransform unitStatusWindowMove;
+    [SerializeField] private RectTransform sturctureInfoPanelMove;
+    [SerializeField] private RectTransform sturctureStatusWindowMove;
     [SerializeField] private Ease easing;
 
     [SerializeField] private float moveDuration = 1f;
@@ -49,8 +47,8 @@ public class UnitS : MonoBehaviour
     private void Start()
     {
         cam = Camera.main;
-        unitInfoPanelMove.anchoredPosition = offScreenPos;
-        unitStatusWindowMove.anchoredPosition = offScreenPos;
+        sturctureInfoPanelMove.anchoredPosition = offScreenPos;
+        sturctureStatusWindowMove.anchoredPosition = offScreenPos;
     }
 
     private void Update()
@@ -66,32 +64,32 @@ public class UnitS : MonoBehaviour
             if (EventSystem.current.IsPointerOverGameObject(primaryTouch.touchId.ReadValue())) return;
 
             Ray ray = cam.ScreenPointToRay(touchPosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, clickable))
+            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, structure))
             {
                 SelectByClicking(hit.collider.gameObject);
-                UnitInfoPanelMove();
+                StructureInfoPanelMove();
             }
             else
             {
                 DeselectAll();
-                CloseUnitInfoPanel();
+                CloseStructureInfoPanel();
             }
         }
     }
 
     private void DeselectAll()
     {
-        foreach (var unit in unitsSelected)
+        foreach (var unit in structureSelected)
         {
             TriggerSelectionIndicator(unit, false);
         }
-        unitsSelected.Clear();
+        structureSelected.Clear();
     }
 
     private void SelectByClicking(GameObject unit)
     {
         DeselectAll();
-        unitsSelected.Add(unit);
+        structureSelected.Add(unit);
         TriggerSelectionIndicator(unit, true);
     }
 
@@ -100,41 +98,40 @@ public class UnitS : MonoBehaviour
         unit.transform.GetChild(0).gameObject.SetActive(isVisible);
     }
 
-    private void UnitInfoPanelMove()
+    private void StructureInfoPanelMove()
     {
-        unitInfoPanelMove.DOAnchorPos(bottomPos, moveDuration).SetEase(Ease.OutBack);
+        sturctureInfoPanelMove.DOAnchorPos(bottomPos, moveDuration).SetEase(Ease.OutBack);
     }
 
-    private void UnitStatusWindowMove()
+    private void StructureStatusWindowMove()
     {
-        unitStatusWindowMove.DOAnchorPos(centrePos, moveDuration).SetEase(Ease.OutBack);
+        sturctureStatusWindowMove.DOAnchorPos(centrePos, moveDuration).SetEase(Ease.OutBack);
     }
 
-    private void CloseUnitStatusWindow()
+    private void CloseStructureStatusWindow()
     {
-        unitStatusWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+        sturctureStatusWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
     }
 
-    private void CloseUnitInfoPanel()
+    private void CloseStructureInfoPanel()
     {
-        unitInfoPanelMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.InBack);
+        sturctureInfoPanelMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.InBack);
     }
 
     public void OpenStatusWindow()
     {
         isStatusClosed = false;
         infoBar.interactable = false;
-        panel.blocksRaycasts = true; 
-        UnitStatusWindowMove();
+        panel.blocksRaycasts = true;
+        StructureStatusWindowMove();
     }
 
     public void CloseStats()
     {
         infoBar.interactable = true;
-        CloseUnitStatusWindow();
+        CloseStructureStatusWindow();
         isStatusClosed = true;
         IsUIBlockingInput = false;
         panel.blocksRaycasts = false;
     }
 }
-
