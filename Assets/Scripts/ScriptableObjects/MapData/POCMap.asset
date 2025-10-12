@@ -70,9 +70,9 @@ MonoBehaviour:
     structureName: 
   - q: 1
     r: -7
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: 2
     r: -7
     tileType: 0
@@ -170,9 +170,9 @@ MonoBehaviour:
     structureName: 
   - q: -2
     r: -5
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: -1
     r: -5
     tileType: 0
@@ -215,9 +215,9 @@ MonoBehaviour:
     structureName: 
   - q: 7
     r: -5
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: 8
     r: -5
     tileType: 0
@@ -315,9 +315,9 @@ MonoBehaviour:
     structureName: 
   - q: 0
     r: -3
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: 1
     r: -3
     tileType: 0
@@ -410,9 +410,9 @@ MonoBehaviour:
     structureName: 
   - q: 4
     r: -2
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: 5
     r: -2
     tileType: 0
@@ -420,9 +420,9 @@ MonoBehaviour:
     structureName: 
   - q: 6
     r: -2
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: 7
     r: -2
     tileType: 0
@@ -535,9 +535,9 @@ MonoBehaviour:
     structureName: 
   - q: -4
     r: 0
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: -3
     r: 0
     tileType: 0
@@ -685,9 +685,9 @@ MonoBehaviour:
     structureName: 
   - q: -7
     r: 2
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: -6
     r: 2
     tileType: 0
@@ -715,9 +715,9 @@ MonoBehaviour:
     structureName: 
   - q: -1
     r: 2
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: 0
     r: 2
     tileType: 0
@@ -730,9 +730,9 @@ MonoBehaviour:
     structureName: 
   - q: 2
     r: 2
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: 3
     r: 2
     tileType: 1
@@ -740,7 +740,7 @@ MonoBehaviour:
     structureName: Grove
   - q: 4
     r: 2
-    tileType: 1
+    tileType: 0
     hasStructure: 0
     structureName: 
   - q: 5
@@ -895,9 +895,9 @@ MonoBehaviour:
     structureName: 
   - q: -7
     r: 5
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: -6
     r: 5
     tileType: 0
@@ -910,9 +910,9 @@ MonoBehaviour:
     structureName: 
   - q: -4
     r: 5
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: -3
     r: 5
     tileType: 0
@@ -985,9 +985,9 @@ MonoBehaviour:
     structureName: 
   - q: -1
     r: 6
-    tileType: 1
-    hasStructure: 0
-    structureName: 
+    tileType: 0
+    hasStructure: 1
+    structureName: Base
   - q: 0
     r: 6
     tileType: 0
@@ -1098,3 +1098,5 @@ MonoBehaviour:
     tileType: 0
     hasStructure: 0
     structureName: 
+  revealedTiles: []
+  dynamicObjects: []
