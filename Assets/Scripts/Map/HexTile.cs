@@ -10,7 +10,6 @@ public class HexTile : MonoBehaviour
     {
         Normal,
         Structure,
-        //Development
     }
 
     [Header("References")]
@@ -22,32 +21,39 @@ public class HexTile : MonoBehaviour
 
     [Header("Tile Data")]
     [SerializeField] public TileType tileType;
-    
-    [HideInInspector] public GameObject tile;
-    //public GameObject fow; //"fog of war"
-    //public Vector2Int offsetCoordinate;
-    //public Vector3Int cubeCoordinate;
     public List<HexTile> neighbours = new();
-    private bool isDirty = false;
-    //Computed properties
-    public Vector2Int OffsetCoord => new Vector2Int(q + (r + (r % 2)) / 2, r);
-    public Vector3Int CubeCoord => new Vector3Int(q, -q - r, r);
+    [HideInInspector] public GameObject tile;
     public GameObject fogInstance;
     public bool IsFogged => fogInstance != null;
-    [Header("Structure Data (Saved)")]
+
+    public GameObject dynamicInstance;
+    public bool HasDynamic => dynamicInstance != null;
+    //Computed properties
+    //public Vector2Int OffsetCoord => new Vector2Int(q + (r + (r % 2)) / 2, r);
+    //public Vector3Int CubeCoord => new Vector3Int(q, -q - r, r);
+
+
+    [Header("Structure Data")]
     public int structureIndex = -1; // -1 = no structure
-    private StructureTile structureTile;
-    public bool HasStructure => structureIndex >= 0;
+    public string StructureName;
+    //private StructureTile structureTile;
+    public bool HasStructure => structureIndex >= 0 || !string.IsNullOrEmpty(StructureName);
+
+    private bool isDirty;
+
+    public bool IsOccupied => HasStructure || HasDynamic;
     private void OnValidate()
     {
-        // Only trigger update if we have settings assigned
-        if (settings == null)
+#if UNITY_EDITOR
+        if (settings != null)
         {
-            return;
+            isDirty = true;
+            EditorApplication.delayCall += () =>
+            {
+                if (this != null) HandleStructureComponent();
+            };
         }
-        // Mark dirty whenever tileType is changed in inspector
-        isDirty = true;
-        EditorApplication.delayCall += HandleStructureComponent;
+#endif
     }
 
     private void Update()
@@ -59,22 +65,24 @@ public class HexTile : MonoBehaviour
         if (oldMesh != null)
         {
             if (Application.isPlaying)
+            {
                 Destroy(oldMesh.gameObject);
+            }   
             else
+            {
                 DestroyImmediate(oldMesh.gameObject);
+            }
         }
-
         // Spawn new one
         AddTile();
-
         isDirty = false;
     }
  
-    public void RollTileType()
-    {
-        tileType = (TileType)Random.Range(0, System.Enum.GetValues(typeof(TileType)).Length);
-        isDirty = true;
-    }
+    //public void RollTileType()
+    //{
+    //    tileType = (TileType)Random.Range(0, System.Enum.GetValues(typeof(TileType)).Length);
+    //    isDirty = true;
+    //}
     public void AddTile()
     {
         if (settings == null)
@@ -90,24 +98,12 @@ public class HexTile : MonoBehaviour
         tile = Application.isPlaying?Instantiate(prefab, transform):(GameObject)PrefabUtility.InstantiatePrefab(prefab, transform);
         tile.name = "Mesh";
         tile.transform.localPosition = Vector3.zero;
-        tile.transform.localRotation = Quaternion.identity;
+        //tile.transform.localRotation = Quaternion.identity;
         //tile.transform.localScale = Vector3.one;
 
         if (tile.TryGetComponent(out MeshFilter mf) && !tile.GetComponent<MeshCollider>())
         {
             tile.AddComponent<MeshCollider>().sharedMesh = mf.sharedMesh;
-        }
-    }
-    public bool IsWalkable
-    {
-        get
-        {
-            //putt condition here
-            //if(tile has an unwalkable object)
-            //return false
-
-            //otherwise it is true
-            return true;
         }
     }
 
@@ -116,7 +112,7 @@ public class HexTile : MonoBehaviour
         neighbours.Clear();
         foreach (var dir in HexCoordinates.Directions)
         {
-            Vector2Int key = new Vector2Int(q + dir.x, r + dir.y);
+            Vector2Int key = new(q + dir.x, r + dir.y);
             if (MapManager.Instance.TryGetTile(key, out HexTile neighbor))
             {
                 neighbours.Add(neighbor);
@@ -150,6 +146,39 @@ public class HexTile : MonoBehaviour
         }
         fogInstance = null;
     }
+    public void ApplyStructureRuntime(StructureData data)
+    {
+        if (data == null || data.prefab == null)
+        {
+            return;
+        }
+        // Clean old structure
+        Transform old = transform.Find("Structure");
+        if (old != null)
+        {
+            Destroy(old.gameObject);
+        }
+        GameObject instance = Instantiate(data.prefab, transform);
+        instance.name = "Structure";
+        instance.transform.localPosition = data.yOffset;
+        instance.transform.localRotation = Quaternion.identity;
+        instance.transform.localScale = Vector3.one;
+    }
+    public void SetStructure(StructureData data)
+    {
+        if (data == null) return;
+        structureIndex = -1;
+        StructureName = data.structureName;
+    }
+    public StructureData GetStructureData()
+    {
+        var generator = GetComponentInParent<MapGenerator>();
+        if (generator == null || generator.structureDatabase == null || string.IsNullOrEmpty(StructureName))
+        {
+            return null;
+        }
+        return generator.structureDatabase.GetByName(StructureName);
+    }
 
 #if UNITY_EDITOR
     private void OnDrawGizmos()
@@ -167,41 +196,49 @@ public class HexTile : MonoBehaviour
     }
 #endif
 
-    private Material originalMaterial;
-    private static Material highlightMaterial;
-    public void Highlight(bool on)
-    {
-        Renderer renderer = GetComponentInChildren<Renderer>();
-        if (renderer == null)
-        {
-            return;
-        }
-        if (highlightMaterial == null)
-        {
-            //yellow highlight
-            highlightMaterial = new Material(Shader.Find("Standard"))
-            {
-                color = new Color(1, 1, 0, 0.3f) // Yellow, semi-transparent
-            };
-        }
+    //private Material originalMaterial;
+    //private static Material highlightMaterial;
+    //public void Highlight(bool on)
+    //{
+    //    Renderer renderer = GetComponentInChildren<Renderer>();
+    //    if (renderer == null)
+    //    {
+    //        return;
+    //    }
+    //    if (highlightMaterial == null)
+    //    {
+    //        //yellow highlight
+    //        highlightMaterial = new Material(Shader.Find("Standard"))
+    //        {
+    //            color = new Color(1, 1, 0, 0.3f) // Yellow, semi-transparent
+    //        };
+    //    }
 
-        if (on)
-        {
-            if (originalMaterial == null)
-                originalMaterial = renderer.material;
-            renderer.material = highlightMaterial;
-        }
-        else
-        {
-            if (originalMaterial != null)
-                renderer.material = originalMaterial;
-        }
-    }
+    //    if (on)
+    //    {
+    //        if (originalMaterial == null)
+    //            originalMaterial = renderer.material;
+    //        renderer.material = highlightMaterial;
+    //    }
+    //    else
+    //    {
+    //        if (originalMaterial != null)
+    //            renderer.material = originalMaterial;
+    //    }
+    //}
 #if UNITY_EDITOR
     private void HandleStructureComponent()
     {
-        if (this == null) return;
-        
+#if UNITY_EDITOR
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            return;
+        }
+        if (PrefabUtility.IsPartOfPrefabAsset(gameObject))
+        {
+            return;
+        }
+#endif
         var structureTile = GetComponent<StructureTile>();
 
         if (tileType == TileType.Structure)
@@ -213,7 +250,7 @@ public class HexTile : MonoBehaviour
         }
         else
         {
-            if (structureTile != null)
+            if (!Application.isPlaying && structureTile != null && !EditorApplication.isUpdating)
             {
                 DestroyImmediate(structureTile, true);
             }
@@ -223,5 +260,29 @@ public class HexTile : MonoBehaviour
         EditorUtility.SetDirty(this);
     }
 #endif
+    // Runtime structure placement (used by MapGenerator.LoadMapData)
+    public void ApplyStructureByName(string name)
+    {
+        StructureName = name;
+        var structure = GetComponent<StructureTile>();
+        if (structure != null)
+        {
+            structure.ApplyStructure();
+        }
+    }
+
+    public bool IsWalkable => true;
+    //public bool IsWalkable
+    //{
+    //    get
+    //    {
+    //        //putt condition here
+    //        //if(tile has an unwalkable object)
+    //        //return false
+
+    //        //otherwise it is true
+    //        return true;
+    //    }
+    //}
 }
 

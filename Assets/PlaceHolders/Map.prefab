@@ -49,10 +49,12 @@ MonoBehaviour:
   q: -3
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &106710102249580900
 GameObject:
   m_ObjectHideFlags: 0
@@ -102,10 +104,12 @@ MonoBehaviour:
   q: 2
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &191706526438139559
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,10 +159,12 @@ MonoBehaviour:
   q: 3
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &285769418415973371
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,10 +214,12 @@ MonoBehaviour:
   q: -8
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &340224892961734691
 GameObject:
   m_ObjectHideFlags: 0
@@ -261,10 +269,12 @@ MonoBehaviour:
   q: 1
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &573370097601177807
 GameObject:
   m_ObjectHideFlags: 0
@@ -314,10 +324,12 @@ MonoBehaviour:
   q: -2
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &608687931853588993
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,10 +379,12 @@ MonoBehaviour:
   q: 7
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &627770106818371284
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,10 +434,12 @@ MonoBehaviour:
   q: 0
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &655141923876758972
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,10 +489,12 @@ MonoBehaviour:
   q: -3
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &671249438214143140
 GameObject:
   m_ObjectHideFlags: 0
@@ -526,10 +544,12 @@ MonoBehaviour:
   q: 7
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &678277040532053947
 GameObject:
   m_ObjectHideFlags: 0
@@ -579,10 +599,12 @@ MonoBehaviour:
   q: 3
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &693959729004697738
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,10 +654,12 @@ MonoBehaviour:
   q: 7
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &762844707671942508
 GameObject:
   m_ObjectHideFlags: 0
@@ -685,10 +709,12 @@ MonoBehaviour:
   q: -4
   r: 8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &838765115120875143
 GameObject:
   m_ObjectHideFlags: 0
@@ -738,10 +764,12 @@ MonoBehaviour:
   q: -4
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &893437574021799216
 GameObject:
   m_ObjectHideFlags: 0
@@ -791,10 +819,12 @@ MonoBehaviour:
   q: -3
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &973384555297238670
 GameObject:
   m_ObjectHideFlags: 0
@@ -844,10 +874,12 @@ MonoBehaviour:
   q: 6
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1037757721668243603
 GameObject:
   m_ObjectHideFlags: 0
@@ -897,10 +929,12 @@ MonoBehaviour:
   q: 2
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1100452507623383213
 GameObject:
   m_ObjectHideFlags: 0
@@ -950,10 +984,12 @@ MonoBehaviour:
   q: -4
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1151273834856470089
 GameObject:
   m_ObjectHideFlags: 0
@@ -1003,10 +1039,12 @@ MonoBehaviour:
   q: 7
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1168349805612825544
 GameObject:
   m_ObjectHideFlags: 0
@@ -1056,10 +1094,12 @@ MonoBehaviour:
   q: 1
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1200796924808687369
 GameObject:
   m_ObjectHideFlags: 0
@@ -1109,10 +1149,12 @@ MonoBehaviour:
   q: 2
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1268063089667393159
 GameObject:
   m_ObjectHideFlags: 0
@@ -1162,10 +1204,12 @@ MonoBehaviour:
   q: -3
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1281311876295075435
 GameObject:
   m_ObjectHideFlags: 0
@@ -1215,10 +1259,12 @@ MonoBehaviour:
   q: 0
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1322563300424689327
 GameObject:
   m_ObjectHideFlags: 0
@@ -1268,10 +1314,12 @@ MonoBehaviour:
   q: -1
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1346311195791303666
 GameObject:
   m_ObjectHideFlags: 0
@@ -1321,10 +1369,12 @@ MonoBehaviour:
   q: 4
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1348017741699943023
 GameObject:
   m_ObjectHideFlags: 0
@@ -1374,10 +1424,12 @@ MonoBehaviour:
   q: 1
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1375151559814426659
 GameObject:
   m_ObjectHideFlags: 0
@@ -1427,10 +1479,12 @@ MonoBehaviour:
   q: 1
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1401773304088675432
 GameObject:
   m_ObjectHideFlags: 0
@@ -1480,10 +1534,12 @@ MonoBehaviour:
   q: -2
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1404136948084191088
 GameObject:
   m_ObjectHideFlags: 0
@@ -1533,10 +1589,12 @@ MonoBehaviour:
   q: -7
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1449557622326168868
 GameObject:
   m_ObjectHideFlags: 0
@@ -1586,10 +1644,12 @@ MonoBehaviour:
   q: -2
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1514061853292453616
 GameObject:
   m_ObjectHideFlags: 0
@@ -1639,10 +1699,12 @@ MonoBehaviour:
   q: 5
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1561119370870896940
 GameObject:
   m_ObjectHideFlags: 0
@@ -1692,10 +1754,12 @@ MonoBehaviour:
   q: -4
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1595857898216773261
 GameObject:
   m_ObjectHideFlags: 0
@@ -1745,10 +1809,12 @@ MonoBehaviour:
   q: 4
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1624331628920759506
 GameObject:
   m_ObjectHideFlags: 0
@@ -1798,10 +1864,12 @@ MonoBehaviour:
   q: 0
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1651756560073007398
 GameObject:
   m_ObjectHideFlags: 0
@@ -1851,10 +1919,12 @@ MonoBehaviour:
   q: -1
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1786188331326464923
 GameObject:
   m_ObjectHideFlags: 0
@@ -1904,10 +1974,12 @@ MonoBehaviour:
   q: 1
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1818091501328718563
 GameObject:
   m_ObjectHideFlags: 0
@@ -1957,10 +2029,12 @@ MonoBehaviour:
   q: 0
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1846362038116770553
 GameObject:
   m_ObjectHideFlags: 0
@@ -2010,10 +2084,12 @@ MonoBehaviour:
   q: 1
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1886135910950852275
 GameObject:
   m_ObjectHideFlags: 0
@@ -2063,10 +2139,12 @@ MonoBehaviour:
   q: -5
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1931932132791432038
 GameObject:
   m_ObjectHideFlags: 0
@@ -2116,10 +2194,12 @@ MonoBehaviour:
   q: -4
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1932698942834609003
 GameObject:
   m_ObjectHideFlags: 0
@@ -2169,10 +2249,12 @@ MonoBehaviour:
   q: 5
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1980016180556205581
 GameObject:
   m_ObjectHideFlags: 0
@@ -2222,10 +2304,12 @@ MonoBehaviour:
   q: 3
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &1980081905746676581
 GameObject:
   m_ObjectHideFlags: 0
@@ -2275,10 +2359,12 @@ MonoBehaviour:
   q: -6
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2006360029696936069
 GameObject:
   m_ObjectHideFlags: 0
@@ -2328,10 +2414,12 @@ MonoBehaviour:
   q: -1
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2066834067785802195
 GameObject:
   m_ObjectHideFlags: 0
@@ -2381,10 +2469,12 @@ MonoBehaviour:
   q: -8
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2108966184482463619
 GameObject:
   m_ObjectHideFlags: 0
@@ -2434,10 +2524,12 @@ MonoBehaviour:
   q: 1
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2113944532526263240
 GameObject:
   m_ObjectHideFlags: 0
@@ -2487,10 +2579,12 @@ MonoBehaviour:
   q: -5
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2144232176480415057
 GameObject:
   m_ObjectHideFlags: 0
@@ -2540,10 +2634,12 @@ MonoBehaviour:
   q: 4
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2152062423609727025
 GameObject:
   m_ObjectHideFlags: 0
@@ -2593,10 +2689,12 @@ MonoBehaviour:
   q: 7
   r: -8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2202969101554259536
 GameObject:
   m_ObjectHideFlags: 0
@@ -2646,10 +2744,12 @@ MonoBehaviour:
   q: -5
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2259821821309812719
 GameObject:
   m_ObjectHideFlags: 0
@@ -2699,10 +2799,12 @@ MonoBehaviour:
   q: -4
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2270707784334120374
 GameObject:
   m_ObjectHideFlags: 0
@@ -2752,10 +2854,12 @@ MonoBehaviour:
   q: -5
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2273768429003358022
 GameObject:
   m_ObjectHideFlags: 0
@@ -2805,10 +2909,12 @@ MonoBehaviour:
   q: 5
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2337105458984214338
 GameObject:
   m_ObjectHideFlags: 0
@@ -2858,10 +2964,12 @@ MonoBehaviour:
   q: 2
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2341031410985822784
 GameObject:
   m_ObjectHideFlags: 0
@@ -2911,10 +3019,12 @@ MonoBehaviour:
   q: -8
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2352020995797212227
 GameObject:
   m_ObjectHideFlags: 0
@@ -2964,10 +3074,12 @@ MonoBehaviour:
   q: 7
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2361126001970674171
 GameObject:
   m_ObjectHideFlags: 0
@@ -3017,10 +3129,12 @@ MonoBehaviour:
   q: -8
   r: 8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2408898142904712349
 GameObject:
   m_ObjectHideFlags: 0
@@ -3070,10 +3184,12 @@ MonoBehaviour:
   q: -4
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2438551750677924383
 GameObject:
   m_ObjectHideFlags: 0
@@ -3123,10 +3239,12 @@ MonoBehaviour:
   q: 0
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2491751774315952238
 GameObject:
   m_ObjectHideFlags: 0
@@ -3176,10 +3294,12 @@ MonoBehaviour:
   q: -7
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2541751968173804773
 GameObject:
   m_ObjectHideFlags: 0
@@ -3229,10 +3349,12 @@ MonoBehaviour:
   q: 0
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2556463678120232217
 GameObject:
   m_ObjectHideFlags: 0
@@ -3282,10 +3404,12 @@ MonoBehaviour:
   q: -8
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2576587725591592706
 GameObject:
   m_ObjectHideFlags: 0
@@ -3335,10 +3459,12 @@ MonoBehaviour:
   q: -2
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2608641925754002214
 GameObject:
   m_ObjectHideFlags: 0
@@ -3388,10 +3514,12 @@ MonoBehaviour:
   q: 1
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2638073475661733328
 GameObject:
   m_ObjectHideFlags: 0
@@ -3441,10 +3569,12 @@ MonoBehaviour:
   q: 8
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2678921841760080788
 GameObject:
   m_ObjectHideFlags: 0
@@ -3494,10 +3624,12 @@ MonoBehaviour:
   q: -3
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2692580327144605137
 GameObject:
   m_ObjectHideFlags: 0
@@ -3547,10 +3679,12 @@ MonoBehaviour:
   q: 2
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2750614796524806283
 GameObject:
   m_ObjectHideFlags: 0
@@ -3600,10 +3734,12 @@ MonoBehaviour:
   q: -3
   r: 8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2759965551201158867
 GameObject:
   m_ObjectHideFlags: 0
@@ -3653,10 +3789,12 @@ MonoBehaviour:
   q: 7
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2763921602309630924
 GameObject:
   m_ObjectHideFlags: 0
@@ -3706,10 +3844,12 @@ MonoBehaviour:
   q: 4
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2792179164845797906
 GameObject:
   m_ObjectHideFlags: 0
@@ -3759,10 +3899,12 @@ MonoBehaviour:
   q: -4
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2944251292686234906
 GameObject:
   m_ObjectHideFlags: 0
@@ -3812,10 +3954,12 @@ MonoBehaviour:
   q: -4
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &2963967791139272902
 GameObject:
   m_ObjectHideFlags: 0
@@ -3867,10 +4011,12 @@ MonoBehaviour:
   q: -3
   r: -1
   tileType: 1
-  tile: {fileID: 8849805426304546579}
   neighbours: []
+  tile: {fileID: 8849805426304546579}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!114 &3956659587484391575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3885,6 +4031,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureDatabase: {fileID: 11400000, guid: 5842e987448e7fc42894248702f5997c, type: 2}
   selectedIndex: 1
+  structureInstance: {fileID: 0}
 --- !u!1 &3045692172406407194
 GameObject:
   m_ObjectHideFlags: 0
@@ -3934,10 +4081,12 @@ MonoBehaviour:
   q: 3
   r: -8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3061781169668051033
 GameObject:
   m_ObjectHideFlags: 0
@@ -3987,10 +4136,12 @@ MonoBehaviour:
   q: -7
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3074415976413451575
 GameObject:
   m_ObjectHideFlags: 0
@@ -4040,10 +4191,12 @@ MonoBehaviour:
   q: 6
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3144138355652223690
 GameObject:
   m_ObjectHideFlags: 0
@@ -4093,10 +4246,12 @@ MonoBehaviour:
   q: -5
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3150518927320381041
 GameObject:
   m_ObjectHideFlags: 0
@@ -4146,10 +4301,12 @@ MonoBehaviour:
   q: 6
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3168305675603875048
 GameObject:
   m_ObjectHideFlags: 0
@@ -4199,10 +4356,12 @@ MonoBehaviour:
   q: -7
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3223233477367078246
 GameObject:
   m_ObjectHideFlags: 0
@@ -4252,10 +4411,12 @@ MonoBehaviour:
   q: -3
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3294841460364645926
 GameObject:
   m_ObjectHideFlags: 0
@@ -4305,10 +4466,12 @@ MonoBehaviour:
   q: 0
   r: -8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3359692695638481496
 GameObject:
   m_ObjectHideFlags: 0
@@ -4358,10 +4521,12 @@ MonoBehaviour:
   q: -7
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3407326781651136418
 GameObject:
   m_ObjectHideFlags: 0
@@ -4411,10 +4576,12 @@ MonoBehaviour:
   q: 1
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3532609195200610925
 GameObject:
   m_ObjectHideFlags: 0
@@ -4464,10 +4631,12 @@ MonoBehaviour:
   q: -1
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3578516052797930345
 GameObject:
   m_ObjectHideFlags: 0
@@ -4517,10 +4686,12 @@ MonoBehaviour:
   q: -1
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3596880657138373113
 GameObject:
   m_ObjectHideFlags: 0
@@ -4570,10 +4741,12 @@ MonoBehaviour:
   q: -6
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3600840332055243487
 GameObject:
   m_ObjectHideFlags: 0
@@ -4623,10 +4796,12 @@ MonoBehaviour:
   q: 5
   r: -8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3616729573163280085
 GameObject:
   m_ObjectHideFlags: 0
@@ -4676,10 +4851,12 @@ MonoBehaviour:
   q: -6
   r: 8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3641740862017199298
 GameObject:
   m_ObjectHideFlags: 0
@@ -4729,10 +4906,12 @@ MonoBehaviour:
   q: -7
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3693906155203187831
 GameObject:
   m_ObjectHideFlags: 0
@@ -4782,10 +4961,12 @@ MonoBehaviour:
   q: -1
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3695893465678201630
 GameObject:
   m_ObjectHideFlags: 0
@@ -4835,10 +5016,12 @@ MonoBehaviour:
   q: -8
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3696315237075073476
 GameObject:
   m_ObjectHideFlags: 0
@@ -4888,10 +5071,12 @@ MonoBehaviour:
   q: -3
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3705290663938978837
 GameObject:
   m_ObjectHideFlags: 0
@@ -4941,10 +5126,12 @@ MonoBehaviour:
   q: 2
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3736410774447492497
 GameObject:
   m_ObjectHideFlags: 0
@@ -4994,10 +5181,12 @@ MonoBehaviour:
   q: 2
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3741795078486998228
 GameObject:
   m_ObjectHideFlags: 0
@@ -5047,10 +5236,12 @@ MonoBehaviour:
   q: 6
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3774211935648736214
 GameObject:
   m_ObjectHideFlags: 0
@@ -5102,10 +5293,12 @@ MonoBehaviour:
   q: 4
   r: -2
   tileType: 1
-  tile: {fileID: 1452469795001124490}
   neighbours: []
+  tile: {fileID: 1452469795001124490}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!114 &4713790996897914366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5120,6 +5313,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureDatabase: {fileID: 11400000, guid: 5842e987448e7fc42894248702f5997c, type: 2}
   selectedIndex: 0
+  structureInstance: {fileID: 0}
 --- !u!1 &3868121953452098842
 GameObject:
   m_ObjectHideFlags: 0
@@ -5169,10 +5363,12 @@ MonoBehaviour:
   q: -5
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &3893823585242986664
 GameObject:
   m_ObjectHideFlags: 0
@@ -5222,10 +5418,12 @@ MonoBehaviour:
   q: -2
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4018919304295947040
 GameObject:
   m_ObjectHideFlags: 0
@@ -5275,10 +5473,12 @@ MonoBehaviour:
   q: 2
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4038213092195855950
 GameObject:
   m_ObjectHideFlags: 0
@@ -5328,10 +5528,12 @@ MonoBehaviour:
   q: 6
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4084947090302569823
 GameObject:
   m_ObjectHideFlags: 0
@@ -5381,10 +5583,12 @@ MonoBehaviour:
   q: -1
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4105467620795353401
 GameObject:
   m_ObjectHideFlags: 0
@@ -5434,10 +5638,12 @@ MonoBehaviour:
   q: 1
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4158481952385937048
 GameObject:
   m_ObjectHideFlags: 0
@@ -5487,10 +5693,12 @@ MonoBehaviour:
   q: -8
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4212705692960897868
 GameObject:
   m_ObjectHideFlags: 0
@@ -5542,10 +5750,12 @@ MonoBehaviour:
   q: -1
   r: 0
   tileType: 1
-  tile: {fileID: 9058552787194341841}
   neighbours: []
+  tile: {fileID: 9058552787194341841}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!114 &2648574424729190475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5560,6 +5770,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureDatabase: {fileID: 11400000, guid: 5842e987448e7fc42894248702f5997c, type: 2}
   selectedIndex: 2
+  structureInstance: {fileID: 0}
 --- !u!1 &4317883988300692514
 GameObject:
   m_ObjectHideFlags: 0
@@ -5609,10 +5820,12 @@ MonoBehaviour:
   q: 5
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4371251567172630330
 GameObject:
   m_ObjectHideFlags: 0
@@ -5662,10 +5875,12 @@ MonoBehaviour:
   q: 2
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4435654741194298280
 GameObject:
   m_ObjectHideFlags: 0
@@ -5715,10 +5930,12 @@ MonoBehaviour:
   q: 2
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4486019742062253382
 GameObject:
   m_ObjectHideFlags: 0
@@ -5768,10 +5985,12 @@ MonoBehaviour:
   q: 3
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4531146692236428218
 GameObject:
   m_ObjectHideFlags: 0
@@ -5821,10 +6040,12 @@ MonoBehaviour:
   q: 0
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4535227762666661873
 GameObject:
   m_ObjectHideFlags: 0
@@ -5874,10 +6095,12 @@ MonoBehaviour:
   q: 5
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4577415170614235086
 GameObject:
   m_ObjectHideFlags: 0
@@ -5927,10 +6150,12 @@ MonoBehaviour:
   q: -3
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4580608128075988713
 GameObject:
   m_ObjectHideFlags: 0
@@ -5980,10 +6205,12 @@ MonoBehaviour:
   q: 0
   r: 8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4585709033312633605
 GameObject:
   m_ObjectHideFlags: 0
@@ -6033,10 +6260,12 @@ MonoBehaviour:
   q: 1
   r: -8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4591402537522137339
 GameObject:
   m_ObjectHideFlags: 0
@@ -6086,10 +6315,12 @@ MonoBehaviour:
   q: 0
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4593864210996302234
 GameObject:
   m_ObjectHideFlags: 0
@@ -6139,10 +6370,12 @@ MonoBehaviour:
   q: 3
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4654968690610064795
 GameObject:
   m_ObjectHideFlags: 0
@@ -6192,10 +6425,12 @@ MonoBehaviour:
   q: 0
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4693631887168926244
 GameObject:
   m_ObjectHideFlags: 0
@@ -6245,10 +6480,12 @@ MonoBehaviour:
   q: -1
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4749408642130744272
 GameObject:
   m_ObjectHideFlags: 0
@@ -6298,10 +6535,12 @@ MonoBehaviour:
   q: -1
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4750105321245128189
 GameObject:
   m_ObjectHideFlags: 0
@@ -6351,10 +6590,12 @@ MonoBehaviour:
   q: -6
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4771418265100818660
 GameObject:
   m_ObjectHideFlags: 0
@@ -6404,10 +6645,12 @@ MonoBehaviour:
   q: 4
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4808847581527838768
 GameObject:
   m_ObjectHideFlags: 0
@@ -6457,10 +6700,12 @@ MonoBehaviour:
   q: -3
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4811608283295252469
 GameObject:
   m_ObjectHideFlags: 0
@@ -6510,10 +6755,12 @@ MonoBehaviour:
   q: -8
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4859556881306051288
 GameObject:
   m_ObjectHideFlags: 0
@@ -6563,10 +6810,12 @@ MonoBehaviour:
   q: 1
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4957844374789094342
 GameObject:
   m_ObjectHideFlags: 0
@@ -6616,10 +6865,12 @@ MonoBehaviour:
   q: 8
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &4964893235663796259
 GameObject:
   m_ObjectHideFlags: 0
@@ -6669,10 +6920,12 @@ MonoBehaviour:
   q: -4
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5043293175851640275
 GameObject:
   m_ObjectHideFlags: 0
@@ -6722,10 +6975,12 @@ MonoBehaviour:
   q: 4
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5051073049890747815
 GameObject:
   m_ObjectHideFlags: 0
@@ -6775,10 +7030,12 @@ MonoBehaviour:
   q: -1
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5052619487801807195
 GameObject:
   m_ObjectHideFlags: 0
@@ -6828,10 +7085,12 @@ MonoBehaviour:
   q: 8
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5055617588786089340
 GameObject:
   m_ObjectHideFlags: 0
@@ -6881,10 +7140,12 @@ MonoBehaviour:
   q: 5
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5107962959326322932
 GameObject:
   m_ObjectHideFlags: 0
@@ -6934,10 +7195,12 @@ MonoBehaviour:
   q: -2
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5152746033775126019
 GameObject:
   m_ObjectHideFlags: 0
@@ -6987,10 +7250,12 @@ MonoBehaviour:
   q: -6
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5153954999186827949
 GameObject:
   m_ObjectHideFlags: 0
@@ -7040,10 +7305,12 @@ MonoBehaviour:
   q: -7
   r: 7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5244477233336001055
 GameObject:
   m_ObjectHideFlags: 0
@@ -7093,10 +7360,12 @@ MonoBehaviour:
   q: 2
   r: -8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5260900515172466807
 GameObject:
   m_ObjectHideFlags: 0
@@ -7146,10 +7415,12 @@ MonoBehaviour:
   q: -6
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5295801081719227865
 GameObject:
   m_ObjectHideFlags: 0
@@ -7199,10 +7470,12 @@ MonoBehaviour:
   q: -2
   r: 8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5402216353408058064
 GameObject:
   m_ObjectHideFlags: 0
@@ -7252,10 +7525,12 @@ MonoBehaviour:
   q: 3
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5445194469257299441
 GameObject:
   m_ObjectHideFlags: 0
@@ -7305,10 +7580,12 @@ MonoBehaviour:
   q: -1
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5535963873620320367
 GameObject:
   m_ObjectHideFlags: 0
@@ -7358,10 +7635,12 @@ MonoBehaviour:
   q: 0
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5557930685054293433
 GameObject:
   m_ObjectHideFlags: 0
@@ -7411,10 +7690,12 @@ MonoBehaviour:
   q: -3
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5678222542579537700
 GameObject:
   m_ObjectHideFlags: 0
@@ -7464,10 +7745,12 @@ MonoBehaviour:
   q: 1
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5724280589102712217
 GameObject:
   m_ObjectHideFlags: 0
@@ -7517,10 +7800,12 @@ MonoBehaviour:
   q: -2
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5760710639522589728
 GameObject:
   m_ObjectHideFlags: 0
@@ -7570,10 +7855,12 @@ MonoBehaviour:
   q: -2
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5776045538175979640
 GameObject:
   m_ObjectHideFlags: 0
@@ -7623,10 +7910,12 @@ MonoBehaviour:
   q: 3
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5916546581256695612
 GameObject:
   m_ObjectHideFlags: 0
@@ -7676,10 +7965,12 @@ MonoBehaviour:
   q: 0
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &5978133329076279680
 GameObject:
   m_ObjectHideFlags: 0
@@ -7729,10 +8020,12 @@ MonoBehaviour:
   q: 3
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6102651977104955836
 GameObject:
   m_ObjectHideFlags: 0
@@ -7782,10 +8075,12 @@ MonoBehaviour:
   q: -6
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6292890944582185360
 GameObject:
   m_ObjectHideFlags: 0
@@ -7835,10 +8130,12 @@ MonoBehaviour:
   q: 1
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6318396098145118945
 GameObject:
   m_ObjectHideFlags: 0
@@ -7888,10 +8185,12 @@ MonoBehaviour:
   q: -1
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6338540951919262375
 GameObject:
   m_ObjectHideFlags: 0
@@ -7941,10 +8240,12 @@ MonoBehaviour:
   q: -2
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6413989661733516816
 GameObject:
   m_ObjectHideFlags: 0
@@ -7994,10 +8295,12 @@ MonoBehaviour:
   q: 6
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6443602182742578999
 GameObject:
   m_ObjectHideFlags: 0
@@ -8047,10 +8350,12 @@ MonoBehaviour:
   q: -6
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6448592290649527379
 GameObject:
   m_ObjectHideFlags: 0
@@ -8100,10 +8405,12 @@ MonoBehaviour:
   q: 4
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6563381511258130121
 GameObject:
   m_ObjectHideFlags: 0
@@ -8153,10 +8460,12 @@ MonoBehaviour:
   q: 0
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6614434136414796241
 GameObject:
   m_ObjectHideFlags: 0
@@ -8206,10 +8515,12 @@ MonoBehaviour:
   q: 0
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6643541248446924673
 GameObject:
   m_ObjectHideFlags: 0
@@ -8259,10 +8570,12 @@ MonoBehaviour:
   q: 3
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6675173338006214697
 GameObject:
   m_ObjectHideFlags: 0
@@ -8312,10 +8625,12 @@ MonoBehaviour:
   q: -5
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6719923785913577571
 GameObject:
   m_ObjectHideFlags: 0
@@ -8365,10 +8680,12 @@ MonoBehaviour:
   q: 7
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6802662144384732049
 GameObject:
   m_ObjectHideFlags: 0
@@ -8418,10 +8735,12 @@ MonoBehaviour:
   q: -5
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6841050236370962869
 GameObject:
   m_ObjectHideFlags: 0
@@ -8471,10 +8790,12 @@ MonoBehaviour:
   q: 3
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6894640180772726743
 GameObject:
   m_ObjectHideFlags: 0
@@ -8524,10 +8845,12 @@ MonoBehaviour:
   q: -3
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6919519883940932091
 GameObject:
   m_ObjectHideFlags: 0
@@ -8577,10 +8900,12 @@ MonoBehaviour:
   q: 0
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6922685101852396883
 GameObject:
   m_ObjectHideFlags: 0
@@ -8630,10 +8955,12 @@ MonoBehaviour:
   q: -2
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6924012722498083676
 GameObject:
   m_ObjectHideFlags: 0
@@ -8683,10 +9010,12 @@ MonoBehaviour:
   q: -2
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6952295895552006081
 GameObject:
   m_ObjectHideFlags: 0
@@ -8736,10 +9065,12 @@ MonoBehaviour:
   q: -7
   r: 8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6958068086952401305
 GameObject:
   m_ObjectHideFlags: 0
@@ -8789,10 +9120,12 @@ MonoBehaviour:
   q: -4
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &6978609168427986993
 GameObject:
   m_ObjectHideFlags: 0
@@ -8842,10 +9175,12 @@ MonoBehaviour:
   q: 4
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7034758171472468144
 GameObject:
   m_ObjectHideFlags: 0
@@ -8895,10 +9230,12 @@ MonoBehaviour:
   q: -7
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7051264202271007752
 GameObject:
   m_ObjectHideFlags: 0
@@ -8948,10 +9285,12 @@ MonoBehaviour:
   q: -1
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7125976476184870041
 GameObject:
   m_ObjectHideFlags: 0
@@ -9001,10 +9340,12 @@ MonoBehaviour:
   q: -8
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7139874160912182556
 GameObject:
   m_ObjectHideFlags: 0
@@ -9054,10 +9395,12 @@ MonoBehaviour:
   q: -5
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7243420496714708969
 GameObject:
   m_ObjectHideFlags: 0
@@ -9107,10 +9450,12 @@ MonoBehaviour:
   q: 6
   r: -8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7266255908929501329
 GameObject:
   m_ObjectHideFlags: 0
@@ -9160,10 +9505,12 @@ MonoBehaviour:
   q: 8
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7401806694753129237
 GameObject:
   m_ObjectHideFlags: 0
@@ -9213,10 +9560,12 @@ MonoBehaviour:
   q: 6
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7491554751344628464
 GameObject:
   m_ObjectHideFlags: 0
@@ -9266,10 +9615,12 @@ MonoBehaviour:
   q: 2
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7510014877367947239
 GameObject:
   m_ObjectHideFlags: 0
@@ -9536,6 +9887,7 @@ MonoBehaviour:
   hexSize: 1
   mapRadius: 8
   generationSettings: {fileID: 11400000, guid: b721820a81a6de847a9d4cade8c39d93, type: 2}
+  mapData: {fileID: 0}
 --- !u!114 &494912605398614216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9562,10 +9914,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a502a099aaf6ab94db0b0e3e17b6c8a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fishPrefab: {fileID: 919132149155446097, guid: e541863465ecd194186c292effc7d48b, type: 3}
-  debrisPrefab: {fileID: 919132149155446097, guid: 1d396f49d1cf2dd47bafd7e8bcb50265, type: 3}
-  fishChance: 0.2
-  debrisChance: 0.1
+  resources: []
+  maxAttemptsPerResource: 200
 --- !u!1 &7536298905864432198
 GameObject:
   m_ObjectHideFlags: 0
@@ -9615,10 +9965,12 @@ MonoBehaviour:
   q: 3
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7601837853533204223
 GameObject:
   m_ObjectHideFlags: 0
@@ -9668,10 +10020,12 @@ MonoBehaviour:
   q: -1
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7615299795781919438
 GameObject:
   m_ObjectHideFlags: 0
@@ -9721,10 +10075,12 @@ MonoBehaviour:
   q: 4
   r: -6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7661864705778131802
 GameObject:
   m_ObjectHideFlags: 0
@@ -9774,10 +10130,12 @@ MonoBehaviour:
   q: 3
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7673533324919838651
 GameObject:
   m_ObjectHideFlags: 0
@@ -9827,10 +10185,12 @@ MonoBehaviour:
   q: -6
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7722974178271347661
 GameObject:
   m_ObjectHideFlags: 0
@@ -9880,10 +10240,12 @@ MonoBehaviour:
   q: 5
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7734165520943085246
 GameObject:
   m_ObjectHideFlags: 0
@@ -9933,10 +10295,12 @@ MonoBehaviour:
   q: 8
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7805820039475346641
 GameObject:
   m_ObjectHideFlags: 0
@@ -9986,10 +10350,12 @@ MonoBehaviour:
   q: -4
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7924645042160977375
 GameObject:
   m_ObjectHideFlags: 0
@@ -10039,10 +10405,12 @@ MonoBehaviour:
   q: -5
   r: 8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7964096446766005705
 GameObject:
   m_ObjectHideFlags: 0
@@ -10092,10 +10460,12 @@ MonoBehaviour:
   q: 8
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &7974292450614753708
 GameObject:
   m_ObjectHideFlags: 0
@@ -10145,10 +10515,12 @@ MonoBehaviour:
   q: -5
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8016024483604769495
 GameObject:
   m_ObjectHideFlags: 0
@@ -10198,10 +10570,12 @@ MonoBehaviour:
   q: -4
   r: 6
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8034914608117850346
 GameObject:
   m_ObjectHideFlags: 0
@@ -10251,10 +10625,12 @@ MonoBehaviour:
   q: 1
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8119137637651537446
 GameObject:
   m_ObjectHideFlags: 0
@@ -10304,10 +10680,12 @@ MonoBehaviour:
   q: 4
   r: -8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8144670809436026965
 GameObject:
   m_ObjectHideFlags: 0
@@ -10357,10 +10735,12 @@ MonoBehaviour:
   q: -6
   r: 3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8244652875908969379
 GameObject:
   m_ObjectHideFlags: 0
@@ -10410,10 +10790,12 @@ MonoBehaviour:
   q: -2
   r: 5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8302788470412009199
 GameObject:
   m_ObjectHideFlags: 0
@@ -10463,10 +10845,12 @@ MonoBehaviour:
   q: 2
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8322776071714808213
 GameObject:
   m_ObjectHideFlags: 0
@@ -10516,10 +10900,12 @@ MonoBehaviour:
   q: -5
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8427143490336414560
 GameObject:
   m_ObjectHideFlags: 0
@@ -10569,10 +10955,12 @@ MonoBehaviour:
   q: 5
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8477193070946759144
 GameObject:
   m_ObjectHideFlags: 0
@@ -10622,10 +11010,12 @@ MonoBehaviour:
   q: 1
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8532268592115087799
 GameObject:
   m_ObjectHideFlags: 0
@@ -10675,10 +11065,12 @@ MonoBehaviour:
   q: -2
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8578422576465161522
 GameObject:
   m_ObjectHideFlags: 0
@@ -10728,10 +11120,12 @@ MonoBehaviour:
   q: 8
   r: -8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8584565937291591475
 GameObject:
   m_ObjectHideFlags: 0
@@ -10781,10 +11175,12 @@ MonoBehaviour:
   q: -1
   r: 8
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8590930065773363139
 GameObject:
   m_ObjectHideFlags: 0
@@ -10834,10 +11230,12 @@ MonoBehaviour:
   q: 5
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8639334125466829935
 GameObject:
   m_ObjectHideFlags: 0
@@ -10887,10 +11285,12 @@ MonoBehaviour:
   q: -2
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8646466008314373590
 GameObject:
   m_ObjectHideFlags: 0
@@ -10940,10 +11340,12 @@ MonoBehaviour:
   q: 7
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8655609719092498723
 GameObject:
   m_ObjectHideFlags: 0
@@ -10993,10 +11395,12 @@ MonoBehaviour:
   q: 6
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8707857965031300716
 GameObject:
   m_ObjectHideFlags: 0
@@ -11046,10 +11450,12 @@ MonoBehaviour:
   q: 5
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8749312870495831287
 GameObject:
   m_ObjectHideFlags: 0
@@ -11099,10 +11505,12 @@ MonoBehaviour:
   q: -3
   r: 4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8826211035132142684
 GameObject:
   m_ObjectHideFlags: 0
@@ -11152,10 +11560,12 @@ MonoBehaviour:
   q: 0
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8839929499326787867
 GameObject:
   m_ObjectHideFlags: 0
@@ -11205,10 +11615,12 @@ MonoBehaviour:
   q: -7
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8845473654550407144
 GameObject:
   m_ObjectHideFlags: 0
@@ -11258,10 +11670,12 @@ MonoBehaviour:
   q: 4
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8846631429211030173
 GameObject:
   m_ObjectHideFlags: 0
@@ -11311,10 +11725,12 @@ MonoBehaviour:
   q: 8
   r: -7
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8897554038994521325
 GameObject:
   m_ObjectHideFlags: 0
@@ -11364,10 +11780,12 @@ MonoBehaviour:
   q: 2
   r: -4
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8922906510161475749
 GameObject:
   m_ObjectHideFlags: 0
@@ -11417,10 +11835,12 @@ MonoBehaviour:
   q: -6
   r: -1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8956211897282966329
 GameObject:
   m_ObjectHideFlags: 0
@@ -11470,10 +11890,12 @@ MonoBehaviour:
   q: 5
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &8992362304340304496
 GameObject:
   m_ObjectHideFlags: 0
@@ -11523,10 +11945,12 @@ MonoBehaviour:
   q: 3
   r: 2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &9039362353335783119
 GameObject:
   m_ObjectHideFlags: 0
@@ -11576,10 +12000,12 @@ MonoBehaviour:
   q: 6
   r: -5
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &9059252109634762089
 GameObject:
   m_ObjectHideFlags: 0
@@ -11629,10 +12055,12 @@ MonoBehaviour:
   q: 7
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &9117033781414080478
 GameObject:
   m_ObjectHideFlags: 0
@@ -11682,10 +12110,12 @@ MonoBehaviour:
   q: 8
   r: -2
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &9119149305249811692
 GameObject:
   m_ObjectHideFlags: 0
@@ -11735,10 +12165,12 @@ MonoBehaviour:
   q: 2
   r: 1
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &9185773758047694851
 GameObject:
   m_ObjectHideFlags: 0
@@ -11788,10 +12220,12 @@ MonoBehaviour:
   q: 6
   r: 0
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1 &9187693286269702392
 GameObject:
   m_ObjectHideFlags: 0
@@ -11841,10 +12275,12 @@ MonoBehaviour:
   q: 4
   r: -3
   tileType: 0
-  tile: {fileID: 0}
   neighbours: []
+  tile: {fileID: 0}
   fogInstance: {fileID: 0}
+  dynamicInstance: {fileID: 0}
   structureIndex: -1
+  StructureName: 
 --- !u!1001 &201996251500982451
 PrefabInstance:
   m_ObjectHideFlags: 0

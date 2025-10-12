@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureName: Ruin
   prefab: {fileID: 5962021981141144773, guid: 036baee2f949fa341b8a2249129c9c79, type: 3}
-  yOffset: {x: 0, y: 0, z: 0}
+  yOffset: {x: 0, y: 2, z: 0}
   blocksDynamic: 1
