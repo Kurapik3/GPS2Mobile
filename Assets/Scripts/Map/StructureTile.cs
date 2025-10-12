@@ -17,15 +17,7 @@ public class StructureTile : MonoBehaviour
 #if UNITY_EDITOR
     public void ApplyStructure()
     {
-        //if (PrefabUtility.IsPartOfPrefabAsset(gameObject))
-        //{
-        //    if (structureInstance != null)
-        //    {
-        //        DestroyImmediate(structureInstance);
-        //        structureInstance = null;
-        //    }
-        //    return;
-        //}
+        
         if (structureDatabase == null || structureDatabase.structures == null || structureDatabase.structures.Count == 0)
         {
             Debug.LogWarning($"[{name}] No StructureDatabase or entries found!");
@@ -92,6 +84,7 @@ public class StructureTile : MonoBehaviour
         {
             hex.structureIndex = selectedIndex;
             hex.StructureName = data.structureName;
+            hex.SetStructure(data);
             EditorUtility.SetDirty(hex);
         }
 
@@ -107,6 +100,11 @@ public class StructureTile : MonoBehaviour
         }
 
         Debug.Log($"[{name}] Structure '{data.structureName}' applied.");
+
+#if UNITY_EDITOR
+        SceneView.RepaintAll();
+#endif
+
 
         //add new
         //GameObject structure = (GameObject)PrefabUtility.InstantiatePrefab(data.prefab, transform);

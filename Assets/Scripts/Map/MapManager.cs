@@ -10,7 +10,7 @@ using System.Collections.Generic;
 // - Pathfinding: check if a tile is walkable.
 // - AI/Units: find nearby tiles or get tile at position.
 // - Fog of War: iterate over all tiles to hide/reveal.
-
+[DefaultExecutionOrder(-50)]
 public class MapManager : MonoBehaviour
 {
     public static MapManager Instance { get; private set; }
@@ -78,6 +78,32 @@ public class MapManager : MonoBehaviour
     public bool IsWalkable(Vector2Int coord)
     {
         return TryGetTile(coord, out HexTile tile) && tile.IsWalkable;
+    }
+
+    //to get nearby tiles
+    public List<HexTile> GetNeighborsWithinRadius(int q, int r, int radius)
+    {
+        List<HexTile> result = new();
+        for (int dq = -radius; dq <= radius; dq++)
+        {
+            for (int dr = -radius; dr <= radius; dr++)
+            {
+                int newQ = q + dq;
+                int newR = r + dr;
+
+                // skip tiles beyond the true hex radius
+                if (HexCoordinates.Distance(q, r, newQ, newR) > radius)
+                {
+                    continue;
+                }
+                Vector2Int key = new(newQ, newR);
+                if (_tiles.TryGetValue(key, out HexTile tile))
+                {
+                    result.Add(tile);
+                }
+            }
+        }
+        return result;
     }
 
     public void Clear()

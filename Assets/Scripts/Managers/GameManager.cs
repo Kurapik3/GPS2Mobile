@@ -1,25 +1,42 @@
 using UnityEngine;
-
+using System.IO;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private MapGenerator mapGenerator;
+    [SerializeField] private DynamicTileGenerator dynamicTileGen;
+    [SerializeField] private FogSystem fogSystem;
+
+    private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
 
     void Start()
     {
-        // Try to load saved map data
-        MapData loadedData = MapSaveLoad.Load("MySavedMap");
-
-        if (loadedData != null)
+        // Try to load saved game (runtime data)
+        if (File.Exists(savePath))
         {
-            mapGenerator.SetMapData(loadedData);
-            mapGenerator.GenerateFromData();
+            Debug.Log("Loading runtime save...");
+            LoadGame();
         }
         else
         {
-            // No save found, so maybe generate a default map or show error
-            Debug.Log("No saved map found. Generating default map.");
-            mapGenerator.GenerateDefaultMap();
+            StartNewGame();
         }
+    }
+    private void StartNewGame()
+    {
+        MapData loadedData = MapSaveLoad.Load("MySavedMap");
+        if (loadedData == null)
+        {
+            Debug.LogError("No base map found!");
+            return;
+        }
+
+        mapGenerator.SetMapData(loadedData);
+        mapGenerator.GenerateFromData();
+
+        dynamicTileGen.GenerateDynamicElements();
+        fogSystem.InitializeFog();
+
+        Debug.Log("Started new game!");
     }
 
     public void SaveMap() //Can be called wif button press for debug
@@ -32,5 +49,52 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogWarning("No MapData found to save!");
         }
+    }
+
+    public void SaveGame()
+    {
+        GameSaveData data = new();
+
+        // Save revealed fog tiles
+        data.revealedTiles.Clear();
+        foreach (var tile in fogSystem.revealedTiles)
+        {
+            data.revealedTiles.Add(new GameSaveData.FogTileData { q = tile.x, r = tile.y });
+        }
+
+        // Save dynamic tiles
+        dynamicTileGen.SaveDynamicObjects(data);
+
+        File.WriteAllText(savePath, JsonUtility.ToJson(data, true));
+        Debug.Log($"Game saved to {savePath}");
+    }
+
+    public void LoadGame()
+    {
+        if (!File.Exists(savePath))
+        {
+            Debug.LogWarning("No save file found!");
+            return;
+        }
+
+        string json = File.ReadAllText(savePath);
+        GameSaveData data = JsonUtility.FromJson<GameSaveData>(json);
+
+        if (mapGenerator.MapData == null)
+        {
+            var loadedData = MapSaveLoad.Load("MySavedMap");
+            mapGenerator.SetMapData(loadedData);
+            mapGenerator.GenerateFromData();
+        }
+
+        // Reveal fog tiles
+        foreach (var tileData in data.revealedTiles)
+        {
+            fogSystem.RevealTilesAround(new Vector2Int(tileData.q, tileData.r), 0);
+        }
+
+        // Load dynamic objects
+        dynamicTileGen.LoadDynamicObjects(data);
+        Debug.Log("Game loaded!");
     }
 }

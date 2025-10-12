@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.IO;
-
+//THIS SCRIPT IS FOR EDITOR MAPS OR START OF GAME SAVES NOT RUNTIME SAVE MAPS
 public static class MapSaveLoad
 {
     private static string GetPath(string fileName)
