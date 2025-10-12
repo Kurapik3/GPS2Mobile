@@ -284,5 +284,23 @@ public class HexTile : MonoBehaviour
     //        return true;
     //    }
     //}
+
+    private bool unitOccupied = false;
+    public bool IsOccupiedByUnit => unitOccupied;
+
+    public void SetOccupiedByUnit(bool occupied)
+    {
+        unitOccupied = occupied;
+    }
+
+    public bool CanUnitStandHere()
+    {
+        return !unitOccupied;
+    }
+
+    public bool IsWalkableForAI()
+    {
+        return IsWalkable && !IsOccupiedByUnit;
+    }
 }
 

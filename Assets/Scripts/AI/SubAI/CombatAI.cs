@@ -12,8 +12,6 @@ public class CombatAI : ISubAI
     private IAIActor actor;
     private System.Random rng = new System.Random();
 
-    public int Priority => 2; //After exploration
-
     public void Initialize(IAIContext context, IAIActor actor)
     {
         this.context = context;
@@ -75,6 +73,7 @@ public class CombatAI : ISubAI
         Vector2Int currentHex = context.WorldToHex(pos);
         int moveRange = context.GetUnitMoveRange(unitId);
         List<Vector2Int> reachableHexes = context.GetReachableHexes(currentHex, moveRange);
+        reachableHexes.RemoveAll(hex => !MapManager.Instance.CanUnitStandHere(hex));
 
         if (reachableHexes.Count == 0)
             return;

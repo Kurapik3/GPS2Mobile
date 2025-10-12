@@ -12,8 +12,6 @@ public class ExplorationAI : ISubAI
     private IAIActor actor;
     private System.Random rng = new System.Random();
 
-    public int Priority => 1; //After base production
-
     public void Initialize(IAIContext context, IAIActor actor)
     {
         this.context = context;
@@ -36,8 +34,9 @@ public class ExplorationAI : ISubAI
 
             Vector3 pos = context.GetUnitPosition(unitId);
             Vector2Int currentHex = context.WorldToHex(pos);
-            int moveRange = context.GetUnitMoveRange(unitId);
+            int moveRange = 1;
             List<Vector2Int> reachableHexes = context.GetReachableHexes(currentHex, moveRange);
+            reachableHexes.RemoveAll(hex => !MapManager.Instance.CanUnitStandHere(hex));
 
             if (reachableHexes.Count == 0)
                 continue;
@@ -65,6 +64,9 @@ public class ExplorationAI : ISubAI
 
         foreach (var hex in candidates)
         {
+            if (context.IsTileOccupied(hex))
+                continue;
+
             int dist = context.GetHexDistance(hex, origin);
 
             if (moveTowards && dist < currentDist) //Choose tiles that are closer to origin

@@ -15,6 +15,7 @@ public interface IAIContext
     bool IsUnitVisibleToPlayer(int unitId); //Drives Dormant -> Aggressive switch
     int GetUnitMoveRange(int unitId);
     List<Vector2Int> GetReachableHexes(Vector2Int startHex, int moveRange);
+    bool IsTileOccupied(Vector2Int hex);
 
     //==================== Bases ====================
     List<int> GetOwnedBaseIds(); //All owned Bases
@@ -26,8 +27,8 @@ public interface IAIContext
     bool IsBaseOccupied(int baseId);
 
     //==================== Structure Tiles Objects ====================
-    List<Vector3> GetRuinLocations(); //All _KNOWN_ Ruin positions
-    List<Vector3> GetCacheLocations(); //All _KNOWN_ Cache positions
+    //List<Vector3> GetRuinLocations(); //All _KNOWN_ Ruin positions
+    //List<Vector3> GetCacheLocations(); //All _KNOWN_ Cache positions
     List<Vector3> GetUnexploredTiles();
 
     //==================== Enemy(/Player) Info ====================

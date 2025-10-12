@@ -1,17 +1,26 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyBaseAI : ISubAI
 {
     private IAIContext context;
     private IAIActor actor;
+    private AIUnlockSystem unlockSystem;
     private int currentTurn;
-
-    public int Priority => 0; //Base take action before units
 
     public void Initialize(IAIContext context, IAIActor actor)
     {
         this.context = context;
         this.actor = actor;
+
+        unlockSystem = Object.FindFirstObjectByType<AIUnlockSystem>();
+        if (unlockSystem == null)
+            Debug.LogError("[EnemyBaseAI] No AIUnlockSystem found in scene!");
+    }
+
+    public void SetUnlockSystem(AIUnlockSystem system)
+    {
+        unlockSystem = system;
     }
 
     public void Execute()
@@ -21,6 +30,9 @@ public class EnemyBaseAI : ISubAI
             return;
 
         currentTurn = context.GetTurnNumber();
+
+        if (unlockSystem != null)
+            unlockSystem.UpdateUnlocks(currentTurn);
 
         foreach (var baseId in baseIds)
         {
@@ -45,27 +57,19 @@ public class EnemyBaseAI : ISubAI
                 continue;
             }
 
-            string unitType = GetUnlockedUnitType(currentTurn);
-            actor.SpawnUnit(baseId, unitType);
-            Debug.Log($"[EnemyBaseAI] EnemyBase {baseId} spawned {unitType}.");
+            //Get unlocked unit list
+            List<string> availableUnits = unlockSystem.GetUnlockedUnits();
+            if (availableUnits == null || availableUnits.Count == 0)
+            {
+                Debug.Log("[EnemyBaseAI] No unlocked units available for spawning.");
+                continue;
+            }
+
+            //Randomly select one unlocked unit type to spawn
+            string chosenUnit = availableUnits[Random.Range(0, availableUnits.Count)];
+
+            actor.SpawnUnit(baseId, chosenUnit);
+            Debug.Log($"[EnemyBaseAI] EnemyBase {baseId} spawned {chosenUnit} (Turn {currentTurn}).");
         }
-    }
-
-    private string GetUnlockedUnitType(int turn)
-    {
-        string[] available;
-
-        if (turn < 3)
-            available = new[] { "Builder" };
-        else if (turn < 5)
-            available = new[] { "Builder", "Scout" };
-        else if (turn < 8)
-            available = new[] { "Builder", "Scout", "Tanker" };
-        else if (turn < 12)
-            available = new[] { "Builder", "Scout", "Tanker", "Shooter" };
-        else
-            available = new[] { "Builder", "Scout", "Tanker", "Shooter", "Bomber" };
-
-        return available[Random.Range(0, available.Length)];
     }
 }
