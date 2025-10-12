@@ -8,9 +8,20 @@ public class FogSystem : MonoBehaviour
     [SerializeField] private GameObject fogPrefab;
     [SerializeField] private int visibleRadiusAtStart = 2;
 
-    public List<Vector2Int> revealedTiles;
+    [Header("Fog Placement Offset")]
+    [Tooltip("Vertical offset for fog prefab placement")]
+    [SerializeField] private float fogYOffset = 1f;
 
+    [Header("Starting Visibility Origin")]
+    [Tooltip("Center tile where fog is revealed at the start.")]
+    [SerializeField] private Vector2Int startingOrigin = new Vector2Int(0, 0);
 
+    [HideInInspector] public List<Vector2Int> revealedTiles = new List<Vector2Int>();
+
+    public void SetStartingOrigin(Vector2Int origin)
+    {
+        startingOrigin = origin;
+    }
     public void InitializeFog()
     {
         if(!enableFog)
@@ -29,10 +40,10 @@ public class FogSystem : MonoBehaviour
         foreach (var tile in MapManager.Instance.GetTiles())
         {
             tile.RemoveFog();
-            tile.AddFog(fogPrefab);
+            tile.AddFog(fogPrefab, fogYOffset);
         }
         // Reveal starting area
-        RevealTilesAround(new Vector2Int(0, 0), visibleRadiusAtStart);
+        RevealTilesAround(startingOrigin, visibleRadiusAtStart);
     }
 
     public void RevealTilesAround(Vector2Int center, int radius)
@@ -73,6 +84,6 @@ public class FogSystem : MonoBehaviour
             tile.RemoveFog();
             tile.AddFog(fogPrefab);
         }
-        RevealTilesAround(new Vector2Int(0, 0), visibleRadiusAtStart);
+        RevealTilesAround(startingOrigin, visibleRadiusAtStart);
     }
 }

@@ -65,17 +65,26 @@ public class DynamicTileGenerator : MonoBehaviour
             int placed = 0;
             foreach (var t in nearbyTiles)
             {
-                if (placed >= objectsPerStructure) break;
+                if (placed >= objectsPerStructure)
+                {
+                    break;
+                }
                 if (t == null || t.HasStructure || t.dynamicInstance != null)
+                {
                     continue;
+                }
 
                 // choose random prefab
                 if (resources.Count == 0)
+                {
                     continue;
+                }
 
                 ResourceEntry entry = resources[Random.Range(0, resources.Count)];
                 if (entry.prefab == null)
+                {
                     continue;
+                }
 
                 GameObject obj = Instantiate(entry.prefab, t.transform);
                 obj.transform.localPosition = new Vector3(0, entry.yOffset, 0);

@@ -119,7 +119,7 @@ public class HexTile : MonoBehaviour
             }
         }
     }
-    public void AddFog(GameObject fogPrefab)
+    public void AddFog(GameObject fogPrefab, float yOffset = 0f)
     {
         if (fogInstance != null || fogPrefab == null)
         {
@@ -127,7 +127,7 @@ public class HexTile : MonoBehaviour
         }
         fogInstance = Instantiate(fogPrefab, transform);
         fogInstance.name = "Fog";
-        fogInstance.transform.localPosition = Vector3.zero;
+        fogInstance.transform.localPosition = new Vector3(0, yOffset, 0);
         
     }
     public void RemoveFog()
