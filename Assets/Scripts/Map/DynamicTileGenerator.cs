@@ -6,17 +6,19 @@ public class ResourceEntry
 {
     public string id;
     public GameObject prefab;
-    public int count = 5;
-    public int minDistanceFromOrigin = 0; // e.g. don't spawn too close to center/base
-    public bool blocksIfStructure = true;  // skip tiles with structures
+    public float yOffset = 2f;
 }
 public class DynamicTileGenerator : MonoBehaviour
 {
-    [Header("Development types")]
-    public List<ResourceEntry> resources = new();
+    [Header("Dynamic Placement Settings")]
+    [Tooltip("How many dynamic objects to place around each structure (e.g. base/grove)")]
+    public int objectsPerStructure = 4;
 
-    [Header("Global rules")]
-    public int maxAttemptsPerResource = 100;
+    [Tooltip("Radius (in tiles) around structure to place objects")]
+    public int radius = 1;
+
+    [Header("Possible Resource Types (choose one randomly for each spawn)")]
+    public List<ResourceEntry> resources = new();
 
     public void GenerateDynamicElements()
     {
@@ -27,191 +29,116 @@ public class DynamicTileGenerator : MonoBehaviour
             return;
         }
 
-        // Build list of candidate tiles (scene)
-        List<HexTile> candidates = new List<HexTile>(map.GetTiles());
-        // remove tiles that already have structures or dynamic objects
-        candidates.RemoveAll(t => t == null || t.HasStructure || t.dynamicInstance != null);
-
-        foreach (var res in resources)
+        // find the specific structures
+        List<HexTile> structureTiles = new List<HexTile>();
+        foreach (var tile in map.GetTiles())
         {
-            if (res.prefab == null || res.count <= 0) continue;
-            int placed = 0;
-            int attempts = 0;
-
-            while (placed < res.count && candidates.Count > 0 && attempts < maxAttemptsPerResource)
+            if (!tile.HasStructure)
             {
-                attempts++;
-                int idx = Random.Range(0, candidates.Count);
-                HexTile tile = candidates[idx];
+                continue;
+            }
+            string name = tile.StructureName?.ToLower();
+            if (name == null)
+            {
+                continue;
+            }
+            if (name.Contains("base") || name.Contains("grove") || name.Contains("enemybase"))
+            {
+                structureTiles.Add(tile);
+            }
+        }
 
-                // distance rule (origin 0,0)
-                int dist = HexCoordinates.Distance(tile.q, tile.r, 0, 0);
-                if (dist < res.minDistanceFromOrigin)
-                {
-                    // skip tile, but don't remove it globally
-                    candidates.RemoveAt(idx);
-                    continue;
-                }
+        // for each base/grove tile, spawn around it
+        foreach (var structureTile in structureTiles)
+        {
+            List<HexTile> nearbyTiles = map.GetNeighborsWithinRadius(structureTile.q, structureTile.r, radius);
+            nearbyTiles.RemoveAll(t => t.q == structureTile.q && t.r == structureTile.r); // exclude center
 
-                // optionally skip tiles with structures
-                if (res.blocksIfStructure && tile.HasStructure)
-                {
-                    candidates.RemoveAt(idx);
-                    continue;
-                }
-
-                // also skip tiles that already got a dynamic item
-                if (tile.dynamicInstance != null)
-                {
-                    candidates.RemoveAt(idx);
-                    continue;
-                }
-
-                // Place resource
-                GameObject inst = Instantiate(res.prefab, tile.transform);
-                inst.name = res.prefab.name;
-                inst.transform.localPosition = Vector3.zero;
-
-                // flag it on tile so we don't double-place
-                tile.dynamicInstance = inst;
-
-                placed++;
-                // remove tile from candidates so we don't pick it again
-                candidates.RemoveAt(idx);
+            for (int i = 0; i < nearbyTiles.Count; i++)
+            {
+                var temp = nearbyTiles[i];
+                int rand = Random.Range(i, nearbyTiles.Count);
+                nearbyTiles[i] = nearbyTiles[rand];
+                nearbyTiles[rand] = temp;
             }
 
-            Debug.Log($"DynamicTileGenerator: Placed {placed}/{res.count} of '{res.id}'");
+            int placed = 0;
+            foreach (var t in nearbyTiles)
+            {
+                if (placed >= objectsPerStructure) break;
+                if (t == null || t.HasStructure || t.dynamicInstance != null)
+                    continue;
+
+                // choose random prefab
+                if (resources.Count == 0)
+                    continue;
+
+                ResourceEntry entry = resources[Random.Range(0, resources.Count)];
+                if (entry.prefab == null)
+                    continue;
+
+                GameObject obj = Instantiate(entry.prefab, t.transform);
+                obj.transform.localPosition = new Vector3(0, entry.yOffset, 0);
+                obj.name = entry.prefab.name;
+                t.dynamicInstance = obj;
+
+                placed++;
+            }
+
+            Debug.Log($"DynamicTileGenerator: Placed {placed}/{objectsPerStructure} dynamics around {structureTile.StructureName}");
         }
     }
 
-    public void GenerateDynamicTiles(Dictionary<Vector2Int, HexTile> tiles)
+    public void SaveDynamicObjects(GameSaveData data)
     {
-        if (tiles == null)
+        if (data == null)
+        { 
+        return;
+        }
+        data.dynamicObjects.Clear();
+
+        foreach (var tile in MapManager.Instance.GetTiles())
+        {
+            if (tile.dynamicInstance != null)
+            {
+                data.dynamicObjects.Add(new GameSaveData.DynamicObjectData
+                {
+                    q = tile.q,
+                    r = tile.r,
+                    resourceId = tile.dynamicInstance.name
+                });
+            }
+        }
+
+        Debug.Log($"DynamicTileGenerator: Saved {data.dynamicObjects.Count} dynamic objects.");
+    }
+
+    public void LoadDynamicObjects(GameSaveData data)
+    {
+        if (data == null || data.dynamicObjects.Count == 0)
         {
             return;
         }
-        // Create a temporary MapManager-like list and call the above
-        // (copy to a list so code is shared)
-        var list = new List<HexTile>(tiles.Values);
-        // remove unusable tiles
-        list.RemoveAll(t => t == null || t.HasStructure || t.dynamicInstance != null);
-
-        // Use same logic as above but with 'list' local
-        foreach (var res in resources)
+        foreach (var objData in data.dynamicObjects)
         {
-            if (res.prefab == null || res.count <= 0) continue;
-            int placed = 0;
-            int attempts = 0;
-
-            var candidates = new List<HexTile>(list);
-
-            while (placed < res.count && candidates.Count > 0 && attempts < maxAttemptsPerResource)
+            if (!MapManager.Instance.TryGetTile(new Vector2Int(objData.q, objData.r), out HexTile tile))
             {
-                attempts++;
-                int idx = Random.Range(0, candidates.Count);
-                HexTile tile = candidates[idx];
-
-                int dist = HexCoordinates.Distance(tile.q, tile.r, 0, 0);
-                if (dist < res.minDistanceFromOrigin)
-                {
-                    candidates.RemoveAt(idx);
-                    continue;
-                }
-                if (res.blocksIfStructure && tile.HasStructure)
-                {
-                    candidates.RemoveAt(idx);
-                    continue;
-                }
-                if (tile.dynamicInstance != null)
-                {
-                    candidates.RemoveAt(idx);
-                    continue;
-                }
-
-                GameObject inst = Instantiate(res.prefab, tile.transform);
-                inst.name = res.prefab.name;
-                inst.transform.localPosition = Vector3.zero;
-                tile.dynamicInstance = inst;
-
-                placed++;
-                candidates.RemoveAt(idx);
+                continue;
+            }
+            // Find matching resource prefab
+            ResourceEntry entry = resources.Find(r => r.id == objData.resourceId);
+            if (entry == null || entry.prefab == null)
+            {
+                continue;
             }
 
-            Debug.Log($"DynamicTileGenerator: Placed {placed}/{res.count} of '{res.id}' (dictionary mode)");
+            // Rebuild object
+            GameObject obj = Instantiate(entry.prefab, tile.transform);
+            obj.transform.localPosition = new Vector3(0, entry.yOffset, 0);
+            obj.name = entry.id;
+            tile.dynamicInstance = obj;
         }
+
+        Debug.Log($"DynamicTileGenerator: Loaded {data.dynamicObjects.Count} dynamic objects.");
     }
-
-    //[Header("Dynamic Tile Prefabs")]
-    //public GameObject[] resourcePrefabs;
-    //public int count = 10;
-    //public int minDistanceFromBase = 2;
-
-
-    //[SerializeField] private GameObject fishPrefab;
-    //[SerializeField] private GameObject debrisPrefab;
-    //[Range(0f, 1f)] public float fishChance = 0.2f;
-    //[Range(0f, 1f)] public float debrisChance = 0.1f;
-
-    //public void GenerateDynamicElements()
-    //{
-    //    foreach (var tile in MapManager.Instance.GetTiles())
-    //    {
-    //        //Checks if tiles already have a structure on it
-    //        if(tile.HasStructure)
-    //        {
-    //            continue;
-    //        }
-    //        float rand = Random.value;
-    //        GameObject toSpawn = null;
-    //        if (rand < fishChance)
-    //        {
-    //            toSpawn = fishPrefab;
-    //        }
-    //        else if(rand <fishChance +debrisChance)
-    //        {
-    //            toSpawn = debrisPrefab;
-    //        }
-
-    //        if(toSpawn != null)
-    //        {
-    //            var obj = Instantiate(toSpawn, tile.transform);
-    //            obj.transform.localPosition = Vector3.zero;
-    //            obj.name = toSpawn.name;
-    //        }
-    //    }
-    //}
-
-
-    //public void GenerateDynamicTiles(Dictionary<Vector2Int, HexTile> tiles)
-    //{
-    //    if (resourcePrefabs.Length == 0)
-    //    {
-    //        return;
-    //    }
-    //    List<HexTile> allTiles = new(tiles.Values);
-    //    int placed = 0;
-
-    //    while (placed < count && allTiles.Count > 0)
-    //    {
-    //        HexTile tile = allTiles[Random.Range(0, allTiles.Count)];
-    //        allTiles.Remove(tile);
-
-    //        if (tile.HasStructure)
-    //        {
-    //            continue;
-    //        }
-    //        // simple example: place only if far enough from (0,0)
-    //        int dist = HexCoordinates.Distance(tile.q, tile.r, 0, 0);
-    //        if (dist < minDistanceFromBase)
-    //        {
-    //            continue;
-    //        }
-    //        GameObject res = Instantiate(resourcePrefabs[Random.Range(0, resourcePrefabs.Length)], tile.transform);
-    //        res.transform.localPosition = Vector3.zero;
-    //        placed++;
-    //    }
-
-    //    Debug.Log($"Spawned {placed} dynamic tiles!");
-    //}
 }
-

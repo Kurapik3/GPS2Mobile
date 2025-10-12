@@ -1,7 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEditor.Overlays;
-
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -14,7 +12,7 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private int mapRadius = 2;
     [SerializeField] private HexTileGenerationSettings generationSettings;
     [SerializeField] private MapData mapData;
-    [SerializeField] private StructureDatabase structureDatabase;
+    [SerializeField] public StructureDatabase structureDatabase;
     public Dictionary<Vector2Int, HexTile> AllTiles { get; private set; } = new();
     private readonly List<HexTile> activeTiles = new();
     public MapData MapData => mapData;
@@ -62,7 +60,7 @@ public class MapGenerator : MonoBehaviour
             for(int q = qMin; q <= qMax; q++)
             {
                 Vector3 pos = HexCoordinates.ToWorld(q, r, hexSize);
-                CreateTile(q, r, pos);
+                CreateTile(q, r, pos,HexTile.TileType.Normal);
             }
         }
         RebuildTileDictionary();
@@ -71,7 +69,7 @@ public class MapGenerator : MonoBehaviour
             tile.FindNeighbors();
         }
     }
-    private void CreateTile(int q, int r, Vector3 pos,HexTile.TileType initialType = HexTile.TileType.Normal)
+    private HexTile CreateTile(int q, int r, Vector3 pos,HexTile.TileType initialType)
     {
         //Create empty parent
         GameObject container = new($"Hex_{q}_{r}");
@@ -86,29 +84,7 @@ public class MapGenerator : MonoBehaviour
         tile.tileType = initialType;
         tile.AddTile();
 
-        //Spawn the mesh prefab as a child
-        //GameObject prefab = generationSettings.GetTile(tile.tileType);
-        //if (prefab != null)
-        //{
-        //    GameObject mesh = (GameObject)PrefabUtility.InstantiatePrefab(prefab,container.transform);
-        //    mesh.name = "Mesh";
-        //    mesh.transform.localPosition = Vector3.zero;
-        //}
-        //else
-        //{
-        //    Debug.LogError("No prefab assigned!");
-        //}
-
-
-        //Vector2Int key = new(q, r);
-        //if(AllTiles.ContainsKey(key))
-        //{
-        //    Debug.LogWarning($"Duplicate tile at {q},{r}");
-        //}
-        //else
-        //{
-        //    AllTiles[key] = tile;
-        //}
+        return tile;
     }
 
     public void GenerateFromData()
@@ -120,26 +96,22 @@ public class MapGenerator : MonoBehaviour
         }
 
         // Clear old
-        foreach (Transform child in transform)
-        {
-            Destroy(child.gameObject);
-        }
+        Clear();
         activeTiles.Clear();
 
         foreach (var tileInfo in mapData.tiles)
         {
             // create hex tile
             Vector3 worldPos = HexCoordinates.ToWorld(tileInfo.q, tileInfo.r, hexSize);
-            GameObject tileObj = Instantiate(generationSettings.GetTile(tileInfo.tileType), worldPos, Quaternion.identity, transform);
-
-            HexTile hex = tileObj.GetComponent<HexTile>();
+            HexTile hex = CreateTile(tileInfo.q, tileInfo.r, worldPos, tileInfo.tileType);
+            activeTiles.Add(hex);
+            
             hex.q = tileInfo.q;
             hex.r = tileInfo.r;
             hex.tileType = tileInfo.tileType;
+            hex.StructureName = tileInfo.hasStructure ? tileInfo.structureName : null;
 
-            activeTiles.Add(hex);
-
-            // if it has structure
+            // runtime structure spawn
             if (tileInfo.hasStructure && structureDatabase != null)
             {
                 StructureData data = structureDatabase.GetByName(tileInfo.structureName);
@@ -149,6 +121,33 @@ public class MapGenerator : MonoBehaviour
                 }
             }
         }
+        // put tiles into dictionary and compute neighbors
+        RebuildTileDictionary();
+        FogSystem fogSystem = FindFirstObjectByType<FogSystem>();
+        if (fogSystem != null)
+        {
+            fogSystem.InitializeFog(); // generate fog first
+
+            foreach (Vector2Int coord in mapData.revealedTiles)
+            {
+                if (MapManager.Instance.GetAllTiles().TryGetValue(coord, out HexTile tile))
+                {
+                    tile.RemoveFog(); // reveal the remembered tiles
+                }
+            }
+
+            // Also sync back into fog system
+            fogSystem.revealedTiles = new List<Vector2Int>(mapData.revealedTiles);
+        }
+
+        foreach (var t in AllTiles.Values)
+        {
+            t.FindNeighbors();
+        }
+
+        // init runtime-only systems
+        //GetComponent<FogSystem>()?.InitializeFog();
+        GetComponent<DynamicTileGenerator>()?.GenerateDynamicElements();
 
         Debug.Log("Map generated from MapData (runtime).");
     }
@@ -201,36 +200,63 @@ public class MapGenerator : MonoBehaviour
         foreach (var data in mapData.tiles)
         {
             Vector3 pos = HexCoordinates.ToWorld(data.q, data.r, hexSize);
-            CreateTile(data.q, data.r, pos, data.tileType);
+            HexTile tile = CreateTile(data.q, data.r, pos, data.tileType);
+            tile.tileType = data.tileType;
+            tile.StructureName = data.hasStructure ? data.structureName : null;
 
-            if (AllTiles.TryGetValue(new Vector2Int(data.q, data.r), out var tile))
-            {
-                tile.tileType = data.tileType;
-                if (data.hasStructure)
-                {
 #if UNITY_EDITOR
-                    //ensure the structure shows in the editor view
-                    if (!Application.isPlaying)
-                    {
-                        if (!tile.TryGetComponent(out StructureTile structureTile))
-                        { 
-                            structureTile = tile.gameObject.AddComponent<StructureTile>(); 
-                        }
+            if (data.hasStructure && !string.IsNullOrEmpty(data.structureName))
+            {
+                if (!tile.TryGetComponent(out StructureTile structureTile))
+                    structureTile = tile.gameObject.AddComponent<StructureTile>();
 
-                        structureTile.structureDatabase = structureDatabase;
-                        structureTile.selectedIndex = structureDatabase.structures.FindIndex(s => s.structureName == data.structureName);
+                structureTile.structureDatabase = structureDatabase;
+                structureTile.selectedIndex = Mathf.Clamp(
+                    structureDatabase.structures.FindIndex(s => s.structureName == data.structureName),
+                    0,
+                    Mathf.Max(0, structureDatabase.structures.Count - 1)
+                );
 
-                        structureTile.ApplyStructure();
-                    }
-                    else
-#endif
-                    {
-                        tile.ApplyStructureByName(data.structureName);
-                    }
+                structureTile.ApplyStructure();
+
+                tile.StructureName = data.structureName;
+                tile.structureIndex = structureTile.selectedIndex;
+            }
+#else
+            if (data.hasStructure && structureDatabase != null)
+            {
+                StructureData sData = structureDatabase.GetByName(data.structureName);
+                if (sData != null)
+                {
+                    tile.ApplyStructureRuntime(sData);
                 }
             }
+#endif
+         
+    }
+    RebuildTileDictionary();
+#if UNITY_EDITOR
+        // Force update structure visuals in Editor
+        if (!Application.isPlaying)
+        {
+            foreach (var tile in AllTiles.Values)
+            {
+                if (tile.tileType == HexTile.TileType.Structure)
+                {
+                    var st = tile.GetComponent<StructureTile>();
+                    if (st == null)
+                    {
+                        st = tile.gameObject.AddComponent<StructureTile>();
+                    }
+
+                    st.structureDatabase = structureDatabase;
+                    st.ApplyStructure(); // rebuilds the visual
+                }
+            }
+
+            UnityEditor.SceneView.RepaintAll();
         }
-        RebuildTileDictionary();
+#endif
         Debug.Log($"Loaded map from ScriptableObject: {mapData.name}");
     }
 

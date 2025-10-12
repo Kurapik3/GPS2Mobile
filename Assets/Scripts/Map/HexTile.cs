@@ -106,7 +106,6 @@ public class HexTile : MonoBehaviour
             tile.AddComponent<MeshCollider>().sharedMesh = mf.sharedMesh;
         }
     }
-    
 
     public void FindNeighbors()
     {
@@ -165,6 +164,21 @@ public class HexTile : MonoBehaviour
         instance.transform.localRotation = Quaternion.identity;
         instance.transform.localScale = Vector3.one;
     }
+    public void SetStructure(StructureData data)
+    {
+        if (data == null) return;
+        structureIndex = -1;
+        StructureName = data.structureName;
+    }
+    public StructureData GetStructureData()
+    {
+        var generator = GetComponentInParent<MapGenerator>();
+        if (generator == null || generator.structureDatabase == null || string.IsNullOrEmpty(StructureName))
+        {
+            return null;
+        }
+        return generator.structureDatabase.GetByName(StructureName);
+    }
 
 #if UNITY_EDITOR
     private void OnDrawGizmos()
@@ -215,6 +229,16 @@ public class HexTile : MonoBehaviour
 #if UNITY_EDITOR
     private void HandleStructureComponent()
     {
+#if UNITY_EDITOR
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            return;
+        }
+        if (PrefabUtility.IsPartOfPrefabAsset(gameObject))
+        {
+            return;
+        }
+#endif
         var structureTile = GetComponent<StructureTile>();
 
         if (tileType == TileType.Structure)
@@ -226,7 +250,7 @@ public class HexTile : MonoBehaviour
         }
         else
         {
-            if (structureTile != null)
+            if (!Application.isPlaying && structureTile != null && !EditorApplication.isUpdating)
             {
                 DestroyImmediate(structureTile, true);
             }
