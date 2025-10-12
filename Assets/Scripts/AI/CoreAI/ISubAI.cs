@@ -1,5 +1,7 @@
+using System.Collections;
+
 public interface ISubAI
 {
     void Initialize(IAIContext context, IAIActor actor);
-    void Execute(); //Called each turn by AIController
+    IEnumerator ExecuteStepByStep(); //Called each turn by AIController
 }

@@ -16,6 +16,7 @@ public interface IAIContext
     int GetUnitMoveRange(int unitId);
     List<Vector2Int> GetReachableHexes(Vector2Int startHex, int moveRange);
     bool IsTileOccupied(Vector2Int hex);
+    int GetUnitHP(int unitId);
 
     //==================== Bases ====================
     List<int> GetOwnedBaseIds(); //All owned Bases

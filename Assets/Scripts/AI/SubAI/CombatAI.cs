@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ public class CombatAI : ISubAI
     private IAIContext context;
     private IAIActor actor;
     private System.Random rng = new System.Random();
+    private float delay = 1f;
 
     public void Initialize(IAIContext context, IAIActor actor)
     {
@@ -18,11 +20,11 @@ public class CombatAI : ISubAI
         this.actor = actor;
     }
 
-    public void Execute()
+    public IEnumerator ExecuteStepByStep()
     {
         var units = context.GetOwnedUnitIds();
         if (units == null || units.Count == 0)
-            return;
+            yield break;
 
         foreach (var unitId in units)
         {
@@ -39,6 +41,7 @@ public class CombatAI : ISubAI
             {
                 MoveIdle(unitId, pos);
                 Debug.Log($"[CombatAI] {unitType} #{unitId} cannot attack, moving instead.");
+                yield return new WaitForSeconds(delay);
                 continue;
 
             }
@@ -55,6 +58,7 @@ public class CombatAI : ISubAI
                 {
                     actor.AttackTarget(unitId, selected);
                     Debug.Log($"[CombatAI] Unit {unitType} #{unitId} attacks entity {selected}");
+                    yield return new WaitForSeconds(delay);
                     continue;
                 }
                 else
@@ -65,6 +69,7 @@ public class CombatAI : ISubAI
 
             //If no valid target or skipped attack: decide movement (70% towards origin)
             MoveIdle(unitId, pos);
+            yield return new WaitForSeconds(delay);
         }
     }
 

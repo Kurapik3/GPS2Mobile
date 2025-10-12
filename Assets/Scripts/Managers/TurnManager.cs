@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
 
 public class TurnManager : MonoBehaviour
@@ -20,12 +21,21 @@ public class TurnManager : MonoBehaviour
     public static event TurnEvent OnPlayerTurnStart;
     public static event TurnEvent OnEnemyTurnStart;
 
+    [Header("AI")]
+    [SerializeField] private AIController aiController;
+
     private void Start()
     {
         if (endTurnButton != null)
         {
             endTurnButton.onClick.AddListener(EndTurn);
         }
+
+        if (aiController != null)
+        {
+            aiController.OnAITurnFinished += EndEnemyTurn;
+        }
+
         StartPlayerTurn();
     }
 
@@ -54,8 +64,10 @@ public class TurnManager : MonoBehaviour
             endTurnButton.interactable = false;
         }
 
+        aiController?.ExecuteTurn();
+
         // to simulate a short delay for enemy actions
-        Invoke(nameof(EndEnemyTurn), 2f);
+        //Invoke(nameof(EndEnemyTurn), 2f);
     }
 
     private void EndEnemyTurn()

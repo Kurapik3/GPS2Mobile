@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ public class ExplorationAI : ISubAI
     private IAIContext context;
     private IAIActor actor;
     private System.Random rng = new System.Random();
+    private float delay = 1f;
 
     public void Initialize(IAIContext context, IAIActor actor)
     {
@@ -18,11 +20,11 @@ public class ExplorationAI : ISubAI
         this.actor = actor;
     }
 
-    public void Execute()
+    public IEnumerator ExecuteStepByStep()
     {
         var units = context.GetOwnedUnitIds();
         if (units == null || units.Count == 0)
-            return;
+            yield break;
 
         Vector2Int origin = new Vector2Int(0, 0);
 
@@ -51,8 +53,9 @@ public class ExplorationAI : ISubAI
             Vector3 destination = context.HexToWorld(targetHex);
 
             actor.MoveTo(unitId, destination);
-
             Debug.Log($"[ExplorationAI] Unit {unitId} moving {(moveTowards ? "towards" : "away from")} origin to {destination}");
+
+            yield return new WaitForSeconds(delay);
         }
     }
 

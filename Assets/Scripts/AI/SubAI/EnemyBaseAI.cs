@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ public class EnemyBaseAI : ISubAI
     private IAIContext context;
     private IAIActor actor;
     private AIUnlockSystem unlockSystem;
-    private int currentTurn;
+    private float delay = 1f;
 
     public void Initialize(IAIContext context, IAIActor actor)
     {
@@ -23,13 +24,13 @@ public class EnemyBaseAI : ISubAI
         unlockSystem = system;
     }
 
-    public void Execute()
+    public IEnumerator ExecuteStepByStep()
     {
         var baseIds = context.GetOwnedBaseIds();
         if (baseIds == null || baseIds.Count == 0)
-            return;
+            yield break;;
 
-        currentTurn = context.GetTurnNumber();
+        int currentTurn = context.GetTurnNumber();
 
         if (unlockSystem != null)
             unlockSystem.UpdateUnlocks(currentTurn);
@@ -70,6 +71,8 @@ public class EnemyBaseAI : ISubAI
 
             actor.SpawnUnit(baseId, chosenUnit);
             Debug.Log($"[EnemyBaseAI] EnemyBase {baseId} spawned {chosenUnit} (Turn {currentTurn}).");
+
+            yield return new WaitForSeconds(delay);
         }
     }
 }

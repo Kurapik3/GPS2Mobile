@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,27 +12,29 @@ using UnityEngine;
 /// </summary>
 public class AIController : MonoBehaviour, IAIActor, IAIContext
 {
-    [Header("References")]
-    [SerializeField] private UnitDatabase unitDatabase;
+    [SerializeField] private List<GameObject> unitPrefabs;
     [SerializeField] private AIUnlockSystem unlockSystem;
+    [SerializeField] private UnitDatabase unitDatabase;
 
     private List<ISubAI> subAIs;
     private int currentTurn = 1;
+    public bool IsTurnFinished { get; private set; }
 
     // ==================== Runtime Data ====================
     private Dictionary<int, Vector3> aiUnitPositions = new();
     private Dictionary<int, string> aiUnitTypes = new();
+    private Dictionary<int, int> aiUnitHPs = new();
     private Dictionary<int, Vector3> aiBasePositions = new();
     private Dictionary<int, int> aiBaseHPs = new();
 
     private Dictionary<int, GameObject> aiUnitObjects = new();
 
     private int nextUnitId = 1;
-    private int nextBaseId = 10;
 
-    public bool IsTurnFinished { get; private set; }
-    [SerializeField] private List<GameObject> unitPrefabs;
     private Dictionary<string, GameObject> prefabDict;
+    
+    public delegate void AIEvent();
+    public event AIEvent OnAITurnFinished;
 
     private void Awake()
     {
@@ -40,17 +43,14 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         prefabDict = new Dictionary<string, GameObject>();
         foreach (var prefab in unitPrefabs)
             prefabDict[prefab.name] = prefab;
+        SetupTestBaseAndUnit();
     }
 
     private void Initialize()
     {
-        if (unitDatabase == null)
-            unitDatabase = FindFirstObjectByType<UnitDatabase>();
-
         if (unlockSystem == null)
             unlockSystem = FindFirstObjectByType<AIUnlockSystem>();
 
-        // Create sub-AIs
         subAIs = new List<ISubAI>
         {
             new EnemyBaseAI(),
@@ -64,24 +64,60 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         Debug.Log("[AIController] Initialized.");
     }
 
+
+    //=======================Temp=========================
+    private void SetupTestBaseAndUnit()
+    {
+        int testBaseId = 10;
+        Vector2Int baseHex = new Vector2Int(0, 0);
+        Vector3 baseWorldPos = HexToWorld(baseHex);
+
+        aiBasePositions[testBaseId] = baseWorldPos;
+        aiBaseHPs[testBaseId] = 100;
+
+        MapManager.Instance.SetUnitOccupied(baseHex, true);
+
+        Debug.Log($"[TestSetup] Created test base {testBaseId} at {baseWorldPos}");
+
+        int testUnitId = nextUnitId++;
+        string unitType = "Scout";
+        Vector2Int unitHex = new Vector2Int(0, 1);
+        Vector3 unitWorldPos = HexToWorld(unitHex);
+
+        aiUnitPositions[testUnitId] = unitWorldPos;
+        aiUnitTypes[testUnitId] = unitType;
+
+        UnitData data = unitDatabase.GetUnitByName(unitType);
+        aiUnitHPs[testUnitId] = data != null ? data.hp : 100;
+
+        if (prefabDict.TryGetValue(unitType, out var prefab))
+        {
+            GameObject unitGO = Instantiate(prefab, unitWorldPos, Quaternion.identity);
+            unitGO.name = $"TestEnemy_{unitType}_{testUnitId}";
+            aiUnitObjects[testUnitId] = unitGO;
+        }
+
+        MapManager.Instance.SetUnitOccupied(unitHex, true);
+
+        Debug.Log($"[TestSetup] Spawned test unit {unitType} #{testUnitId} at {unitWorldPos}");
+    }
+    //================================================================
+
     // ==================== Turn Management ====================
     public void ExecuteTurn()
+    {
+        StartCoroutine(ExecuteTurnCoroutine());
+    }
+
+    private IEnumerator ExecuteTurnCoroutine()
     {
         IsTurnFinished = false;
         Debug.Log($"<color=yellow>=== [AIController] Enemy Turn {currentTurn} Start ===</color>");
 
-        unlockSystem?.UpdateUnlocks(currentTurn);
-
-        if (aiBasePositions.Count == 0)
-        {
-            //Enemy game over...
-        }
-
-        // Execute sub-AI modules
         foreach (var subAI in subAIs)
         {
-            Debug.Log($"[AIController] Executing {subAI.GetType().Name}...");
-            subAI.Execute();
+            yield return StartCoroutine(subAI.ExecuteStepByStep());
+            Debug.Log($"Executing {subAI.GetType().Name}...");
         }
 
         EndTurn();
@@ -92,7 +128,9 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         IsTurnFinished = true;
         Debug.Log("<color=yellow>=== [AIController] Enemy Turn End ===</color>");
         currentTurn++;
-    }
+
+        OnAITurnFinished?.Invoke();
+    } 
 
     // ==================== IAIActor Implementation ====================
     public void MoveTo(int unitId, Vector3 destination)
@@ -165,6 +203,7 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         //Store runtime info
         aiUnitPositions[unitId] = spawnPos;
         aiUnitTypes[unitId] = unitType;
+        aiUnitHPs[unitId] = data.hp;
 
         //Create unit GameObject
         if (!prefabDict.TryGetValue(unitType, out var prefab))
@@ -207,6 +246,7 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         //Remove runtime data
         aiUnitPositions.Remove(unitId);
         aiUnitTypes.Remove(unitId);
+        aiUnitHPs.Remove(unitId);
 
         if (aiUnitObjects.TryGetValue(unitId, out var go))
             Destroy(go);
@@ -262,6 +302,11 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         }
         return false;
     }
+    public int GetUnitHP(int unitId)
+    {
+        return aiUnitHPs.TryGetValue(unitId, out var hp) ? hp : 0;
+    }
+    //public bool IsUnitAlive(int unitId) => aiUnitHPs.ContainsKey(unitId) && aiUnitHPs[unitId] > 0;
 
     // ----- Bases -----
     public List<int> GetOwnedBaseIds() => new(aiBasePositions.Keys);
