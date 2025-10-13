@@ -26,7 +26,7 @@ public class ExplorationAI : ISubAI
         if (units == null || units.Count == 0)
             yield break;
 
-        Vector2Int origin = new Vector2Int(0, 0);
+        Vector2Int origin = new Vector2Int(0, 2);
 
         foreach (var unitId in units)
         {

@@ -330,7 +330,7 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
 
     // ----- Hex Helpers -----
     public Vector2Int WorldToHex(Vector3 pos) => new Vector2Int(Mathf.RoundToInt(pos.x), Mathf.RoundToInt(pos.z));
-    public Vector3 HexToWorld(Vector2Int hex) => new Vector3(hex.x, 0, hex.y);
+    public Vector3 HexToWorld(Vector2Int hex) => new Vector3(hex.x, 2, hex.y);
     public int GetHexDistance(Vector2Int a, Vector2Int b) => Mathf.Max(Mathf.Abs(a.x - b.x), Mathf.Abs(a.y - b.y));
 
     // ----- Turn Info -----

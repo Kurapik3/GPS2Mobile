@@ -84,7 +84,7 @@ public class CombatAI : ISubAI
             return;
 
         bool moveToOrigin = rng.NextDouble() < 0.7;
-        Vector2Int originHex = Vector2Int.zero;
+        Vector2Int originHex = new Vector2Int(0,2);
         Vector2Int targetHex = ChooseTargetHex(reachableHexes, currentHex, originHex, moveToOrigin);
         Vector3 destination = context.HexToWorld(targetHex);
 
