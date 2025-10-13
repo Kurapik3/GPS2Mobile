@@ -52,9 +52,8 @@ public class ManagerOfScene : MonoBehaviour
     }
     public void GameStart()
     {
-        
         //LoadNextScene("GameplayScene");
-        LoadNextScene("MainGameplayScene");
+        LoadNextScene("PrototypeScene");
         ManagerAudio.instance.PlaySFX("ButtonPressed");
         ManagerAudio.instance.StopMusic();
 
