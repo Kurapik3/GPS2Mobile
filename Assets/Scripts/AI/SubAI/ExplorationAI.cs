@@ -26,7 +26,7 @@ public class ExplorationAI : ISubAI
         if (units == null || units.Count == 0)
             yield break;
 
-        Vector2Int origin = new Vector2Int(0, 2);
+        Vector2Int origin = new Vector2Int(0, 0);
 
         foreach (var unitId in units)
         {
@@ -34,9 +34,9 @@ public class ExplorationAI : ISubAI
             if (context.IsUnitVisibleToPlayer(unitId))
                 continue;
 
-            Vector3 pos = context.GetUnitPosition(unitId);
-            Vector2Int currentHex = context.WorldToHex(pos);
+            Vector2Int currentHex = context.GetUnitPosition(unitId);
             int moveRange = 1;
+
             List<Vector2Int> reachableHexes = context.GetReachableHexes(currentHex, moveRange);
             reachableHexes.RemoveAll(hex => !MapManager.Instance.CanUnitStandHere(hex));
 

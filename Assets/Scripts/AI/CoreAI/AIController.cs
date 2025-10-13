@@ -20,16 +20,31 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
     private int currentTurn = 1;
     public bool IsTurnFinished { get; private set; }
 
-    // ==================== Runtime Data ====================
-    private Dictionary<int, Vector3> aiUnitPositions = new();
+    //==================== Runtime Data (Enemy) ====================
+    private Dictionary<int, Vector2Int> aiUnitPositions = new();
     private Dictionary<int, string> aiUnitTypes = new();
     private Dictionary<int, int> aiUnitHPs = new();
-    private Dictionary<int, Vector3> aiBasePositions = new();
-    private Dictionary<int, int> aiBaseHPs = new();
-
+    private Dictionary<int, int> aiUnitSpawnTurn = new();
+    private Dictionary<int, int> aiUnitHousedInBase = new(); //Track which base a unit is housed in
     private Dictionary<int, GameObject> aiUnitObjects = new();
 
+    private Dictionary<int, Vector2Int> aiBasePositions = new();
+    private Dictionary<int, int> aiBaseHPs = new();
+    private Dictionary<int, int> aiBaseUnitCount = new(); //Track how many units are housed in each base
+    private Dictionary<int, GameObject> aiBaseObjects = new();
+
     private int nextUnitId = 1;
+    private int nextBaseId = 10;
+
+    //==================== Runtime Data (Player) ====================
+    private Dictionary<int, Vector2Int> playerUnitPositions = new();
+    private Dictionary<int, GameObject> playerUnitObjects = new();
+    private Dictionary<int, Vector2Int> playerBasePositions = new();
+    private Dictionary<int, GameObject> playerBaseObjects = new();
+
+    //Player ids start ranges, so they don't collide with AI ids
+    private int nextPlayerUnitId = 1000;
+    private int nextPlayerBaseId = 1000;
 
     private Dictionary<string, GameObject> prefabDict;
     
@@ -43,7 +58,14 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         prefabDict = new Dictionary<string, GameObject>();
         foreach (var prefab in unitPrefabs)
             prefabDict[prefab.name] = prefab;
-        SetupTestBaseAndUnit();
+        //SetupTestBaseAndUnit();
+    }
+
+    private void Start()
+    {
+        DiscoverEnemyBases();
+        DiscoverPlayerBases();
+        DiscoverPlayerUnits();
     }
 
     private void Initialize()
@@ -64,44 +86,116 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         Debug.Log("[AIController] Initialized.");
     }
 
-
-    //=======================Temp=========================
-    private void SetupTestBaseAndUnit()
+    //Discovers all GameObjects with "EnemyBase" tag and registers them as AI bases
+    private void DiscoverEnemyBases()
     {
-        int testBaseId = 10;
-        Vector2Int baseHex = new Vector2Int(0, 0);
-        Vector3 baseWorldPos = HexToWorld(baseHex);
+        GameObject[] basesArray = GameObject.FindGameObjectsWithTag("EnemyBase");
 
-        aiBasePositions[testBaseId] = baseWorldPos;
-        aiBaseHPs[testBaseId] = 100;
-
-        MapManager.Instance.SetUnitOccupied(baseHex, true);
-
-        Debug.Log($"[TestSetup] Created test base {testBaseId} at {baseWorldPos}");
-
-        int testUnitId = nextUnitId++;
-        string unitType = "Scout";
-        Vector2Int unitHex = new Vector2Int(0, 1);
-        Vector3 unitWorldPos = HexToWorld(unitHex);
-
-        aiUnitPositions[testUnitId] = unitWorldPos;
-        aiUnitTypes[testUnitId] = unitType;
-
-        UnitData data = unitDatabase.GetUnitByName(unitType);
-        aiUnitHPs[testUnitId] = data != null ? data.hp : 100;
-
-        if (prefabDict.TryGetValue(unitType, out var prefab))
+        if (basesArray == null || basesArray.Length == 0)
         {
-            GameObject unitGO = Instantiate(prefab, unitWorldPos, Quaternion.identity);
-            unitGO.name = $"TestEnemy_{unitType}_{testUnitId}";
-            aiUnitObjects[testUnitId] = unitGO;
+            Debug.LogWarning("[AIController] No enemy bases found with 'EnemyBase' tag!");
+            return;
         }
 
-        MapManager.Instance.SetUnitOccupied(unitHex, true);
+        foreach (var baseGO in basesArray)
+        {
+            int baseId = nextBaseId++;
+            Vector2Int baseHex = WorldToHex(baseGO.transform.position);
 
-        Debug.Log($"[TestSetup] Spawned test unit {unitType} #{testUnitId} at {unitWorldPos}");
+            aiBasePositions[baseId] = baseHex;
+            aiBaseHPs[baseId] = Random.Range(20, 36); //HP: 20 ~ 35
+            aiBaseUnitCount[baseId] = 0; //Start with no units housed
+            aiBaseObjects[baseId] = baseGO;
+
+            //Mark base tile as occupied
+            MapManager.Instance.SetUnitOccupied(baseHex, true);
+
+            Debug.Log($"[AIController] Discovered enemy base {baseId} at {baseHex}");
+        }
     }
-    //================================================================
+
+    //Discover player bases using tag "PlayerBase" and assign stable ids
+    private void DiscoverPlayerBases()
+    {
+        GameObject[] basesArray = GameObject.FindGameObjectsWithTag("PlayerBase");
+
+
+        if (basesArray == null || basesArray.Length == 0)
+        {
+            Debug.LogWarning("[AIController] No player bases found with 'PlayerBase' tag!");
+            return;
+        }
+
+        foreach (var baseGO in basesArray)
+        {
+            int baseId = nextPlayerBaseId++;
+            Vector2Int baseHex = WorldToHex(baseGO.transform.position);
+            playerBasePositions[baseId] = baseHex;
+            playerBaseObjects[baseId] = baseGO;
+
+            Debug.Log($"[AIController] Discovered player base {baseId} at hex {baseHex}");
+        }
+    }
+
+    //Discover player units using tag "PlayerUnit" and assign stable ids
+    private void DiscoverPlayerUnits()
+    {
+        GameObject[] unitsArray = GameObject.FindGameObjectsWithTag("PlayerUnit");
+
+
+        if (unitsArray == null || unitsArray.Length == 0)
+        {
+            Debug.LogWarning("[AIController] No player units found with 'PlayerUnit' tag!");
+            return;
+        }
+
+        foreach (var unitGO in unitsArray)
+        {
+            int unitId = nextPlayerUnitId++;
+            Vector2Int unitHex = WorldToHex(unitGO.transform.position);
+            playerUnitPositions[unitId] = unitHex;
+            playerUnitObjects[unitId] = unitGO;
+
+            Debug.Log($"[AIController] Discovered player unit {unitId} at hex {unitHex}");
+        }
+    }
+    ////=======================Temp=========================
+    //private void SetupTestBaseAndUnit()
+    //{
+    //    int testBaseId = 10;
+    //    Vector2Int baseHex = new Vector2Int(0, 0);
+    //    Vector3 baseWorldPos = HexToWorld(baseHex);
+
+    //    aiBasePositions[testBaseId] = baseWorldPos;
+    //    aiBaseHPs[testBaseId] = 100;
+
+    //    MapManager.Instance.SetUnitOccupied(baseHex, true);
+
+    //    Debug.Log($"[TestSetup] Created test base {testBaseId} at {baseWorldPos}");
+
+    //    int testUnitId = nextUnitId++;
+    //    string unitType = "Scout";
+    //    Vector2Int unitHex = new Vector2Int(0, 1);
+    //    Vector3 unitWorldPos = HexToWorld(unitHex);
+
+    //    aiUnitPositions[testUnitId] = unitWorldPos;
+    //    aiUnitTypes[testUnitId] = unitType;
+
+    //    UnitData data = unitDatabase.GetUnitByName(unitType);
+    //    aiUnitHPs[testUnitId] = data != null ? data.hp : 100;
+
+    //    if (prefabDict.TryGetValue(unitType, out var prefab))
+    //    {
+    //        GameObject unitGO = Instantiate(prefab, unitWorldPos, Quaternion.identity);
+    //        unitGO.name = $"TestEnemy_{unitType}_{testUnitId}";
+    //        aiUnitObjects[testUnitId] = unitGO;
+    //    }
+
+    //    MapManager.Instance.SetUnitOccupied(unitHex, true);
+
+    //    Debug.Log($"[TestSetup] Spawned test unit {unitType} #{testUnitId} at {unitWorldPos}");
+    //}
+    ////================================================================
 
     // ==================== Turn Management ====================
     public void ExecuteTurn()
@@ -137,26 +231,32 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
     {
         if (!aiUnitPositions.ContainsKey(unitId))
         {
-            Debug.LogWarning($"[AI] MoveTo: unit {unitId} not found.");
+            Debug.LogWarning($"[AIActor] MoveTo: unit {unitId} not found.");
+            return;
+        }
+
+        if (IsUnitNewlySpawned(unitId))
+        {
+            Debug.Log($"[AIActor] Unit {unitId} was just spawned, cannot move yet.");
             return;
         }
 
         //Release the old tile's occupation status
-        Vector2Int oldHex = WorldToHex(aiUnitPositions[unitId]);
+        Vector2Int oldHex = aiUnitPositions[unitId];
+        Vector2Int newHex = WorldToHex(destination);
         MapManager.Instance.SetUnitOccupied(oldHex, false);
 
         //Update the unit's stored position
-        aiUnitPositions[unitId] = destination;
+        aiUnitPositions[unitId] = newHex;
 
         //Move the GameObject in the scene
         if (aiUnitObjects.TryGetValue(unitId, out var go))
-            go.transform.position = destination;
+            go.transform.position = HexToWorld(newHex);
 
         //Mark the new tile as occupied by this unit
-        Vector2Int newHex = WorldToHex(destination);
         MapManager.Instance.SetUnitOccupied(newHex, true);
 
-        Debug.Log($"[AIActor] Unit {unitId} moved to {destination}");
+        Debug.Log($"[AIActor] Unit {unitId} moved to hex ({newHex}).");
     }
 
     //public void RebuildRuin(Vector3 location)
@@ -197,13 +297,20 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         }
 
         //Determine spawn position near the base
-        Vector3 spawnPos = aiBasePositions[baseId] + new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f));
+        Vector2Int baseHex = aiBasePositions[baseId];
+        Vector3 spawnPos = HexToWorld(baseHex) + Vector3.up * 2f;
+
         int unitId = nextUnitId++;
 
         //Store runtime info
-        aiUnitPositions[unitId] = spawnPos;
+        aiUnitPositions[unitId] = baseHex;
         aiUnitTypes[unitId] = unitType;
         aiUnitHPs[unitId] = data.hp;
+        aiUnitSpawnTurn[unitId] = currentTurn;
+        aiUnitHousedInBase[unitId] = baseId; //Unit is housed in this base
+
+        //Increment unit count in base
+        aiBaseUnitCount[baseId]++;
 
         //Create unit GameObject
         if (!prefabDict.TryGetValue(unitType, out var prefab))
@@ -217,14 +324,20 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
 
 
         //Mark spawn tile as occupied
-        Vector2Int hex = WorldToHex(spawnPos);
-        MapManager.Instance.SetUnitOccupied(hex, true);
+        if (!IsTileOccupied(baseHex))
+            MapManager.Instance.SetUnitOccupied(baseHex, true);
 
         Debug.Log($"[AIActor] Spawned {unitType} (id {unitId}) near base {baseId}");
     }
 
     public void AttackTarget(int unitId, int targetId)
     {
+        if (IsUnitNewlySpawned(unitId))
+        {
+            Debug.Log($"[AI] Unit {unitId} was just spawned, cannot attack yet.");
+            return;
+        }
+
         Debug.Log($"[AIActor] Unit {unitId} attacks target {targetId}");
     }
 
@@ -239,14 +352,23 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         if (!aiUnitPositions.ContainsKey(unitId))
             return;
 
+        //Decrement unit count in base if unit was housed
+        if (aiUnitHousedInBase.TryGetValue(unitId, out int baseId) && aiBaseUnitCount.ContainsKey(baseId))
+        {
+            aiBaseUnitCount[baseId]--;
+            Debug.Log($"[AIActor] Unit {unitId} was housed in base {baseId}. Base now houses {aiBaseUnitCount[baseId]}/3 units.");
+        }
+
         //Release tile occupation
-        Vector2Int hex = WorldToHex(aiUnitPositions[unitId]);
+        Vector2Int hex = aiUnitPositions[unitId];
         MapManager.Instance.SetUnitOccupied(hex, false);
 
         //Remove runtime data
         aiUnitPositions.Remove(unitId);
         aiUnitTypes.Remove(unitId);
         aiUnitHPs.Remove(unitId);
+        aiUnitSpawnTurn.Remove(unitId);
+        aiUnitHousedInBase.Remove(unitId);
 
         if (aiUnitObjects.TryGetValue(unitId, out var go))
             Destroy(go);
@@ -256,10 +378,18 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         Debug.Log($"[AIActor] Destroyed unit {unitId} and freed tile {hex}");
     }
 
+    private bool IsUnitNewlySpawned(int unitId)
+    {
+        if (!aiUnitSpawnTurn.ContainsKey(unitId))
+            return false;
+
+        return aiUnitSpawnTurn[unitId] == currentTurn;
+    }
+
     // ==================== IAIContext Implementation ====================
     // ----- Units -----
     public List<int> GetOwnedUnitIds() => new(aiUnitPositions.Keys);
-    public Vector3 GetUnitPosition(int id) => aiUnitPositions.TryGetValue(id, out var pos) ? pos : Vector3.zero;
+    public Vector2Int GetUnitPosition(int id) => aiUnitPositions.TryGetValue(id, out var pos) ? pos : Vector2Int.zero;
     public string GetUnitType(int id) => aiUnitTypes.TryGetValue(id, out var t) ? t : "Unknown";
     public int GetUnitAttackRange(int id)
     {
@@ -294,11 +424,25 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
     }
     public bool IsTileOccupied(Vector2Int hex)
     {
-        // Simplified: check if any unit is at the hex
+        //Check if any AI unit is at the hex
         foreach (var pos in aiUnitPositions.Values)
         {
-            Vector2Int unitHex = WorldToHex(pos);
-            if (unitHex == hex) return true;
+            if (pos == hex)
+                return true;
+        }
+
+        //Check player units
+        foreach (var pos in playerUnitPositions.Values)
+        {
+            if (pos == hex) 
+                return true;
+        }
+
+        //Check player bases
+        foreach (var pos in playerBasePositions.Values)
+        {
+            if (pos == hex) 
+                return true;
         }
         return false;
     }
@@ -310,23 +454,110 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
 
     // ----- Bases -----
     public List<int> GetOwnedBaseIds() => new(aiBasePositions.Keys);
-    public Vector3 GetBasePosition(int id) => aiBasePositions.TryGetValue(id, out var pos) ? pos : Vector3.zero;
+    public Vector2Int GetBasePosition(int id) => aiBasePositions.TryGetValue(id, out var pos) ? pos : Vector2Int.zero;
     public int GetBaseHP(int baseId) => aiBaseHPs.TryGetValue(baseId, out var hp) ? hp : 0;
-    public bool CanProduceUnit(int baseId) => aiBaseHPs.ContainsKey(baseId);
-    public bool CanUpgradeBase(int baseId) => aiBaseHPs.ContainsKey(baseId) && aiBaseHPs[baseId] < 200;
-    public int GetBaseUnitCount(int baseId) => 0;
+    public bool CanProduceUnit(int baseId) => !aiBaseUnitCount.TryGetValue(baseId, out var count) ? false : count< 3;
+
+    //public bool CanUpgradeBase(int baseId) => aiBaseHPs.ContainsKey(baseId) && aiBaseHPs[baseId] < 200;
+    public int GetBaseUnitCount(int baseId)
+    {
+        return aiBaseUnitCount.TryGetValue(baseId, out var count) ? count : 0;
+    }
     public bool IsBaseOccupied(int baseId) => false;
+
+    //Check if there is an enemy unit standing on the base tile.
+    //If true, all incoming damage is redirected to this unit instead of the base.
+    public bool IsUnitOnBaseTile(int baseId)
+    {
+        if (!aiBasePositions.TryGetValue(baseId, out var basePos))
+            return false;
+
+        Vector2Int baseHex = basePos;
+        foreach (var unitPos in aiUnitPositions.Values)
+        {
+            Vector2Int unitHex = unitPos;
+            if (unitHex == baseHex)
+                return true;
+        }
+        return false;
+    }
+
+    //Get the ID of the unit standing on the base tile (if any).
+    //Returns -1 if no unit is on the base.
+    public int GetUnitOnBaseTile(int baseId)
+    {
+        if (!aiBasePositions.TryGetValue(baseId, out var basePos))
+            return -1;
+
+        Vector2Int baseHex = basePos;
+        foreach (var unitPair in aiUnitPositions)
+        {
+            Vector2Int unitHex = unitPair.Value;
+            if (unitHex == baseHex)
+                return unitPair.Key; // Return the unit ID
+        }
+        return -1;
+    }
+
+    public bool IsBaseDestroyed(int baseId)
+    {
+        return GetBaseHP(baseId) <= 0;
+    }
+
 
     // ----- Structure Tiles -----
     public List<Vector3> GetUnexploredTiles() => new List<Vector3>();
 
     // ----- Enemy / Player -----
-    public List<int> GetPlayerUnitIds() => new() { 2000, 2001 };
-    public List<int> GetPlayerBaseIds() => new() { 1000 };
-    public Vector3 GetEnemyPosition(int id) => Vector3.zero;
-    public bool IsEnemyNearby(Vector3 pos, int range) => false;
-    public Vector3 GetNearestEnemy(Vector3 from) => Vector3.zero;
-    public List<int> GetEnemiesInRange(Vector3 position, int range) => new List<int>();
+    public List<int> GetPlayerUnitIds() => new (playerUnitPositions.Keys);
+    public List<int> GetPlayerBaseIds() => new (playerBasePositions.Keys);
+    public Vector2Int GetEnemyPosition(int id) => playerUnitPositions.TryGetValue(id, out var p) ? p : Vector2Int.zero;
+    public bool IsEnemyNearby(Vector2Int fromHex, int range)
+    {
+        foreach (var kvp in playerUnitPositions)
+        {
+            var enemyHex = kvp.Value;
+            int dist = HexCoordinates.Distance(fromHex.x, fromHex.y, enemyHex.x, enemyHex.y);
+            if (dist <= range)
+                return true;
+        }
+        return false;
+    }
+
+    public int GetNearestEnemy(int unitId)
+    {
+        if (!aiUnitPositions.TryGetValue(unitId, out Vector2Int myHex))
+            return -1;
+
+        int nearestId = -1;
+        int nearestDist = int.MaxValue;
+
+        foreach (var kvp in playerUnitPositions)
+        {
+            int enemyId = kvp.Key;
+            Vector2Int enemyHex = kvp.Value;
+            int dist = HexCoordinates.Distance(myHex.x, myHex.y, enemyHex.x, enemyHex.y);
+            if (dist < nearestDist)
+            {
+                nearestDist = dist;
+                nearestId = enemyId;
+            }
+        }
+        return nearestId;
+    }
+    public List<int> GetEnemiesInRange(Vector2Int fromHex, int range)
+    {
+        List<int> result = new();
+        foreach (var kvp in playerUnitPositions)
+        {
+            int enemyId = kvp.Key;
+            var enemyHex = kvp.Value;
+            int dist = HexCoordinates.Distance(fromHex.x, fromHex.y, enemyHex.x, enemyHex.y);
+            if (dist <= range)
+                result.Add(enemyId);
+        }
+        return result;
+    }
 
     // ----- Hex Helpers -----
     public Vector2Int WorldToHex(Vector3 pos) => new Vector2Int(Mathf.RoundToInt(pos.x), Mathf.RoundToInt(pos.z));
