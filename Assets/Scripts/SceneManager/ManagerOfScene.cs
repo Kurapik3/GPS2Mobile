@@ -24,6 +24,7 @@ public class ManagerOfScene : MonoBehaviour
 
     [SerializeField] private CanvasGroup settingButton;
     [SerializeField] private CanvasGroup creditsButton;
+    
 
     private Vector2 centrePos;
     private Vector2 offScreenPos;
@@ -51,9 +52,8 @@ public class ManagerOfScene : MonoBehaviour
     }
     public void GameStart()
     {
-        
         //LoadNextScene("GameplayScene");
-        LoadNextScene("MainGameplayScene");
+        LoadNextScene("PrototypeScene");
         ManagerAudio.instance.PlaySFX("ButtonPressed");
         ManagerAudio.instance.StopMusic();
 

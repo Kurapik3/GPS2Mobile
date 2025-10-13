@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureName: EnemyBase
   prefab: {fileID: 3732232442768168029, guid: 29c0fff95ace8cc48a9d7e0b46fa2970, type: 3}
-  yOffset: {x: 0, y: 0, z: 0}
+  yOffset: {x: 0, y: 2, z: 0}
   blocksDynamic: 1
