@@ -41,7 +41,7 @@ public class CombatAI : ISubAI
             {
                 MoveIdle(unitId, currentHex);
                 Debug.Log($"[CombatAI] {unitType} #{unitId} cannot attack, moving instead.");
-                yield return new WaitForSeconds(delay);
+                yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
                 continue;
 
             }
@@ -58,7 +58,7 @@ public class CombatAI : ISubAI
                 {
                     actor.AttackTarget(unitId, selected);
                     Debug.Log($"[CombatAI] Unit {unitType} #{unitId} attacks entity {selected}");
-                    yield return new WaitForSeconds(delay);
+                    yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
                     continue;
                 }
                 else
@@ -69,7 +69,7 @@ public class CombatAI : ISubAI
 
             //If no valid target or skipped attack: decide movement (70% towards origin)
             MoveIdle(unitId, currentHex);
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
         }
     }
 
@@ -83,7 +83,7 @@ public class CombatAI : ISubAI
             return;
 
         bool moveToOrigin = rng.NextDouble() < 0.7;
-        Vector2Int originHex = new Vector2Int(0,2);
+        Vector2Int originHex = new Vector2Int(0,0);
         Vector2Int targetHex = ChooseTargetHex(reachableHexes, currentHex, originHex, moveToOrigin);
         Vector3 destination = context.HexToWorld(targetHex);
 

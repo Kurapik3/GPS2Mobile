@@ -55,7 +55,7 @@ public class ExplorationAI : ISubAI
             actor.MoveTo(unitId, destination);
             Debug.Log($"[ExplorationAI] Unit {unitId} moving {(moveTowards ? "towards" : "away from")} origin to {destination}");
 
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
         }
     }
 

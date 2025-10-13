@@ -34,7 +34,7 @@ public interface IAIContext
     //==================== Structure Tiles Objects ====================
     //List<Vector3> GetRuinLocations(); //All _KNOWN_ Ruin positions
     //List<Vector3> GetCacheLocations(); //All _KNOWN_ Cache positions
-    List<Vector3> GetUnexploredTiles();
+    //List<Vector3> GetUnexploredTiles();
 
     //==================== Enemy(/Player) Info ====================
     bool IsEnemyNearby(Vector2Int position, int range); //Check if any enemy is within range

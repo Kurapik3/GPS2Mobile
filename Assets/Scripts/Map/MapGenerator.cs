@@ -16,6 +16,7 @@ public class MapGenerator : MonoBehaviour
     public Dictionary<Vector2Int, HexTile> AllTiles { get; private set; } = new();
     private readonly List<HexTile> activeTiles = new();
     public MapData MapData => mapData;
+    public float GetHexSize() => hexSize;
     private void Awake()
     {
         RebuildTileDictionary();
