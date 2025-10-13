@@ -15,6 +15,8 @@ public class HexTile : MonoBehaviour
 
     [Header("References")]
     [SerializeField] public HexTileGenerationSettings settings;
+    public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
+    [SerializeField] public BuildingBase currentBuilding; // by william
 
     [Header("Hex Coordinates (Axial)")]
     public int q;
@@ -38,6 +40,8 @@ public class HexTile : MonoBehaviour
     public int structureIndex = -1; // -1 = no structure
     private StructureTile structureTile;
     public bool HasStructure => structureIndex >= 0;
+    public BuildingBase CurrentBuilding => currentBuilding;
+
     private void OnValidate()
     {
         // Only trigger update if we have settings assigned
@@ -69,7 +73,19 @@ public class HexTile : MonoBehaviour
 
         isDirty = false;
     }
- 
+    /////// by william
+    public void SetBuilding(BuildingBase building)
+    {
+        currentBuilding = building;
+    }
+
+    public void BecomeRuin()
+    {
+        Debug.Log($"Tile at ({q}, {r}) has become a ruin.");
+        currentBuilding = null;
+    }
+
+    //////
     public void RollTileType()
     {
         tileType = (TileType)Random.Range(0, System.Enum.GetValues(typeof(TileType)).Length);
