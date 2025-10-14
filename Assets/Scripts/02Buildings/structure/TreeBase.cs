@@ -51,7 +51,6 @@ public class TreeBase : BuildingBase
         baseHealth += healthBonusPerUpgrade;
         health = baseHealth; // restore health after upgrade
 
-        // Optional: score and turf radius bonuses
         PlayerTracker.Instance.addScore(1000);
         //PlayerTracker.Instance.IncreaseTurfRadius(1);
 

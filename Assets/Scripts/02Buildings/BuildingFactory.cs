@@ -5,12 +5,12 @@ public class BuildingFactory : MonoBehaviour
     public static BuildingFactory Instance;
 
     [Header("Prefabs")]
-    [SerializeField] private GameObject GrovePrefab;
-    [SerializeField] private GameObject TreeBasePrefab;
+    [SerializeField] public GameObject GrovePrefab;
+    [SerializeField] public GameObject TreeBasePrefab;
 
     [Header("Building Data (ScriptableObjects or CSV)")]
-    [SerializeField] private BuildingData GroveData;
-    [SerializeField] private BuildingData TreeBaseData;
+    [SerializeField] public BuildingData GroveData;
+    [SerializeField] public BuildingData TreeBaseData;
 
     private void Awake()
     {
