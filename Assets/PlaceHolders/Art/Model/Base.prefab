@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1035933792350417280}
+  - component: {fileID: -184114251515857148}
   m_Layer: 0
   m_Name: Base
   m_TagString: Untagged
@@ -32,6 +33,30 @@ Transform:
   - {fileID: 5833350093242259457}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-184114251515857148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7043572503555029761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aed6292bb18156240bec272d8ca3e256, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingName: 
+  health: 0
+  developCost: 0
+  apPerTurn: 0
+  currentTile: {fileID: 0}
+  currentUnit: {fileID: 0}
+  GrovePrefab: {fileID: 0}
+  maxUnits: 3
+  populationLevel: 1
+  baseHealth: 20
+  apBonusPerUpgrade: 1
+  healthBonusPerUpgrade: 5
 --- !u!1001 &6304617805418282986
 PrefabInstance:
   m_ObjectHideFlags: 0
