@@ -35,6 +35,6 @@ public class TechTreeUI : MonoBehaviour
     public void OpenConfirmPopup(TechNode node)
     {
         confirmPopup.SetActive(true);
-        //confirmPopup.GetComponent<ConfirmPopup>().Setup(node);
+        confirmPopup.GetComponent<ConfirmPopup>().Setup(node);
     }
 }

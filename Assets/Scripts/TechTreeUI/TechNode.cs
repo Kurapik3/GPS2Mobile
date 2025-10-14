@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +23,6 @@ public class TechNode : MonoBehaviour
 
     public void OnClick()
     {
-        //TechTreeUI.instance.OpenConfirmPopup(this);
+        TechTreeUI.instance.OpenConfirmPopup(this);
     }
 }
