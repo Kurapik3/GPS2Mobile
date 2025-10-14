@@ -29,6 +29,7 @@ public class SelectionOfStructureManager : MonoBehaviour
 
     private Camera cam;
     private bool isStatusClosed = false;
+    private bool isSFXPlayed = true;
     public static bool IsUIBlockingInput { get; set; } = false;
 
     private void Awake()
@@ -68,9 +69,14 @@ public class SelectionOfStructureManager : MonoBehaviour
             {
                 SelectByClicking(hit.collider.gameObject);
                 StructureInfoPanelMove();
+                if (isSFXPlayed)
+                {
+                    ManagerAudio.instance.PlaySFX("StructureSelected");
+                }
             }
             else
             {
+                isSFXPlayed = false;
                 DeselectAll();
                 CloseStructureInfoPanel();
             }

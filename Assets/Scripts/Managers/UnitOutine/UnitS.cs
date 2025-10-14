@@ -31,6 +31,7 @@ public class UnitS : MonoBehaviour
 
     private Camera cam;
     private bool isStatusClosed = false;
+    private bool isSFXPlayed = true;
     public static bool IsUIBlockingInput { get; set; } = false;
 
     private void Awake()
@@ -70,9 +71,15 @@ public class UnitS : MonoBehaviour
             {
                 SelectByClicking(hit.collider.gameObject);
                 UnitInfoPanelMove();
+                if (isSFXPlayed)
+                {
+                    ManagerAudio.instance.PlaySFX("UnitSelected");
+                    isSFXPlayed = false;
+                }
             }
             else
             {
+                isSFXPlayed = true;
                 DeselectAll();
                 CloseUnitInfoPanel();
             }

@@ -25,6 +25,7 @@ public class InGameSceneManager : MonoBehaviour
 
     private void Start()
     {
+        ManagerAudio.instance.PlayMusic("BGM");
         centrePos = Vector2.zero;
 
         offScreenPos = new Vector2(0, -Screen.height);
