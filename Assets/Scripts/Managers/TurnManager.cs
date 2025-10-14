@@ -14,7 +14,7 @@ public class TurnManager : MonoBehaviour
 
     private List<BuildingBase> allBuildings = new List<BuildingBase>();
 
-    private int currentTurn = 1;
+    private int currentTurn = 0;
     private bool isPlayerTurn = true;
 
     public int CurrentTurn => currentTurn;
@@ -38,7 +38,7 @@ public class TurnManager : MonoBehaviour
         {
             aiController.OnAITurnFinished += EndEnemyTurn;
         }
-
+        EventBus.Publish(new TurnUpdatedEvent(0, maxTurns));
         StartPlayerTurn();
     }
 
@@ -46,6 +46,8 @@ public class TurnManager : MonoBehaviour
     {
         isPlayerTurn = true;
         Debug.Log($"--- Player Turn {currentTurn} ---");
+
+        EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));
 
         OnPlayerTurnStart?.Invoke();
 

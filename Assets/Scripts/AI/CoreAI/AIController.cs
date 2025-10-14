@@ -65,7 +65,17 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
             prefabDict[prefab.name] = prefab;
     }
 
-    private void Start()
+    private void OnEnable()
+    {
+        MapGenerator.OnMapReady += HandleMapReady;
+    }
+
+    private void OnDisable()
+    {
+        MapGenerator.OnMapReady -= HandleMapReady;
+    }
+
+    private void HandleMapReady(MapGenerator map)
     {
         DiscoverEnemyBases();
         DiscoverPlayerBases();
@@ -113,8 +123,6 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
 
             //Mark base tile as occupied
             TryReserveTile(baseHex);
-
-            Debug.Log($"[AIController] Discovered enemy base {baseId} at {baseHex}");
         }
     }
 
@@ -136,8 +144,6 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
             Vector2Int baseHex = WorldToHex(baseGO.transform.position);
             playerBasePositions[baseId] = baseHex;
             playerBaseObjects[baseId] = baseGO;
-
-            Debug.Log($"[AIController] Discovered player base {baseId} at hex {baseHex}");
         }
     }
 
@@ -159,8 +165,6 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
             Vector2Int unitHex = WorldToHex(unitGO.transform.position);
             playerUnitPositions[unitId] = unitHex;
             playerUnitObjects[unitId] = unitGO;
-
-            Debug.Log($"[AIController] Discovered player unit {unitId} at hex {unitHex}");
         }
     }
 
@@ -239,8 +243,6 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         {
             StartCoroutine(SmoothMove(go, worldDest));
         }
-
-        Debug.Log($"[AIActor] Unit {unitId} moved to hex ({newHex}).");
     }
 
     private IEnumerator SmoothMove(GameObject unit, Vector3 destination)
@@ -249,10 +251,14 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         float t = 0f;
         float duration = 0.5f;
 
+        destination.y = 2f;
+
         while (t < 1f)
         {
             t += Time.deltaTime / duration;
-            unit.transform.position = Vector3.Lerp(start, destination, t);
+            Vector3 nextPos = Vector3.Lerp(start, destination, t);
+            nextPos.y = 2f;
+            unit.transform.position = nextPos;
             yield return null;
         }
 
@@ -323,14 +329,19 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         unitGO.name = $"Enemy_{unitType}_{unitId}";
         aiUnitObjects[unitId] = unitGO;
 
+        //Added a tag for easy detection
+        unitGO.tag = "EnemyUnit"; 
+        foreach (Transform child in unitGO.transform)
+        {
+            child.gameObject.tag = "EnemyUnit";
+        }
+
         //Mark spawn tile as occupied
         if (!TryReserveTile(baseHex))
         {
             Debug.LogWarning($"[AIActor] Spawn failed: tile {baseHex} occupied.");
             return;
         }
-
-        Debug.Log($"[AIActor] Spawned {unitType} (id {unitId}) near base {baseId}");
     }
 
     public void AttackTarget(int unitId, int targetId)
@@ -340,8 +351,6 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
             Debug.Log($"[AI] Unit {unitId} was just spawned, cannot attack yet.");
             return;
         }
-
-        Debug.Log($"[AIActor] Unit {unitId} attacks target {targetId}");
     }
 
     //public void RetreatTo(int unitId, Vector3 safeLocation)
@@ -377,8 +386,6 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
             Destroy(go);
 
         aiUnitObjects.Remove(unitId);
-
-        Debug.Log($"[AIActor] Destroyed unit {unitId} and freed tile {hex}");
     }
 
     private bool IsUnitNewlySpawned(int unitId)
@@ -451,7 +458,7 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
 
         bool visible = fog.revealedTiles.Contains(unitPos);
 
-        Debug.Log($"[AIContext] Unit {unitId} at {unitPos} visible = {visible}");
+        //Debug.Log($"[AIContext] Unit {unitId} at {unitPos} visible = {visible}");
 
         return visible;
     }
@@ -688,7 +695,6 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         }
 
         MapManager.Instance.SetUnitOccupied(hex, true);
-        Debug.Log($"[AIController] Reserved tile {hex}.");
         return true;
     }
 
@@ -699,6 +705,5 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
             return;
 
         MapManager.Instance.SetUnitOccupied(hex, false);
-        Debug.Log($"[AIController] Released tile {hex}.");
     }
 }
