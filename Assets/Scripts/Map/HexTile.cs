@@ -172,10 +172,12 @@ public class HexTile : MonoBehaviour
             Destroy(old.gameObject);
         }
         GameObject instance = Instantiate(data.prefab, transform);
+
         instance.name = "Structure";
         instance.transform.localPosition = data.yOffset;
         instance.transform.localRotation = Quaternion.identity;
         instance.transform.localScale = Vector3.one;
+
     }
     public void SetStructure(StructureData data)
     {

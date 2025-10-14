@@ -10,8 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 463543145489211226}
   - component: {fileID: -2637995968705180388}
-  m_Layer: 0
-  m_Name: StartingTile
+  - component: {fileID: 1876698986679806599}
+  - component: {fileID: 5777958373759003943}
+  m_Layer: 8
+  m_Name: Grove
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -52,6 +54,39 @@ MonoBehaviour:
   currentTile: {fileID: 0}
   currentUnit: {fileID: 0}
   GrovePrefab: {fileID: 0}
+--- !u!114 &1876698986679806599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8712921903553767909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 176590593b6eb8845a9d0388e6a49217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &5777958373759003943
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8712921903553767909}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &3545160610049038704
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -103,6 +138,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 13eb8be5dca33624a9e3b75907e824fe, type: 3}
       propertyPath: m_Name
       value: building-castle
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 13eb8be5dca33624a9e3b75907e824fe, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
