@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
@@ -10,6 +11,8 @@ public class TurnManager : MonoBehaviour
 
     [Tooltip("Reference to End Turn button in the UI")]
     [SerializeField] private Button endTurnButton;
+
+    private List<BuildingBase> allBuildings = new List<BuildingBase>();
 
     private int currentTurn = 1;
     private bool isPlayerTurn = true;
@@ -79,6 +82,10 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
+            foreach (var building in allBuildings) // gain AP
+            {
+                building.OnTurnStart(); 
+            }
             StartPlayerTurn();
         }
     }

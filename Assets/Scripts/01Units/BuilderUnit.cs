@@ -34,7 +34,7 @@ public class BuilderUnit : UnitBase
             return;
         }
 
-        Debug.Log($"{unitName} is upgrading {grove.buildingName} at {currentTile.hexPosition}!");
+        Debug.Log($"{unitName} is upgrading {grove.buildingName}!");
 
         // Remove the Grove
         Destroy(grove.gameObject);
@@ -43,6 +43,10 @@ public class BuilderUnit : UnitBase
         BuildingBase newBuilding = Instantiate(treeBasePrefab, currentTile.transform.position, Quaternion.identity);
         newBuilding.Initialize(newBuilding.GetComponent<BuildingData>(), currentTile);
 
-        Debug.Log($"{unitName} upgraded Grove to TreeBase at {currentTile.hexPosition}!");
+        Debug.Log($"{unitName} upgraded Grove to TreeBase!");
+    }
+    public void TreeToTree2()
+    {
+
     }
 }

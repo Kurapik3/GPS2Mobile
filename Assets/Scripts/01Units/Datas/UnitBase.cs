@@ -87,15 +87,12 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
-        // Calculate distance in axial coordinates
         int distance = HexDistance(currentTile.q, currentTile.r, targetTile.q, targetTile.r);
         if (distance > movement)
         {
             Debug.Log($"{unitName} cannot move that far! Range: {movement}, distance: {distance}");
             return;
         }
-
-        // ✅ Move to the target tile
         transform.position = targetTile.transform.position;
         currentTile = targetTile;
 

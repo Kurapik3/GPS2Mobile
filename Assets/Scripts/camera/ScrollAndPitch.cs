@@ -1,10 +1,21 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
-using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch; 
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class ScrollAndPitch : MonoBehaviour
 {
     [SerializeField] private Camera cam;
+
+    [Header("Camera Movement Limits")]
+    [SerializeField] private float minX = -22f;
+    [SerializeField] private float maxX = 4f;
+    [SerializeField] private float minZ = -9f;
+    [SerializeField] private float maxZ = 8f;
+
+    [Header("Camera Zoom Limits")]
+    [SerializeField] private float minZoomDistance = 5f;   
+    [SerializeField] private float maxZoomDistance = 50f;  
+
     private Plane plane;
 
     private void Awake()
@@ -12,7 +23,7 @@ public class ScrollAndPitch : MonoBehaviour
         if (cam == null)
             cam = Camera.main;
 
-        EnhancedTouchSupport.Enable(); // enable enhanced touch
+        EnhancedTouchSupport.Enable();
     }
 
     private void Update()
@@ -20,10 +31,8 @@ public class ScrollAndPitch : MonoBehaviour
         var touches = Touch.activeTouches;
         if (touches.Count == 0) return;
 
-        // Always update the plane
         plane.SetNormalAndPosition(transform.up, transform.position);
 
-        // One finger drag
         if (touches.Count == 1)
         {
             var touch = touches[0];
@@ -31,11 +40,13 @@ public class ScrollAndPitch : MonoBehaviour
             {
                 var move = PlanePositionDelta(touch);
                 if (move != Vector3.zero)
+                {
                     cam.transform.Translate(move, Space.World);
+                    ClampCameraPosition(); 
+                }
             }
         }
 
-        // Two finger pinch zoom
         if (touches.Count >= 2)
         {
             var t1 = touches[0];
@@ -43,7 +54,6 @@ public class ScrollAndPitch : MonoBehaviour
 
             var pos1 = PlanePosition(t1.screenPosition);
             var pos2 = PlanePosition(t2.screenPosition);
-
             var pos1b = PlanePosition(t1.screenPosition - t1.delta);
             var pos2b = PlanePosition(t2.screenPosition - t2.delta);
 
@@ -51,21 +61,14 @@ public class ScrollAndPitch : MonoBehaviour
 
             if (zoom > 0 && zoom < 10f)
             {
-                // midpoint between two touches
                 Vector3 midpoint = (pos1 + pos2) * 0.5f;
-
-                // direction from midpoint to camera
                 Vector3 direction = cam.transform.position - midpoint;
 
-                // clamp distance
-                float minDistance = 5f;
-                float maxDistance = 50f;
+                float desiredDistance = direction.magnitude * (1f / zoom);
+                desiredDistance = Mathf.Clamp(desiredDistance, minZoomDistance, maxZoomDistance); 
 
-                float currentDistance = direction.magnitude * (1f / zoom);
-                currentDistance = Mathf.Clamp(currentDistance, minDistance, maxDistance);
-
-                // move camera
-                cam.transform.position = midpoint + direction.normalized * currentDistance;
+                cam.transform.position = midpoint + direction.normalized * desiredDistance;
+                ClampCameraPosition();
             }
         }
     }
@@ -91,5 +94,13 @@ public class ScrollAndPitch : MonoBehaviour
             return rayNow.GetPoint(enterNow);
 
         return Vector3.zero;
+    }
+
+    private void ClampCameraPosition()
+    {
+        Vector3 pos = cam.transform.position;
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        pos.z = Mathf.Clamp(pos.z, minZ, maxZ);
+        cam.transform.position = pos;
     }
 }

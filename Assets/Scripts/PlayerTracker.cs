@@ -17,9 +17,18 @@ public class PlayerTracker : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject); // Optional if you want it persistent
+        DontDestroyOnLoad(gameObject); 
     }
 
+    public int getAp()
+    {
+        return currentAP;
+    }
+
+    public int getScore()
+    {
+        return currentScore;
+    }
     public void addScore(int amount)
     {
         currentScore += amount;
