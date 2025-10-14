@@ -1,0 +1,9 @@
+Name,Health Points,Development Cost,ApPerTurn,Perks
+Tree Base,20,0,2,"Hold 3 units
+Provide 2 AP per turn"
+Cache,0,0,0,Provides 10 AP after developed
+Ruin,0,2,2,Provides 2 AP per turn when in player's turf
+Grove,0,2,0,Becomes Base When developed
+Enemy Base,20,0,0,"Holds 3 enemy units, becomes Grove when destroyed"
+,,,,
+Tree Base +5 hp per level up,,,,

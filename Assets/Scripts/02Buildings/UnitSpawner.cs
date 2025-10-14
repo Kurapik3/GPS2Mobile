@@ -14,7 +14,8 @@ public class UnitSpawner : MonoBehaviour
     //[SerializeField] private GameObject BomberPrefab;
 
     [Header("Spawn Settings")]
-    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private Vector2Int spawnCoord = new Vector2Int(0, 0); 
+    [SerializeField] private Transform fallbackSpawnPoint;
 
     public void Update()
     {
@@ -56,7 +57,7 @@ public class UnitSpawner : MonoBehaviour
     {
         if (player.currentAP >= cost)
         {
-            CreateUnit(prefab, spawnPoint.position, csvIndex);
+            CreateUnit(prefab, csvIndex);
             player.useAP(cost);
         }
         else
@@ -65,7 +66,7 @@ public class UnitSpawner : MonoBehaviour
         }
     }
 
-    public void CreateUnit(GameObject unitPrefab, Vector3 position, int csvIndex)
+    public void CreateUnit(GameObject unitPrefab, int csvIndex)
     {
         if (unitPrefab == null)
         {
@@ -79,17 +80,22 @@ public class UnitSpawner : MonoBehaviour
             return;
         }
 
-        GameObject newUnit = Instantiate(unitPrefab, position, Quaternion.identity, spawnPoint);
-        Debug.Log($"Spawned {unitPrefab.name} at {position}");
+        HexTile startingTile = MapManager.Instance.GetTile(spawnCoord);
+        Vector3 spawnPos = startingTile != null
+            ? startingTile.transform.position
+            : fallbackSpawnPoint.position;
 
-        // Load CSV row data
+        GameObject newUnit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
+        Debug.Log($"Spawned {unitPrefab.name} at {spawnPos}");
+
+      
         UnitData data = unitDatabase.GetAllUnits()[csvIndex];
 
-        // Initialize
+   
         UnitBase unitBase = newUnit.GetComponent<UnitBase>();
         if (unitBase != null)
         {
-            unitBase.Initialize(data);
+            unitBase.Initialize(data, startingTile);
             Debug.Log($"Initialized {unitBase.unitName} from CSV row {csvIndex + 2}");
         }
         else
