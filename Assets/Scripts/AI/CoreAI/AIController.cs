@@ -251,10 +251,14 @@ public class AIController : MonoBehaviour, IAIActor, IAIContext
         float t = 0f;
         float duration = 0.5f;
 
+        destination.y = 2f;
+
         while (t < 1f)
         {
             t += Time.deltaTime / duration;
-            unit.transform.position = Vector3.Lerp(start, destination, t);
+            Vector3 nextPos = Vector3.Lerp(start, destination, t);
+            nextPos.y = 2f;
+            unit.transform.position = nextPos;
             yield return null;
         }
 
