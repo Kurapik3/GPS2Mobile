@@ -3034,6 +3034,14 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 152670620}
+    - target: {fileID: 5762411817798534282, guid: 7700c08d4a5009140acd3c0c644029ac, type: 3}
+      propertyPath: apText
+      value: 
+      objectReference: {fileID: 8072267141709635552}
+    - target: {fileID: 5762411817798534282, guid: 7700c08d4a5009140acd3c0c644029ac, type: 3}
+      propertyPath: scoreText
+      value: 
+      objectReference: {fileID: 8072267141709635553}
     - target: {fileID: 5851256393911528878, guid: 7700c08d4a5009140acd3c0c644029ac, type: 3}
       propertyPath: m_Name
       value: Skillss
@@ -3116,6 +3124,28 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3187724341770916320, guid: 7700c08d4a5009140acd3c0c644029ac, type: 3}
   m_PrefabInstance: {fileID: 8072267141709635550}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8072267141709635552 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8750231572729462531, guid: 7700c08d4a5009140acd3c0c644029ac, type: 3}
+  m_PrefabInstance: {fileID: 8072267141709635550}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8072267141709635553 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5015300535302909581, guid: 7700c08d4a5009140acd3c0c644029ac, type: 3}
+  m_PrefabInstance: {fileID: 8072267141709635550}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8389339161917073773
 PrefabInstance:
   m_ObjectHideFlags: 0
