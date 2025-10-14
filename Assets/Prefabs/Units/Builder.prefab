@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7546000811421951855}
+  - component: {fileID: 3665979250095645175}
   m_Layer: 0
   m_Name: Builder
   m_TagString: Untagged
@@ -27,11 +28,32 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.07762919, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6293775287187520243}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3665979250095645175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6796326094198637268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c116cc297b90b41871cbb60793ec29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unitName: 
+  cost: 0
+  range: 0
+  movement: 0
+  hp: 0
+  attack: 0
+  isCombat: 0
+  currentTile: {fileID: 0}
+  treeBasePrefab: {fileID: 0}
 --- !u!1001 &5826886311344921880
 PrefabInstance:
   m_ObjectHideFlags: 0

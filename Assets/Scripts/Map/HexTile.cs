@@ -32,6 +32,8 @@ public class HexTile : MonoBehaviour
     //public Vector2Int OffsetCoord => new Vector2Int(q + (r + (r % 2)) / 2, r);
     //public Vector3Int CubeCoord => new Vector3Int(q, -q - r, r);
 
+    public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
+    [SerializeField] public BuildingBase currentBuilding; // by william|
 
     [Header("Structure Data")]
     public int structureIndex = -1; // -1 = no structure
@@ -77,7 +79,18 @@ public class HexTile : MonoBehaviour
         AddTile();
         isDirty = false;
     }
- 
+
+    public void SetBuilding(BuildingBase building)
+    {
+        currentBuilding = building;
+    }
+
+    public void BecomeRuin()
+    {
+        Debug.Log($"Tile at ({q}, {r}) has become a ruin.");
+        currentBuilding = null;
+    }
+
     //public void RollTileType()
     //{
     //    tileType = (TileType)Random.Range(0, System.Enum.GetValues(typeof(TileType)).Length);

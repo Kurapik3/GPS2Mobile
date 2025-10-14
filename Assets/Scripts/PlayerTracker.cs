@@ -2,10 +2,33 @@ using UnityEngine;
 
 public class PlayerTracker : MonoBehaviour
 {
+    public static PlayerTracker Instance { get; private set; }
+
     [Header ("Player Stats")]
     [SerializeField] public int currentAP=0;
     [SerializeField] public int currentScore=0;
 
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject); 
+    }
+
+    public int getAp()
+    {
+        return currentAP;
+    }
+
+    public int getScore()
+    {
+        return currentScore;
+    }
     public void addScore(int amount)
     {
         currentScore += amount;

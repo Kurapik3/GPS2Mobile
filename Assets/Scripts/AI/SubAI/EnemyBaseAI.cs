@@ -35,12 +35,20 @@ public class EnemyBaseAI : ISubAI
         if (unlockSystem != null)
             unlockSystem.UpdateUnlocks(currentTurn);
 
+        float spawnProbability = 0.45f;
+
         foreach (var baseId in baseIds)
         {
             int currentHP = context.GetBaseHP(baseId);
             if (currentHP <= 0)
             {
                 Debug.Log($"[EnemyBaseAI] EnemyBase {baseId} destroyed, skipping.");
+                continue;
+            }
+
+            if (Random.value > spawnProbability)
+            {
+                Debug.Log($"[EnemyBaseAI] Base {baseId} skipped spawning this turn (p={spawnProbability}).");
                 continue;
             }
 
@@ -72,7 +80,7 @@ public class EnemyBaseAI : ISubAI
             actor.SpawnUnit(baseId, chosenUnit);
             Debug.Log($"[EnemyBaseAI] EnemyBase {baseId} spawned {chosenUnit} (Turn {currentTurn}).");
 
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
         }
     }
 }

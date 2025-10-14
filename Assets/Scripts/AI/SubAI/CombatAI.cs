@@ -33,32 +33,32 @@ public class CombatAI : ISubAI
                 continue;
 
             string unitType = context.GetUnitType(unitId);
-            Vector3 pos = context.GetUnitPosition(unitId);
+            Vector2Int currentHex = context.GetUnitPosition(unitId);
             int attackRange = context.GetUnitAttackRange(unitId);
 
             //Skip combat for Builder & Scout
             if (unitType == "Builder" || unitType == "Scout")
             {
-                MoveIdle(unitId, pos);
+                MoveIdle(unitId, currentHex);
                 Debug.Log($"[CombatAI] {unitType} #{unitId} cannot attack, moving instead.");
-                yield return new WaitForSeconds(delay);
+                yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
                 continue;
 
             }
 
             //Check for player bases in range first
-            List<int> targets = context.GetEnemiesInRange(pos, attackRange); //"Enemies" means player entities from enemy AI POV
+            List<int> targets = context.GetEnemiesInRange(currentHex, attackRange); //"Enemies" means player entities from enemy AI POV
             if (targets != null && targets.Count > 0)
             {
                 //Choose priority: prefer bases (if possible)
-                int selected = ChoosePriorityTarget(targets, pos);
+                int selected = ChoosePriorityTarget(targets, currentHex);
 
                 //60% chance to attack
                 if (rng.NextDouble() < 0.6)
                 {
                     actor.AttackTarget(unitId, selected);
                     Debug.Log($"[CombatAI] Unit {unitType} #{unitId} attacks entity {selected}");
-                    yield return new WaitForSeconds(delay);
+                    yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
                     continue;
                 }
                 else
@@ -68,14 +68,13 @@ public class CombatAI : ISubAI
             }
 
             //If no valid target or skipped attack: decide movement (70% towards origin)
-            MoveIdle(unitId, pos);
-            yield return new WaitForSeconds(delay);
+            MoveIdle(unitId, currentHex);
+            yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
         }
     }
 
-    private void MoveIdle(int unitId, Vector3 pos)
+    private void MoveIdle(int unitId, Vector2Int currentHex)
     {
-        Vector2Int currentHex = context.WorldToHex(pos);
         int moveRange = context.GetUnitMoveRange(unitId);
         List<Vector2Int> reachableHexes = context.GetReachableHexes(currentHex, moveRange);
         reachableHexes.RemoveAll(hex => !MapManager.Instance.CanUnitStandHere(hex));
@@ -84,7 +83,7 @@ public class CombatAI : ISubAI
             return;
 
         bool moveToOrigin = rng.NextDouble() < 0.7;
-        Vector2Int originHex = new Vector2Int(0,2);
+        Vector2Int originHex = new Vector2Int(0,0);
         Vector2Int targetHex = ChooseTargetHex(reachableHexes, currentHex, originHex, moveToOrigin);
         Vector3 destination = context.HexToWorld(targetHex);
 
@@ -93,17 +92,17 @@ public class CombatAI : ISubAI
     }
 
     //Chooses the most appropriate target —> prioritize bases, then units
-    private int ChoosePriorityTarget(List<int> candidateIds, Vector3 fromPos)
+    private int ChoosePriorityTarget(List<int> candidateIds, Vector2Int fromPos)
     {
         int? baseTarget = null;
         int? unitTarget = null;
-        float minBaseDistance = float.MaxValue;
-        float minUnitDistance = float.MaxValue;
+        int minBaseDistance = int.MaxValue;
+        int minUnitDistance = int.MaxValue;
 
         foreach (var id in candidateIds)
         {
-            Vector3 enemyPos = context.GetEnemyPosition(id);
-            float distance = Vector3.Distance(fromPos, enemyPos);
+            Vector2Int enemyHex = context.GetEnemyPosition(id);
+            int distance = context.GetHexDistance(fromPos, enemyHex);
 
             //Base priority
             if (context.GetPlayerBaseIds().Contains(id))

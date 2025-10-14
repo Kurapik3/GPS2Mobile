@@ -91,6 +91,15 @@ public class MapManager : MonoBehaviour
         return false;
     }
 
+    public bool IsTileOccupied(Vector2Int coord)
+    {
+        if (_tiles.TryGetValue(coord, out var tile))
+        {
+            return tile.IsOccupiedByUnit;
+        }
+        return false;
+    }
+
     public bool IsWalkable(Vector2Int coord)
     {
         return _tiles.TryGetValue(coord, out var tile) && tile.IsWalkableForAI();
