@@ -116,14 +116,26 @@ public class StructureTile : MonoBehaviour
     // --- Runtime-only version (optional direct call) ---
     public void ApplyStructureRuntime()
     {
-        if (structureDatabase == null || structureDatabase.structures == null || structureDatabase.structures.Count == 0)
+        // Auto-load database if missing (runtime safe)
+        if (structureDatabase == null)
         {
-            Debug.LogWarning($"[{name}] No StructureDatabase or entries found!");
+            structureDatabase = Resources.Load<StructureDatabase>("StructureDatabase");
+            if (structureDatabase == null)
+            {
+                Debug.LogWarning("StructureDatabase not found in Resources folder!");
+                return;
+            }
+        }
+
+        if (structureDatabase.structures == null || structureDatabase.structures.Count == 0)
+        {
+            Debug.LogWarning($"[{name}] StructureDatabase has no entries!");
             return;
         }
 
         selectedIndex = Mathf.Clamp(selectedIndex, 0, structureDatabase.structures.Count - 1);
         var data = structureDatabase.structures[selectedIndex];
+
         if (data == null || data.prefab == null)
         {
             Debug.LogWarning($"[{name}] Structure prefab missing!");
@@ -138,14 +150,16 @@ public class StructureTile : MonoBehaviour
         if (old != null)
             Destroy(old.gameObject);
 
+        //Use normal Instantiate for runtime
         GameObject inst = Instantiate(data.prefab, parentTarget);
         inst.name = "Structure";
         inst.transform.localPosition = data.yOffset;
         inst.transform.localRotation = Quaternion.identity;
         inst.transform.localScale = Vector3.one;
+
         structureInstance = inst;
 
-        // Update metadata
+        // Update HexTile metadata
         HexTile hex = GetComponent<HexTile>();
         if (hex != null)
         {
@@ -156,6 +170,49 @@ public class StructureTile : MonoBehaviour
 
         Debug.Log($"[{name}] Structure '{data.structureName}' applied at runtime.");
     }
+
+    //public void ApplyStructureRuntime()
+    //{
+    //    if (structureDatabase == null || structureDatabase.structures == null || structureDatabase.structures.Count == 0)
+    //    {
+    //        Debug.LogWarning($"[{name}] No StructureDatabase or entries found!");
+    //        return;
+    //    }
+
+    //    selectedIndex = Mathf.Clamp(selectedIndex, 0, structureDatabase.structures.Count - 1);
+    //    var data = structureDatabase.structures[selectedIndex];
+    //    if (data == null || data.prefab == null)
+    //    {
+    //        Debug.LogWarning($"[{name}] Structure prefab missing!");
+    //        return;
+    //    }
+
+    //    Transform meshChild = transform.Find("Mesh");
+    //    Transform parentTarget = meshChild != null ? meshChild : transform;
+
+    //    // Remove old
+    //    Transform old = parentTarget.Find("Structure");
+    //    if (old != null)
+    //        Destroy(old.gameObject);
+
+    //    GameObject inst = Instantiate(data.prefab, parentTarget);
+    //    inst.name = "Structure";
+    //    inst.transform.localPosition = data.yOffset;
+    //    inst.transform.localRotation = Quaternion.identity;
+    //    inst.transform.localScale = Vector3.one;
+    //    structureInstance = inst;
+
+    //    // Update metadata
+    //    HexTile hex = GetComponent<HexTile>();
+    //    if (hex != null)
+    //    {
+    //        hex.structureIndex = selectedIndex;
+    //        hex.StructureName = data.structureName;
+    //        hex.SetStructure(data);
+    //    }
+
+    //    Debug.Log($"[{name}] Structure '{data.structureName}' applied at runtime.");
+    //}
     //#if UNITY_EDITOR
     //    public void ApplyStructure()
     //    {

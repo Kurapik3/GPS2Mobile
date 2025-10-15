@@ -277,13 +277,41 @@ public class HexTile : MonoBehaviour
     }
 #endif
     // Runtime structure placement (used by MapGenerator.LoadMapData)
+    //public void ApplyStructureByName(string name)
+    //{
+    //    StructureName = name;
+    //    var structure = GetComponent<StructureTile>();
+    //    if (structure != null)
+    //    {
+    //        structure.ApplyStructureRuntime();
+    //    }
+    //}
+
     public void ApplyStructureByName(string name)
     {
-        StructureName = name;
-        var structure = GetComponent<StructureTile>();
-        if (structure != null)
+        var structureTile = GetComponent<StructureTile>();
+        if (structureTile == null)
+            structureTile = gameObject.AddComponent<StructureTile>();
+
+        // Auto-load database if missing
+        if (structureTile.structureDatabase == null)
+            structureTile.structureDatabase = Resources.Load<StructureDatabase>("StructureDatabase");
+
+        if (structureTile.structureDatabase == null)
         {
-            structure.ApplyStructureRuntime();
+            Debug.LogWarning("StructureDatabase not found in Resources folder!");
+            return;
+        }
+
+        int idx = structureTile.structureDatabase.structures.FindIndex(s => s.structureName == name);
+        if (idx >= 0)
+        {
+            structureTile.selectedIndex = idx;
+            structureTile.ApplyStructureRuntime();
+        }
+        else
+        {
+            Debug.LogWarning($"Structure '{name}' not found in database!");
         }
     }
 
