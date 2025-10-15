@@ -10,14 +10,7 @@ public class PlayerTracker : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
         Instance = this;
-        DontDestroyOnLoad(gameObject); 
     }
 
     public int getAp()
@@ -37,6 +30,7 @@ public class PlayerTracker : MonoBehaviour
     public void addAP(int amount)
     {
         currentAP += amount;
+        Debug.Log($"[PlayerTracker] Gained {amount} AP. Total: {currentAP}");
     }
 
     public void useAP(int amount)

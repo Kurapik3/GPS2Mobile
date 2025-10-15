@@ -36,7 +36,7 @@ public class ScrollAndPitch : MonoBehaviour
         if (touches.Count == 1)
         {
             var touch = touches[0];
-            if (touch.phase == UnityEngine.InputSystem.TouchPhase.Moved)
+            if (touch.phase == UnityEngine.InputSystem.TouchPhase.Moved && touch.delta.magnitude > 10f)
             {
                 var move = PlanePositionDelta(touch);
                 if (move != Vector3.zero)
@@ -59,17 +59,17 @@ public class ScrollAndPitch : MonoBehaviour
 
             var zoom = Vector3.Distance(pos1, pos2) / Vector3.Distance(pos1b, pos2b);
 
-            if (zoom > 0 && zoom < 10f)
-            {
-                Vector3 midpoint = (pos1 + pos2) * 0.5f;
-                Vector3 direction = cam.transform.position - midpoint;
+            //if (zoom > 0 && zoom < 10f)
+            //{
+            //    Vector3 midpoint = (pos1 + pos2) * 0.5f;
+            //    Vector3 direction = cam.transform.position - midpoint;
 
-                float desiredDistance = direction.magnitude * (1f / zoom);
-                desiredDistance = Mathf.Clamp(desiredDistance, minZoomDistance, maxZoomDistance); 
+            //    float desiredDistance = direction.magnitude * (1f / zoom);
+            //    desiredDistance = Mathf.Clamp(desiredDistance, minZoomDistance, maxZoomDistance); 
 
-                cam.transform.position = midpoint + direction.normalized * desiredDistance;
-                ClampCameraPosition();
-            }
+            //    cam.transform.position = midpoint + direction.normalized * desiredDistance;
+            //    ClampCameraPosition();
+            //}
         }
     }
 

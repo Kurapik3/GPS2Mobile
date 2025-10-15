@@ -21,7 +21,7 @@ public class TreeBase : BuildingBase
 
     public override void OnTurnStart()
     {
-        base.OnTurnStart(); // Generates AP
+        PlayerTracker.Instance.addAP(apPerTurn);
     }
 
     public bool CanTrainUnit()

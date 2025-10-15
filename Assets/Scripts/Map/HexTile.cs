@@ -317,5 +317,7 @@ public class HexTile : MonoBehaviour
     {
         return IsWalkable && !IsOccupiedByUnit;
     }
+
+
 }
 

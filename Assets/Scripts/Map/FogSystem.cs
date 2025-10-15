@@ -17,7 +17,20 @@ public class FogSystem : MonoBehaviour
     [SerializeField] private Vector2Int startingOrigin = new Vector2Int(0, 0);
 
     [HideInInspector] public List<Vector2Int> revealedTiles = new List<Vector2Int>();
+    private bool mapReady = false;
+    private void OnEnable()
+    {
+        MapGenerator.OnMapReady += HandleMapReady;
+    }
 
+    private void OnDisable()
+    {
+        MapGenerator.OnMapReady -= HandleMapReady;
+    }
+    private void HandleMapReady(MapGenerator map)
+    {
+        mapReady = true;
+    }
     public void SetStartingOrigin(Vector2Int origin)
     {
         startingOrigin = origin;
@@ -29,7 +42,11 @@ public class FogSystem : MonoBehaviour
             Debug.Log("[FogSystem] Fog disabled — skipping generation.");
             return;
         }
-        GenerateInitialFog();
+        if(mapReady)
+        {
+            GenerateInitialFog();
+        }
+        
     }
     private void GenerateInitialFog()
     {

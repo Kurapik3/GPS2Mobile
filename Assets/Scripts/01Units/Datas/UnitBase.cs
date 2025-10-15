@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public abstract class UnitBase : MonoBehaviour
 {
@@ -11,10 +13,14 @@ public abstract class UnitBase : MonoBehaviour
     public int attack;
     public bool isCombat;
 
-    public HexTile currentTile;
+    public bool isSelected = false;
 
+    public HexTile currentTile;
+    private Renderer rend;
     protected virtual void Start()
     {
+        rend = GetComponent<Renderer>();
+        UpdateSelectionVisual();
 
     }
     public virtual void Initialize(UnitData data, HexTile startingTile)
@@ -29,7 +35,9 @@ public abstract class UnitBase : MonoBehaviour
         currentTile = startingTile;
         if (startingTile != null)
         {
-            transform.position = startingTile.transform.position;
+            Vector3 pos = startingTile.transform.position;
+            pos.y = 2f;
+            transform.position = pos;
         }
 
     }
@@ -73,37 +81,45 @@ public abstract class UnitBase : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void SetSelected(bool selected)
+    {
+        isSelected = selected;
+        UpdateSelectionVisual();
+    }
+
+    private void UpdateSelectionVisual()
+    {
+        if (rend != null)
+            rend.material.color = isSelected ? Color.yellow : Color.white;
+    }
+
+    public List<HexTile> GetAvailableTiles()
+    {
+        List<HexTile> tiles = new List<HexTile>();
+        foreach (var tile in MapManager.Instance.GetTiles())
+        {
+            if (HexDistance(currentTile.q, currentTile.r, tile.q, tile.r) <= movement && tile.IsWalkableForAI())
+            {
+                tiles.Add(tile);
+            }
+        }
+        return tiles;
+    }
+
+
     public virtual void Move(HexTile targetTile)
     {
-        if (targetTile == null)
-        {
-            Debug.LogWarning($"{unitName} has no target tile to move to!");
-            return;
-        }
-
-        if (!targetTile.IsWalkable)
-        {
-            Debug.Log($"{unitName} cannot move to {targetTile.name} — not walkable!");
-            return;
-        }
-
-        int distance = HexDistance(currentTile.q, currentTile.r, targetTile.q, targetTile.r);
-        if (distance > movement)
-        {
-            Debug.Log($"{unitName} cannot move that far! Range: {movement}, distance: {distance}");
-            return;
-        }
-        transform.position = targetTile.transform.position;
+        if (targetTile == null) return;
+        transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
         currentTile = targetTile;
-
-        Debug.Log($"{unitName} moved to tile ({targetTile.q}, {targetTile.r})");
+        Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
     }
 
     protected int HexDistance(int q1, int r1, int q2, int r2)
     {
         int dq = q2 - q1;
         int dr = r2 - r1;
-        int ds = (-q2 - r2) - (-q1 - r1); 
+        int ds = (-q2 - r2) - (-q1 - r1);
         return (Mathf.Abs(dq) + Mathf.Abs(dr) + Mathf.Abs(ds)) / 2;
     }
 

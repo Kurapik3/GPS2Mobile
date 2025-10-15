@@ -1,41 +1,68 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "BuildingDatabase", menuName = "Scriptable Objects/BuildingDatabase")]
-public class BuildingDatabase : ScriptableObject
+public class BuildingDatabase : MonoBehaviour
 {
-    [SerializeField] private TextAsset csvFile;
-    private List<BuildingData> buildingList = new List<BuildingData>();
+    [SerializeField] private string csvPath = "Data/buildings";
+    private List<BuildingData> buildings = new List<BuildingData>();
 
-    public List<BuildingData> GetAllBuildings() => buildingList;
-
-    [ContextMenu("Load Buildings From CSV")]
-    public void LoadFromCSV()
+    void Awake()
     {
-        buildingList.Clear();
+        TextAsset csvFile = Resources.Load<TextAsset>(csvPath);
         if (csvFile == null)
         {
-            Debug.LogError("No CSV file assigned!");
+            Debug.LogError($"Building CSV not found at Resources/{csvPath}");
             return;
         }
 
-        string[] lines = csvFile.text.Split('\n');
+        string[] lines = csvFile.text.Split(new[] { '\n', '\r' }, System.StringSplitOptions.RemoveEmptyEntries);
+
         for (int i = 1; i < lines.Length; i++) // skip header
         {
-            string[] values = lines[i].Split(',');
-            if (values.Length < 4) continue;
+            string line = lines[i].Trim();
+            if (string.IsNullOrEmpty(line)) continue;
+
+            string[] values = line.Split(',');
+            if (values.Length < 4)
+            {
+                Debug.LogWarning($"Skipping malformed line {i + 1}: {line}");
+                continue;
+            }
+
+            for (int j = 0; j < values.Length; j++)
+                values[j] = values[j].Trim();
+
+            int health = ParseIntSafe(values[1], i, "health");
+            int developCost = ParseIntSafe(values[2], i, "developCost");
+            int apPerTurn = ParseIntSafe(values[3], i, "apPerTurn");
 
             BuildingData data = new BuildingData
             {
-                buildingName = values[0].Trim(),
-                health = int.Parse(values[1]),
-                developCost = int.Parse(values[2]),
-                apPerTurn = int.Parse(values[3])
+                buildingName = values[0],
+                health = health,
+                developCost = developCost,
+                apPerTurn = apPerTurn
             };
 
-            buildingList.Add(data);
+            buildings.Add(data);
         }
 
-        Debug.Log($"Loaded {buildingList.Count} buildings from CSV");
+        Debug.Log($"Loaded {buildings.Count} buildings from CSV.");
     }
+
+    private int ParseIntSafe(string s, int lineIndex, string fieldName)
+    {
+        if (int.TryParse(s, out int result))
+            return result;
+
+        Debug.LogWarning($"[BuildingDatabase] Line {lineIndex + 1}: Failed to parse '{fieldName}' from value '{s}'. Defaulting to 0.");
+        return 0;
+    }
+
+    public BuildingData GetBuildingByName(string name)
+    {
+        return buildings.Find(b => b.buildingName == name);
+    }
+
+    public List<BuildingData> GetAllBuildings() => buildings;
 }
