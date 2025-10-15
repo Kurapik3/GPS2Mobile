@@ -4,7 +4,7 @@ using DG.Tweening;
 using UnityEngine.SceneManagement;
 using System.Runtime.CompilerServices;
 using System;
-using EasyTransition;
+//using EasyTransition;
 using UnityEditor;
 
 public class ManagerOfScene : MonoBehaviour
@@ -20,7 +20,7 @@ public class ManagerOfScene : MonoBehaviour
     [SerializeField] private RectTransform creditsAnimatedPanel;
     [SerializeField] private RectTransform settingsAnimatedPanel;
 
-    [SerializeField] private TransitionSettings transition;
+    //[SerializeField] private TransitionSettings transition;
 
     [SerializeField] private CanvasGroup settingButton;
     [SerializeField] private CanvasGroup creditsButton;
@@ -40,20 +40,21 @@ public class ManagerOfScene : MonoBehaviour
         settingsAnimatedPanel.anchoredPosition = offScreenPos;
     }
 
-    public void LoadNextScene(string sceneName)
-    {
-        TransitionManager.Instance().Transition(sceneName, transition, 0.1f);
+    //public void LoadNextScene(string sceneName)
+    //{
+    //    TransitionManager.Instance().Transition(sceneName, transition, 0.1f);
 
-        settingButton.interactable = false;
-        creditsButton.interactable = false;
+    //    settingButton.interactable = false;
+    //    creditsButton.interactable = false;
 
-        //settingButton.blocksRaycasts = false;
-        //creditsButton.interactable = false;
-    }
+    //    //settingButton.blocksRaycasts = false;
+    //    //creditsButton.interactable = false;
+    //}
     public void GameStart()
     {
         //LoadNextScene("GameplayScene");
-        LoadNextScene("PrototypeScene");
+        //LoadNextScene("PrototypeScene");
+        SceneManager.LoadScene("PrototypeScene");
         ManagerAudio.instance.PlaySFX("ButtonPressed");
         ManagerAudio.instance.StopMusic();
 

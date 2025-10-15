@@ -1,6 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
-using EasyTransition;
+//using EasyTransition;
+using UnityEngine.SceneManagement;
 
 public class InGameSceneManager : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class InGameSceneManager : MonoBehaviour
     [SerializeField] private RectTransform tribeStatsPanel;
 
     [SerializeField] private Ease easing = Ease.InOutBack;
-    [SerializeField] private TransitionSettings transition;
+    //[SerializeField] private TransitionSettings transition;
 
     [SerializeField] private float moveDuration = 1f;
     [SerializeField] private float fastMoveDuration = 0.5f;
@@ -48,7 +49,9 @@ public class InGameSceneManager : MonoBehaviour
 
     public void MainMenu()
     {
-        LoadMainMenu("MainMenu");
+        //LoadMainMenu("MainMenu");
+
+        SceneManager.LoadScene("MainMenu");
 
         ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
@@ -58,10 +61,10 @@ public class InGameSceneManager : MonoBehaviour
         settingPanelMove.DOAnchorPos(centrePos, moveDuration).SetEase(Ease.OutBack);
     }
 
-    public void LoadMainMenu(string sceneName)
-    {
-        TransitionManager.Instance().Transition(sceneName, transition, 0.1f);
-    }
+    //public void LoadMainMenu(string sceneName)
+    //{
+    //    TransitionManager.Instance().Transition(sceneName, transition, 0.1f);
+    //}
 
     private void TribeStatsPopUp()
     {
