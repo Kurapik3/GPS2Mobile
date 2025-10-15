@@ -108,7 +108,8 @@ public class HexTile : MonoBehaviour
             return;
         }
         // Instantiate as child so it stays local
-        tile = Application.isPlaying?Instantiate(prefab, transform):(GameObject)PrefabUtility.InstantiatePrefab(prefab, transform);
+        //tile = Application.isPlaying?Instantiate(prefab, transform):(GameObject)PrefabUtility.InstantiatePrefab(prefab, transform);
+        tile = Instantiate(prefab, transform);
         tile.name = "Mesh";
         tile.transform.localPosition = Vector3.zero;
         //tile.transform.localRotation = Quaternion.identity;
@@ -282,7 +283,7 @@ public class HexTile : MonoBehaviour
         var structure = GetComponent<StructureTile>();
         if (structure != null)
         {
-            structure.ApplyStructure();
+            structure.ApplyStructureRuntime();
         }
     }
 
