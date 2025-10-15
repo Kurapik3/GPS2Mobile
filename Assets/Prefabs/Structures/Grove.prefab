@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa05fdd292438ee48a780eaf43b3f5f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildingName: 
+  buildingName: Grove
   health: 0
   developCost: 0
   apPerTurn: 0

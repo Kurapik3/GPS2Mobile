@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
 public class TurnManager : MonoBehaviour
@@ -24,11 +25,14 @@ public class TurnManager : MonoBehaviour
     public static event TurnEvent OnPlayerTurnStart;
     public static event TurnEvent OnEnemyTurnStart;
 
+     public TreeBase treeBase;
+
     [Header("AI")]
     [SerializeField] private AIController aiController;
 
     private void Start()
     {
+
         if (endTurnButton != null)
         {
             endTurnButton.onClick.AddListener(EndTurn);
@@ -44,10 +48,12 @@ public class TurnManager : MonoBehaviour
 
     private void StartPlayerTurn()
     {
+
         isPlayerTurn = true;
         Debug.Log($"--- Player Turn {currentTurn} ---");
 
         EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));
+        treeBase.OnTurnStart();
 
         OnPlayerTurnStart?.Invoke();
 

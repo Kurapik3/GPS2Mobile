@@ -50,6 +50,7 @@ public class Scout : UnitBase
             if (tile.fogInstance != null)
             {
                 tile.RemoveFog();
+                PlayerTracker.Instance.addScore(50);
             }
         }
 
