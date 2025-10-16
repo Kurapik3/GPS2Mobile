@@ -291,12 +291,14 @@ public class HexTile : MonoBehaviour
     {
         var structureTile = GetComponent<StructureTile>();
         if (structureTile == null)
+        {
             structureTile = gameObject.AddComponent<StructureTile>();
-
+        }
         // Auto-load database if missing
         if (structureTile.structureDatabase == null)
+        {
             structureTile.structureDatabase = Resources.Load<StructureDatabase>("StructureDatabase");
-
+        }
         if (structureTile.structureDatabase == null)
         {
             Debug.LogWarning("StructureDatabase not found in Resources folder!");

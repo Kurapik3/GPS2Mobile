@@ -37,7 +37,7 @@ public class MapGenerator : MonoBehaviour
         mapData = data;
     }
 
-    public void GenerateDefaultMap()
+    public void GenerateDefaultMap() //to use for GameManager later on
     {
         // Just to create a map when no data exists
         LayoutGrid();
