@@ -15,7 +15,6 @@ public class UnitS : MonoBehaviour
     public List<GameObject> unitsSelected = new List<GameObject>();
 
     [SerializeField] private LayerMask clickable;
-    [SerializeField] private LayerMask ground;
 
     [SerializeField] private RectTransform unitInfoPanelMove;
     [SerializeField] private RectTransform unitStatusWindowMove;
@@ -32,6 +31,7 @@ public class UnitS : MonoBehaviour
 
     private Camera cam;
     private bool isStatusClosed = false;
+    private bool isSFXPlayed = true;
     public static bool IsUIBlockingInput { get; set; } = false;
 
     private void Awake()
@@ -71,9 +71,15 @@ public class UnitS : MonoBehaviour
             {
                 SelectByClicking(hit.collider.gameObject);
                 UnitInfoPanelMove();
+                if (isSFXPlayed)
+                {
+                    ManagerAudio.instance.PlaySFX("UnitSelected");
+                    isSFXPlayed = false;
+                }
             }
             else
             {
+                isSFXPlayed = true;
                 DeselectAll();
                 CloseUnitInfoPanel();
             }

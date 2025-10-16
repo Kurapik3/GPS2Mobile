@@ -177,10 +177,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   musics:
   - name: BGM
-    clip: {fileID: 8300000, guid: 81041d2aaadf6994cb5f7892d9edd8eb, type: 3}
+    clip: {fileID: 8300000, guid: 2e79003338cd57e4a849806687495dc8, type: 3}
   sfxs:
   - name: ButtonPressed
     clip: {fileID: 8300000, guid: d642d1be8655df749a77657039e49421, type: 3}
+  - name: UnitSelected
+    clip: {fileID: 8300000, guid: d39c1ffbbe57f404b927b6293dcbb3cf, type: 3}
+  - name: StructureSelected
+    clip: {fileID: 8300000, guid: a049e360840d01c428cd1a4b316bff66, type: 3}
+  - name: UnitSpawn
+    clip: {fileID: 8300000, guid: 2603a47c4e21ce94fa1005c6b2deb968, type: 3}
+  - name: UnitMove
+    clip: {fileID: 8300000, guid: 20b26be2e29e8804d93b5ddd3d13ffff, type: 3}
+  - name: BuilderBuilding
+    clip: {fileID: 8300000, guid: 64197803de4238e469736bbeff1d2fab, type: 3}
+  - name: BomberBoming
+    clip: {fileID: 8300000, guid: 04ace0dddd9faa940a110f0b7a600e38, type: 3}
+  - name: BeginTurn
+    clip: {fileID: 8300000, guid: 65a3b3e395a80b247b0966d049c03bc5, type: 3}
   musicSource: {fileID: 8341383607153499847}
   sfxSource: {fileID: 6733325836681459888}
 --- !u!1 &8621646360622128158

@@ -75,9 +75,34 @@ public class MapManager : MonoBehaviour
     //   {
     //       unit.MoveTo(1, 0);
     //   }
+
+    public void SetUnitOccupied(Vector2Int coord, bool occupied)
+    {
+        if (_tiles.TryGetValue(coord, out var tile))
+        {
+            tile.SetOccupiedByUnit(occupied);
+        }
+    }
+
+    public bool CanUnitStandHere(Vector2Int coord)
+    {
+        if (_tiles.TryGetValue(coord, out var tile))
+            return tile.CanUnitStandHere();
+        return false;
+    }
+
+    public bool IsTileOccupied(Vector2Int coord)
+    {
+        if (_tiles.TryGetValue(coord, out var tile))
+        {
+            return tile.IsOccupiedByUnit;
+        }
+        return false;
+    }
+
     public bool IsWalkable(Vector2Int coord)
     {
-        return TryGetTile(coord, out HexTile tile) && tile.IsWalkable;
+        return _tiles.TryGetValue(coord, out var tile) && tile.IsWalkableForAI();
     }
 
     //to get nearby tiles

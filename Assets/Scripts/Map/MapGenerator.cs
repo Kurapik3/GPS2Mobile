@@ -16,6 +16,12 @@ public class MapGenerator : MonoBehaviour
     public Dictionary<Vector2Int, HexTile> AllTiles { get; private set; } = new();
     private readonly List<HexTile> activeTiles = new();
     public MapData MapData => mapData;
+    public float GetHexSize() => hexSize;
+
+    public delegate void MapReadyHandler(MapGenerator map);
+    public static event MapReadyHandler OnMapReady;
+    public bool IsMapReady { get; private set; } = false;
+
     private void Awake()
     {
         RebuildTileDictionary();
@@ -68,6 +74,9 @@ public class MapGenerator : MonoBehaviour
         {
             tile.FindNeighbors();
         }
+
+        IsMapReady = true;
+        OnMapReady?.Invoke(this);
     }
     private HexTile CreateTile(int q, int r, Vector3 pos,HexTile.TileType initialType)
     {
@@ -148,6 +157,9 @@ public class MapGenerator : MonoBehaviour
         // init runtime-only systems
         //GetComponent<FogSystem>()?.InitializeFog();
         GetComponent<DynamicTileGenerator>()?.GenerateDynamicElements();
+
+        IsMapReady = true;
+        OnMapReady?.Invoke(this);
 
         Debug.Log("Map generated from MapData (runtime).");
     }
@@ -257,6 +269,8 @@ public class MapGenerator : MonoBehaviour
             UnityEditor.SceneView.RepaintAll();
         }
 #endif
+        IsMapReady = true;
+        OnMapReady?.Invoke(this);
         Debug.Log($"Loaded map from ScriptableObject: {mapData.name}");
     }
 
@@ -269,6 +283,7 @@ public class MapGenerator : MonoBehaviour
         }
         AllTiles.Clear();
         MapManager.Instance?.Clear();
+        IsMapReady = false;
     }
     
 #if UNITY_EDITOR

@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
+using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
 public class TurnManager : MonoBehaviour
@@ -10,7 +13,9 @@ public class TurnManager : MonoBehaviour
     [Tooltip("Reference to End Turn button in the UI")]
     [SerializeField] private Button endTurnButton;
 
-    private int currentTurn = 1;
+    private List<BuildingBase> allBuildings = new List<BuildingBase>();
+
+    private int currentTurn = 0;
     private bool isPlayerTurn = true;
 
     public int CurrentTurn => currentTurn;
@@ -20,19 +25,35 @@ public class TurnManager : MonoBehaviour
     public static event TurnEvent OnPlayerTurnStart;
     public static event TurnEvent OnEnemyTurnStart;
 
+     public TreeBase treeBase;
+
+    [Header("AI")]
+    [SerializeField] private AIController aiController;
+
     private void Start()
     {
+
         if (endTurnButton != null)
         {
             endTurnButton.onClick.AddListener(EndTurn);
         }
+
+        if (aiController != null)
+        {
+            aiController.OnAITurnFinished += EndEnemyTurn;
+        }
+        EventBus.Publish(new TurnUpdatedEvent(0, maxTurns));
         StartPlayerTurn();
     }
 
     private void StartPlayerTurn()
     {
+
         isPlayerTurn = true;
         Debug.Log($"--- Player Turn {currentTurn} ---");
+
+        EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));
+        treeBase.OnTurnStart();
 
         OnPlayerTurnStart?.Invoke();
 
@@ -54,8 +75,10 @@ public class TurnManager : MonoBehaviour
             endTurnButton.interactable = false;
         }
 
+        aiController?.ExecuteTurn();
+
         // to simulate a short delay for enemy actions
-        Invoke(nameof(EndEnemyTurn), 2f);
+        //Invoke(nameof(EndEnemyTurn), 2f);
     }
 
     private void EndEnemyTurn()
@@ -67,6 +90,10 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
+            foreach (var building in allBuildings) // gain AP
+            {
+                building.OnTurnStart(); 
+            }
             StartPlayerTurn();
         }
     }

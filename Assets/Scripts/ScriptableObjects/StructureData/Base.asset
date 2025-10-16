@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Base
   m_EditorClassIdentifier: 
   structureName: Base
-  prefab: {fileID: 7043572503555029761, guid: dd1a1d5dfd2fb884ab621715d1ee845a, type: 3}
+  prefab: {fileID: 6574292722763766794, guid: 3cd0f7d313f40bb48b0fff31a6e7ca68, type: 3}
   yOffset: {x: 0, y: 2, z: 0}
   blocksDynamic: 1

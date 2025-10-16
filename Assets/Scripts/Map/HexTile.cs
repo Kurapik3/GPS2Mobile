@@ -32,6 +32,8 @@ public class HexTile : MonoBehaviour
     //public Vector2Int OffsetCoord => new Vector2Int(q + (r + (r % 2)) / 2, r);
     //public Vector3Int CubeCoord => new Vector3Int(q, -q - r, r);
 
+    public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
+    [SerializeField] public BuildingBase currentBuilding; // by william|
 
     [Header("Structure Data")]
     public int structureIndex = -1; // -1 = no structure
@@ -77,7 +79,18 @@ public class HexTile : MonoBehaviour
         AddTile();
         isDirty = false;
     }
- 
+
+    public void SetBuilding(BuildingBase building)
+    {
+        currentBuilding = building;
+    }
+
+    public void BecomeRuin()
+    {
+        Debug.Log($"Tile at ({q}, {r}) has become a ruin.");
+        currentBuilding = null;
+    }
+
     //public void RollTileType()
     //{
     //    tileType = (TileType)Random.Range(0, System.Enum.GetValues(typeof(TileType)).Length);
@@ -95,7 +108,8 @@ public class HexTile : MonoBehaviour
             return;
         }
         // Instantiate as child so it stays local
-        tile = Application.isPlaying?Instantiate(prefab, transform):(GameObject)PrefabUtility.InstantiatePrefab(prefab, transform);
+        //tile = Application.isPlaying?Instantiate(prefab, transform):(GameObject)PrefabUtility.InstantiatePrefab(prefab, transform);
+        tile = Instantiate(prefab, transform);
         tile.name = "Mesh";
         tile.transform.localPosition = Vector3.zero;
         //tile.transform.localRotation = Quaternion.identity;
@@ -119,7 +133,7 @@ public class HexTile : MonoBehaviour
             }
         }
     }
-    public void AddFog(GameObject fogPrefab)
+    public void AddFog(GameObject fogPrefab, float yOffset = 0f)
     {
         if (fogInstance != null || fogPrefab == null)
         {
@@ -127,7 +141,7 @@ public class HexTile : MonoBehaviour
         }
         fogInstance = Instantiate(fogPrefab, transform);
         fogInstance.name = "Fog";
-        fogInstance.transform.localPosition = Vector3.zero;
+        fogInstance.transform.localPosition = new Vector3(0, yOffset, 0);
         
     }
     public void RemoveFog()
@@ -159,10 +173,12 @@ public class HexTile : MonoBehaviour
             Destroy(old.gameObject);
         }
         GameObject instance = Instantiate(data.prefab, transform);
+
         instance.name = "Structure";
         instance.transform.localPosition = data.yOffset;
         instance.transform.localRotation = Quaternion.identity;
         instance.transform.localScale = Vector3.one;
+
     }
     public void SetStructure(StructureData data)
     {
@@ -261,13 +277,41 @@ public class HexTile : MonoBehaviour
     }
 #endif
     // Runtime structure placement (used by MapGenerator.LoadMapData)
+    //public void ApplyStructureByName(string name)
+    //{
+    //    StructureName = name;
+    //    var structure = GetComponent<StructureTile>();
+    //    if (structure != null)
+    //    {
+    //        structure.ApplyStructureRuntime();
+    //    }
+    //}
+
     public void ApplyStructureByName(string name)
     {
-        StructureName = name;
-        var structure = GetComponent<StructureTile>();
-        if (structure != null)
+        var structureTile = GetComponent<StructureTile>();
+        if (structureTile == null)
+            structureTile = gameObject.AddComponent<StructureTile>();
+
+        // Auto-load database if missing
+        if (structureTile.structureDatabase == null)
+            structureTile.structureDatabase = Resources.Load<StructureDatabase>("StructureDatabase");
+
+        if (structureTile.structureDatabase == null)
         {
-            structure.ApplyStructure();
+            Debug.LogWarning("StructureDatabase not found in Resources folder!");
+            return;
+        }
+
+        int idx = structureTile.structureDatabase.structures.FindIndex(s => s.structureName == name);
+        if (idx >= 0)
+        {
+            structureTile.selectedIndex = idx;
+            structureTile.ApplyStructureRuntime();
+        }
+        else
+        {
+            Debug.LogWarning($"Structure '{name}' not found in database!");
         }
     }
 
@@ -284,5 +328,25 @@ public class HexTile : MonoBehaviour
     //        return true;
     //    }
     //}
+
+    private bool unitOccupied = false;
+    public bool IsOccupiedByUnit => unitOccupied;
+
+    public void SetOccupiedByUnit(bool occupied)
+    {
+        unitOccupied = occupied;
+    }
+
+    public bool CanUnitStandHere()
+    {
+        return !unitOccupied;
+    }
+
+    public bool IsWalkableForAI()
+    {
+        return IsWalkable && !IsOccupiedByUnit;
+    }
+
+
 }
 
