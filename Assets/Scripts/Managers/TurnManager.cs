@@ -15,6 +15,7 @@ public class TurnManager : MonoBehaviour
 
     private List<BuildingBase> allBuildings = new List<BuildingBase>();
 
+    private bool isProcessingTurn = false;
     private int currentTurn = 0;
     private bool isPlayerTurn = true;
 
@@ -84,6 +85,7 @@ public class TurnManager : MonoBehaviour
     private void EndEnemyTurn()
     {
         currentTurn++;
+        isProcessingTurn = false;
         if (currentTurn > maxTurns)
         {
             EndGame();
@@ -100,10 +102,11 @@ public class TurnManager : MonoBehaviour
 
     public void EndTurn()
     {
-        if (!isPlayerTurn)
+        if (!isPlayerTurn || isProcessingTurn)
         {
             return; // prevent double-clicks or AI triggers
         }
+        isProcessingTurn = true;
         Debug.Log("Player ended turn.");
         if (endTurnButton != null)
         {
