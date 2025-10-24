@@ -17,7 +17,7 @@ public class MapManager : MonoBehaviour
 
     private Dictionary<Vector2Int, HexTile> _tiles = new();
 
-    private float hexSize = FindFirstObjectByType<MapGenerator>().GetHexSize();
+    private float hexSize;
 
     // Returns all HexTile objects (no coordinates). Use when you only care about the tile itself.
     // Example: "Add fog to every tile"
@@ -36,6 +36,8 @@ public class MapManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        hexSize = FindFirstObjectByType<MapGenerator>().GetHexSize();
     }
 
     // Called by MapGenerator after building the grid, dont need to call this

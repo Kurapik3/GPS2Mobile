@@ -87,6 +87,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using static EnemyAIEvents;
 
 /// <summary>
 /// Tracks enemy bases, HP, housed units and performs spawn logic.
@@ -133,18 +134,23 @@ public class EnemyBaseManager : MonoBehaviour
 
     private void DiscoverBases()
     {
-        var bases = GameObject.FindGameObjectsWithTag("EnemyBase");
-        foreach (var b in bases)
-        {
-            int id = nextBaseId++;
-            Vector2Int hv = MapManager.Instance.WorldToHex(b.transform.position);
-            basePositions[id] = hv;
-            baseHP[id] = Random.Range(minBaseHP, maxBaseHP + 1);
-            baseUnitCount[id] = 0;
-            baseObjects[id] = b;
+        GameObject[] basesArray = GameObject.FindGameObjectsWithTag("EnemyBase");
 
-            //Mark tile occupied
-            MapManager.Instance.SetUnitOccupied(hv, true);
+        if (basesArray == null || basesArray.Length == 0)
+        {
+            Debug.LogWarning("[AIController] No enemy bases found with 'EnemyBase' tag!");
+            return;
+        }
+
+        foreach (var baseGO in basesArray)
+        {
+            int baseId = nextBaseId++;
+            Vector2Int baseHex = MapManager.Instance.WorldToHex(baseGO.transform.position);
+
+            basePositions[baseId] = baseHex;
+            baseHP[baseId] = Random.Range(minBaseHP, maxBaseHP + 1); //HP: 20 ~ 35
+            baseUnitCount[baseId] = 0; //Start with no units housed
+            baseObjects[baseId] = baseGO;
         }
     }
 
@@ -155,27 +161,33 @@ public class EnemyBaseManager : MonoBehaviour
         foreach (var kvp in basePositions)
         {
             int baseId = kvp.Key;
-            if (IsBaseDestroyed(baseId)) 
-                continue;
+            Debug.Log($"[EnemyBaseManager] Checking base {baseId}");
 
-            //If base currently has unit on tile, skip spawning
-            if (IsBaseOccupied(baseId)) 
+            if (IsBaseDestroyed(baseId))
+            {
+                Debug.Log($"[EnemyBaseManager] Base {baseId} destroyed, skipping");
                 continue;
+            }
 
-            if (!CanProduceUnit(baseId)) 
+            if (IsBaseOccupied(baseId))
+            {
+                Debug.Log($"[EnemyBaseManager] Base {baseId} occupied, skipping");
                 continue;
+            }
 
-            //Spawn probability
-            if (Random.value > spawnProbability) 
+            if (!CanProduceUnit(baseId))
+            {
+                Debug.Log($"[EnemyBaseManager] Base {baseId} cannot produce unit, skipping");
                 continue;
+            }
 
-            //Choose unit type using spawn pool rules
-            string chosen = SelectUnitToSpawn();
-            if (string.IsNullOrEmpty(chosen))
-                continue;
+            string chosen = "Builder";
+            Debug.Log($"[EnemyBaseManager] Base {baseId} ready to spawn {chosen}");
 
             //Request spawn
-            EventBus.Publish(new EnemyAIEvents.EnemySpawnRequestEvent(baseId, chosen));
+            Debug.Log($"[EnemyBaseManager] Requesting spawn for unit '{chosen}' on {baseId}");
+            EventBus.Publish(new EnemySpawnRequestEvent(baseId, chosen));
+            Debug.Log("[EnemyBaseManager] Spawn event published");
         }
     }
 

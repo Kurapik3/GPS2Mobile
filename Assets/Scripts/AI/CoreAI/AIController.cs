@@ -718,9 +718,15 @@ using UnityEngine;
 public class AIController : MonoBehaviour
 {
     [SerializeField] private float phaseDelay = 0.5f;
-    public static float AISpeedMultiplier = 2.5f;
+    [SerializeField] private float aiSpeedMultiplier = 2.5f;
+    public static float AISpeedMultiplier { get; private set; }
 
     private int currentTurn = 0;
+
+    private void Awake()
+    {
+        AISpeedMultiplier = aiSpeedMultiplier;
+    }
 
     private void OnEnable()
     {

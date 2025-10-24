@@ -77,6 +77,7 @@ public class MapGenerator : MonoBehaviour
 
         IsMapReady = true;
         OnMapReady?.Invoke(this);
+        EventBus.Publish(new EnemyAIEvents.MapReadyEvent(this));
     }
     private HexTile CreateTile(int q, int r, Vector3 pos,HexTile.TileType initialType)
     {
@@ -160,6 +161,7 @@ public class MapGenerator : MonoBehaviour
 
         IsMapReady = true;
         OnMapReady?.Invoke(this);
+        EventBus.Publish(new EnemyAIEvents.MapReadyEvent(this));
 
         Debug.Log("Map generated from MapData (runtime).");
     }
@@ -271,6 +273,7 @@ public class MapGenerator : MonoBehaviour
 #endif
         IsMapReady = true;
         OnMapReady?.Invoke(this);
+        EventBus.Publish(new EnemyAIEvents.MapReadyEvent(this));
         Debug.Log($"Loaded map from ScriptableObject: {mapData.name}");
     }
 

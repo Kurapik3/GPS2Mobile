@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static TurnManager;
 
 /// <summary>
 /// Tracks enemy units (positions, types, HP), handles spawn/move/attack requests.
@@ -21,35 +23,45 @@ public class EnemyUnitManager : MonoBehaviour
     private Dictionary<int, GameObject> unitObjects = new();
     private Dictionary<int, int> unitHousedBase = new(); //Track which base a unit is housed in
 
+    private Dictionary<int, int> unitSpawnTurn = new();
+
     private int nextUnitId = 1;
+    private int currentTurn = 0;
 
     private void Awake()
     {
-        Instance = this;
+        Instance = this;;
     }
 
     private void OnEnable()
     {
+        Debug.Log("[EnemyUnitManager] OnEnable called, subscribing events");
         EventBus.Subscribe<EnemyAIEvents.EnemySpawnRequestEvent>(OnSpawnRequest);
         EventBus.Subscribe<EnemyAIEvents.EnemyMoveRequestEvent>(OnMoveRequest);
         EventBus.Subscribe<EnemyAIEvents.EnemyAttackRequestEvent>(OnAttackRequest);
+        EventBus.Subscribe<EnemyAIEvents.EnemyTurnStartEvent>(OnEnemyTurnStart);
+        EventBus.Subscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
     }
 
     private void OnDisable()
     {
+
         EventBus.Unsubscribe<EnemyAIEvents.EnemySpawnRequestEvent>(OnSpawnRequest);
         EventBus.Unsubscribe<EnemyAIEvents.EnemyMoveRequestEvent>(OnMoveRequest);
         EventBus.Unsubscribe<EnemyAIEvents.EnemyAttackRequestEvent>(OnAttackRequest);
+        EventBus.Unsubscribe<EnemyAIEvents.EnemyTurnStartEvent>(OnEnemyTurnStart);
+        EventBus.Unsubscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
     }
 
     //Spawn handling: create runtime unit and publish EnemySpawnedEvent
     private void OnSpawnRequest(EnemyAIEvents.EnemySpawnRequestEvent evt)
     {
+        Debug.Log($"[EnemyUnitManager] Received Spawn Request for {evt.UnitType}");
         //Find a prefab by unit type
         GameObject prefab = unitPrefabs.Find(p => p.name == evt.UnitType);
         Vector2Int spawnHex = EnemyBaseManagerFindBaseHex(evt.BaseId);
         Vector3 world = MapManager.Instance.HexToWorld(spawnHex);
-        world.y += unitHeightOffset;
+        world.y += (unitHeightOffset + 0.5f);
 
         if (prefab == null)
         {
@@ -72,6 +84,8 @@ public class EnemyUnitManager : MonoBehaviour
         var data = unitDatabase.GetUnitByName(type);
         unitHP[id] = data != null ? data.hp : 10;
 
+        unitSpawnTurn[id] = currentTurn;
+
         //Mark map occupied
         MapManager.Instance.SetUnitOccupied(hex, true);
 
@@ -82,6 +96,13 @@ public class EnemyUnitManager : MonoBehaviour
     {
         if (!unitPositions.ContainsKey(evt.UnitId)) 
             return;
+
+        //Check if unit can move
+        if (!CanUnitMove(evt.UnitId))
+        {
+            Debug.Log($"[EnemyUnitManager] Unit {evt.UnitId} cannot move this turn (spawned recently).");
+            return;
+        }
 
         Vector2Int from = unitPositions[evt.UnitId];
         Vector2Int to = evt.Destination;
@@ -103,13 +124,29 @@ public class EnemyUnitManager : MonoBehaviour
         if (unitObjects.TryGetValue(evt.UnitId, out var go))
         {
             Vector3 world = MapManager.Instance.HexToWorld(to);
-            world.y += 2f;
-            go.transform.position = world;
+            world.y += unitHeightOffset;
+            StartCoroutine(SmoothMove(go, world));
         }
 
         EventBus.Publish(new EnemyAIEvents.EnemyMovedEvent(evt.UnitId, from, to));
     }
 
+    private IEnumerator SmoothMove(GameObject unit, Vector3 destination)
+    {
+        Vector3 start = unit.transform.position;
+        float t = 0f;
+        float duration = 0.5f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / duration;
+            Vector3 nextPos = Vector3.Lerp(start, destination, t);
+            unit.transform.position = nextPos;
+            yield return null;
+        }
+
+        unit.transform.position = destination;
+    }
 
     //Real damage logic will be handled by Combat system listening to this notification
     private void OnAttackRequest(EnemyAIEvents.EnemyAttackRequestEvent evt)
@@ -118,6 +155,23 @@ public class EnemyUnitManager : MonoBehaviour
             return;
 
         EventBus.Publish(new EnemyAIEvents.EnemyAttackedEvent(evt.AttackerId, evt.TargetId));
+    }
+    private void OnEnemyTurnStart(EnemyAIEvents.EnemyTurnStartEvent evt)
+    {
+        currentTurn = evt.Turn;
+    }
+
+    private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
+    {
+        currentTurn++;
+    }
+
+    //Check if unit can move this turn
+    public bool CanUnitMove(int id)
+    {
+        if (!unitPositions.ContainsKey(id)) 
+            return false;
+        return currentTurn > unitSpawnTurn[id];
     }
 
     //Query helpers used by AIs
