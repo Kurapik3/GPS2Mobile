@@ -23,10 +23,9 @@ public class EnemyUnitManager : MonoBehaviour
     private Dictionary<int, GameObject> unitObjects = new();
     private Dictionary<int, int> unitHousedBase = new(); //Track which base a unit is housed in
 
-    private Dictionary<int, int> unitSpawnTurn = new();
+    private HashSet<int> justSpawnedUnits = new();
 
     private int nextUnitId = 1;
-    private int currentTurn = 0;
 
     private void Awake()
     {
@@ -39,7 +38,6 @@ public class EnemyUnitManager : MonoBehaviour
         EventBus.Subscribe<EnemyAIEvents.EnemySpawnRequestEvent>(OnSpawnRequest);
         EventBus.Subscribe<EnemyAIEvents.EnemyMoveRequestEvent>(OnMoveRequest);
         EventBus.Subscribe<EnemyAIEvents.EnemyAttackRequestEvent>(OnAttackRequest);
-        EventBus.Subscribe<EnemyAIEvents.EnemyTurnStartEvent>(OnEnemyTurnStart);
         EventBus.Subscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
     }
 
@@ -49,7 +47,6 @@ public class EnemyUnitManager : MonoBehaviour
         EventBus.Unsubscribe<EnemyAIEvents.EnemySpawnRequestEvent>(OnSpawnRequest);
         EventBus.Unsubscribe<EnemyAIEvents.EnemyMoveRequestEvent>(OnMoveRequest);
         EventBus.Unsubscribe<EnemyAIEvents.EnemyAttackRequestEvent>(OnAttackRequest);
-        EventBus.Unsubscribe<EnemyAIEvents.EnemyTurnStartEvent>(OnEnemyTurnStart);
         EventBus.Unsubscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
     }
 
@@ -57,22 +54,45 @@ public class EnemyUnitManager : MonoBehaviour
     private void OnSpawnRequest(EnemyAIEvents.EnemySpawnRequestEvent evt)
     {
         Debug.Log($"[EnemyUnitManager] Received Spawn Request for {evt.UnitType}");
-        //Find a prefab by unit type
-        GameObject prefab = unitPrefabs.Find(p => p.name == evt.UnitType);
-        Vector2Int spawnHex = EnemyBaseManagerFindBaseHex(evt.BaseId);
-        Vector3 world = MapManager.Instance.HexToWorld(spawnHex);
-        world.y += (unitHeightOffset + 0.5f);
 
+        //Find prefab by unit type
+        GameObject prefab = unitPrefabs.Find(p => p.name == evt.UnitType);
         if (prefab == null)
         {
             Debug.LogWarning($"[EnemyUnitManager] Prefab for '{evt.UnitType}' not found.");
             return;
         }
 
+        //Get base hex from EnemyBaseManager
+        Vector2Int spawnHex = GetBaseSpawnHex(evt.BaseId);
+        if (spawnHex == Vector2Int.zero)
+        {
+            Debug.LogWarning($"[EnemyUnitManager] Base #{evt.BaseId} has invalid spawn location.");
+            return;
+        }
+
+        Vector3 world = MapManager.Instance.HexToWorld(spawnHex);
+        world.y += (unitHeightOffset + 0.5f);
+
+        //Instantiate unit
         var unitGO = Instantiate(prefab, world, Quaternion.identity);
         unitGO.name = $"Enemy_{evt.UnitType}_{nextUnitId}";
+
         RegisterUnit(unitGO, evt.BaseId, evt.UnitType, spawnHex);
     }
+
+    private Vector2Int GetBaseSpawnHex(int baseId)
+    {
+        var ebm = EnemyBaseManager.Instance;
+        if (ebm == null)
+            return Vector2Int.zero;
+
+        if (!ebm.Bases.TryGetValue(baseId, out var enemyBase) || enemyBase == null)
+            return Vector2Int.zero;
+
+        return enemyBase.currentTile != null ? enemyBase.currentTile.HexCoords : Vector2Int.zero;
+    }
+
 
     private void RegisterUnit(GameObject go, int baseId, string type, Vector2Int hex)
     {
@@ -84,7 +104,7 @@ public class EnemyUnitManager : MonoBehaviour
         var data = unitDatabase.GetUnitByName(type);
         unitHP[id] = data != null ? data.hp : 10;
 
-        unitSpawnTurn[id] = currentTurn;
+        justSpawnedUnits.Add(id);
 
         //Mark map occupied
         MapManager.Instance.SetUnitOccupied(hex, true);
@@ -100,7 +120,6 @@ public class EnemyUnitManager : MonoBehaviour
         //Check if unit can move
         if (!CanUnitMove(evt.UnitId))
         {
-            Debug.Log($"[EnemyUnitManager] Unit {evt.UnitId} cannot move this turn (spawned recently).");
             return;
         }
 
@@ -111,7 +130,7 @@ public class EnemyUnitManager : MonoBehaviour
             return;
 
         //Check occupancy
-        if (MapManager.Instance.IsTileOccupied(to) && !IsAnyUnitAt(to))
+        if (MapManager.Instance.IsTileOccupied(to))
             return;
 
         //Release old tile
@@ -154,16 +173,74 @@ public class EnemyUnitManager : MonoBehaviour
         if (!unitObjects.ContainsKey(evt.AttackerId)) 
             return;
 
-        EventBus.Publish(new EnemyAIEvents.EnemyAttackedEvent(evt.AttackerId, evt.TargetId));
+        int damage = GetUnitAttackPower(evt.AttackerId);
+
+        //================= Enemy attacking another enemy (temp - for testing purpose) ===================
+        if (unitObjects.ContainsKey(evt.TargetId))
+        {
+            TakeDamage(evt.TargetId, damage);
+            EventBus.Publish(new EnemyAIEvents.EnemyAttackedEvent(evt.AttackerId, evt.TargetId));
+            return;
+        }
+
+        //Enemy attacking player
+        //if (PlayerUnitManager.Instance != null)
+        //{
+        //    PlayerUnitManager.Instance.TakeDamage(evt.TargetId, damage);
+        //    EventBus.Publish(new EnemyAIEvents.EnemyAttackedEvent(evt.AttackerId, evt.TargetId));
+        //    return;
+        //}
+        Debug.LogWarning($"[EnemyUnitManager] Target {evt.TargetId} not found");
     }
-    private void OnEnemyTurnStart(EnemyAIEvents.EnemyTurnStartEvent evt)
+
+    //Get player unit's attack power from database
+    public int GetUnitAttackPower(int id)
     {
-        currentTurn = evt.Turn;
+        if (!unitTypes.TryGetValue(id, out string type)) 
+            return 0;
+        var data = unitDatabase?.GetUnitByName(type);
+        return data != null ? data.attack : 1;
+    }
+
+    public void TakeDamage(int unitId, int amount)
+    {
+        if (!unitHP.ContainsKey(unitId)) 
+            return;
+
+        unitHP[unitId] -= amount;
+        Debug.Log($"[EnemyUnitManager] Unit {unitId} took {amount} damage, HP now {unitHP[unitId]}");
+
+        if (unitHP[unitId] <= 0)
+            KillUnit(unitId);
+    }
+
+
+    public void KillUnit(int unitId)
+    {
+        if (!unitObjects.ContainsKey(unitId)) 
+            return;
+
+        if (unitHousedBase.TryGetValue(unitId, out int baseId))
+        {
+            if (EnemyBaseManager.Instance.Bases.TryGetValue(baseId, out var baseObj))
+            {
+                baseObj.OnUnitDestroyed();
+            }
+        }
+
+        Destroy(unitObjects[unitId]);
+        unitObjects.Remove(unitId);
+        unitPositions.Remove(unitId);
+        unitTypes.Remove(unitId);
+        unitHousedBase.Remove(unitId);
+        unitHP.Remove(unitId);
+
+        Debug.Log($"[EnemyUnitManager] Unit {unitId} destroyed and removed from manager.");
     }
 
     private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
     {
-        currentTurn++;
+        justSpawnedUnits.Clear();
     }
 
     //Check if unit can move this turn
@@ -171,7 +248,11 @@ public class EnemyUnitManager : MonoBehaviour
     {
         if (!unitPositions.ContainsKey(id)) 
             return false;
-        return currentTurn > unitSpawnTurn[id];
+
+        if (justSpawnedUnits.Contains(id))
+            return false;
+
+        return true;
     }
 
     //Query helpers used by AIs
@@ -220,13 +301,4 @@ public class EnemyUnitManager : MonoBehaviour
     }
 
     public int TotalUnitCount() => unitPositions.Count;
-
-    //Helper to find base hex (if EnemyBaseManager not exposed directly)
-    private Vector2Int EnemyBaseManagerFindBaseHex(int baseId)
-    {
-        EnemyBaseManager ebm = FindFirstObjectByType<EnemyBaseManager>();
-        if (ebm == null) 
-            return Vector2Int.zero;
-        return ebm.GetBasePosition(baseId);
-    }
 }

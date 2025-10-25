@@ -336,6 +336,11 @@ public class CombatAI : MonoBehaviour
     private void TryMoveIdle(int unitId)
     {
         EnemyUnitManager eum = EnemyUnitManager.Instance;
+        if (!eum.CanUnitMove(unitId))
+        {
+            Debug.Log($"[ExplorationAI] Unit {unitId} just spawned, skip movement.");
+            return;
+        }
         var current = eum.GetUnitPosition(unitId);
         int moveRange = eum.GetUnitMoveRange(unitId);
         var candidates = AIPathFinder.GetReachableHexes(current, moveRange);
@@ -349,6 +354,7 @@ public class CombatAI : MonoBehaviour
         EventBus.Publish(new EnemyAIEvents.EnemyMoveRequestEvent(unitId, chosen));
     }
 
+    //Temp - It's better to have player unit/base manager
     private GameObject FindObjectFromInstanceID(int id)
     {
         foreach (var obj in FindObjectsOfType<GameObject>())

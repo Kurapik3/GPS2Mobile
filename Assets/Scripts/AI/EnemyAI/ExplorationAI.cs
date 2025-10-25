@@ -133,6 +133,12 @@ public class ExplorationAI : MonoBehaviour
             if (IsUnitVisibleToPlayer(id)) 
                 continue;
 
+            if (!EnemyUnitManager.Instance.CanUnitMove(id))
+            {
+                Debug.Log($"[ExplorationAI] Unit {id} just spawned, skip movement.");
+                continue;
+            }
+
             Vector2Int current = eum.GetUnitPosition(id);
             int moveRange = 1;
             List<Vector2Int> candidates = AIPathFinder.GetReachableHexes(current, moveRange);

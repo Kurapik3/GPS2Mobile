@@ -3,7 +3,6 @@ using UnityEngine;
 
 public static class AIPathFinder
 {
-
     //Calculate hex distance using axial or offset coordinates
     public static int GetHexDistance(Vector2Int a, Vector2Int b)
     {

@@ -43,6 +43,13 @@ public class HexTile : MonoBehaviour
 
     private bool isDirty;
 
+    public Vector2Int HexCoords => new Vector2Int(q, r);
+
+    [Header("SeaMonsterSpawnLocation")]
+    public bool HasTreeBase => currentBuilding is TreeBase;
+    public EnemyBase currentEnemyBase;
+    public bool HasEnemyBase => currentEnemyBase != null;
+
     public bool IsOccupied => HasStructure || HasDynamic;
     private void OnValidate()
     {
