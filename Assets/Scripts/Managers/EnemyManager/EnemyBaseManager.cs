@@ -294,8 +294,9 @@
 //    }
 //}
 
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using static EnemyAIEvents;
 
 public class EnemyBaseManager : MonoBehaviour
@@ -304,6 +305,7 @@ public class EnemyBaseManager : MonoBehaviour
 
     [Header("Spawn Settings")]
     [SerializeField] private float spawnProbability = 0.45f;
+    [SerializeField] private float spawnDelay = 0.5f;
 
     private readonly Dictionary<int, EnemyBase> bases = new();
     public IReadOnlyDictionary<int, EnemyBase> Bases => bases;
@@ -366,12 +368,17 @@ public class EnemyBaseManager : MonoBehaviour
         if (bases.Count <= 0)
         {
             Debug.Log("[EnemyBaseManager] All enemy bases destroyed! Player wins?");
-            //EventBus.Publish(new XXXEvents.AllEnemyBasesDestroyedEvent());
+            //eg: EventBus.Publish(new XXXEvents.AllEnemyBasesDestroyedEvent());
             //Wait for global game events to control the game state____
         }
     }
 
     private void OnExecuteBasePhase(ExecuteBasePhaseEvent evt)
+    {
+        StartCoroutine(SpawnUnitsStepByStep(evt.Turn));
+    }
+
+    private IEnumerator SpawnUnitsStepByStep(int turn)
     {
         foreach (var kvp in bases)
         {
@@ -384,13 +391,17 @@ public class EnemyBaseManager : MonoBehaviour
             if (b.currentUnits >= b.maxUnits)
                 continue;
 
-            if (Random.value > spawnProbability)
-                continue;
+            //if (Random.value > spawnProbability)
+            //    continue;
 
+            //Decide which unit to spawn
             string chosen = SelectUnitToSpawn();
             Debug.Log($"[EnemyBaseManager] Base {id} will spawn {chosen}");
 
             EventBus.Publish(new EnemySpawnRequestEvent(id, chosen));
+
+            //Wait a small delay before spawning the next unit
+            yield return new WaitForSeconds(spawnDelay);
         }
     }
 
