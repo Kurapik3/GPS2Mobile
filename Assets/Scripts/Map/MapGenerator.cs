@@ -29,6 +29,21 @@ public class MapGenerator : MonoBehaviour
     private void Start()
     {
         RebuildTileDictionary();
+        if (mapData == null)
+        {
+            mapData = Resources.Load<MapData>("DefaultBaseMap");
+            if (mapData == null)
+            {
+                Debug.LogError("[MapGenerator] No MapData assigned and DefaultBaseMap not found in Resources!");
+                return;
+            }
+            else
+            {
+                Debug.Log("[MapGenerator] Loaded DefaultBaseMap from Resources.");
+            }
+        }
+        GenerateFromData();
+
         GetComponent<FogSystem>()?.InitializeFog();
         GetComponent<DynamicTileGenerator>()?.GenerateDynamicElements();
     }

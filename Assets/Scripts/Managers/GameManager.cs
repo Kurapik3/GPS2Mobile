@@ -23,7 +23,8 @@ public class GameManager : MonoBehaviour
     }
     private void StartNewGame()
     {
-        MapData loadedData = MapSaveLoad.Load("MySavedMap");
+        MapData loadedData = Resources.Load<MapData>("DefaultBaseMap");
+        //MapData loadedData = MapSaveLoad.Load("MySavedMap");
         if (loadedData == null)
         {
             Debug.LogError("No base map found!");
@@ -82,7 +83,7 @@ public class GameManager : MonoBehaviour
 
         if (mapGenerator.MapData == null)
         {
-            var loadedData = MapSaveLoad.Load("MySavedMap");
+            var loadedData = Resources.Load<MapData>("DefaultBaseMap");
             mapGenerator.SetMapData(loadedData);
             mapGenerator.GenerateFromData();
         }
