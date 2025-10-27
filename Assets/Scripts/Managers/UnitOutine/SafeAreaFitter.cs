@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 [ExecuteAlways]
 [RequireComponent(typeof(RectTransform))]
@@ -44,4 +45,7 @@ public class SafeAreaFitter : MonoBehaviour
         lastSafeArea = safeArea;
         lastScreenSize = new Vector2Int(Screen.width, Screen.height);
     }
+
+
+
 }
