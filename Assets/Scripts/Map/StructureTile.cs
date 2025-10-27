@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
-
 #endif
 public class StructureTile : MonoBehaviour
 {
@@ -15,7 +15,7 @@ public class StructureTile : MonoBehaviour
 
     public void ApplyStructure()
     {
-
+#if UNITY_EDITOR
         if (structureDatabase == null || structureDatabase.structures == null || structureDatabase.structures.Count == 0)
         {
             Debug.LogWarning($"[{name}] No StructureDatabase or entries found!");
@@ -99,15 +99,10 @@ public class StructureTile : MonoBehaviour
 
         Debug.Log($"[{name}] Structure '{data.structureName}' applied.");
 
-#if UNITY_EDITOR
         SceneView.RepaintAll();
+#else
+        Debug.LogWarning($"[{name}] ApplyStructure() skipped at runtime (Editor-only). Use ApplyStructureRuntime() instead.");
 #endif
-
-        //add new
-        //GameObject structure = (GameObject)PrefabUtility.InstantiatePrefab(data.prefab, transform);
-        //structure.name = "Structure";
-        //structure.transform.localPosition = data.yOffset;
-        //EditorUtility.SetDirty(this);
     }
     public void ApplyStructureRuntime()
     {

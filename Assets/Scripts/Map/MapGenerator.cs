@@ -29,6 +29,21 @@ public class MapGenerator : MonoBehaviour
     private void Start()
     {
         RebuildTileDictionary();
+        if (mapData == null)
+        {
+            mapData = Resources.Load<MapData>("DefaultBaseMap");
+            if (mapData == null)
+            {
+                Debug.LogError("[MapGenerator] No MapData assigned and DefaultBaseMap not found in Resources!");
+                return;
+            }
+            else
+            {
+                Debug.Log("[MapGenerator] Loaded DefaultBaseMap from Resources.");
+            }
+        }
+        GenerateFromData();
+
         GetComponent<FogSystem>()?.InitializeFog();
         GetComponent<DynamicTileGenerator>()?.GenerateDynamicElements();
     }
@@ -77,6 +92,7 @@ public class MapGenerator : MonoBehaviour
 
         IsMapReady = true;
         OnMapReady?.Invoke(this);
+        EventBus.Publish(new EnemyAIEvents.MapReadyEvent(this));
     }
     private HexTile CreateTile(int q, int r, Vector3 pos,HexTile.TileType initialType)
     {
@@ -160,6 +176,7 @@ public class MapGenerator : MonoBehaviour
 
         IsMapReady = true;
         OnMapReady?.Invoke(this);
+        EventBus.Publish(new EnemyAIEvents.MapReadyEvent(this));
 
         Debug.Log("Map generated from MapData (runtime).");
     }
@@ -271,6 +288,7 @@ public class MapGenerator : MonoBehaviour
 #endif
         IsMapReady = true;
         OnMapReady?.Invoke(this);
+        EventBus.Publish(new EnemyAIEvents.MapReadyEvent(this));
         Debug.Log($"Loaded map from ScriptableObject: {mapData.name}");
     }
 

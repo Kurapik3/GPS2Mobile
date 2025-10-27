@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1762267162095435047}
+  - component: {fileID: 7387410818659789938}
   m_Layer: 0
   m_Name: EnemyBase
   m_TagString: EnemyBase
@@ -32,6 +33,25 @@ Transform:
   - {fileID: 4226759198908135441}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7387410818659789938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3732232442768168029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cb68293b939ee341ba449a66dd059a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseName: Enemy Base
+  health: 0
+  maxUnits: 3
+  currentUnits: 0
+  isMainBase: 0
+  currentTile: {fileID: 0}
+  baseId: 0
 --- !u!1001 &4405310321472167930
 PrefabInstance:
   m_ObjectHideFlags: 0

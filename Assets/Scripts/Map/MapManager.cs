@@ -17,6 +17,7 @@ public class MapManager : MonoBehaviour
 
     private Dictionary<Vector2Int, HexTile> _tiles = new();
 
+    private float hexSize;
 
     // Returns all HexTile objects (no coordinates). Use when you only care about the tile itself.
     // Example: "Add fog to every tile"
@@ -35,6 +36,8 @@ public class MapManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        hexSize = FindFirstObjectByType<MapGenerator>().GetHexSize();
     }
 
     // Called by MapGenerator after building the grid, dont need to call this
@@ -75,6 +78,42 @@ public class MapManager : MonoBehaviour
     //   {
     //       unit.MoveTo(1, 0);
     //   }
+
+    public Vector3 HexToWorld(Vector2Int hex)
+    {
+        Vector3 pos = HexCoordinates.ToWorld(hex.x, hex.y, hexSize);
+        return pos;
+    }
+
+    public Vector2Int WorldToHex(Vector3 pos)
+    {
+        //Reverse of ToWorld (flat-top)
+        float q = (2f / 3f * pos.x) / hexSize;
+        float r = (-1f / 3f * pos.x + Mathf.Sqrt(3) / 3f * pos.z) / hexSize;
+        return HexRound(q, r);
+    }
+
+    private Vector2Int HexRound(float q, float r)
+    {
+        float s = -q - r;
+
+        int rq = Mathf.RoundToInt(q);
+        int rr = Mathf.RoundToInt(r);
+        int rs = Mathf.RoundToInt(s);
+
+        float q_diff = Mathf.Abs(rq - q);
+        float r_diff = Mathf.Abs(rr - r);
+        float s_diff = Mathf.Abs(rs - s);
+
+        if (q_diff > r_diff && q_diff > s_diff)
+            rq = -rr - rs;
+        else if (r_diff > s_diff)
+            rr = -rq - rs;
+
+        return new Vector2Int(rq, rr);
+    }
+
+    public int GetHexDistance(Vector2Int a, Vector2Int b) => Mathf.Max(Mathf.Abs(a.x - b.x), Mathf.Abs(a.y - b.y));
 
     public void SetUnitOccupied(Vector2Int coord, bool occupied)
     {

@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
 public class TurnManager : MonoBehaviour
@@ -15,6 +13,7 @@ public class TurnManager : MonoBehaviour
 
     private List<BuildingBase> allBuildings = new List<BuildingBase>();
 
+    private bool isProcessingTurn = false;
     private int currentTurn = 0;
     private bool isPlayerTurn = true;
 
@@ -27,8 +26,15 @@ public class TurnManager : MonoBehaviour
 
      public TreeBase treeBase;
 
-    [Header("AI")]
-    [SerializeField] private AIController aiController;
+    private void OnEnable()
+    {
+        EventBus.Subscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
+    }
 
     private void Start()
     {
@@ -38,10 +44,6 @@ public class TurnManager : MonoBehaviour
             endTurnButton.onClick.AddListener(EndTurn);
         }
 
-        if (aiController != null)
-        {
-            aiController.OnAITurnFinished += EndEnemyTurn;
-        }
         EventBus.Publish(new TurnUpdatedEvent(0, maxTurns));
         StartPlayerTurn();
     }
@@ -75,35 +77,38 @@ public class TurnManager : MonoBehaviour
             endTurnButton.interactable = false;
         }
 
-        aiController?.ExecuteTurn();
+        EventBus.Publish(new EnemyAIEvents.EnemyTurnStartEvent(currentTurn));
 
         // to simulate a short delay for enemy actions
         //Invoke(nameof(EndEnemyTurn), 2f);
     }
 
-    private void EndEnemyTurn()
+    private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
     {
+        Debug.Log($"--- Enemy Turn {evt.Turn} End ---");
+        Debug.Log($"<color=cyan>[TurnManager]</color> Received EnemyTurnEndEvent for Turn {evt.Turn}");
+
         currentTurn++;
+        isProcessingTurn = false;
         if (currentTurn > maxTurns)
         {
             EndGame();
+            return;
         }
-        else
-        {
-            foreach (var building in allBuildings) // gain AP
-            {
-                building.OnTurnStart(); 
-            }
-            StartPlayerTurn();
-        }
+
+        foreach (var building in allBuildings) // gain AP
+            building.OnTurnStart();
+
+        StartPlayerTurn();
     }
 
     public void EndTurn()
     {
-        if (!isPlayerTurn)
+        if (!isPlayerTurn || isProcessingTurn)
         {
             return; // prevent double-clicks or AI triggers
         }
+        isProcessingTurn = true;
         Debug.Log("Player ended turn.");
         if (endTurnButton != null)
         {
