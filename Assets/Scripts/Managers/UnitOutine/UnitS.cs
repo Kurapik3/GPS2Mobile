@@ -47,10 +47,10 @@ public class UnitS : MonoBehaviour
             instance = this;
         }
     }
-   
+
     private void OnEnbale()
     {
-        
+
     }
 
     private void Start()
@@ -73,39 +73,14 @@ public class UnitS : MonoBehaviour
             if (EventSystem.current.IsPointerOverGameObject(primaryTouch.touchId.ReadValue())) return;
 
             Ray ray = cam.ScreenPointToRay(touchPosition);
-            //if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, clickable))
-            //{
-            //    SelectByClicking(hit.collider.gameObject);
-            //    UnitInfoPanelMove();
-            //    if (isSFXPlayed)
-            //    {
-            //        ManagerAudio.instance.PlaySFX("UnitSelected");
-            //        isSFXPlayed = false;
-            //    }
-            //}
-            //else
-            //{
-            //    isSFXPlayed = true;
-            //    DeselectAll();
-            //    CloseUnitInfoPanel();
-            //}
-
             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, clickable))
             {
-                // Check if we clicked on a movement indicator
-                if (hit.collider.gameObject.name.StartsWith("MoveIndicator_"))
+                SelectByClicking(hit.collider.gameObject);
+                UnitInfoPanelMove();
+                if (isSFXPlayed)
                 {
-                    HandleMovementIndicatorClick(hit.collider.gameObject);
-                }
-                else
-                {
-                    SelectByClicking(hit.collider.gameObject);
-                    UnitInfoPanelMove();
-                    if (isSFXPlayed)
-                    {
-                        ManagerAudio.instance.PlaySFX("UnitSelected");
-                        isSFXPlayed = false;
-                    }
+                    ManagerAudio.instance.PlaySFX("UnitSelected");
+                    isSFXPlayed = false;
                 }
             }
             else
@@ -114,41 +89,10 @@ public class UnitS : MonoBehaviour
                 DeselectAll();
                 CloseUnitInfoPanel();
             }
+
         }
     }
 
-    private void HandleMovementIndicatorClick(GameObject indicator)
-    {
-        if (unitsSelected.Count == 0)
-            return;
-
-        // Get the selected unit
-        GameObject selectedUnitObj = unitsSelected[0];
-        UnitBase unit = selectedUnitObj.GetComponent<UnitBase>();
-
-        if (unit == null)
-            return;
-
-        // Find the tile this indicator belongs to
-        HexTile targetTile = indicator.GetComponentInParent<HexTile>();
-
-        if (targetTile != null && MovementRangeUI.Instance.IsTileInRange(targetTile))
-        {
-            // Move the unit
-            unit.Move(targetTile);
-
-            // Clear the movement range after moving
-            MovementRangeUI.Instance.ClearIndicators();
-
-            // Optionally play movement sound
-            if (ManagerAudio.instance != null)
-            {
-                ManagerAudio.instance.PlaySFX("UnitMove");
-            }
-
-            Debug.Log($"Unit moved to tile ({targetTile.q}, {targetTile.r})");
-        }
-    }
 
     private void DeselectAll()
     {
@@ -158,10 +102,6 @@ public class UnitS : MonoBehaviour
         }
         unitsSelected.Clear();
 
-        if (MovementRangeUI.Instance != null)
-        {
-            MovementRangeUI.Instance.ClearIndicators();
-        }
     }
 
     private void SelectByClicking(GameObject unit)
@@ -170,11 +110,7 @@ public class UnitS : MonoBehaviour
         unitsSelected.Add(unit);
         TriggerSelectionIndicator(unit, true);
 
-        UnitBase unitBase = unit.GetComponent<UnitBase>();
-        if (unitBase != null && MovementRangeUI.Instance != null)
-        {
-            MovementRangeUI.Instance.ShowMovementRange(unitBase);
-        }
+
     }
 
     private void TriggerSelectionIndicator(GameObject unit, bool isVisible)
@@ -206,7 +142,7 @@ public class UnitS : MonoBehaviour
     {
         isStatusClosed = false;
         infoBar.interactable = false;
-        panel.blocksRaycasts = true; 
+        panel.blocksRaycasts = true;
         UnitStatusWindowMove();
     }
 
