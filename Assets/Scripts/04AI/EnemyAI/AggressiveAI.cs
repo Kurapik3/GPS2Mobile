@@ -170,20 +170,20 @@ public class AggressiveAI : MonoBehaviour
 
     private void OnEnable()
     {
-        EventBus.Subscribe<EnemyAIEvents.ExecuteAggressivePhaseEvent>(OnCombatPhase);
+        EventBus.Subscribe<EnemyAIEvents.ExecuteAggressivePhaseEvent>(OnAggressivePhase);
     }
 
     private void OnDisable()
     {
-        EventBus.Unsubscribe<EnemyAIEvents.ExecuteAggressivePhaseEvent>(OnCombatPhase);
+        EventBus.Unsubscribe<EnemyAIEvents.ExecuteAggressivePhaseEvent>(OnAggressivePhase);
     }
 
-    private void OnCombatPhase(EnemyAIEvents.ExecuteAggressivePhaseEvent evt)
+    private void OnAggressivePhase(EnemyAIEvents.ExecuteAggressivePhaseEvent evt)
     {
-        StartCoroutine(RunCombat());
+        StartCoroutine(RunAggressivePhase());
     }
 
-    private IEnumerator RunCombat()
+    private IEnumerator RunAggressivePhase()
     {
         var eum = EnemyUnitManager.Instance;
         if (eum == null) 
@@ -336,7 +336,7 @@ public class AggressiveAI : MonoBehaviour
         EnemyUnitManager eum = EnemyUnitManager.Instance;
         if (!eum.CanUnitMove(unitId))
         {
-            Debug.Log($"[ExplorationAI] Unit {unitId} just spawned, skip movement.");
+            Debug.Log($"[DormantAI] Unit {unitId} just spawned, skip movement.");
             return;
         }
         var current = eum.GetUnitPosition(unitId);

@@ -111,10 +111,10 @@ public class DormantAI : MonoBehaviour
 
     private void OnExplorePhase(EnemyAIEvents.ExecuteDormantPhaseEvent evt)
     {
-        StartCoroutine(RunExploration());
+        StartCoroutine(RunDormantPhase());
     }
 
-    private IEnumerator RunExploration()
+    private IEnumerator RunDormantPhase()
     {
         var eum = EnemyUnitManager.Instance;
         if (eum == null) 
@@ -140,7 +140,7 @@ public class DormantAI : MonoBehaviour
 
             if (!eum.CanUnitMove(id))
             {
-                Debug.Log($"[ExplorationAI] Unit {id} just spawned, skip movement.");
+                Debug.Log($"[DormantAI] Unit {id} just spawned, skip movement.");
                 continue;
             }
 

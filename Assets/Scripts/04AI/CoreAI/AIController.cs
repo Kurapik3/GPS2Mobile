@@ -754,11 +754,11 @@ public class AIController : MonoBehaviour
         EventBus.Publish(new EnemyAIEvents.ExecuteBasePhaseEvent(currentTurn));
         yield return new WaitForSeconds(phaseDelay);
 
-        //Exploration phase (dormant units move)
+        //Dormant phase (dormant units move)
         EventBus.Publish(new EnemyAIEvents.ExecuteDormantPhaseEvent(currentTurn));
         yield return new WaitForSeconds(phaseDelay);
 
-        //Combat phase (aggressive units action)
+        //Aggressive phase (aggressive units action)
         EventBus.Publish(new EnemyAIEvents.ExecuteAggressivePhaseEvent(currentTurn));
         yield return new WaitForSeconds(phaseDelay);
 
