@@ -4,9 +4,21 @@ using System.Collections.Generic;
 [System.Serializable]
 public class ResourceEntry
 {
+    [Header("Basic Settings")]
     public string id;
     public GameObject prefab;
     public float yOffset = 2f;
+
+    [Header("Spawn Rules")]
+    public bool spawnAroundBase = false;
+    public bool spawnAroundGrove = false;
+    public bool spawnAroundEnemyBase = false;
+
+    [Tooltip("Maximum number of this resource allowed per structure (e.g. per base/grove)")]
+    public int maxPerStructure = 1;
+
+    [Tooltip("Maximum number of this resource allowed on the entire map")]
+    public int maxPerMap = 10;
 }
 public class DynamicTileGenerator : MonoBehaviour
 {
@@ -20,6 +32,9 @@ public class DynamicTileGenerator : MonoBehaviour
     [Header("Possible Resource Types (choose one randomly for each spawn)")]
     public List<ResourceEntry> resources = new();
 
+    // Track how many of each resource spawned globally
+    private Dictionary<string, int> globalResourceCount = new();
+
     public void GenerateDynamicElements()
     {
         var map = MapManager.Instance;
@@ -28,6 +43,8 @@ public class DynamicTileGenerator : MonoBehaviour
             Debug.LogWarning("MapManager not found. Can't generate dynamic tiles.");
             return;
         }
+
+        globalResourceCount.Clear();
 
         // find the specific structures
         List<HexTile> structureTiles = new List<HexTile>();
@@ -51,6 +68,32 @@ public class DynamicTileGenerator : MonoBehaviour
         // for each base/grove tile, spawn around it
         foreach (var structureTile in structureTiles)
         {
+
+            string structureName = structureTile.StructureName.ToLower();
+
+            // find resources that are allowed near this structure
+            List<ResourceEntry> validResources = new();
+            foreach(var entry in resources)
+            {
+                if(structureName.Contains("base") && entry.spawnAroundBase)
+                {
+                    validResources.Add(entry);
+                }
+                else if(structureName.Contains("grove") && entry.spawnAroundGrove)
+                {
+                    validResources.Add(entry);
+                }
+                else if(structureName.Contains("enemybase") && entry.spawnAroundEnemyBase)
+                {
+                    validResources.Add(entry);
+                }
+            }
+
+            if(validResources.Count == 0)
+            {
+                continue;
+            }
+
             List<HexTile> nearbyTiles = map.GetNeighborsWithinRadius(structureTile.q, structureTile.r, radius);
             nearbyTiles.RemoveAll(t => t.q == structureTile.q && t.r == structureTile.r); // exclude center
 
@@ -62,47 +105,67 @@ public class DynamicTileGenerator : MonoBehaviour
                 nearbyTiles[rand] = temp;
             }
 
+            //local count for this structure
+            Dictionary<string, int> perStructureCount = new(); 
+
             int placed = 0;
             foreach (var t in nearbyTiles)
             {
-                if (placed >= objectsPerStructure)
-                {
-                    break;
-                }
                 if (t == null || t.HasStructure || t.dynamicInstance != null)
                 {
                     continue;
                 }
-
-                // choose random prefab
-                if (resources.Count == 0)
+                if (placed >= objectsPerStructure)
+                {
+                    break;
+                }
+                
+                //choose random valid resource
+                ResourceEntry entry = validResources[Random.Range(0, validResources.Count)];
+                if(entry.prefab == null)
                 {
                     continue;
                 }
 
-                ResourceEntry entry = resources[Random.Range(0, resources.Count)];
-                if (entry.prefab == null)
+                //check perstructure limit
+                perStructureCount.TryGetValue(entry.id, out int localCount);
+                if(localCount >= entry.maxPerStructure)
                 {
                     continue;
                 }
 
+                //check global limit
+                globalResourceCount.TryGetValue(entry.id, out int globalCount);
+                if(globalCount >= entry.maxPerMap)
+                {
+                    continue;
+                }
+                //spawn
                 GameObject obj = Instantiate(entry.prefab, t.transform);
                 obj.transform.localPosition = new Vector3(0, entry.yOffset, 0);
-                obj.name = entry.prefab.name;
+                obj.name = entry.id;
                 t.dynamicInstance = obj;
 
+                // Update counts
+                perStructureCount[entry.id] = localCount + 1;
+                globalResourceCount[entry.id] = globalCount + 1;
                 placed++;
+                if (placed >= objectsPerStructure)
+                {
+                    break;
+                }
             }
 
-            Debug.Log($"DynamicTileGenerator: Placed {placed}/{objectsPerStructure} dynamics around {structureTile.StructureName}");
+            //Debug.Log($"DynamicTileGenerator: Placed {placed}/{objectsPerStructure} dynamics around {structureTile.StructureName}, {structureTile.q},{structureTile.r}");
         }
+
     }
 
     public void SaveDynamicObjects(GameSaveData data)
     {
         if (data == null)
         { 
-        return;
+            return;
         }
         data.dynamicObjects.Clear();
 
