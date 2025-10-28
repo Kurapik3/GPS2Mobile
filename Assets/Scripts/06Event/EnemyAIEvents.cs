@@ -20,15 +20,15 @@ public static class EnemyAIEvents
         public int Turn; 
         public ExecuteBasePhaseEvent(int turn) => Turn = turn; 
     }
-    public struct ExecuteExplorationPhaseEvent 
+    public struct ExecuteDormantPhaseEvent 
     { 
         public int Turn; 
-        public ExecuteExplorationPhaseEvent(int turn) => Turn = turn; 
+        public ExecuteDormantPhaseEvent(int turn) => Turn = turn; 
     }
-    public struct ExecuteCombatPhaseEvent 
+    public struct ExecuteAggressivePhaseEvent 
     { 
         public int Turn; 
-        public ExecuteCombatPhaseEvent(int turn) => Turn = turn; 
+        public ExecuteAggressivePhaseEvent(int turn) => Turn = turn; 
     }
 
     public struct MapReadyEvent 

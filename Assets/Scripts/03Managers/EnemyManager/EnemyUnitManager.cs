@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static TurnManager;
 
 /// <summary>
 /// Tracks enemy units (positions, types, HP), handles spawn/move/attack requests.
@@ -22,6 +21,15 @@ public class EnemyUnitManager : MonoBehaviour
     private Dictionary<int, int> unitHP = new();
     private Dictionary<int, GameObject> unitObjects = new();
     private Dictionary<int, int> unitHousedBase = new(); //Track which base a unit is housed in
+
+    public enum AIState
+    {
+        Dormant,
+        Aggressive
+    }
+    private Dictionary<int, AIState> unitStates = new();
+    private HashSet<int> stateLockedUnits = new();
+    private Dictionary<int, AIState> pendingStateChange = new();
 
     private HashSet<int> justSpawnedUnits = new();
 
@@ -105,6 +113,7 @@ public class EnemyUnitManager : MonoBehaviour
         unitHP[id] = data != null ? data.hp : 10;
 
         justSpawnedUnits.Add(id);
+        unitStates[id] = AIState.Dormant;
 
         //Mark map occupied
         MapManager.Instance.SetUnitOccupied(hex, true);
@@ -241,6 +250,37 @@ public class EnemyUnitManager : MonoBehaviour
     private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
     {
         justSpawnedUnits.Clear();
+    }
+
+    public void LockState(int unitId)
+    {
+        stateLockedUnits.Add(unitId);
+    }
+
+    public void UnlockState(int unitId)
+    {
+        stateLockedUnits.Remove(unitId);
+        if (pendingStateChange.TryGetValue(unitId, out var nextState))
+        {
+            unitStates[unitId] = nextState;
+            pendingStateChange.Remove(unitId);
+        }
+    }
+
+    public void TrySetState(int unitId, AIState newState)
+    {
+        if (stateLockedUnits.Contains(unitId))
+        {
+            pendingStateChange[unitId] = newState;
+            return;
+        }
+
+        unitStates[unitId] = newState;
+    }
+
+    public AIState GetUnitState(int unitId)
+    {
+        return unitStates.TryGetValue(unitId, out var state) ? state : AIState.Dormant;
     }
 
     //Check if unit can move this turn

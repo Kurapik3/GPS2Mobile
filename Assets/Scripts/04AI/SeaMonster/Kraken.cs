@@ -23,7 +23,7 @@ public class Kraken : SeaMonsterBase
 
         foreach (HexTile tile in tilesInRange)
         {
-            //Attack player unit
+            //Attack player and enemy unit
             if (tile.currentUnit != null)
             {
                 EventBus.Publish(new SeaMonsterEvents.KrakenAttacksUnitEvent(this, tile.currentUnit));

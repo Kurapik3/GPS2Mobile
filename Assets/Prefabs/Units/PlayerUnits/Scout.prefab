@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fa3233a914882944b34b82dd8e2b2a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rangeIndicatorPrefab: {fileID: 0}
   unitName: 
   cost: 0
   range: 0
@@ -55,6 +56,7 @@ MonoBehaviour:
   isCombat: 0
   isSelected: 0
   currentTile: {fileID: 0}
+  hasMovedThisTurn: 0
   fogRevealRadius: 1
 --- !u!136 &7137114898064605501
 CapsuleCollider:
@@ -130,6 +132,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 13e7677a13634dc4ca6e32e05a8430c9, type: 3}
       propertyPath: m_Name
       value: Unit_Scout
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 13e7677a13634dc4ca6e32e05a8430c9, type: 3}
+      propertyPath: m_TagString
+      value: PlayerUnit
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

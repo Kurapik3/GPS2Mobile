@@ -741,6 +741,10 @@ public class AIController : MonoBehaviour
     private void OnEnemyTurnStart(EnemyAIEvents.EnemyTurnStartEvent evt)
     {
         currentTurn = evt.Turn;
+        foreach (var id in EnemyUnitManager.Instance.GetOwnedUnitIds())
+        {
+            EnemyUnitManager.Instance.UnlockState(id);
+        }
         StartCoroutine(RunAITurn());
     }
 
@@ -751,11 +755,11 @@ public class AIController : MonoBehaviour
         yield return new WaitForSeconds(phaseDelay);
 
         //Exploration phase (dormant units move)
-        EventBus.Publish(new EnemyAIEvents.ExecuteExplorationPhaseEvent(currentTurn));
+        EventBus.Publish(new EnemyAIEvents.ExecuteDormantPhaseEvent(currentTurn));
         yield return new WaitForSeconds(phaseDelay);
 
         //Combat phase (aggressive units action)
-        EventBus.Publish(new EnemyAIEvents.ExecuteCombatPhaseEvent(currentTurn));
+        EventBus.Publish(new EnemyAIEvents.ExecuteAggressivePhaseEvent(currentTurn));
         yield return new WaitForSeconds(phaseDelay);
 
         //End turn

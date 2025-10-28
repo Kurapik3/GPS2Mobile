@@ -81,7 +81,46 @@ public class EnemyBase : MonoBehaviour
     {
         Debug.Log($"[EnemyBase] {baseName} destroyed!");
         EnemyBaseManager.Instance?.OnBaseDestroyed(this);
+        if (currentTile != null)
+        {
+            SpawnGroveAt(currentTile);
+        }
+        else
+        {
+            Debug.LogWarning("[EnemyBase] Cannot spawn Groove — currentTile is null!");
+        }
+
+        if (currentTile != null)
+            currentTile.currentEnemyBase = null;
+
         Destroy(gameObject);
+    }
+
+    private void SpawnGroveAt(HexTile tile)
+    {
+        GameObject grovePrefab = Resources.Load<GameObject>("Structures/Grove");
+        if (grovePrefab == null)
+        {
+            Debug.LogError("[EnemyBase] Groove prefab not found! (Expected at Resources/Structures/Grove)");
+            return;
+        }
+
+        GameObject groveObj = Instantiate(grovePrefab, tile.transform.position, Quaternion.identity);
+        BuildingBase groveBuilding = groveObj.GetComponent<BuildingBase>();
+        BuildingData data = groveObj.GetComponent<BuildingData>();
+
+        if (groveBuilding == null)
+        {
+            Debug.LogWarning("[EnemyBase] Spawned Groove prefab but no BuildingBase/GrooveBase component found!");
+            return;
+        }
+        if (data == null)
+        {
+            Debug.LogWarning("[EnemyBase] Groove prefab missing BuildingData component!");
+            return;
+        }
+        groveBuilding.Initialize(data, tile);
+        Debug.Log($"[EnemyBase] Spawned Groove at {tile.HexCoords}");
     }
 
     public void OnUnitSpawned()

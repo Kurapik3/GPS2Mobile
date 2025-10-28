@@ -391,6 +391,13 @@ public class EnemyBaseManager : MonoBehaviour
             if (b.currentUnits >= b.maxUnits)
                 continue;
 
+            //Check if base tile is already occupied by another unit
+            if (b.currentTile != null && EnemyUnitManager.Instance.IsAnyUnitAt(b.currentTile.HexCoords))
+            {
+                Debug.Log($"[EnemyBaseManager] Base {id} tile occupied, skipping spawn.");
+                continue;
+            }
+
             //if (Random.value > spawnProbability)
             //    continue;
 

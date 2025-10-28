@@ -134,6 +134,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: unit-ship
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 75ad45fd54dac5443862d2dadda1f85e, type: 3}
+      propertyPath: m_TagString
+      value: PlayerUnit
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
