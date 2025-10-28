@@ -5,6 +5,7 @@ public class UnitSpawner : MonoBehaviour
     [Header("Initialize")]
     [SerializeField] private PlayerTracker player;
     [SerializeField] private UnitDatabase unitDatabase;
+    [SerializeField] private TechTree techTree;
 
     [Header("Units Prefab")]
     [SerializeField] private GameObject BuilderPrefab;
@@ -20,6 +21,9 @@ public class UnitSpawner : MonoBehaviour
     [Header("UI Buttons")]
     [SerializeField] private Button builderButton;
     [SerializeField] private Button scoutButton;
+    //[SerializeField] private Button TankerButton;
+    //[SerializeField] private Button ShooterButton;
+    //[SerializeField] private Button BomberButton;
 
     private void Start()
     {
@@ -27,15 +31,67 @@ public class UnitSpawner : MonoBehaviour
             builderButton.onClick.AddListener(() => TrySpawnUnit(BuilderPrefab, 0, 2));
 
         if (scoutButton != null)
-            scoutButton.onClick.AddListener(() => TrySpawnUnit(ScoutPrefab, 1, 3));
+            scoutButton.onClick.AddListener(OnScoutButtonClicked);
+
+        //if (TankerButton != null)
+        //    TankerButton.onClick.AddListener(OnTankButtonClicked);
+
+        //if (ShooterButton != null)
+        //    ShooterButton.onClick.AddListener(OnShooterButtonClicked);
+
+        //if (BomberButton != null)
+        //    BomberButton.onClick.AddListener(OnBomberButtonClicked);
+
     }
-    
+
+    private void OnScoutButtonClicked()
+    {
+        if (!techTree.IsScouting)
+        {
+            Debug.Log("You have not unlocked the Scout unit yet!");
+            return;
+        }
+
+        TrySpawnUnit(ScoutPrefab, 1, 3);
+    }
+
+    private void OnTankButtonClicked()
+    {
+        if (!techTree.IsArmor)
+        {
+            Debug.Log("You have not unlocked the Scout unit yet!");
+            return;
+        }
+
+        //TrySpawnUnit(TankerPrefab, 1, 3);
+    }
+
+    private void OnShooterButtonClicked()
+    {
+        if (!techTree.IsShooter)
+        {
+            Debug.Log("You have not unlocked the Scout unit yet!");
+            return;
+        }
+
+        //TrySpawnUnit(ShooterPrefab, 1, 3);
+    }
+    private void OnBomberButtonClicked()
+    {
+        if (!techTree.IsNavalWarfare)
+        {
+            Debug.Log("You have not unlocked the Scout unit yet!");
+            return;
+        }
+
+        //TrySpawnUnit(BomberPrefab, 1, 3);
+    }
     private void TrySpawnUnit(GameObject prefab, int csvIndex, int cost)
     {
         if (player.currentAP >= cost)
         {
             CreateUnit(prefab, csvIndex);
-            player.useAP(cost);
+            player.useAP(cost); 
         }
         else
         {
@@ -60,32 +116,42 @@ public class UnitSpawner : MonoBehaviour
         // Get starting tile
         HexTile startingTile = MapManager.Instance.GetTile(spawnCoord);
 
-        // If the tile is occupied (structure or unit), find a free neighbor
+        // Check if the tile is free
         if (startingTile == null || startingTile.HasStructure || startingTile.IsOccupiedByUnit)
         {
             bool found = false;
             foreach (var tile in startingTile.neighbours)
             {
-                if (tile.IsWalkableForAI())
+                if (tile != null && tile.IsWalkableForAI())
                 {
                     startingTile = tile;
                     found = true;
                     break;
                 }
             }
+
             if (!found)
             {
-                // If no free neighbors, fallback
-                startingTile = null;
+                Debug.LogWarning("No available tile found near spawn coordinates!");
+                if (fallbackSpawnPoint == null)
+                {
+                    Debug.LogError("No fallback spawn point assigned!");
+                    return;
+                }
+
+                // Spawn at fallback
+                GameObject fallbackUnit = Instantiate(unitPrefab, fallbackSpawnPoint.position, Quaternion.identity);
+                Debug.Log($"Spawned {unitPrefab.name} at fallback point {fallbackSpawnPoint.position}");
+                return;
             }
         }
 
-        Vector3 spawnPos = startingTile != null
-            ? startingTile.transform.position + Vector3.up * 2f // spawn above tile
-            : fallbackSpawnPoint.position;
-
+        Vector3 spawnPos = startingTile.transform.position;
+        spawnPos.y += 2f; // optional small height offset
         GameObject newUnit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
-        Debug.Log($"Spawned {unitPrefab.name} at {spawnPos}");
+
+        Debug.Log($"Spawned {unitPrefab.name} on tile ({startingTile.q}, {startingTile.r})");
+
         SetLayerRecursively(newUnit, LayerMask.NameToLayer("Unit"));
 
         UnitData data = unitDatabase.GetAllUnits()[csvIndex];
@@ -93,6 +159,7 @@ public class UnitSpawner : MonoBehaviour
         if (unitBase != null)
         {
             unitBase.Initialize(data, startingTile);
+            startingTile.SetOccupiedByUnit(true);
             Debug.Log($"Initialized {unitBase.unitName} from CSV row {csvIndex + 2}");
         }
         else
@@ -100,6 +167,7 @@ public class UnitSpawner : MonoBehaviour
             Debug.LogWarning("Spawned unit has no UnitBase component.");
         }
     }
+
     private void SetLayerRecursively(GameObject obj, int layer)
     {
         obj.layer = layer;

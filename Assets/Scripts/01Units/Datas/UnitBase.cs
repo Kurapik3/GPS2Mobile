@@ -16,6 +16,11 @@ public abstract class UnitBase : MonoBehaviour
 
     public HexTile currentTile;
     private Renderer rend;
+
+    public bool hasMovedThisTurn = false;
+
+    [Header("Fog of War Settings")]
+    [SerializeField] private int fogRevealRadius = 1;
     protected virtual void Start()
     {
         rend = GetComponent<Renderer>();
@@ -105,6 +110,28 @@ public abstract class UnitBase : MonoBehaviour
         return tiles;
     }
 
+    public virtual void TryMove(HexTile targetTile)
+    {
+        if (targetTile == null)
+            return;
+
+        int distance = HexDistance(currentTile.q, currentTile.r, targetTile.q, targetTile.r);
+
+        if (distance > movement)
+        {
+            Debug.Log($"{unitName} can't move that far! (Range: {movement}, Target: {distance})");
+            return;
+        }
+
+        if (targetTile.HasStructure || targetTile.IsOccupiedByUnit)
+        {
+            Debug.Log($"{unitName} can't move there — tile is blocked or occupied!");
+            return;
+        }
+
+        Move(targetTile);
+    }
+
 
     public virtual void Move(HexTile targetTile)
     {
@@ -112,6 +139,37 @@ public abstract class UnitBase : MonoBehaviour
         transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
         currentTile = targetTile;
         Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
+
+        RevealNearbyFog(currentTile);
+    }
+
+    protected void RevealNearbyFog(HexTile centerTile)
+    {
+        if (centerTile == null) return;
+
+        List<HexTile> nearbyTiles = GetTilesInRange(centerTile.q, centerTile.r, fogRevealRadius);
+        foreach (HexTile tile in nearbyTiles)
+        {
+            if (tile.fogInstance != null)
+            {
+                tile.RemoveFog();
+                PlayerTracker.Instance.addScore(50);
+            }
+        }
+
+        Debug.Log($"{unitName} revealed fog around tile ({centerTile.q}, {centerTile.r})");
+    }
+
+    protected List<HexTile> GetTilesInRange(int q, int r, int radius)
+    {
+        List<HexTile> tilesInRange = new List<HexTile>();
+        foreach (HexTile tile in MapManager.Instance.GetTiles())
+        {
+            int dist = HexDistance(q, r, tile.q, tile.r);
+            if (dist <= radius)
+                tilesInRange.Add(tile);
+        }
+        return tilesInRange;
     }
 
     protected int HexDistance(int q1, int r1, int q2, int r2)
