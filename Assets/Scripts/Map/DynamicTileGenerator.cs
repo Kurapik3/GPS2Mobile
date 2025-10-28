@@ -156,7 +156,7 @@ public class DynamicTileGenerator : MonoBehaviour
                 }
             }
 
-            Debug.Log($"DynamicTileGenerator: Placed {placed}/{objectsPerStructure} dynamics around {structureTile.StructureName}, {structureTile.q},{structureTile.r}");
+            //Debug.Log($"DynamicTileGenerator: Placed {placed}/{objectsPerStructure} dynamics around {structureTile.StructureName}, {structureTile.q},{structureTile.r}");
         }
 
     }
