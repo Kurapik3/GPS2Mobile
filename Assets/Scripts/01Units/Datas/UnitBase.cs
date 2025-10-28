@@ -1,8 +1,19 @@
 ﻿using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class UnitBase : MonoBehaviour
 {
+    [Header("Indicators")]
+    [SerializeField] private GameObject rangeIndicatorPrefab;
+    private List<GameObject> activeIndicators = new List<GameObject>();
+
+    private List<HexTile> tilesInRange = new List<HexTile>();
+
+    private static int nextUnitID = 0;
+    public int UnitID { get; private set; }
+
+
     [Header("Base Stats (Loaded from CSV)")]
     public string unitName;
     public int cost;
@@ -21,6 +32,12 @@ public abstract class UnitBase : MonoBehaviour
 
     [Header("Fog of War Settings")]
     [SerializeField] private int fogRevealRadius = 1;
+
+    private void Awake()
+    {
+        UnitID = nextUnitID++;
+        Debug.Log($"Spawned Unit ID: {UnitID}");
+    }
     protected virtual void Start()
     {
         rend = GetComponent<Renderer>();
@@ -82,6 +99,8 @@ public abstract class UnitBase : MonoBehaviour
     protected virtual void Die()
     {
         Debug.Log($"{unitName} has died!");
+
+        HideRangeIndicators();
         Destroy(gameObject);
     }
 
@@ -89,8 +108,17 @@ public abstract class UnitBase : MonoBehaviour
     {
         isSelected = selected;
         UpdateSelectionVisual();
+        HideRangeIndicators();
+        if (isSelected)
+        {
+            ShowRangeIndicators();
+        }
+        else
+        {
+            HideRangeIndicators();
+        }
+        
     }
-
     private void UpdateSelectionVisual()
     {
         if (rend != null)
@@ -180,4 +208,83 @@ public abstract class UnitBase : MonoBehaviour
         return (Mathf.Abs(dq) + Mathf.Abs(dr) + Mathf.Abs(ds)) / 2;
     }
 
+    // Kenneth's //
+    public void ShowRangeIndicators()
+    {
+        HideRangeIndicators();
+
+        if (rangeIndicatorPrefab == null)
+        {
+            Debug.LogWarning($"{unitName}: Range Indicator Prefab is not assigned!");
+            return;
+        }
+
+        if (currentTile == null)
+        {
+            Debug.LogWarning($"{unitName}: Cannot show range - no current tile!");
+            return;
+        }
+
+        // Calculate tiles in range
+        CalculateTilesInRange();
+
+        Debug.Log($"{unitName}: Showing {tilesInRange.Count} range indicators");
+
+        // Spawn indicators
+        foreach (var tile in tilesInRange)
+        {
+            if (tile == null) continue;
+
+            //Vector3 spawnPos = tile.transform.position + Vector3.up;
+            Vector3 spawnPos = new Vector3(tile.transform.position.x, 2.0f, tile.transform.position.z);
+
+           // Quaternion spawnRotation = Quaternion.FromToRotation(Vector3.up, tile.transform.up);
+
+            GameObject indicator = Instantiate(rangeIndicatorPrefab, spawnPos, Quaternion.Euler(90f, 0f, 0f));
+            indicator.name = $"RangeIndicator{tile.q}{tile.r}";
+            activeIndicators.Add(indicator);
+        }
+    }
+
+    public void HideRangeIndicators()
+    {
+        foreach (var indicator in activeIndicators)
+        {
+            if (indicator != null)
+                Destroy(indicator);
+        }
+        activeIndicators.Clear();
+        tilesInRange.Clear();
+    }
+
+    private void CalculateTilesInRange()
+    {
+        tilesInRange.Clear();
+
+        if (MapManager.Instance == null)
+        {
+            Debug.LogError("MapManager.Instance is null!");
+            return;
+        }
+
+        Dictionary<Vector2Int, HexTile> allTiles = (Dictionary<Vector2Int, HexTile>)MapManager.Instance.GetAllTiles();
+
+        foreach (var kvp in allTiles)
+        {
+            HexTile tile = kvp.Value;
+            int distance = HexDistance(currentTile.q, currentTile.r, tile.q, tile.r);
+
+            // Only include tiles within movement range
+            if (distance > 0 && distance <= movement)
+            {
+                tilesInRange.Add(tile);
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up indicators when unit is destroyed
+        HideRangeIndicators();
+    }
 }

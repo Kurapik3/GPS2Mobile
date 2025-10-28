@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c116cc297b90b41871cbb60793ec29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rangeIndicatorPrefab: {fileID: 7388899633677801674, guid: bf923d61e9631364ea9d5aa290ec44e8, type: 3}
   unitName: 
   cost: 0
   range: 0
@@ -55,6 +56,8 @@ MonoBehaviour:
   isCombat: 0
   isSelected: 0
   currentTile: {fileID: 0}
+  hasMovedThisTurn: 0
+  fogRevealRadius: 1
   treeBasePrefab: {fileID: 0}
 --- !u!136 &-3442360951602841205
 CapsuleCollider:
