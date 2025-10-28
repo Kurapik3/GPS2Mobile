@@ -77,6 +77,7 @@ public class FogSystem : MonoBehaviour
             if (dist <= radius)
             {
                 tile.RemoveFog();
+                PlayerTracker.Instance.addScore(50);
                 //tracks revealed tiles
                 if (!revealedTiles.Contains(coord))
                 {
