@@ -37,7 +37,7 @@ public class UnitTouchController : MonoBehaviour
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
             if (tile != null && selectedUnit != null && selectedUnit.GetAvailableTiles().Contains(tile))
             {
-                selectedUnit.Move(tile);
+                selectedUnit.TryMove(tile);
                 DeselectUnit();
                 return;
             }
