@@ -4,9 +4,6 @@ using System.Collections.Generic;
 
 public class Kraken : SeaMonsterBase
 {
-    [Header("Kraken Settings")]
-    [SerializeField] private int attackCooldown = 1;
-
     public override void PerformTurnAction()
     {
         if (hasActedThisTurn || CurrentTile == null)
