@@ -68,7 +68,6 @@ public class DynamicTileGenerator : MonoBehaviour
         // for each base/grove tile, spawn around it
         foreach (var structureTile in structureTiles)
         {
-            Debug.Log($"Generating for structure at {structureTile.q},{structureTile.r}");
 
             string structureName = structureTile.StructureName.ToLower();
 
@@ -157,7 +156,7 @@ public class DynamicTileGenerator : MonoBehaviour
                 }
             }
 
-            Debug.Log($"DynamicTileGenerator: Placed {placed}/{objectsPerStructure} dynamics around {structureTile.StructureName}");
+            Debug.Log($"DynamicTileGenerator: Placed {placed}/{objectsPerStructure} dynamics around {structureTile.StructureName}, {structureTile.q},{structureTile.r}");
         }
 
     }

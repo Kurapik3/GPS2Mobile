@@ -42,10 +42,10 @@ public class MapGenerator : MonoBehaviour
                 Debug.Log("[MapGenerator] Loaded DefaultBaseMap from Resources.");
             }
         }
-        GenerateFromData();
+        //GenerateFromData();
 
-        GetComponent<FogSystem>()?.InitializeFog();
-        GetComponent<DynamicTileGenerator>()?.GenerateDynamicElements();
+        //GetComponent<FogSystem>()?.InitializeFog();
+        //GetComponent<DynamicTileGenerator>()?.GenerateDynamicElements();
     }
     public void SetMapData(MapData data)
     {
@@ -151,7 +151,7 @@ public class MapGenerator : MonoBehaviour
         FogSystem fogSystem = FindFirstObjectByType<FogSystem>();
         if (fogSystem != null)
         {
-            fogSystem.InitializeFog(); // generate fog first
+            //fogSystem.InitializeFog(); // generate fog first
 
             foreach (Vector2Int coord in mapData.revealedTiles)
             {
@@ -172,7 +172,7 @@ public class MapGenerator : MonoBehaviour
 
         // init runtime-only systems
         //GetComponent<FogSystem>()?.InitializeFog();
-        GetComponent<DynamicTileGenerator>()?.GenerateDynamicElements();
+        //GetComponent<DynamicTileGenerator>()?.GenerateDynamicElements();
 
         IsMapReady = true;
         OnMapReady?.Invoke(this);
