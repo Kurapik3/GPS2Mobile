@@ -14,7 +14,8 @@ public class ScrollAndPitch : MonoBehaviour
 
     [Header("Camera Zoom Limits")]
     [SerializeField] private float minZoomDistance = 5f;   
-    [SerializeField] private float maxZoomDistance = 50f;  
+    [SerializeField] private float maxZoomDistance = 50f;
+    [SerializeField] private float zoomSpeed = 0.5f;
 
     private Plane plane;
 
@@ -57,19 +58,20 @@ public class ScrollAndPitch : MonoBehaviour
             var pos1b = PlanePosition(t1.screenPosition - t1.delta);
             var pos2b = PlanePosition(t2.screenPosition - t2.delta);
 
-            var zoom = Vector3.Distance(pos1, pos2) / Vector3.Distance(pos1b, pos2b);
+            float prevDistance = Vector3.Distance(pos1b, pos2b);
+            float currentDistance = Vector3.Distance(pos1, pos2);
+            float zoomFactor = (currentDistance - prevDistance) * zoomSpeed;
 
-            //if (zoom > 0 && zoom < 10f)
-            //{
-            //    Vector3 midpoint = (pos1 + pos2) * 0.5f;
-            //    Vector3 direction = cam.transform.position - midpoint;
+            Vector3 forward = cam.transform.forward;
+            Vector3 newPos = cam.transform.position - forward * zoomFactor;
 
-            //    float desiredDistance = direction.magnitude * (1f / zoom);
-            //    desiredDistance = Mathf.Clamp(desiredDistance, minZoomDistance, maxZoomDistance); 
+            float currentDistanceFromGround = Vector3.Distance(newPos, transform.position);
+            if (currentDistanceFromGround >= minZoomDistance && currentDistanceFromGround <= maxZoomDistance)
+            {
+                cam.transform.position = newPos;
+            }
 
-            //    cam.transform.position = midpoint + direction.normalized * desiredDistance;
-            //    ClampCameraPosition();
-            //}
+            ClampCameraPosition();
         }
     }
 
