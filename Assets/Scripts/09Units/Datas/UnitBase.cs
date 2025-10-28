@@ -178,12 +178,21 @@ public abstract class UnitBase : MonoBehaviour
         List<HexTile> nearbyTiles = GetTilesInRange(centerTile.q, centerTile.r, fogRevealRadius);
         foreach (HexTile tile in nearbyTiles)
         {
+            FogSystem fog = FindAnyObjectByType<FogSystem>();
             if (tile.fogInstance != null)
             {
-                tile.RemoveFog();
-                PlayerTracker.Instance.addScore(50);
+                if (fog != null)
+                {
+                    fog.RevealTilesAround(centerTile.HexCoords, fogRevealRadius);
+                }
             }
         }
+
+        //FogSystem fog = FindAnyObjectByType<FogSystem>();
+        //if (fog != null)
+        //{
+        //    fog.RevealTilesAround(centerTile.HexCoords, fogRevealRadius);
+        //}
 
         Debug.Log($"{unitName} revealed fog around tile ({centerTile.q}, {centerTile.r})");
     }
