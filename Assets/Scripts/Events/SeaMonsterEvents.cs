@@ -2,10 +2,10 @@ using UnityEngine;
 
 public static class SeaMonsterEvents
 {
-    public struct TurnStartedEvent
+    public struct SeaMonsterTurnStartedEvent
     {
         public int Turn;
-        public TurnStartedEvent(int turn) => Turn = turn;
+        public SeaMonsterTurnStartedEvent(int turn) => Turn = turn;
     }
 
     public struct SeaMonsterTurnEndEvent
@@ -31,48 +31,6 @@ public static class SeaMonsterEvents
         }
     }
 
-    public struct SeaMonsterKilledEvent
-    {
-        public SeaMonsterBase Monster;
-        public Vector2Int TilePos;
-        public SeaMonsterKilledEvent(SeaMonsterBase monster, Vector2Int tilePos)
-        {
-            Monster = monster;
-            TilePos = tilePos;
-        }
-    }
-
-    public struct AllSeaMonstersClearedEvent
-    {
-        public int Turn;
-        public AllSeaMonstersClearedEvent(int turn) => Turn = turn;
-    }
-
-    public struct SeaMonsterAttacksUnitEvent
-    {
-        public SeaMonsterBase Attacker;
-        public UnitBase Target;
-
-        public SeaMonsterAttacksUnitEvent(SeaMonsterBase attacker, UnitBase target)
-        {
-            Attacker = attacker;
-            Target = target;
-        }
-    }
-
-    // Event for Sea Monster attacking another Sea Monster
-    public struct SeaMonsterAttacksMonsterEvent
-    {
-        public SeaMonsterBase Attacker;
-        public SeaMonsterBase Target;
-
-        public SeaMonsterAttacksMonsterEvent(SeaMonsterBase attacker, SeaMonsterBase target)
-        {
-            Attacker = attacker;
-            Target = target;
-        }
-    }
-
     public struct SeaMonsterMoveEvent
     {
         public SeaMonsterBase Monster;
@@ -86,9 +44,72 @@ public static class SeaMonsterEvents
         }
     }
 
+    public struct SeaMonsterKilledEvent
+    {
+        public SeaMonsterBase Monster;
+        public Vector2Int TilePos;
+        public SeaMonsterKilledEvent(SeaMonsterBase monster, Vector2Int tilePos)
+        {
+            Monster = monster;
+            TilePos = tilePos;
+        }
+    }
+
+
+    //==================== Kraken only ====================
     public struct KrakenPreSpawnWarningEvent
     {
         public int Turn;
         public KrakenPreSpawnWarningEvent(int turn) => Turn = turn;
+    }
+
+    //Event for Sea Monster attacking player or enemy unit
+    public struct KrakenAttacksUnitEvent
+    {
+        public SeaMonsterBase Attacker;
+        public UnitBase Target;
+
+        public KrakenAttacksUnitEvent(SeaMonsterBase attacker, UnitBase target)
+        {
+            Attacker = attacker;
+            Target = target;
+        }
+    }
+
+    //Event for Sea Monster attacking another Sea Monster
+    public struct KrakenAttacksMonsterEvent
+    {
+        public SeaMonsterBase Attacker;
+        public SeaMonsterBase Target;
+
+        public KrakenAttacksMonsterEvent(SeaMonsterBase attacker, SeaMonsterBase target)
+        {
+            Attacker = attacker;
+            Target = target;
+        }
+    }
+
+
+    //==================== Turtle Wall only ====================
+    public struct TurtleWallBlockEvent
+    {
+        public SeaMonsterBase Wall;
+        public Vector2Int TilePos;
+        public TurtleWallBlockEvent(SeaMonsterBase wall, Vector2Int tilePos)
+        {
+            Wall = wall;
+            TilePos = tilePos;
+        }
+    }
+
+    public struct TurtleWallUnblockEvent
+    {
+        public SeaMonsterBase Wall;
+        public Vector2Int TilePos;
+        public TurtleWallUnblockEvent(SeaMonsterBase wall, Vector2Int tilePos)
+        {
+            Wall = wall;
+            TilePos = tilePos;
+        }
     }
 }

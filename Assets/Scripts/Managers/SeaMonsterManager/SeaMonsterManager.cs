@@ -17,13 +17,13 @@ public class SeaMonsterManager : MonoBehaviour
 
     private void OnEnable()
     {
-        EventBus.Subscribe<SeaMonsterEvents.TurnStartedEvent>(OnTurnStarted);
+        EventBus.Subscribe<SeaMonsterEvents.SeaMonsterTurnStartedEvent>(OnTurnStarted);
         EventBus.Subscribe<SeaMonsterEvents.SeaMonsterKilledEvent>(OnSeaMonsterKilled);
     }
 
     private void OnDisable()
     {
-        EventBus.Unsubscribe<SeaMonsterEvents.TurnStartedEvent>(OnTurnStarted);
+        EventBus.Unsubscribe<SeaMonsterEvents.SeaMonsterTurnStartedEvent>(OnTurnStarted);
         EventBus.Unsubscribe<SeaMonsterEvents.SeaMonsterKilledEvent>(OnSeaMonsterKilled);
     }
 
@@ -32,7 +32,7 @@ public class SeaMonsterManager : MonoBehaviour
         EventBus.Publish(new SeaMonsterEvents.SeaMonsterSystemReadyEvent(this));
     }
 
-    private void OnTurnStarted(SeaMonsterEvents.TurnStartedEvent evt)
+    private void OnTurnStarted(SeaMonsterEvents.SeaMonsterTurnStartedEvent evt)
     {
         int turn = evt.Turn;
 
@@ -45,7 +45,7 @@ public class SeaMonsterManager : MonoBehaviour
 
     private IEnumerator SpawnSequence(int turn)
     {
-        //Kraken warning (turn 10 only)
+        //SeaMonster warning (turn 10 only)
         if (turn == 10)
         {
             EventBus.Publish(new SeaMonsterEvents.KrakenPreSpawnWarningEvent(turn));
@@ -75,6 +75,7 @@ public class SeaMonsterManager : MonoBehaviour
     {
         if (Camera.main == null) 
             yield break;
+
         Vector3 origin = Camera.main.transform.position;
         float t = 0f;
         while (t < shakeDuration)
@@ -92,10 +93,5 @@ public class SeaMonsterManager : MonoBehaviour
     {
         if (activeMonsters.Contains(evt.Monster))
             activeMonsters.Remove(evt.Monster);
-
-        if (activeMonsters.Count == 0)
-        {
-            EventBus.Publish(new SeaMonsterEvents.AllSeaMonstersClearedEvent(evt.Monster != null ? evt.Monster.CurrentTurn : 0));
-        }
     }
 }

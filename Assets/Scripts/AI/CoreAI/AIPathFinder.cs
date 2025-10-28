@@ -52,4 +52,17 @@ public static class AIPathFinder
 
         return best;
     }
+
+    public static HexTile GetRandomReachableTileForSeaMonster(SeaMonsterBase monster)
+    {
+        if (monster.CurrentTile == null)
+            return null;
+
+        var reachable = GetReachableHexes(monster.CurrentTile.HexCoords, monster.MovementRange);
+        if (reachable == null || reachable.Count == 0)
+            return null;
+
+        Vector2Int choice = reachable[Random.Range(0, reachable.Count)];
+        return MapManager.Instance.GetTile(choice);
+    }
 }

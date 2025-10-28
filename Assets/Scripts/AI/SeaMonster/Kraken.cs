@@ -5,84 +5,62 @@ using System.Collections.Generic;
 public class Kraken : SeaMonsterBase
 {
     [Header("Kraken Settings")]
-    public int AttackCooldown = 1; //Number of attacks per turn
-    private bool hasActedThisTurn = false;
+    [SerializeField] private int attackCooldown = 1;
 
-    private void OnEnable()
+    public override void PerformTurnAction()
     {
-        EventBus.Subscribe<SeaMonsterEvents.TurnStartedEvent>(OnTurnStarted);
+        if (hasActedThisTurn || CurrentTile == null)
+            return;
+
+        StartCoroutine(AttackNearbyTargets());
     }
 
-    private void OnDisable()
+    private IEnumerator AttackNearbyTargets()
     {
-        EventBus.Unsubscribe<SeaMonsterEvents.TurnStartedEvent>(OnTurnStarted);
-    }
+        hasActedThisTurn = true;
 
-    private void OnTurnStarted(SeaMonsterEvents.TurnStartedEvent evt)
-    {
-        CurrentTurn = evt.Turn;
-        hasActedThisTurn = false;
-
-        StartCoroutine(PerformTurn());
-    }
-
-    private IEnumerator PerformTurn()
-    {
-        if (hasActedThisTurn) 
-            yield break;
-
-        if (CurrentTile == null)
-        {
-            hasActedThisTurn = true;
-            yield break;
-        }
-
-        //Get all tiles in attack range
         List<HexTile> tilesInRange = GetTilesInRange(CurrentTile, AttackRange);
 
         foreach (HexTile tile in tilesInRange)
         {
-            // Attack player or enemy
+            //Attack player unit
             if (tile.currentUnit != null)
             {
-                EventBus.Publish(new SeaMonsterEvents.SeaMonsterAttacksUnitEvent(this, tile.currentUnit));
-                hasActedThisTurn = true;
+                EventBus.Publish(new SeaMonsterEvents.KrakenAttacksUnitEvent(this, tile.currentUnit));
                 yield break;
             }
 
-            // Attack other sea monsters
+            //Attack another sea monster
             if (tile.HasDynamic && tile.dynamicInstance != null)
             {
-                SeaMonsterBase otherMonster = tile.dynamicInstance.GetComponent<SeaMonsterBase>();
-                if (otherMonster != null && otherMonster != this)
+                SeaMonsterBase other = tile.dynamicInstance.GetComponent<SeaMonsterBase>();
+                if (other != null && other != this)
                 {
-                    EventBus.Publish(new SeaMonsterEvents.SeaMonsterAttacksMonsterEvent(this, otherMonster));
-                    hasActedThisTurn = true;
+                    EventBus.Publish(new SeaMonsterEvents.KrakenAttacksMonsterEvent(this, other));
                     yield break;
                 }
             }
         }
 
-        hasActedThisTurn = true;
+        //If no target found
         yield break;
     }
 
-    private List<HexTile> GetTilesInRange(HexTile centerTile, int range)
+    private List<HexTile> GetTilesInRange(HexTile center, int range)
     {
         List<HexTile> result = new List<HexTile>();
-        if (centerTile == null) 
-            return result;
+        if (center == null) return result;
 
         Queue<HexTile> frontier = new Queue<HexTile>();
         HashSet<HexTile> visited = new HashSet<HexTile>();
 
-        frontier.Enqueue(centerTile);
-        visited.Add(centerTile);
+        frontier.Enqueue(center);
+        visited.Add(center);
 
-        for (int i = 0; i <= range; i++)
+        for (int step = 0; step <= range; step++)
         {
             int count = frontier.Count;
-            for (int j = 0; j < count; j++)
+            for (int i = 0; i < count; i++)
             {
                 HexTile current = frontier.Dequeue();
                 if (!result.Contains(current))
@@ -104,16 +82,12 @@ public class Kraken : SeaMonsterBase
 
     public override void TakeDamage(int dmg)
     {
-        //Apply damage to the Kraken
         base.TakeDamage(dmg);
-
-        //Future: add hit effects or sound here
+        // TODO: hit animation or sound(?)
     }
 
     protected override void Die()
     {
-        Vector2Int pos = CurrentTile != null ? CurrentTile.HexCoords : Vector2Int.zero;
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterKilledEvent(this, pos));
-        Destroy(gameObject);
+        base.Die();
     }
 }
