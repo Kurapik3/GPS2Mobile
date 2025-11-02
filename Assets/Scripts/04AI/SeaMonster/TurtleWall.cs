@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections.Generic;
+using static SeaMonsterEvents;
 
 /// <summary>
 /// Defensive sea monster that blocks tiles but can move slowly.
@@ -29,7 +29,7 @@ public class TurtleWall : SeaMonsterBase
         base.Initialize(spawnTile);
 
         //Publish block event so pathfinding knows to mark this tile as blocked
-        EventBus.Publish(new SeaMonsterEvents.TurtleWallBlockEvent(this, spawnTile.HexCoords));
+        EventBus.Publish(new TurtleWallBlockEvent(this, spawnTile.HexCoords));
         Debug.Log($"[TurtleWall] Spawned at {spawnTile.HexCoords}. Blocking tile.");
     }
 
@@ -56,7 +56,7 @@ public class TurtleWall : SeaMonsterBase
     {
         if (isBlocking && CurrentTile != null)
         {
-            EventBus.Publish(new SeaMonsterEvents.TurtleWallUnblockEvent(this, CurrentTile.HexCoords));
+            EventBus.Publish(new TurtleWallUnblockEvent(this, CurrentTile.HexCoords));
             isBlocking = false;
         }
 

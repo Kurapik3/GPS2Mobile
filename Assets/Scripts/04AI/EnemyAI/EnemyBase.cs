@@ -98,28 +98,11 @@ public class EnemyBase : MonoBehaviour
 
     private void SpawnGroveAt(HexTile tile)
     {
-        GameObject grovePrefab = Resources.Load<GameObject>("Structures/Grove");
-        if (grovePrefab == null)
-        {
-            Debug.LogError("[EnemyBase] Groove prefab not found! (Expected at Resources/Structures/Grove)");
-            return;
-        }
-
-        GameObject groveObj = Instantiate(grovePrefab, tile.transform.position, Quaternion.identity);
-        BuildingBase groveBuilding = groveObj.GetComponent<BuildingBase>();
-        BuildingData data = groveObj.GetComponent<BuildingData>();
-
-        if (groveBuilding == null)
-        {
-            Debug.LogWarning("[EnemyBase] Spawned Groove prefab but no BuildingBase/GrooveBase component found!");
-            return;
-        }
-        if (data == null)
-        {
-            Debug.LogWarning("[EnemyBase] Groove prefab missing BuildingData component!");
-            return;
-        }
-        groveBuilding.Initialize(data, tile);
+        GameObject groveObj = Instantiate(BuildingFactory.Instance.GrovePrefab, tile.transform.position, Quaternion.identity);
+        GroveBase newGroveBase = groveObj.GetComponent<GroveBase>();
+        newGroveBase.Initialize(BuildingFactory.Instance.GroveData, currentTile);
+        currentTile.SetBuilding(newGroveBase);
+        EnemyTracker.Instance.AddScore(1000);
         Debug.Log($"[EnemyBase] Spawned Groove at {tile.HexCoords}");
     }
 

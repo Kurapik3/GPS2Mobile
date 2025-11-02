@@ -8,6 +8,7 @@ TagManager:
   - EnemyUnit
   - PlayerBase
   - PlayerUnit
+  - Grove
   layers:
   - Default
   - TransparentFX

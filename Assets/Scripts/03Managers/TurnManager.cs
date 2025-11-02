@@ -88,6 +88,7 @@ public class TurnManager : MonoBehaviour
         Debug.Log($"--- Enemy Turn {evt.Turn} End ---");
         Debug.Log($"<color=cyan>[TurnManager]</color> Received EnemyTurnEndEvent for Turn {evt.Turn}");
 
+        EnemyUnitManager.Instance.ClearJustSpawnedUnits();
         currentTurn++;
         isProcessingTurn = false;
         if (currentTurn > maxTurns)

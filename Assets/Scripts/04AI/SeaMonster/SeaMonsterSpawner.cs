@@ -44,7 +44,7 @@ public class SeaMonsterSpawner : MonoBehaviour
 
         //Instantiate the monster
         GameObject go = Instantiate(prefab, worldPos, Quaternion.identity);
-        go.name = $"SeaMonster_{prefab.name}_{coords.x}_{coords.y}";
+        go.name = $"SeaMonster_{prefab.name}_({coords.x}, {coords.y})";
 
         //Get SeaMonsterBase component
         SeaMonsterBase monster = go.GetComponent<SeaMonsterBase>();

@@ -2,6 +2,7 @@
 
 public static class EnemyAIEvents
 {
+    #region Turn
     //Turn
     public struct EnemyTurnStartEvent 
     { 
@@ -13,23 +14,53 @@ public static class EnemyAIEvents
         public int Turn; 
         public EnemyTurnEndEvent(int turn) => Turn = turn; 
     }
+    #endregion
 
-    //Phase triggers
+    #region Phase
     public struct ExecuteBasePhaseEvent 
     { 
         public int Turn; 
         public ExecuteBasePhaseEvent(int turn) => Turn = turn; 
     }
+    public struct BasePhaseEndEvent
+    {
+        public int Turn;
+        public BasePhaseEndEvent(int turn) => Turn = turn;
+    }
+
     public struct ExecuteDormantPhaseEvent 
     { 
         public int Turn; 
         public ExecuteDormantPhaseEvent(int turn) => Turn = turn; 
     }
+    public struct DormantPhaseEndEvent
+    {
+        public int Turn;
+        public DormantPhaseEndEvent(int turn) => Turn = turn;
+    }
+
     public struct ExecuteAggressivePhaseEvent 
     { 
         public int Turn; 
         public ExecuteAggressivePhaseEvent(int turn) => Turn = turn; 
     }
+    public struct AggressivePhaseEndEvent
+    {
+        public int Turn;
+        public AggressivePhaseEndEvent(int turn) => Turn = turn;
+    }
+
+    public struct ExecuteBuilderPhaseEvent
+    {
+        public int Turn;
+        public ExecuteBuilderPhaseEvent(int turn) => Turn = turn;
+    }
+    public struct BuilderPhaseEndEvent
+    {
+        public int Turn;
+        public BuilderPhaseEndEvent(int turn) => Turn = turn;
+    }
+    #endregion
 
     public struct MapReadyEvent 
     { 
@@ -37,6 +68,7 @@ public static class EnemyAIEvents
         public MapReadyEvent(MapGenerator m) => Map = m; 
     }
 
+    #region Request
     //Actions - published by AI modules, handled by Unit/Base managers
     public struct EnemySpawnRequestEvent 
     { 
@@ -66,7 +98,9 @@ public static class EnemyAIEvents
             AttackerId = attackerId; TargetId = targetId; 
         } 
     }
+    #endregion
 
+    #region NotificationAfterPerformingActions
     //Notifications after managers perform actions
     public struct EnemySpawnedEvent 
     { 
@@ -103,5 +137,18 @@ public static class EnemyAIEvents
             AttackerId = a; 
             TargetId = t; 
         } 
+    }
+    #endregion
+
+    public struct BuilderDevelopGroveEvent
+    {
+        public int UnitId;
+        public Vector2Int GrovePosition;
+
+        public BuilderDevelopGroveEvent(int unitId, Vector2Int grovePos)
+        {
+            UnitId = unitId;
+            GrovePosition = grovePos;
+        }
     }
 }

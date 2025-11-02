@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using static SeaMonsterEvents;
 
 /// <summary>
 /// Base class for all Sea Monsters (Kraken, TurtleWall)
@@ -36,12 +37,12 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        EventBus.Subscribe<SeaMonsterEvents.SeaMonsterTurnStartedEvent>(OnTurnStarted);
+        EventBus.Subscribe<SeaMonsterTurnStartedEvent>(OnTurnStarted);
     }
 
     protected virtual void OnDisable()
     {
-        EventBus.Unsubscribe<SeaMonsterEvents.SeaMonsterTurnStartedEvent>(OnTurnStarted);
+        EventBus.Unsubscribe<SeaMonsterTurnStartedEvent>(OnTurnStarted);
     }
 
     //Controls sea monster spawning
@@ -55,7 +56,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
         //Register tile occupancy
         MapManager.Instance.SetUnitOccupied(spawnTile.HexCoords, true);
 
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterSpawnedEvent(this, spawnTile.HexCoords));
+        EventBus.Publish(new SeaMonsterSpawnedEvent(this, spawnTile.HexCoords));
 
         Debug.Log($"[{MonsterName}] Spawned at {spawnTile.HexCoords}");
     }
@@ -92,11 +93,11 @@ public abstract class SeaMonsterBase : MonoBehaviour
         //Register new tile as occupied
         MapManager.Instance.SetUnitOccupied(newPos, true);
 
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterMoveEvent(this, oldPos, newPos));
+        EventBus.Publish(new SeaMonsterMoveEvent(this, oldPos, newPos));
 
         //If blocking, trigger reapply event (used by TurtleWall)
         if (isBlocking)
-            EventBus.Publish(new SeaMonsterEvents.TurtleWallBlockEvent(this, newPos));
+            EventBus.Publish(new TurtleWallBlockEvent(this, newPos));
 
         Debug.Log($"[{MonsterName}] Moved from {oldPos} to {newPos}");
         StartCoroutine(SmoothMove(newTile));
@@ -137,7 +138,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
         if (CurrentTile != null)
             MapManager.Instance.SetUnitOccupied(pos, false);
 
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterKilledEvent(this, pos));
+        EventBus.Publish(new SeaMonsterKilledEvent(this, pos));
         Debug.Log($"[{MonsterName}] died at {pos}");
 
         Destroy(gameObject);

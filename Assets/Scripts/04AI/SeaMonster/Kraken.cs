@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using static SeaMonsterEvents;
 
 public class Kraken : SeaMonsterBase
 {
@@ -23,7 +23,7 @@ public class Kraken : SeaMonsterBase
             //Attack player and enemy unit
             if (tile.currentUnit != null)
             {
-                EventBus.Publish(new SeaMonsterEvents.KrakenAttacksUnitEvent(this, tile.currentUnit));
+                EventBus.Publish(new KrakenAttacksUnitEvent(this, tile.currentUnit));
                 yield break;
             }
 
@@ -33,7 +33,7 @@ public class Kraken : SeaMonsterBase
                 SeaMonsterBase other = tile.dynamicInstance.GetComponent<SeaMonsterBase>();
                 if (other != null && other != this)
                 {
-                    EventBus.Publish(new SeaMonsterEvents.KrakenAttacksMonsterEvent(this, other));
+                    EventBus.Publish(new KrakenAttacksMonsterEvent(this, other));
                     yield break;
                 }
             }
@@ -46,7 +46,8 @@ public class Kraken : SeaMonsterBase
     private List<HexTile> GetTilesInRange(HexTile center, int range)
     {
         List<HexTile> result = new List<HexTile>();
-        if (center == null) return result;
+        if (center == null) 
+            return result;
 
         Queue<HexTile> frontier = new Queue<HexTile>();
         HashSet<HexTile> visited = new HashSet<HexTile>();

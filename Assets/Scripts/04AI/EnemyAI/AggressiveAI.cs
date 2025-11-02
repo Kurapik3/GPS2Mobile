@@ -1,201 +1,57 @@
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
-
-///// <summary>
-///// Combat behavior for enemy units in Aggressive state.
-///// Prioritizes player bases, then player units. 60% chance to attack if a target is in range.
-///// If no targets, moves (70% towards origin, 30% away).
-///// </summary>
-//public class CombatAI : ISubAI
-//{
-//    private IAIContext context;
-//    private IAIActor actor;
-//    private System.Random rng = new System.Random();
-//    private float delay = 1f;
-
-//    public void Initialize(IAIContext context, IAIActor actor)
-//    {
-//        this.context = context;
-//        this.actor = actor;
-//    }
-
-//    public IEnumerator ExecuteStepByStep()
-//    {
-//        var units = context.GetOwnedUnitIds();
-//        if (units == null || units.Count == 0)
-//            yield break;
-
-//        foreach (var unitId in units)
-//        {
-//            //Skip dormant (invisible) units
-//            if (!context.IsUnitVisibleToPlayer(unitId))
-//                continue;
-
-//            string unitType = context.GetUnitType(unitId);
-//            Vector2Int currentHex = context.GetUnitPosition(unitId);
-//            int attackRange = context.GetUnitAttackRange(unitId);
-
-//            //Skip combat for Builder & Scout
-//            if (unitType == "Builder" || unitType == "Scout")
-//            {
-//                MoveIdle(unitId, currentHex);
-//                Debug.Log($"[CombatAI] {unitType} #{unitId} cannot attack, moving instead.");
-//                yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
-//                continue;
-
-//            }
-
-//            //Check for player bases in range first
-//            List<int> targets = context.GetEnemiesInRange(currentHex, attackRange); //"Enemies" means player entities from enemy AI POV
-//            if (targets != null && targets.Count > 0)
-//            {
-//                //Choose priority: prefer bases (if possible)
-//                int selected = ChoosePriorityTarget(targets, currentHex);
-
-//                //60% chance to attack
-//                if (rng.NextDouble() < 0.6)
-//                {
-//                    actor.AttackTarget(unitId, selected);
-//                    Debug.Log($"[CombatAI] Unit {unitType} #{unitId} attacks entity {selected}");
-//                    yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
-//                    continue;
-//                }
-//                else
-//                {
-//                    Debug.Log($"[CombatAI] Unit {unitType} #{unitId} rolled to not attack");
-//                }
-//            }
-
-//            //If no valid target or skipped attack: decide movement (70% towards origin)
-//            MoveIdle(unitId, currentHex);
-//            yield return new WaitForSeconds(delay / AIController.AISpeedMultiplier);
-//        }
-//    }
-
-//    private void MoveIdle(int unitId, Vector2Int currentHex)
-//    {
-//        int moveRange = context.GetUnitMoveRange(unitId);
-//        List<Vector2Int> reachableHexes = context.GetReachableHexes(currentHex, moveRange);
-//        reachableHexes.RemoveAll(hex => !MapManager.Instance.CanUnitStandHere(hex));
-
-//        if (reachableHexes.Count == 0)
-//            return;
-
-//        bool moveToOrigin = rng.NextDouble() < 0.7;
-//        Vector2Int originHex = new Vector2Int(0,0);
-//        Vector2Int targetHex = ChooseTargetHex(reachableHexes, currentHex, originHex, moveToOrigin);
-//        Vector3 destination = context.HexToWorld(targetHex);
-
-//        actor.MoveTo(unitId, destination);
-//        Debug.Log($"[CombatAI] Unit {unitId} moves {(moveToOrigin ? "towards" : "away from")} origin to {destination}");
-//    }
-
-//    //Chooses the most appropriate target —> prioritize bases, then units
-//    private int ChoosePriorityTarget(List<int> candidateIds, Vector2Int fromPos)
-//    {
-//        int? baseTarget = null;
-//        int? unitTarget = null;
-//        int minBaseDistance = int.MaxValue;
-//        int minUnitDistance = int.MaxValue;
-
-//        foreach (var id in candidateIds)
-//        {
-//            Vector2Int enemyHex = context.GetEnemyPosition(id);
-//            int distance = context.GetHexDistance(fromPos, enemyHex);
-
-//            //Base priority
-//            if (context.GetPlayerBaseIds().Contains(id))
-//            {
-//                if (distance < minBaseDistance)
-//                {
-//                    minBaseDistance = distance;
-//                    baseTarget = id;
-//                }
-//            }
-//            //Unit secondary priority
-//            else if (context.GetPlayerUnitIds().Contains(id))
-//            {
-//                if (distance < minUnitDistance)
-//                {
-//                    minUnitDistance = distance;
-//                    unitTarget = id;
-//                }
-//            }
-//        }
-
-//        //Prefer base > unit > fallback
-//        if (baseTarget.HasValue)
-//            return baseTarget.Value;
-//        if (unitTarget.HasValue)
-//            return unitTarget.Value;
-
-//        return candidateIds[0]; //fallback
-//    }
-
-//    private Vector2Int ChooseTargetHex(List<Vector2Int> candidates, Vector2Int current, Vector2Int origin, bool moveTowards)
-//    {
-//        List<Vector2Int> valid = new List<Vector2Int>();
-//        int currentDist = context.GetHexDistance(current, origin);
-
-//        foreach (var hex in candidates)
-//        {
-//            int d = context.GetHexDistance(hex, origin);
-//            if (moveTowards && d < currentDist) valid.Add(hex);
-//            if (!moveTowards && d > currentDist) valid.Add(hex);
-//        }
-
-//        //Fallback
-//        if (valid.Count == 0)
-//            valid = candidates;
-
-//        return valid[rng.Next(valid.Count)];
-//    }
-//}
-
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static EnemyAIEvents;
 
 /// <summary>
 /// Aggressive logic for visible units.
 /// Prioritizes bases > sea monsters > units when choosing targets.
-/// If target in range: attack (60% chance). If not, move towards nearest player base.
 /// </summary>
 public class AggressiveAI : MonoBehaviour
 {
     [SerializeField] private float stepDelay = 1f;
-    private System.Random rng = new System.Random();
+    private Dictionary<int, Vector2Int> lockedTargetBases = new(); // unitId -> target base hex
 
     private void OnEnable()
     {
-        EventBus.Subscribe<EnemyAIEvents.ExecuteAggressivePhaseEvent>(OnAggressivePhase);
+        EventBus.Subscribe<ExecuteAggressivePhaseEvent>(OnAggressivePhase);
     }
 
     private void OnDisable()
     {
-        EventBus.Unsubscribe<EnemyAIEvents.ExecuteAggressivePhaseEvent>(OnAggressivePhase);
+        EventBus.Unsubscribe<ExecuteAggressivePhaseEvent>(OnAggressivePhase);
     }
 
-    private void OnAggressivePhase(EnemyAIEvents.ExecuteAggressivePhaseEvent evt)
+    private void OnAggressivePhase(ExecuteAggressivePhaseEvent evt)
     {
-        StartCoroutine(RunAggressivePhase());
+        StartCoroutine(RunAggressivePhase(evt.Turn));
     }
 
-    private IEnumerator RunAggressivePhase()
+    private IEnumerator RunAggressivePhase(int turn)
     {
         var eum = EnemyUnitManager.Instance;
-        if (eum == null) 
+        if (eum == null)
+        {
+            EventBus.Publish(new AggressivePhaseEndEvent(turn));
             yield break;
+        }
 
         var unitIds = eum.GetOwnedUnitIds();
-        if (unitIds == null || unitIds.Count == 0) 
+        if (unitIds == null || unitIds.Count == 0)
+        {
+            EventBus.Publish(new AggressivePhaseEndEvent(turn));
             yield break;
+        }
 
         foreach (var id in unitIds)
         {
             eum.LockState(id);
+
+            //if (eum.IsBuilderUnit(id))
+            //{
+            //    Debug.Log($"[AggressiveAI] Unit {id} is Builder, do nothing.");
+            //    continue;
+            //}
 
             if (!IsUnitVisibleToPlayer(id))
             {
@@ -203,163 +59,140 @@ public class AggressiveAI : MonoBehaviour
                 continue;
             }
 
-            string type = eum.GetUnitType(id);
-
-            //Find targets in attack range
+            Vector2Int currentPos = eum.GetUnitPosition(id);
             int range = eum.GetUnitAttackRange(id);
-            var targets = GetEnemiesInRange(eum.GetUnitPosition(id), range);
 
-            if (targets.Count > 0)
+            //Gather targets in range
+            List<int> baseTargets = GetBasesInRange(currentPos, range);
+            List<int> seaTargets = GetSeaMonstersInRange(currentPos, range);
+            List<int> unitTargets = GetPlayerUnitsInRange(currentPos, range);
+
+            //Choose target by priority (better to have player unit/base manager that records unitID / baseID / basePosition
+            if (baseTargets.Count > 0)
             {
-                int selected = ChoosePriorityTarget(targets, eum.GetUnitPosition(id));
-                if (rng.NextDouble() < 0.6)
-                {
-                    EventBus.Publish(new EnemyAIEvents.EnemyAttackRequestEvent(id, selected));
-                    yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
-                    continue;
-                }
+                int targetBaseId = baseTargets[Random.Range(0, baseTargets.Count)];
+                EventBus.Publish(new EnemyAttackRequestEvent(id, targetBaseId));
+                yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
+                continue; //Attack ends turn
+            }
+            else if (seaTargets.Count > 0)
+            {
+                int targetMonsterId = seaTargets[Random.Range(0, seaTargets.Count)];
+                EventBus.Publish(new EnemyAttackRequestEvent(id, targetMonsterId));
+                yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
+                continue; //Attack ends turn
+            }
+            else if (unitTargets.Count > 0)
+            {
+                int targetUnitId = unitTargets[Random.Range(0, unitTargets.Count)];
+                EventBus.Publish(new EnemyAttackRequestEvent(id, targetUnitId));
+                yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
+                continue; //Attack ends turn
             }
 
-            //Move toward nearest player base if no target
-            TryMoveIdle(id);
+            //If no targets, move 1 tile toward locked or new base
+            Vector2Int targetBasePos;
+            if (!lockedTargetBases.TryGetValue(id, out targetBasePos))
+            {
+                targetBasePos = ChooseClosestPlayerBase(currentPos);
+                lockedTargetBases[id] = targetBasePos; //Lock this base
+            }
+
+            List<Vector2Int> reachable = AIPathFinder.GetReachableHexes(currentPos, 1);
+            reachable.RemoveAll(h => !MapManager.Instance.CanUnitStandHere(h));
+
+            if (reachable.Count > 0)
+            {
+                reachable.Sort((a, b) => AIPathFinder.GetHexDistance(a, targetBasePos).CompareTo(AIPathFinder.GetHexDistance(b, targetBasePos)));
+                Vector2Int chosen = reachable[0];
+                EventBus.Publish(new EnemyMoveRequestEvent(id, chosen));
+            }
+
             yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
+            //NO attack after moving
         }
+
+        EventBus.Publish(new AggressivePhaseEndEvent(turn));
     }
 
     private bool IsUnitVisibleToPlayer(int unitId)
     {
         FogSystem fog = FindFirstObjectByType<FogSystem>();
         if (fog == null) 
-            return true; //Couldn't find fog, assume all units visible
-
+            return true;
         var pos = EnemyUnitManager.Instance.GetUnitPosition(unitId);
         return fog.revealedTiles.Contains(pos);
     }
 
-    private List<int> GetEnemiesInRange(Vector2Int from, int range)
+    #region Target Gathering
+    private List<int> GetBasesInRange(Vector2Int from, int range)
     {
-        //Player units and player bases both considered "targets"
-        var result = new List<int>();
-        //var playerUnits = FindFirstObjectByType<UnitManager>();
-        //if (playerUnits != null)
-        //{
-        //    foreach (var id in playerUnits.GetAllPlayerUnitIds())
-        //    {
-        //        var p = playerUnits.GetUnitPosition(id);
-        //        if (AIPathFinder.GetHexDistance(from, p) <= range) 
-        //            result.Add(id);
-        //    }
-        //}
-
-        var players = GameObject.FindGameObjectsWithTag("PlayerUnit");
-        foreach (var go in players)
-        {
-            Vector2Int hex = MapManager.Instance.WorldToHex(go.transform.position);
-            if (AIPathFinder.GetHexDistance(from, hex) <= range)
-            {
-                //For fallback mapping, use instanceID as id
-                result.Add(go.GetComponent<UnitBase>().UnitID);
-            }
-        }
-
+        List<int> result = new();
         var playerBases = GameObject.FindGameObjectsWithTag("PlayerBase");
         foreach (var go in playerBases)
         {
             Vector2Int hex = MapManager.Instance.WorldToHex(go.transform.position);
             if (AIPathFinder.GetHexDistance(from, hex) <= range)
-            {
-                //For fallback mapping, use instanceID as id
                 result.Add(go.GetInstanceID());
-            }
         }
         return result;
     }
 
-    private int ChoosePriorityTarget(List<int> candidates, Vector2Int fromPos)
+    private List<int> GetSeaMonstersInRange(Vector2Int from, int range)
     {
-        int? bestBase = null;
-        int? bestSeaMonster = null;
-        int? bestUnit = null;
-
-        int minBaseDist = int.MaxValue;
-        int minSeaDist = int.MaxValue;
-        int minUnitDist = int.MaxValue;
-
-        foreach (int id in candidates)
+        List<int> result = new();
+        if (SeaMonsterManager.Instance == null)
+            return result;
+        var monsters = SeaMonsterManager.Instance.GetAllMonsters();
+        foreach (var m in monsters)
         {
-            var go = FindObjectFromInstanceID(id);
-            if (go == null) continue;
-
-            string tag = go.tag;
-            Vector2Int pos = MapManager.Instance.WorldToHex(go.transform.position);
-            int dist = AIPathFinder.GetHexDistance(fromPos, pos);
-
-            if (tag == "PlayerBase")
-            {
-                if (dist < minBaseDist)
-                {
-                    minBaseDist = dist;
-                    bestBase = id;
-                }
-            }
-            else if (tag == "SeaMonster")
-            {
-                if (dist < minSeaDist)
-                {
-                    minSeaDist = dist;
-                    bestSeaMonster = id;
-                }
-            }
-            else if (tag == "PlayerUnit")
-            {
-                if (dist < minUnitDist)
-                {
-                    minUnitDist = dist;
-                    bestUnit = id;
-                }
-            }
+            int dist = AIPathFinder.GetHexDistance(from, m.CurrentTile.HexCoords);
+            if (dist <= range)
+                result.Add(m.MonsterId);
         }
-
-        if (bestBase.HasValue) 
-            return bestBase.Value;
-        if (bestSeaMonster.HasValue) 
-            return bestSeaMonster.Value;
-        if (bestUnit.HasValue)
-            return bestUnit.Value;
-
-        //Fallback
-        return candidates[0];
+        return result;
     }
 
-    private void TryMoveIdle(int unitId)
+    private List<int> GetPlayerUnitsInRange(Vector2Int from, int range)
     {
-        EnemyUnitManager eum = EnemyUnitManager.Instance;
-        if (!eum.CanUnitMove(unitId))
+        List<int> result = new();
+        var players = GameObject.FindGameObjectsWithTag("PlayerUnit");
+        foreach (var go in players)
         {
-            Debug.Log($"[DormantAI] Unit {unitId} just spawned, skip movement.");
-            return;
+            Vector2Int hex = MapManager.Instance.WorldToHex(go.transform.position);
+            if (AIPathFinder.GetHexDistance(from, hex) <= range)
+                result.Add(go.GetComponent<UnitBase>().UnitID);
         }
-        var current = eum.GetUnitPosition(unitId);
-        int moveRange = eum.GetUnitMoveRange(unitId);
-        var candidates = AIPathFinder.GetReachableHexes(current, moveRange);
-        candidates.RemoveAll(h => !MapManager.Instance.CanUnitStandHere(h));
-        if (candidates.Count == 0) return;
-
-        //Move toward origin as a simple heuristic
-        Vector2Int origin = Vector2Int.zero;
-        candidates.Sort((a, b) => AIPathFinder.GetHexDistance(a, origin).CompareTo(AIPathFinder.GetHexDistance(b, origin)));
-        Vector2Int chosen = candidates[0];
-        EventBus.Publish(new EnemyAIEvents.EnemyMoveRequestEvent(unitId, chosen));
+        return result;
     }
+    #endregion
 
-    //Temp - It's better to have player unit/base manager
-    private GameObject FindObjectFromInstanceID(int id)
+    private Vector2Int ChooseClosestPlayerBase(Vector2Int from)
     {
-        foreach (var obj in FindObjectsOfType<GameObject>())
+        var playerBases = GameObject.FindGameObjectsWithTag("PlayerBase");
+        List<Vector2Int> candidateHexes = new();
+
+        foreach (var go in playerBases)
+            candidateHexes.Add(MapManager.Instance.WorldToHex(go.transform.position));
+
+        int minDist = int.MaxValue;
+        List<Vector2Int> closest = new();
+
+        foreach (var hex in candidateHexes)
         {
-            if (obj.GetInstanceID() == id)
-                return obj;
+            int dist = AIPathFinder.GetHexDistance(from, hex);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest.Clear();
+                closest.Add(hex);
+            }
+            else if (dist == minDist)
+            {
+                closest.Add(hex);
+            }
         }
-        return null;
+
+        return closest[Random.Range(0, closest.Count)];
     }
 }

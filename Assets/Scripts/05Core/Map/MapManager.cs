@@ -133,9 +133,7 @@ public class MapManager : MonoBehaviour
     public bool IsTileOccupied(Vector2Int coord)
     {
         if (_tiles.TryGetValue(coord, out var tile))
-        {
             return tile.IsOccupiedByUnit;
-        }
         return false;
     }
 
