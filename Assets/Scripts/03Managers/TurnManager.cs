@@ -99,6 +99,8 @@ public class TurnManager : MonoBehaviour
         foreach (var building in allBuildings) // gain AP
             building.OnTurnStart();
 
+        GameManager.Instance.CheckEnding();
+
         StartPlayerTurn();
     }
 
@@ -121,5 +123,6 @@ public class TurnManager : MonoBehaviour
     {
         Debug.Log("Game Over! Max turns reached.");
         // Here you can add code to calculate score, show summary UI, etc.
+        GameManager.Instance.CheckEnding();
     }
 }
