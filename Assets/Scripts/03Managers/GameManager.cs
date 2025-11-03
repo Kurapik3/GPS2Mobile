@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.IO;
+using System;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private MapGenerator mapGenerator;
@@ -41,6 +42,7 @@ public class GameManager : MonoBehaviour
         EventBus.Subscribe<SaveGameEvent>(OnSaveGame);
         EventBus.Subscribe<LoadGameEvent>(OnLoadGame);
         EventBus.Subscribe<ActionMadeEvent>(OnAutoSave);
+        EventBus.Subscribe<AllEnemyBasesDestroyed>(OnAllEnemyBaseDestroyed);
     }
 
     private void OnDestroy()
@@ -48,6 +50,7 @@ public class GameManager : MonoBehaviour
         EventBus.Unsubscribe<SaveGameEvent>(OnSaveGame);
         EventBus.Unsubscribe<LoadGameEvent>(OnLoadGame);
         EventBus.Unsubscribe<ActionMadeEvent>(OnAutoSave);
+        EventBus.Subscribe<AllEnemyBasesDestroyed>(OnAllEnemyBaseDestroyed);
     }
     private void OnSaveGame(SaveGameEvent evt) => SaveGame();
     private void OnLoadGame(LoadGameEvent evt) => LoadGame();
@@ -68,6 +71,7 @@ public class GameManager : MonoBehaviour
 
         dynamicTileGen.GenerateDynamicElements();
         fogSystem.InitializeFog();
+        EventBus.Publish(new AllEnemyBasesDestroyed(false));
 
         Debug.Log("Started new game!");
     }
@@ -133,6 +137,11 @@ public class GameManager : MonoBehaviour
         dynamicTileGen.LoadDynamicObjects(data);
         Debug.Log("Game loaded!");
     }
+    bool allEnemyBasesDestroyed = false;
+    private void OnAllEnemyBaseDestroyed(AllEnemyBasesDestroyed destroyed)
+    {
+        allEnemyBasesDestroyed = destroyed.baseDestroyed;
+    }
 
     public void CheckEnding()
     {
@@ -140,9 +149,8 @@ public class GameManager : MonoBehaviour
         //int enemyScore = enemy.getScore(); //for ltr when enemy score is implemented
 
         //int playerBaseCount =  //for ltr when player base count is implemented
-        int enemyBaseCount = EnemyBaseManager.Instance.Bases.Count;
 
-        if(enemyBaseCount <= 0)
+        if(allEnemyBasesDestroyed)
         {
             GenocideEnding();
         }

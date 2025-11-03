@@ -20,7 +20,7 @@ public class DebrisTile : MonoBehaviour
     }
 
     //call this when player wants to develop tile
-    private void OnTileTapped()
+    public void OnTileTapped()
     {
         TryDevelop();
     }
