@@ -158,7 +158,7 @@ public class GameManager : MonoBehaviour
         {
             ExecutionEnding();
         }
-        else if(turnManager.CurrentTurn <= 30)
+        else if(turnManager.CurrentTurn == 31)
         {
             if(playerScore > enemyScore)
             {
