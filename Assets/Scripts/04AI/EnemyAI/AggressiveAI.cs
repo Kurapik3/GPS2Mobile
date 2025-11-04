@@ -51,11 +51,11 @@ public class AggressiveAI : MonoBehaviour
         {
             eum.LockState(id);
 
-            if (eum.IsBuilderUnit(id))
-            {
-                Debug.Log($"[AggressiveAI] Unit {id} is Builder, do nothing.");
-                continue;
-            }
+            //if (eum.IsBuilderUnit(id))
+            //{
+            //    Debug.Log($"[AggressiveAI] Unit {id} is Builder, do nothing.");
+            //    continue;
+            //}
 
             if (!eum.IsUnitVisibleToPlayer(id))
             {
@@ -123,12 +123,12 @@ public class AggressiveAI : MonoBehaviour
     private List<int> GetPlayerUnitsInRange(Vector2Int from, int range)
     {
         List<int> result = new();
-        var players = GameObject.FindGameObjectsWithTag("PlayerUnit");
-        foreach (var go in players)
+        var players = UnitManager.Instance.GetAllUnits();
+        foreach (var player in players)
         {
-            Vector2Int hex = MapManager.Instance.WorldToHex(go.transform.position);
+            Vector2Int hex = MapManager.Instance.WorldToHex(player.transform.position);
             if (AIPathFinder.GetHexDistance(from, hex) <= range)
-                result.Add(go.GetComponent<UnitBase>().UnitID);
+                result.Add(player.unitId);
         }
         return result;
     }
