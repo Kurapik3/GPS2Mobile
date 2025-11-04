@@ -217,7 +217,7 @@ public abstract class UnitBase : MonoBehaviour
         return (Mathf.Abs(dq) + Mathf.Abs(dr) + Mathf.Abs(ds)) / 2;
     }
 
-    // Kenneth's //
+    // ----------------------------------------[Kenneth's Work]---------------------------------------- //
     public void ShowRangeIndicators()
     {
         HideRangeIndicators();
@@ -234,7 +234,6 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
-        // Calculate tiles in range
         CalculateTilesInRange();
 
         Debug.Log($"{unitName}: Showing {tilesInRange.Count} range indicators");
@@ -244,10 +243,7 @@ public abstract class UnitBase : MonoBehaviour
         {
             if (tile == null) continue;
 
-            //Vector3 spawnPos = tile.transform.position + Vector3.up;
             Vector3 spawnPos = new Vector3(tile.transform.position.x, 2.0f, tile.transform.position.z);
-
-           // Quaternion spawnRotation = Quaternion.FromToRotation(Vector3.up, tile.transform.up);
 
             GameObject indicator = Instantiate(rangeIndicatorPrefab, spawnPos, Quaternion.Euler(90f, 0f, 0f));
             indicator.name = $"RangeIndicator{tile.q}{tile.r}";
@@ -266,34 +262,110 @@ public abstract class UnitBase : MonoBehaviour
         tilesInRange.Clear();
     }
 
+    //private void CalculateTilesInRange()
+    //{
+    //    tilesInRange.Clear();
+
+    //    if (MapManager.Instance == null)
+    //    {
+    //        Debug.LogError("MapManager.Instance is null!");
+    //        return;
+    //    }
+
+    //    Dictionary<Vector2Int, HexTile> allTiles = (Dictionary<Vector2Int, HexTile>)MapManager.Instance.GetAllTiles();
+
+    //    foreach (var kvp in allTiles)
+    //    {
+    //        HexTile tile = kvp.Value;
+    //        int distance = HexDistance(currentTile.q, currentTile.r, tile.q, tile.r);
+
+    //        // Only include tiles within movement range
+    //        if (distance > 0 && distance <= movement)
+    //        {
+    //            tilesInRange.Add(tile);
+    //        }
+    //    }
+    //}
+
     private void CalculateTilesInRange()
     {
         tilesInRange.Clear();
-
         if (MapManager.Instance == null)
         {
             Debug.LogError("MapManager.Instance is null!");
             return;
         }
 
+        // Use flood-fill algorithm to find reachable tiles
+        Dictionary<Vector2Int, int> reachableTiles = new Dictionary<Vector2Int, int>();
+        Queue<(HexTile tile, int distance)> queue = new Queue<(HexTile, int)>();
+
+        // Start from current tile
+        queue.Enqueue((currentTile, 0));
+        reachableTiles[new Vector2Int(currentTile.q, currentTile.r)] = 0;
+
         Dictionary<Vector2Int, HexTile> allTiles = (Dictionary<Vector2Int, HexTile>)MapManager.Instance.GetAllTiles();
 
-        foreach (var kvp in allTiles)
+        while (queue.Count > 0)
         {
-            HexTile tile = kvp.Value;
-            int distance = HexDistance(currentTile.q, currentTile.r, tile.q, tile.r);
+            var (currentCheckTile, currentDistance) = queue.Dequeue();
 
-            // Only include tiles within movement range
-            if (distance > 0 && distance <= movement)
+            // Don't expand beyond movement range
+            if (currentDistance >= movement)
+                continue;
+
+            // Check all 6 neighbors of hex tile
+            Vector2Int[] neighbors = GetHexNeighbors(currentCheckTile.q, currentCheckTile.r);
+
+            foreach (var neighborCoord in neighbors)
             {
-                tilesInRange.Add(tile);
+                // Skip if already visited with shorter distance
+                if (reachableTiles.ContainsKey(neighborCoord) && reachableTiles[neighborCoord] <= currentDistance + 1)
+                    continue;
+
+                // Check if tile exists in map
+                if (!allTiles.TryGetValue(neighborCoord, out HexTile neighborTile))
+                    continue;
+
+                // Skip blocked or occupied tiles (they block path but we don't mark them as reachable)
+                if (neighborTile.HasStructure || neighborTile.IsOccupiedByUnit)
+                    continue;
+
+                // Mark as reachable and add to queue for further exploration
+                reachableTiles[neighborCoord] = currentDistance + 1;
+                queue.Enqueue((neighborTile, currentDistance + 1));
+            }
+        }
+
+        // Convert reachable tiles to list (excluding starting tile)
+        foreach (var kvp in reachableTiles)
+        {
+            if (kvp.Value > 0) // Exclude the current tile (distance 0)
+            {
+                if (allTiles.TryGetValue(kvp.Key, out HexTile tile))
+                {
+                    tilesInRange.Add(tile);
+                }
             }
         }
     }
 
+    // Helper method to get the 6 neighboring hex coordinates
+    private Vector2Int[] GetHexNeighbors(int q, int r)
+    {
+        return new Vector2Int[]
+        {
+        new Vector2Int(q + 1, r),     // East
+        new Vector2Int(q - 1, r),     // West
+        new Vector2Int(q, r + 1),     // Southeast
+        new Vector2Int(q, r - 1),     // Northwest
+        new Vector2Int(q + 1, r - 1), // Northeast
+        new Vector2Int(q - 1, r + 1)  // Southwest
+        };
+    }
+
     private void OnDestroy()
     {
-        // Clean up indicators when unit is destroyed
         HideRangeIndicators();
     }
 }

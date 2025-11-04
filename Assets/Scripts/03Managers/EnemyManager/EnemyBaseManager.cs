@@ -86,7 +86,7 @@ public class EnemyBaseManager : MonoBehaviour
         if (bases.Count <= 0)
         {
             Debug.Log("[EnemyBaseManager] All enemy bases destroyed! Player wins?");
-            //eg: EventBus.Publish(new XXXEvents.AllEnemyBasesDestroyedEvent());
+            EventBus.Publish(new AllEnemyBasesDestroyed(true));
             //Wait for global game events to control the game state____
         }
     }

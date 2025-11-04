@@ -1,15 +1,31 @@
 using UnityEngine;
 using System.IO;
+using System;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private MapGenerator mapGenerator;
     [SerializeField] private DynamicTileGenerator dynamicTileGen;
     [SerializeField] private FogSystem fogSystem;
+    [SerializeField] private TurnManager turnManager;
+
+    private PlayerTracker player;
 
     private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
-
+    public static GameManager Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
     void Start()
     {
+        player = PlayerTracker.Instance;
+        
         // Try to load saved game (runtime data)
         if (File.Exists(savePath))
         {
@@ -21,6 +37,25 @@ public class GameManager : MonoBehaviour
             StartNewGame();
         }
     }
+    private void OnEnable()
+    {
+        EventBus.Subscribe<SaveGameEvent>(OnSaveGame);
+        EventBus.Subscribe<LoadGameEvent>(OnLoadGame);
+        EventBus.Subscribe<ActionMadeEvent>(OnAutoSave);
+        EventBus.Subscribe<AllEnemyBasesDestroyed>(OnAllEnemyBaseDestroyed);
+    }
+
+    private void OnDestroy()
+    {
+        EventBus.Unsubscribe<SaveGameEvent>(OnSaveGame);
+        EventBus.Unsubscribe<LoadGameEvent>(OnLoadGame);
+        EventBus.Unsubscribe<ActionMadeEvent>(OnAutoSave);
+        EventBus.Subscribe<AllEnemyBasesDestroyed>(OnAllEnemyBaseDestroyed);
+    }
+    private void OnSaveGame(SaveGameEvent evt) => SaveGame();
+    private void OnLoadGame(LoadGameEvent evt) => LoadGame();
+    private void OnAutoSave(ActionMadeEvent evt) => SaveGame(); 
+
     private void StartNewGame()
     {
         MapData loadedData = Resources.Load<MapData>("DefaultBaseMap");
@@ -36,6 +71,7 @@ public class GameManager : MonoBehaviour
 
         dynamicTileGen.GenerateDynamicElements();
         fogSystem.InitializeFog();
+        EventBus.Publish(new AllEnemyBasesDestroyed(false));
 
         Debug.Log("Started new game!");
     }
@@ -65,6 +101,9 @@ public class GameManager : MonoBehaviour
 
         // Save dynamic tiles
         dynamicTileGen.SaveDynamicObjects(data);
+
+        //save other states here
+
 
         File.WriteAllText(savePath, JsonUtility.ToJson(data, true));
         Debug.Log($"Game saved to {savePath}");
@@ -97,5 +136,70 @@ public class GameManager : MonoBehaviour
         // Load dynamic objects
         dynamicTileGen.LoadDynamicObjects(data);
         Debug.Log("Game loaded!");
+    }
+    bool allEnemyBasesDestroyed = false;
+    private void OnAllEnemyBaseDestroyed(AllEnemyBasesDestroyed destroyed)
+    {
+        allEnemyBasesDestroyed = destroyed.baseDestroyed;
+    }
+
+    public void CheckEnding()
+    {
+        int playerScore = player.getScore();
+        //int enemyScore = enemy.getScore(); //for ltr when enemy score is implemented
+
+        //int playerBaseCount =  //for ltr when player base count is implemented
+
+        if(allEnemyBasesDestroyed)
+        {
+            GenocideEnding();
+        }
+        else if(PlayerBasesDestroyed())
+        {
+            ExecutionEnding();
+        }
+        else if(turnManager.CurrentTurn < 30)
+        {
+            if(playerScore > GetEnemyScore())
+            {
+                NormalEnding();
+            }
+            else
+            {
+                FailureEnding();
+            }
+        }
+    }
+
+    private bool PlayerBasesDestroyed()  // just a placeholder
+    {
+        var allBases = FindObjectsByType<TreeBase>(FindObjectsSortMode.None);
+        return allBases.Length == 0;
+    }
+
+    private int GetEnemyScore() // just a placeholder
+    {
+        return 0;
+    }
+
+    private void NormalEnding()
+    {
+
+        Debug.Log("Normal Ending");
+    }
+    private void GenocideEnding()
+    {
+
+        Debug.Log("Genocide Ending");
+    }
+    private void ExecutionEnding()
+    {
+
+        Debug.Log("Execution Ending");
+    }
+    private void FailureEnding()
+    {
+
+        Debug.Log("Failure Ending");
     }
 }
