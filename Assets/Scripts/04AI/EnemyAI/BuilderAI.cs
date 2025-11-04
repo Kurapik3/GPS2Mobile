@@ -74,7 +74,8 @@ public class BuilderAI : MonoBehaviour
             }
 
             //Move up to 2 tiles towards Grove
-            Vector2Int? moveTarget = AIPathFinder.FindNearestReachable(currentPos, closestGrove, 2);
+            //Vector2Int? moveTarget = AIPathFinder.FindNearestReachable(currentPos, closestGrove, 2);
+            Vector2Int? moveTarget = new Vector2Int(3, 3);
 
             if (moveTarget == null)
             {

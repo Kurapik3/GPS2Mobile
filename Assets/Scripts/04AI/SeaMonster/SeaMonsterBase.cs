@@ -9,13 +9,15 @@ using static SeaMonsterEvents;
 public abstract class SeaMonsterBase : MonoBehaviour
 {
     [Header("Stats")]
-    public string MonsterName;
-    public int Attack;
-    public int Health;
-    public int KillPoints;
-    public int KillAP;
-    public int MovementRange;
-    public int AttackRange;
+    [SerializeField] protected string monsterName;
+    [SerializeField] protected int attack;
+    [SerializeField] protected int health;
+    [SerializeField] protected int killPoints;
+    [SerializeField] protected int killAP;
+    [SerializeField] protected int movementRange;
+    [SerializeField] protected int attackRange;
+
+    public int MovementRange => movementRange;
 
     [Header("Visual")]
     [SerializeField] protected float heightOffset = 2f;
@@ -58,7 +60,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
         EventBus.Publish(new SeaMonsterSpawnedEvent(this, spawnTile.HexCoords));
 
-        Debug.Log($"[{MonsterName}] Spawned at {spawnTile.HexCoords}");
+        Debug.Log($"[{monsterName}] Spawned at {spawnTile.HexCoords}");
     }
 
     private void OnTurnStarted(SeaMonsterEvents.SeaMonsterTurnStartedEvent evt)
@@ -81,7 +83,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
         //Validate walkability
         if (!MapManager.Instance.IsWalkable(newPos) || MapManager.Instance.IsTileOccupied(newPos))
         {
-            Debug.LogWarning($"[{MonsterName}] Cannot move to {newPos} — blocked or not walkable.");
+            Debug.LogWarning($"[{monsterName}] Cannot move to {newPos} — blocked or not walkable.");
             return;
         }
 
@@ -99,7 +101,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
         if (isBlocking)
             EventBus.Publish(new TurtleWallBlockEvent(this, newPos));
 
-        Debug.Log($"[{MonsterName}] Moved from {oldPos} to {newPos}");
+        Debug.Log($"[{monsterName}] Moved from {oldPos} to {newPos}");
         StartCoroutine(SmoothMove(newTile));
     }
 
@@ -125,8 +127,8 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     public virtual void TakeDamage(int dmg)
     {
-        Health -= dmg;
-        if (Health <= 0)
+        health -= dmg;
+        if (health <= 0)
             Die();
     }
 
@@ -139,7 +141,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
             MapManager.Instance.SetUnitOccupied(pos, false);
 
         EventBus.Publish(new SeaMonsterKilledEvent(this, pos));
-        Debug.Log($"[{MonsterName}] died at {pos}");
+        Debug.Log($"[{monsterName}] died at {pos}");
 
         Destroy(gameObject);
     }

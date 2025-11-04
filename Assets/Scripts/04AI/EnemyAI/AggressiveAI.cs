@@ -135,12 +135,16 @@ public class AggressiveAI : MonoBehaviour
     private List<int> GetBasesInRange(Vector2Int from, int range)
     {
         List<int> result = new();
-        var playerBases = GameObject.FindGameObjectsWithTag("PlayerBase");
-        foreach (var go in playerBases)
+        TreeBase[] playerBases = FindObjectsByType<TreeBase>(FindObjectsSortMode.None);
+
+        foreach (var baseObj in playerBases)
         {
-            Vector2Int hex = MapManager.Instance.WorldToHex(go.transform.position);
+            if (baseObj == null || baseObj.currentTile == null)
+                continue;
+
+            Vector2Int hex = baseObj.currentTile.HexCoords;
             if (AIPathFinder.GetHexDistance(from, hex) <= range)
-                result.Add(go.GetInstanceID());
+                result.Add(baseObj.GetInstanceID()); //Will change to specific BaseID later
         }
         return result;
     }
@@ -163,48 +167,35 @@ public class AggressiveAI : MonoBehaviour
 
     private Vector2Int ChooseClosestPlayerBase(Vector2Int from)
     {
-        var playerBases = GameObject.FindGameObjectsWithTag("PlayerBase");
+        TreeBase[] playerBases = FindObjectsByType<TreeBase>(FindObjectsSortMode.None);
+        Debug.Log($"[AggressiveAI] Found {playerBases.Length} PlayerBase objects in scene");
+
         if (playerBases.Length == 0)
         {
-            Debug.LogWarning("[AggressiveAI] No PlayerBase found with tag 'PlayerBase'!");
-            return from;
-        }
-        List<Vector2Int> candidateHexes = new();
-
-        foreach (var go in playerBases)
-        {
-            if (go == null) 
-                continue;
-            candidateHexes.Add(MapManager.Instance.WorldToHex(go.transform.position));
-        }
-
-        if (candidateHexes.Count == 0)
-        {
-            Debug.LogWarning("[AggressiveAI] No valid player bases found.");
+            Debug.LogWarning("[AggressiveAI] NO PLAYER BASES FOUND! Aggressive unit will not move toward base.");
             return from;
         }
 
+        TreeBase closestBase = null;
         int minDist = int.MaxValue;
-        List<Vector2Int> closest = new();
 
-        foreach (var hex in candidateHexes)
+        foreach (TreeBase pb in playerBases)
         {
-            int dist = AIPathFinder.GetHexDistance(from, hex);
+            if (pb == null || pb.currentTile == null)
+                continue;
+
+            Vector2Int pos = pb.currentTile.HexCoords;
+            int dist = AIPathFinder.GetHexDistance(from, pos);
             if (dist < minDist)
             {
                 minDist = dist;
-                closest.Clear();
-                closest.Add(hex);
-            }
-            else if (dist == minDist)
-            {
-                closest.Add(hex);
+                closestBase = pb;
             }
         }
 
-        if (closest.Count == 0)
+        if (closestBase == null || closestBase.currentTile == null)
             return from;
 
-        return closest[UnityEngine.Random.Range(0, closest.Count)];
+        return closestBase.currentTile.HexCoords;
     }
 }
