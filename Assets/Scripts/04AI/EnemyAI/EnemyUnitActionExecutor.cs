@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using static EnemyAIEvents;
 
@@ -78,59 +79,6 @@ public class EnemyActionExecutor : MonoBehaviour
     #endregion
 
     #region Move
-    //private void OnMoveRequest(EnemyMoveRequestEvent evt)
-    //{
-    //    if (unitManager == null || !unitManager.CanUnitMove(evt.UnitId))
-    //        return;
-
-    //    Vector2Int from = unitManager.GetUnitPosition(evt.UnitId);
-    //    Vector2Int to = evt.Destination;
-
-    //    //Use A* Path
-    //    List<Vector2Int> path = AIPathFinder.GetPath(from, to);
-    //    if (path == null || path.Count == 0)
-    //    {
-    //        Debug.LogWarning($"[EnemyActionExecutor] No path for unit {evt.UnitId} from {from} to {to}");
-    //        return;
-    //    }
-
-    //    int moveRange = unitManager.GetUnitMoveRange(evt.UnitId);
-    //    List<Vector2Int> trimmedPath = path.GetRange(0, Mathf.Min(moveRange + 1, path.Count));
-    //    //Final destination for this turn
-    //    Vector2Int finalHex = trimmedPath[trimmedPath.Count - 1];
-
-    //    //Stand check
-    //    if (!MapManager.Instance.CanUnitStandHere(finalHex)) 
-    //        return;
-    //    //Blocked but not final goal tile
-    //    if (MapManager.Instance.IsTileOccupied(finalHex) && finalHex != to) 
-    //        return;
-
-    //    //Start moving visually
-    //    unitManager.StartCoroutine(MoveUnitPath(evt.UnitId, trimmedPath, from, finalHex));
-    //}
-
-    //private IEnumerator MoveUnitPath(int unitId, List<Vector2Int> path, Vector2Int fromHex, Vector2Int finalHex)
-    //{
-    //    GameObject go = unitManager.UnitObjects[unitId];
-
-    //    //Release old tile immediately
-    //    MapManager.Instance.SetUnitOccupied(fromHex, false);
-
-    //    foreach (var hex in path)
-    //    {
-    //        Vector3 world = MapManager.Instance.HexToWorld(hex);
-    //        world.y += unitHeightOffset;
-    //        yield return SmoothMove(go, world);
-    //        yield return new WaitForSeconds(0.2f);
-    //    }
-
-    //    unitManager.UnitPositions[unitId] = finalHex;
-    //    MapManager.Instance.SetUnitOccupied(finalHex, true);
-
-    //    EventBus.Publish(new EnemyMovedEvent(unitId, fromHex, finalHex));
-    //}
-
     private void OnMoveRequest(EnemyMoveRequestEvent evt)
     {
         if (unitManager == null || !unitManager.CanUnitMove(evt.UnitId))
@@ -139,29 +87,82 @@ public class EnemyActionExecutor : MonoBehaviour
         Vector2Int from = unitManager.GetUnitPosition(evt.UnitId);
         Vector2Int to = evt.Destination;
 
-        if (!MapManager.Instance.CanUnitStandHere(to))
-            return;
-
-        //Check occupancy
-        if (MapManager.Instance.IsTileOccupied(to))
-            return;
-
-        //Release old tile
-        MapManager.Instance.SetUnitOccupied(from, false);
-
-        unitManager.UnitPositions[evt.UnitId] = to;
-        MapManager.Instance.SetUnitOccupied(to, true);
-
-        //Move GameObject visually
-        if (unitManager.UnitObjects.TryGetValue(evt.UnitId, out var go))
+        //Use A* Path
+        List<Vector2Int> path = AIPathFinder.GetPath(from, to);
+        if (path == null || path.Count == 0)
         {
-            Vector3 world = MapManager.Instance.HexToWorld(to);
-            world.y += unitHeightOffset;
-            StartCoroutine(SmoothMove(go, world));
+            Debug.LogWarning($"[EnemyActionExecutor] No path for unit {evt.UnitId} from {from} to {to}");
+            return;
         }
 
-        EventBus.Publish(new EnemyMovedEvent(evt.UnitId, from, to));
+        int moveRange = unitManager.GetUnitMoveRange(evt.UnitId);
+        List<Vector2Int> trimmedPath = path.GetRange(0, Mathf.Min(moveRange + 1, path.Count));
+        //Final destination for this turn
+        Vector2Int finalHex = trimmedPath[trimmedPath.Count - 1];
+
+        //Stand check
+        if (!MapManager.Instance.CanUnitStandHere(finalHex))
+            return;
+        //Blocked but not final goal tile
+        if (MapManager.Instance.IsTileOccupied(finalHex) && finalHex != to)
+            return;
+
+        //Start moving visually
+        unitManager.StartCoroutine(MoveUnitPath(evt.UnitId, trimmedPath, from, finalHex));
     }
+
+    private IEnumerator MoveUnitPath(int unitId, List<Vector2Int> path, Vector2Int fromHex, Vector2Int finalHex)
+    {
+        GameObject go = unitManager.UnitObjects[unitId];
+
+        //Release old tile immediately
+        MapManager.Instance.SetUnitOccupied(fromHex, false);
+
+        foreach (var hex in path)
+        {
+            Vector3 world = MapManager.Instance.HexToWorld(hex);
+            world.y += unitHeightOffset;
+            yield return SmoothMove(go, world);
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        unitManager.UnitPositions[unitId] = finalHex;
+        MapManager.Instance.SetUnitOccupied(finalHex, true);
+
+        EventBus.Publish(new EnemyMovedEvent(unitId, fromHex, finalHex));
+    }
+
+    //private void OnMoveRequest(EnemyMoveRequestEvent evt)
+    //{
+    //    if (unitManager == null || !unitManager.CanUnitMove(evt.UnitId))
+    //        return;
+
+    //    Vector2Int from = unitManager.GetUnitPosition(evt.UnitId);
+    //    Vector2Int to = evt.Destination;
+
+    //    if (!MapManager.Instance.CanUnitStandHere(to))
+    //        return;
+
+    //    //Check occupancy
+    //    if (MapManager.Instance.IsTileOccupied(to))
+    //        return;
+
+    //    //Release old tile
+    //    MapManager.Instance.SetUnitOccupied(from, false);
+
+    //    unitManager.UnitPositions[evt.UnitId] = to;
+    //    MapManager.Instance.SetUnitOccupied(to, true);
+
+    //    //Move GameObject visually
+    //    if (unitManager.UnitObjects.TryGetValue(evt.UnitId, out var go))
+    //    {
+    //        Vector3 world = MapManager.Instance.HexToWorld(to);
+    //        world.y += unitHeightOffset;
+    //        StartCoroutine(SmoothMove(go, world));
+    //    }
+
+    //    EventBus.Publish(new EnemyMovedEvent(evt.UnitId, from, to));
+    //}
 
     private IEnumerator SmoothMove(GameObject unit, Vector3 destination)
     {

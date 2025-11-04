@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using static EnemyAIEvents;
@@ -41,35 +42,35 @@ public class AIController : MonoBehaviour
 
     private IEnumerator RunAITurn()
     {
-        //Enemy base phase
-        EventBus.Publish(new ExecuteBasePhaseEvent(currentTurn));
-        yield return WaitForPhaseEnd<BasePhaseEndEvent>();
+        Debug.Log($"<color=yellow>=== Enemy Turn {currentTurn} Started ===</color>");
 
-        ////Builder phase (move towards grove/build base on top of grove)
-        //EventBus.Publish(new ExecuteBuilderPhaseEvent(currentTurn));
-        //yield return WaitForPhaseEnd<BuilderPhaseEndEvent>();
+        //Enemy base phase
+        bool baseDone = false;
+        Action onBaseComplete = () => baseDone = true;
+        EventBus.Publish(new ExecuteBasePhaseEvent(currentTurn, onBaseComplete));
+        yield return new WaitUntil(() => baseDone);
+
+        //Builder phase (move towards grove/build base on top of grove)
+        bool builderDone = false;
+        Action onBuilderComplete = () => builderDone = true;
+        EventBus.Publish(new ExecuteBuilderPhaseEvent(currentTurn, onBuilderComplete));
+        yield return new WaitUntil(() => builderDone);
 
         //Dormant phase (dormant units move)
-        EventBus.Publish(new ExecuteDormantPhaseEvent(currentTurn));
-        yield return WaitForPhaseEnd<DormantPhaseEndEvent>();
+        bool dormantDone = false;
+        Action onDormantComplete = () => dormantDone = true;
+        EventBus.Publish(new ExecuteDormantPhaseEvent(currentTurn, onDormantComplete));
+        yield return new WaitUntil(() => dormantDone);
 
         //Aggressive phase (aggressive units action)
-        EventBus.Publish(new ExecuteAggressivePhaseEvent(currentTurn));
-        yield return WaitForPhaseEnd<AggressivePhaseEndEvent>();
+        bool aggressiveDone = false;
+        Action onAggressiveComplete = () => aggressiveDone = true;
+        EventBus.Publish(new ExecuteAggressivePhaseEvent(currentTurn, onAggressiveComplete));
+        yield return new WaitUntil(() => aggressiveDone);
 
         //End turn
         EventBus.Publish(new EnemyTurnEndEvent(currentTurn));
         Debug.Log($"<color=yellow>=== Enemy Turn {currentTurn} Finished ===</color>");
-    }
-
-    private IEnumerator WaitForPhaseEnd<T>() where T : struct
-    {
-        bool phaseEnded = false;
-        void OnPhaseEnd(T evt) => phaseEnded = true;
-
-        EventBus.Subscribe<T>(OnPhaseEnd);
-        yield return new WaitUntil(() => phaseEnded);
-        EventBus.Unsubscribe<T>(OnPhaseEnd);
     }
 }
 

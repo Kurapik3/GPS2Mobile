@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,7 @@ public class EnemyBaseManager : MonoBehaviour
             return;
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void OnEnable()
@@ -91,14 +93,14 @@ public class EnemyBaseManager : MonoBehaviour
 
     private void OnExecuteBasePhase(ExecuteBasePhaseEvent evt)
     {
-        StartCoroutine(SpawnUnitsStepByStep(evt.Turn));
+        StartCoroutine(SpawnUnitsStepByStep(evt.Turn, evt.OnCompleted));
     }
 
-    private IEnumerator SpawnUnitsStepByStep(int turn)
+    private IEnumerator SpawnUnitsStepByStep(int turn, Action onCompleted)
     {
         //Randomize base order to avoid always the same bases to spawn builder units
         var baseList = bases.ToList();
-        baseList = baseList.OrderBy(x => Random.value).ToList();
+        baseList = baseList.OrderBy(x => UnityEngine.Random.value).ToList();
 
         foreach (var kvp in baseList)
         {
@@ -131,7 +133,7 @@ public class EnemyBaseManager : MonoBehaviour
             yield return new WaitForSeconds(spawnDelay);
         }
 
-        EventBus.Publish(new BasePhaseEndEvent(turn));
+        onCompleted?.Invoke();
     }
 
     private string SelectUnitToSpawn()
@@ -149,7 +151,7 @@ public class EnemyBaseManager : MonoBehaviour
         if (totalShips > 10 && bomberCount == 0) 
             return "Bomber";
 
-        float roll = Random.value;
+        float roll = UnityEngine.Random.value;
         if (roll < 0.4f) 
             return "Scout";
         if (roll < 0.8f) 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,13 +24,17 @@ public class BuilderAI : MonoBehaviour
 
     private void OnBuilderPhase(ExecuteBuilderPhaseEvent evt)
     {
-        StartCoroutine(RunBuildersPhase(evt.Turn));
+        StartCoroutine(RunBuildersPhase(evt.Turn, evt.OnCompleted));
     }
 
-    public IEnumerator RunBuildersPhase(int turn)
+    public IEnumerator RunBuildersPhase(int turn, Action onCompleted)
     {
-        if (unitManager == null) 
+        if (unitManager == null)
+        {
+            yield return null; //To ensure async
+            onCompleted?.Invoke();
             yield break;
+        }
 
         //Get all Builder unit IDs
         List<int> builderIds = new List<int>();
@@ -42,7 +47,8 @@ public class BuilderAI : MonoBehaviour
         //End phase if no builder units
         if (builderIds.Count == 0)
         {
-            EventBus.Publish(new BuilderPhaseEndEvent(turn));
+            yield return null;
+            onCompleted?.Invoke();
             yield break;
         }
 
@@ -51,63 +57,77 @@ public class BuilderAI : MonoBehaviour
             if (!unitManager.UnitObjects.ContainsKey(unitId)) 
                 continue;
 
+            // Skip if just spawned and can't move yet
+            if (!unitManager.CanUnitMove(unitId))
+                continue;
+
             Vector2Int currentPos = unitManager.GetUnitPosition(unitId);
 
             //Find closest Grove
             Vector2Int closestGrove = FindClosestGrove(currentPos);
 
-            //Move up to 2 tiles towards Grove
-            Vector2Int moveTarget = GetMoveTowards(currentPos, closestGrove, 2);
-
-            if (moveTarget != currentPos)
+            //If already at grove, develop
+            if (currentPos == closestGrove)
             {
-                EventBus.Publish(new EnemyMoveRequestEvent(unitId, moveTarget));
-                //Wait for movement to finish visually
+                EventBus.Publish(new BuilderDevelopGroveEvent(unitId, closestGrove));
+                continue;
+            }
+
+            //Move up to 2 tiles towards Grove
+            Vector2Int? moveTarget = AIPathFinder.FindNearestReachable(currentPos, closestGrove, 2);
+
+            if (moveTarget == null)
+            {
+                Debug.LogWarning($"[BuilderAI] Builder {unitId} cannot reach any hex toward grove {closestGrove}.");
+                continue;
+            }
+
+            if (moveTarget.Value != currentPos)
+            {
+                EventBus.Publish(new EnemyMoveRequestEvent(unitId, moveTarget.Value));
                 yield return new WaitForSeconds(0.5f);
             }
 
-            //Develop Grove if reached
-            if (moveTarget == closestGrove)
+            //Check if reached the grove after move
+            if (moveTarget.Value == closestGrove)
             {
                 EventBus.Publish(new BuilderDevelopGroveEvent(unitId, closestGrove));
             }
         }
 
-        //Phase ends after all builders acted
-        EventBus.Publish(new BuilderPhaseEndEvent(turn));
+        onCompleted?.Invoke();
     }
 
     private Vector2Int FindClosestGrove(Vector2Int from)
     {
-        GameObject[] groveObjects = GameObject.FindGameObjectsWithTag("Grove");
-        if (groveObjects.Length == 0) return from;
+        GroveBase[] groves = FindObjectsByType<GroveBase>(FindObjectsSortMode.None);
+        Debug.Log($"[BuilderAI] Found {groves.Length} GroveBase objects in scene");
 
-        Vector2Int closest = groveObjects[0].GetComponent<GroveBase>().currentTile.HexCoords;
-        int minDist = Mathf.Abs(from.x - closest.x) + Mathf.Abs(from.y - closest.y);
-
-        foreach (var groveObj in groveObjects)
+        if (groves.Length == 0)
         {
-            GroveBase grove = groveObj.GetComponent<GroveBase>();
-            if (grove == null) continue;
+            Debug.LogWarning("[BuilderAI] NO GROVES FOUND! Builder will not move.");
+            return from;
+        }
+
+        GroveBase closestGrove = groves[0];
+        int minDist = AIPathFinder.GetHexDistance(from, closestGrove.currentTile?.HexCoords ?? from);
+
+        foreach (GroveBase grove in groves)
+        {
+            if (grove == null || grove.currentTile == null)
+                continue;
 
             Vector2Int pos = grove.currentTile.HexCoords;
-            int dist = Mathf.Abs(from.x - pos.x) + Mathf.Abs(from.y - pos.y);
+            int dist = AIPathFinder.GetHexDistance(from, pos);
             if (dist < minDist)
             {
                 minDist = dist;
-                closest = pos;
+                closestGrove = grove;
             }
         }
 
-        return closest;
-    }
-
-    private Vector2Int GetMoveTowards(Vector2Int from, Vector2Int to, int maxSteps)
-    {
-        Vector2Int delta = to - from;
-        int moveX = Mathf.Clamp(delta.x, -maxSteps, maxSteps);
-        int remainingSteps = maxSteps - Mathf.Abs(moveX);
-        int moveY = Mathf.Clamp(delta.y, -remainingSteps, remainingSteps);
-        return from + new Vector2Int(moveX, moveY);
+        if (closestGrove == null || closestGrove.currentTile == null)
+            return from;
+        return closestGrove.currentTile.HexCoords;
     }
 }

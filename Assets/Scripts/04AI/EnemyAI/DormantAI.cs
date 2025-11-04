@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,22 +24,24 @@ public class DormantAI : MonoBehaviour
 
     private void OnExplorePhase(ExecuteDormantPhaseEvent evt)
     {
-        StartCoroutine(RunDormantPhase(evt.Turn));
+        StartCoroutine(RunDormantPhase(evt.Turn, evt.OnCompleted));
     }
 
-    private IEnumerator RunDormantPhase(int turn)
+    private IEnumerator RunDormantPhase(int turn, Action onCompleted)
     {
         var eum = EnemyUnitManager.Instance;
         if (eum == null)
         {
-            EventBus.Publish(new DormantPhaseEndEvent(turn));
+            yield return null; //To ensure async
+            onCompleted?.Invoke();
             yield break;
         }
 
         var unitIds = eum.GetOwnedUnitIds();
         if (unitIds == null || unitIds.Count == 0)
         {
-            EventBus.Publish(new DormantPhaseEndEvent(turn));
+            yield return null;
+            onCompleted?.Invoke();
             yield break;
         }
 
@@ -49,14 +52,14 @@ public class DormantAI : MonoBehaviour
         {
             eum.LockState(id);
 
-            //if(eum.IsBuilderUnit(id))
-            //{
-            //    Debug.Log($"[DormantAI] Unit {id} is Builder, do nothing.");
-            //    continue;
-            //}
+            if (eum.IsBuilderUnit(id))
+            {
+                Debug.Log($"[DormantAI] Unit {id} is Builder, do nothing.");
+                continue;
+            }
 
             //Skip visible (aggressive)
-            if (IsUnitVisibleToPlayer(id))
+            if (eum.IsUnitVisibleToPlayer(id))
             {
                 eum.TrySetState(id, EnemyUnitManager.AIState.Aggressive);
                 continue;
@@ -84,17 +87,7 @@ public class DormantAI : MonoBehaviour
             yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
         }
 
-        EventBus.Publish(new DormantPhaseEndEvent(turn));
-    }
-
-    private bool IsUnitVisibleToPlayer(int unitId)
-    {
-        FogSystem fog = FindFirstObjectByType<FogSystem>();
-        if (fog == null) 
-            return true; //Couldn't find fog, assume all units visible
-
-        Vector2Int pos = EnemyUnitManager.Instance.GetUnitPosition(unitId);
-        return fog.revealedTiles.Contains(pos);
+        onCompleted?.Invoke();
     }
 
     private Vector2Int ChooseHexDirection(List<Vector2Int> candidates, Vector2Int current, Vector2Int origin, bool moveTowards)
@@ -113,6 +106,6 @@ public class DormantAI : MonoBehaviour
         if (valid.Count == 0) 
             valid = candidates;
 
-        return valid[Random.Range(0, valid.Count)];
+        return valid[UnityEngine.Random.Range(0, valid.Count)];
     }
 }

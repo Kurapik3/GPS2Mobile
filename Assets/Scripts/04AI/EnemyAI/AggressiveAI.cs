@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,22 +25,25 @@ public class AggressiveAI : MonoBehaviour
 
     private void OnAggressivePhase(ExecuteAggressivePhaseEvent evt)
     {
-        StartCoroutine(RunAggressivePhase(evt.Turn));
+        Debug.Log($"[OnAggressivePhase Starting aggressive phase for turn {evt.Turn}.");
+        StartCoroutine(RunAggressivePhase(evt.Turn, evt.OnCompleted));
     }
 
-    private IEnumerator RunAggressivePhase(int turn)
+    private IEnumerator RunAggressivePhase(int turn, Action onCompleted)
     {
         var eum = EnemyUnitManager.Instance;
         if (eum == null)
         {
-            EventBus.Publish(new AggressivePhaseEndEvent(turn));
+            yield return null; //To ensure async
+            onCompleted?.Invoke();
             yield break;
         }
 
         var unitIds = eum.GetOwnedUnitIds();
         if (unitIds == null || unitIds.Count == 0)
         {
-            EventBus.Publish(new AggressivePhaseEndEvent(turn));
+            yield return null;
+            onCompleted?.Invoke();
             yield break;
         }
 
@@ -47,13 +51,13 @@ public class AggressiveAI : MonoBehaviour
         {
             eum.LockState(id);
 
-            //if (eum.IsBuilderUnit(id))
-            //{
-            //    Debug.Log($"[AggressiveAI] Unit {id} is Builder, do nothing.");
-            //    continue;
-            //}
+            if (eum.IsBuilderUnit(id))
+            {
+                Debug.Log($"[AggressiveAI] Unit {id} is Builder, do nothing.");
+                continue;
+            }
 
-            if (!IsUnitVisibleToPlayer(id))
+            if (!eum.IsUnitVisibleToPlayer(id))
             {
                 eum.TrySetState(id, EnemyUnitManager.AIState.Dormant);
                 continue;
@@ -70,21 +74,21 @@ public class AggressiveAI : MonoBehaviour
             //Choose target by priority (better to have player unit/base manager that records unitID / baseID / basePosition
             if (baseTargets.Count > 0)
             {
-                int targetBaseId = baseTargets[Random.Range(0, baseTargets.Count)];
+                int targetBaseId = baseTargets[UnityEngine.Random.Range(0, baseTargets.Count)];
                 EventBus.Publish(new EnemyAttackRequestEvent(id, targetBaseId));
                 yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
                 continue; //Attack ends turn
             }
             else if (seaTargets.Count > 0)
             {
-                int targetMonsterId = seaTargets[Random.Range(0, seaTargets.Count)];
+                int targetMonsterId = seaTargets[UnityEngine.Random.Range(0, seaTargets.Count)];
                 EventBus.Publish(new EnemyAttackRequestEvent(id, targetMonsterId));
                 yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
                 continue; //Attack ends turn
             }
             else if (unitTargets.Count > 0)
             {
-                int targetUnitId = unitTargets[Random.Range(0, unitTargets.Count)];
+                int targetUnitId = unitTargets[UnityEngine.Random.Range(0, unitTargets.Count)];
                 EventBus.Publish(new EnemyAttackRequestEvent(id, targetUnitId));
                 yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
                 continue; //Attack ends turn
@@ -112,19 +116,22 @@ public class AggressiveAI : MonoBehaviour
             //NO attack after moving
         }
 
-        EventBus.Publish(new AggressivePhaseEndEvent(turn));
-    }
-
-    private bool IsUnitVisibleToPlayer(int unitId)
-    {
-        FogSystem fog = FindFirstObjectByType<FogSystem>();
-        if (fog == null) 
-            return true;
-        var pos = EnemyUnitManager.Instance.GetUnitPosition(unitId);
-        return fog.revealedTiles.Contains(pos);
+        onCompleted?.Invoke();
     }
 
     #region Target Gathering
+    private List<int> GetPlayerUnitsInRange(Vector2Int from, int range)
+    {
+        List<int> result = new();
+        var players = GameObject.FindGameObjectsWithTag("PlayerUnit");
+        foreach (var go in players)
+        {
+            Vector2Int hex = MapManager.Instance.WorldToHex(go.transform.position);
+            if (AIPathFinder.GetHexDistance(from, hex) <= range)
+                result.Add(go.GetComponent<UnitBase>().UnitID);
+        }
+        return result;
+    }
     private List<int> GetBasesInRange(Vector2Int from, int range)
     {
         List<int> result = new();
@@ -152,28 +159,30 @@ public class AggressiveAI : MonoBehaviour
         }
         return result;
     }
-
-    private List<int> GetPlayerUnitsInRange(Vector2Int from, int range)
-    {
-        List<int> result = new();
-        var players = GameObject.FindGameObjectsWithTag("PlayerUnit");
-        foreach (var go in players)
-        {
-            Vector2Int hex = MapManager.Instance.WorldToHex(go.transform.position);
-            if (AIPathFinder.GetHexDistance(from, hex) <= range)
-                result.Add(go.GetComponent<UnitBase>().UnitID);
-        }
-        return result;
-    }
     #endregion
 
     private Vector2Int ChooseClosestPlayerBase(Vector2Int from)
     {
         var playerBases = GameObject.FindGameObjectsWithTag("PlayerBase");
+        if (playerBases.Length == 0)
+        {
+            Debug.LogWarning("[AggressiveAI] No PlayerBase found with tag 'PlayerBase'!");
+            return from;
+        }
         List<Vector2Int> candidateHexes = new();
 
         foreach (var go in playerBases)
+        {
+            if (go == null) 
+                continue;
             candidateHexes.Add(MapManager.Instance.WorldToHex(go.transform.position));
+        }
+
+        if (candidateHexes.Count == 0)
+        {
+            Debug.LogWarning("[AggressiveAI] No valid player bases found.");
+            return from;
+        }
 
         int minDist = int.MaxValue;
         List<Vector2Int> closest = new();
@@ -193,6 +202,9 @@ public class AggressiveAI : MonoBehaviour
             }
         }
 
-        return closest[Random.Range(0, closest.Count)];
+        if (closest.Count == 0)
+            return from;
+
+        return closest[UnityEngine.Random.Range(0, closest.Count)];
     }
 }

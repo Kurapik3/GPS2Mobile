@@ -12,6 +12,7 @@ public class EnemyUnitManager : MonoBehaviour
     [Header("Runtime")]
     [SerializeField] public List<GameObject> unitPrefabs;
     [SerializeField] private UnitDatabase unitDatabase;
+    [SerializeField] private FogSystem fogSystem;
 
     //Runtime containers
     private Dictionary<int, Vector2Int> unitPositions = new();
@@ -40,7 +41,13 @@ public class EnemyUnitManager : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     #region Registration & Destruction
@@ -179,6 +186,13 @@ public class EnemyUnitManager : MonoBehaviour
             if (pos == hex) 
                 return true;
         return false;
+    }
+    public bool IsUnitVisibleToPlayer(int id)
+    {
+        if (fogSystem == null)
+            return true;
+        var pos = GetUnitPosition(id);
+        return fogSystem.revealedTiles.Contains(pos);
     }
 
     public int CountUnitsOfType(string type)

@@ -3,86 +3,86 @@ using UnityEngine;
 
 public static class AIPathFinder
 {
-    //public static List<Vector2Int> GetPath(Vector2Int start, Vector2Int goal)
-    //{
-    //    var open = new List<Vector2Int> { start };
-    //    var closed = new HashSet<Vector2Int>();
-    //    var cameFrom = new Dictionary<Vector2Int, Vector2Int>();
+    public static List<Vector2Int> GetPath(Vector2Int start, Vector2Int goal)
+    {
+        var open = new List<Vector2Int> { start };
+        var closed = new HashSet<Vector2Int>();
+        var cameFrom = new Dictionary<Vector2Int, Vector2Int>();
 
-    //    var gScore = new Dictionary<Vector2Int, int> { [start] = 0 };
-    //    var fScore = new Dictionary<Vector2Int, int> { [start] = Heuristic(start, goal) };
+        var gScore = new Dictionary<Vector2Int, int> { [start] = 0 };
+        var fScore = new Dictionary<Vector2Int, int> { [start] = Heuristic(start, goal) };
 
-    //    while (open.Count > 0)
-    //    {
-    //        //Find the node in open with the lowest fScore
-    //        Vector2Int current = open[0];
-    //        foreach (var tile in open)
-    //        {
-    //            if (fScore.TryGetValue(tile, out int fs) && fScore.TryGetValue(current, out int fc) && fs < fc)
-    //                current = tile;
-    //        }
+        while (open.Count > 0)
+        {
+            //Find the node in open with the lowest fScore
+            Vector2Int current = open[0];
+            foreach (var tile in open)
+            {
+                if (fScore.TryGetValue(tile, out int fs) && fScore.TryGetValue(current, out int fc) && fs < fc)
+                    current = tile;
+            }
 
-    //        //Found goal
-    //        if (current == goal)
-    //            return ReconstructPath(cameFrom, current);
+            //Found goal
+            if (current == goal)
+                return ReconstructPath(cameFrom, current);
 
-    //        open.Remove(current);
-    //        closed.Add(current);
+            open.Remove(current);
+            closed.Add(current);
 
-    //        foreach (var dir in HexCoordinates.Directions)
-    //        {
-    //            Vector2Int neighbor = current + dir;
+            foreach (var dir in HexCoordinates.Directions)
+            {
+                Vector2Int neighbor = current + dir;
 
-    //            if (closed.Contains(neighbor))
-    //                continue;
+                if (closed.Contains(neighbor))
+                    continue;
 
-    //            //Can't move here
-    //            if (!MapManager.Instance.CanUnitStandHere(neighbor))
-    //                continue;
+                //Can't move here
+                if (!MapManager.Instance.CanUnitStandHere(neighbor))
+                    continue;
 
-    //            //Occupied tile but not the goal
-    //            if (MapManager.Instance.IsTileOccupied(neighbor) && neighbor != goal)
-    //                continue;
+                //Occupied tile but not the goal
+                if (MapManager.Instance.IsTileOccupied(neighbor) && neighbor != goal)
+                    continue;
 
-    //            int tentativeG = gScore[current] + 1;
+                int tentativeG = gScore[current] + 1;
 
-    //            if (!gScore.TryGetValue(neighbor, out int oldG) || tentativeG < oldG)
-    //            {
-    //                cameFrom[neighbor] = current;
-    //                gScore[neighbor] = tentativeG;
+                if (!gScore.TryGetValue(neighbor, out int oldG) || tentativeG < oldG)
+                {
+                    cameFrom[neighbor] = current;
+                    gScore[neighbor] = tentativeG;
 
-    //                int fs = tentativeG + Heuristic(neighbor, goal);
-    //                fScore[neighbor] = fs;
+                    int fs = tentativeG + Heuristic(neighbor, goal);
+                    fScore[neighbor] = fs;
 
-    //                if (!open.Contains(neighbor))
-    //                    open.Add(neighbor);
-    //            }
-    //        }
-    //    }
+                    if (!open.Contains(neighbor))
+                        open.Add(neighbor);
+                }
+            }
+        }
 
-    //    return new List<Vector2Int>(); //No path
-    //}
+        return new List<Vector2Int>(); //No path
+    }
 
 
-    //private static int Heuristic(Vector2Int a, Vector2Int b)
-    //{
-    //    return HexCoordinates.Distance(a.x, a.y, b.x, b.y);
-    //}
+    private static int Heuristic(Vector2Int a, Vector2Int b)
+    {
+        return HexCoordinates.Distance(a.x, a.y, b.x, b.y);
+    }
 
-    //private static List<Vector2Int> ReconstructPath(Dictionary<Vector2Int, Vector2Int> cameFrom, Vector2Int current)
-    //{
-    //    List<Vector2Int> path = new();
-    //    path.Add(current);
+    private static List<Vector2Int> ReconstructPath(Dictionary<Vector2Int, Vector2Int> cameFrom, Vector2Int current)
+    {
+        List<Vector2Int> path = new();
+        path.Add(current);
 
-    //    while (cameFrom.ContainsKey(current))
-    //    {
-    //        current = cameFrom[current];
-    //        path.Add(current);
-    //    }
+        while (cameFrom.ContainsKey(current))
+        {
+            current = cameFrom[current];
+            path.Add(current);
+        }
 
-    //    path.Reverse();
-    //    return path;
-    //}
+        path.Reverse();
+        return path;
+    }
 
     //Calculate hex distance using axial or offset coordinates
     public static int GetHexDistance(Vector2Int a, Vector2Int b)
@@ -93,6 +93,7 @@ public static class AIPathFinder
     //Returns all hex tiles that can be reached given movement range
     public static List<Vector2Int> GetReachableHexes(Vector2Int startHex, int moveRange)
     {
+        Debug.Log($"[PathFinder] GetReachableHexes from {startHex}, range={moveRange}");
         List<Vector2Int> reachable = new();
 
         for (int dx = -moveRange; dx <= moveRange; dx++)

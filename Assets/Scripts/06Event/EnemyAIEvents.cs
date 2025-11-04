@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public static class EnemyAIEvents
 {
@@ -18,47 +19,45 @@ public static class EnemyAIEvents
 
     #region Phase
     public struct ExecuteBasePhaseEvent 
-    { 
-        public int Turn; 
-        public ExecuteBasePhaseEvent(int turn) => Turn = turn; 
-    }
-    public struct BasePhaseEndEvent
     {
         public int Turn;
-        public BasePhaseEndEvent(int turn) => Turn = turn;
-    }
+        public Action OnCompleted;
 
+        public ExecuteBasePhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
+    }
     public struct ExecuteDormantPhaseEvent 
     { 
-        public int Turn; 
-        public ExecuteDormantPhaseEvent(int turn) => Turn = turn; 
-    }
-    public struct DormantPhaseEndEvent
-    {
         public int Turn;
-        public DormantPhaseEndEvent(int turn) => Turn = turn;
+        public Action OnCompleted;
+        public ExecuteDormantPhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
     }
-
     public struct ExecuteAggressivePhaseEvent 
     { 
-        public int Turn; 
-        public ExecuteAggressivePhaseEvent(int turn) => Turn = turn; 
-    }
-    public struct AggressivePhaseEndEvent
-    {
         public int Turn;
-        public AggressivePhaseEndEvent(int turn) => Turn = turn;
+        public Action OnCompleted;
+        public ExecuteAggressivePhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
     }
-
     public struct ExecuteBuilderPhaseEvent
     {
         public int Turn;
-        public ExecuteBuilderPhaseEvent(int turn) => Turn = turn;
-    }
-    public struct BuilderPhaseEndEvent
-    {
-        public int Turn;
-        public BuilderPhaseEndEvent(int turn) => Turn = turn;
+        public Action OnCompleted;
+        public ExecuteBuilderPhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
     }
     #endregion
 
