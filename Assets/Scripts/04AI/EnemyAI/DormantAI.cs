@@ -52,11 +52,11 @@ public class DormantAI : MonoBehaviour
         {
             eum.LockState(id);
 
-            if (eum.IsBuilderUnit(id))
-            {
-                Debug.Log($"[DormantAI] Unit {id} is Builder, do nothing.");
-                continue;
-            }
+            //if (eum.IsBuilderUnit(id))
+            //{
+            //    Debug.Log($"[DormantAI] Unit {id} is Builder, do nothing.");
+            //    continue;
+            //}
 
             //Skip visible (aggressive)
             if (eum.IsUnitVisibleToPlayer(id))

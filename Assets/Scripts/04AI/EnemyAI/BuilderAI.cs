@@ -64,37 +64,70 @@ public class BuilderAI : MonoBehaviour
             Vector2Int currentPos = unitManager.GetUnitPosition(unitId);
 
             //Find closest Grove
-            Vector2Int closestGrove = FindClosestGrove(currentPos);
+            Vector2Int target = FindClosestGrove(currentPos);
 
             //If already at grove, develop
-            if (currentPos == closestGrove)
+            if (currentPos == target)
             {
-                EventBus.Publish(new BuilderDevelopGroveEvent(unitId, closestGrove));
+                Debug.Log($"[BuilderAI] Builder {unitId} builds at {target}");
+                EventBus.Publish(new BuilderDevelopGroveEvent(unitId, target));
+                yield return new WaitForSeconds(0.3f);
                 continue;
             }
 
-            //Move up to 2 tiles towards Grove
-            //Vector2Int? moveTarget = AIPathFinder.FindNearestReachable(currentPos, closestGrove, 2);
-            Vector2Int? moveTarget = new Vector2Int(3, 3);
+            Vector2Int? step = AIPathFinder.FindNearestReachable(currentPos, target, 2);
 
-            if (moveTarget == null)
+            if (step == null)
             {
-                Debug.LogWarning($"[BuilderAI] Builder {unitId} cannot reach any hex toward grove {closestGrove}.");
+                Debug.LogWarning($"[BuilderAI] Builder {unitId} cannot find path toward {target}, skipping.");
                 continue;
             }
 
-            if (moveTarget.Value != currentPos)
+            Vector2Int dest = step.Value;
+            if (dest == currentPos)
             {
-                EventBus.Publish(new EnemyMoveRequestEvent(unitId, moveTarget.Value));
-                yield return new WaitForSeconds(0.5f);
+                Debug.Log($"[BuilderAI] Builder {unitId} stays in place (blocked).");
+                continue;
             }
 
-            //Check if reached the grove after move
-            if (moveTarget.Value == closestGrove)
+            Debug.Log($"[BuilderAI] Builder {unitId} -> Move request: {currentPos} -> {dest}");
+
+            bool moveFinished = false;
+            Action<EnemyMovedEvent> onMoved = (evt) =>
             {
-                EventBus.Publish(new BuilderDevelopGroveEvent(unitId, closestGrove));
+                if (evt.UnitId == unitId)
+                    moveFinished = true;
+            };
+
+            EventBus.Subscribe<EnemyMovedEvent>(onMoved);
+            EventBus.Publish(new EnemyMoveRequestEvent(unitId, dest));
+
+            // Wait max 2 seconds to avoid deadlock
+            float wait = 0f;
+            while (!moveFinished && wait < 2f)
+            {
+                wait += Time.deltaTime;
+                yield return null;
             }
+            EventBus.Unsubscribe<EnemyMovedEvent>(onMoved);
+
+            if (!moveFinished)
+            {
+                Debug.LogWarning($"[BuilderAI] WARNING: Builder {unitId} never received EnemyMovedEvent!");
+            }
+
+            Vector2Int newPos = unitManager.GetUnitPosition(unitId);
+
+            if (newPos == target)
+            {
+                Debug.Log($"[BuilderAI] Builder {unitId} arrived & builds at {target}");
+                EventBus.Publish(new BuilderDevelopGroveEvent(unitId, target));
+                yield return new WaitForSeconds(0.3f);
+            }
+
+            yield return new WaitForSeconds(0.15f);
         }
+
 
         onCompleted?.Invoke();
     }
