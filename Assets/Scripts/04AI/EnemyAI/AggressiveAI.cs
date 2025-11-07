@@ -127,8 +127,8 @@ public class AggressiveAI : MonoBehaviour
         foreach (var go in players)
         {
             Vector2Int hex = MapManager.Instance.WorldToHex(go.transform.position);
-            if (AIPathFinder.GetHexDistance(from, hex) <= range)
-                result.Add(go.GetComponent<UnitBase>().UnitID);
+            //if (AIPathFinder.GetHexDistance(from, hex) <= range)
+                //result.Add(go.GetComponent<UnitBase>().UnitID);
         }
         return result;
     }
