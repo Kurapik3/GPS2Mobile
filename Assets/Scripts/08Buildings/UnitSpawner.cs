@@ -25,6 +25,8 @@ public class UnitSpawner : MonoBehaviour
     //[SerializeField] private Button ShooterButton;
     //[SerializeField] private Button BomberButton;
 
+
+
     private void Start()
     {
         if (builderButton != null)
@@ -117,7 +119,7 @@ public class UnitSpawner : MonoBehaviour
         HexTile startingTile = MapManager.Instance.GetTile(spawnCoord);
 
         // Check if the tile is free
-        if (startingTile == null || startingTile.HasStructure || startingTile.IsOccupiedByUnit)
+        if (startingTile == null  || startingTile.IsOccupiedByUnit)
         {
             bool found = false;
             foreach (var tile in startingTile.neighbours)

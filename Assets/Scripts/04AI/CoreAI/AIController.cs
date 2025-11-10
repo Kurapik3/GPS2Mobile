@@ -9,7 +9,6 @@ using static EnemyAIEvents;
 /// </summary>
 public class AIController : MonoBehaviour
 {
-    [SerializeField] private float phaseDelay = 0.5f;
     [SerializeField] private float aiSpeedMultiplier = 2.5f;
     public static float AISpeedMultiplier { get; private set; }
 
@@ -42,7 +41,7 @@ public class AIController : MonoBehaviour
 
     private IEnumerator RunAITurn()
     {
-        Debug.Log($"<color=yellow>=== Enemy Turn {currentTurn} Started ===</color>");
+        Debug.Log($"<color=orange>=== Enemy Turn {currentTurn} Started ===</color>");
 
         //Enemy base phase
         bool baseDone = false;
@@ -51,10 +50,10 @@ public class AIController : MonoBehaviour
         yield return new WaitUntil(() => baseDone);
 
         //Builder phase (move towards grove/build base on top of grove)
-        bool builderDone = false;
-        Action onBuilderComplete = () => builderDone = true;
-        EventBus.Publish(new ExecuteBuilderPhaseEvent(currentTurn, onBuilderComplete));
-        yield return new WaitUntil(() => builderDone);
+        //bool builderDone = false;
+        //Action onBuilderComplete = () => builderDone = true;
+        //EventBus.Publish(new ExecuteBuilderPhaseEvent(currentTurn, onBuilderComplete));
+        //yield return new WaitUntil(() => builderDone);
 
         //Dormant phase (dormant units move)
         bool dormantDone = false;

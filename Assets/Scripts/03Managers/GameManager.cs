@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         player = PlayerTracker.Instance;
-        
+        enemy = EnemyTracker.Instance;
         // Try to load saved game (runtime data)
         if (File.Exists(savePath))
         {
@@ -158,7 +158,7 @@ public class GameManager : MonoBehaviour
         {
             ExecutionEnding();
         }
-        else if(turnManager.CurrentTurn <= 30)
+        else if(turnManager.CurrentTurn == 31)
         {
             if(playerScore > enemyScore)
             {

@@ -6,21 +6,16 @@ using static SeaMonsterEvents;
 /// </summary>
 public class TurtleWall : SeaMonsterBase
 {
-    [Header("TurtleWall Stats")]
-    [SerializeField] private int baseHealth = 35;
-    [SerializeField] private int baseMovementRange = 1;
-    [SerializeField] private int rewardAP = 20;
-    [SerializeField] private int rewardPoints = 2000;
-
     protected override void Awake()
     {
         base.Awake();
-        Health = baseHealth;
-        MovementRange = baseMovementRange;
-        AttackRange = 0;
-        Attack = 0;
-        KillAP = rewardAP;
-        KillPoints = rewardPoints;
+        monsterName = "Turtle Wall";
+        attack = 0;
+        health = 35;
+        killPoints = 2000;
+        killAP = 20;
+        movementRange = 1;
+        attackRange = 0;
         isBlocking = true;
     }
 

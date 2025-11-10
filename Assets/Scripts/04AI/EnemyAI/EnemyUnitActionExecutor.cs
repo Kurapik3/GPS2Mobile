@@ -35,34 +35,36 @@ public class EnemyActionExecutor : MonoBehaviour
             return;
 
         unitManager.IsSpawning = true;
-
-        //Find prefab by unit type
-        GameObject prefab = unitManager.unitPrefabs.Find(p => p.name == evt.UnitType);
-        if (prefab == null)
+        try
         {
-            Debug.LogWarning($"[EnemyActionExecutor] Prefab '{evt.UnitType}' not found.");
-            return;
-        }
+            //Find prefab by unit name
+            GameObject prefab = unitManager.unitPrefabs.Find(p => p.name == evt.UnitType);
+            if (prefab == null)
+            {
+                Debug.LogWarning($"[EnemyActionExecutor] Prefab '{evt.UnitType}' not found.");
+                return;
+            }
 
-        //Get spawn hex from base
-        Vector2Int spawnHex = GetBaseSpawnHex(evt.BaseId);
-        if (spawnHex == Vector2Int.zero)
+            //Get spawn hex from base
+            Vector2Int spawnHex = GetBaseSpawnHex(evt.BaseId);
+            if (spawnHex == Vector2Int.zero)
+            {
+                Debug.LogWarning($"[EnemyActionExecutor] Base #{evt.BaseId} has invalid spawn location.");
+                return;
+            }
+
+            Vector3 world = MapManager.Instance.HexToWorld(spawnHex);
+            world.y += (unitHeightOffset + 0.5f);
+
+            GameObject unitGO = Instantiate(prefab, world, Quaternion.identity);
+            unitGO.name = $"Enemy_{evt.UnitType}_{unitManager.NextUnitId}";
+
+            unitManager.RegisterUnit(unitGO, evt.BaseId, evt.UnitType, spawnHex);
+        }
+        finally
         {
-            Debug.LogWarning($"[EnemyActionExecutor] Base #{evt.BaseId} has invalid spawn location.");
-            return;
+            unitManager.IsSpawning = false;
         }
-
-        Vector3 world = MapManager.Instance.HexToWorld(spawnHex);
-        world.y += (unitHeightOffset + 0.5f);
-
-        //Instantiate unit
-        GameObject unitGO = Instantiate(prefab, world, Quaternion.identity);
-        unitGO.name = $"Enemy_{evt.UnitType}_{unitManager.NextUnitId}";
-
-        //Delegate registration to Manager
-        unitManager.RegisterUnit(unitGO, evt.BaseId, evt.UnitType, spawnHex);
-
-        unitManager.IsSpawning = false;
     }
 
     private Vector2Int GetBaseSpawnHex(int baseId)

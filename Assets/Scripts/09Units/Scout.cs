@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 public class Scout : UnitBase
 {
     private int movesLeftThisTurn;
@@ -20,7 +19,7 @@ public class Scout : UnitBase
         movesLeftThisTurn = 2; // Scout can move twice per turn
     }
 
-    public override void Move(HexTile targetTile)
+    public override void TryMove(HexTile targetTile)
     {
         if (movesLeftThisTurn <= 0)
         {
@@ -28,15 +27,8 @@ public class Scout : UnitBase
             return;
         }
 
-        if (currentTile != null)
-        {
-            RevealNearbyFog(currentTile);
-        }
-
-        base.Move(targetTile);
-
-        movesLeftThisTurn--;
-        Debug.Log($"{unitName} moved. Moves left: {movesLeftThisTurn}");
+        base.TryMove(targetTile);
+        movesLeftThisTurn--; 
     }
 
 }

@@ -9,6 +9,8 @@ TagManager:
   - PlayerBase
   - PlayerUnit
   - Grove
+  - Kraken
+  - TurtleWall
   layers:
   - Default
   - TransparentFX

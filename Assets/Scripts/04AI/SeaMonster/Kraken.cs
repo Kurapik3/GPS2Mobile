@@ -1,9 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using static SeaMonsterEvents;
 
 public class Kraken : SeaMonsterBase
 {
+    protected override void Awake()
+    {
+        base.Awake();
+
+        monsterName = "Kraken";
+        attack = 100;
+        health = 20;
+        killPoints = 2500;
+        killAP = 20;
+        movementRange = 1;
+        attackRange = 1;
+        isBlocking = false;
+    }
+
     public override void PerformTurnAction()
     {
         if (hasActedThisTurn || CurrentTile == null)
@@ -16,7 +31,7 @@ public class Kraken : SeaMonsterBase
     {
         hasActedThisTurn = true;
 
-        List<HexTile> tilesInRange = GetTilesInRange(CurrentTile, AttackRange);
+        List<HexTile> tilesInRange = GetTilesInRange(CurrentTile, attackRange);
 
         foreach (HexTile tile in tilesInRange)
         {
