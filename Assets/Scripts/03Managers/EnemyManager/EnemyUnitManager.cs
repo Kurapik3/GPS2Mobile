@@ -220,4 +220,22 @@ public class EnemyUnitManager : MonoBehaviour
             KillUnit(unitId);
     }
     #endregion
+
+    public void UpdateEnemyVisibility()
+    {
+        foreach(var kv in unitObjects)
+        {
+            int id = kv.Key;
+            GameObject enemy = kv.Value;
+            bool visible = IsUnitVisibleToPlayer(id);
+            foreach(var r in enemy.GetComponentsInChildren<Renderer>())
+            {
+                r.enabled = visible;
+            }
+            foreach (var c in enemy.GetComponentsInChildren<Collider>())
+            {
+                c.enabled = visible;
+            }
+        }
+    }
 }
