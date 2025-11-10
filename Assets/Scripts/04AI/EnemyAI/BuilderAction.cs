@@ -8,7 +8,7 @@ using static EnemyAIEvents;
 /// Global Builder AI module, attached in hierarchy.
 /// Manages all Builder units on the map during Builder phase.
 /// </summary>
-public class BuilderAI : MonoBehaviour
+public class BuilderAction : MonoBehaviour
 {
     private EnemyUnitManager unitManager => EnemyUnitManager.Instance;
 

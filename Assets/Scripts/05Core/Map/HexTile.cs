@@ -51,6 +51,10 @@ public class HexTile : MonoBehaviour
     public bool HasEnemyBase => currentEnemyBase != null;
 
     public bool IsOccupied => HasStructure || HasDynamic;
+
+    private bool isBlockedByTurtleWall = false;
+    public bool IsBlockedByTurtleWall => isBlockedByTurtleWall;
+
     private void OnValidate()
     {
 #if UNITY_EDITOR
@@ -348,14 +352,18 @@ public class HexTile : MonoBehaviour
 
     public bool CanUnitStandHere()
     {
-        return !unitOccupied;
+        return !unitOccupied && !isBlockedByTurtleWall;
     }
 
     public bool IsWalkableForAI()
     {
-        return IsWalkable && !IsOccupiedByUnit;
+        return IsWalkable && !IsOccupiedByUnit && !isBlockedByTurtleWall;
     }
 
+    public void SetBlockedByTurtleWall(bool blocked)
+    {
+        isBlockedByTurtleWall = blocked;
+    }
 
 }
 

@@ -8,7 +8,7 @@ using static EnemyAIEvents;
 /// Aggressive logic for visible units.
 /// Prioritizes bases > sea monsters > units when choosing targets.
 /// </summary>
-public class AggressiveAI : MonoBehaviour
+public class AggressiveState : MonoBehaviour
 {
     [SerializeField] private float stepDelay = 1f;
     private Dictionary<int, Vector2Int> lockedTargetBases = new(); // unitId -> target base hex

@@ -32,10 +32,12 @@ public class AIController : MonoBehaviour
     private void OnEnemyTurnStart(EnemyTurnStartEvent evt)
     {
         currentTurn = evt.Turn;
+        EnemyUnitManager.Instance.ClearActedUnits();
         foreach (var id in EnemyUnitManager.Instance.GetOwnedUnitIds())
         {
             EnemyUnitManager.Instance.UnlockState(id);
         }
+
         StartCoroutine(RunAITurn());
     }
 
@@ -49,11 +51,11 @@ public class AIController : MonoBehaviour
         EventBus.Publish(new ExecuteBasePhaseEvent(currentTurn, onBaseComplete));
         yield return new WaitUntil(() => baseDone);
 
-        //Builder phase (move towards grove/build base on top of grove)
-        //bool builderDone = false;
-        //Action onBuilderComplete = () => builderDone = true;
-        //EventBus.Publish(new ExecuteBuilderPhaseEvent(currentTurn, onBuilderComplete));
-        //yield return new WaitUntil(() => builderDone);
+        //Builder phase(move towards grove/ build base on top of grove)
+        bool builderDone = false;
+        Action onBuilderComplete = () => builderDone = true;
+        EventBus.Publish(new ExecuteBuilderPhaseEvent(currentTurn, onBuilderComplete));
+        yield return new WaitUntil(() => builderDone);
 
         //Dormant phase (dormant units move)
         bool dormantDone = false;
