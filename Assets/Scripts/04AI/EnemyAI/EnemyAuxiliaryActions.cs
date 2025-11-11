@@ -5,7 +5,9 @@ using UnityEngine;
 using static EnemyAIEvents;
 
 /// <summary>
-/// Handles auxiliary actions: Develop Tile, Base Upgrade, Tech Tree Unlock
+/// Handles auxiliary actions: 
+///  - ID 3: Developing 1 tile (fish/debris)
+///  - ID 6: Unlocking Tech (score only)
 /// Each successful action gives score via EnemyTracker.
 /// </summary>
 public class EnemyAuxiliaryActions : MonoBehaviour
@@ -48,7 +50,7 @@ public class EnemyAuxiliaryActions : MonoBehaviour
         int maxActions = Mathf.FloorToInt((baseCount + 1) / 2f);
         if (maxActions <= 0)
         {
-            Debug.Log($"[AuxiliaryAI] {baseCount} bases ? 0 auxiliary actions allowed.");
+            Debug.Log($"[EnemyAuxiliaryActions] {baseCount} bases ? 0 auxiliary actions allowed.");
             onCompleted?.Invoke();
             yield break;
         }
@@ -65,7 +67,7 @@ public class EnemyAuxiliaryActions : MonoBehaviour
 
         if (candidateUnitIds.Count == 0)
         {
-            Debug.Log("[AuxiliaryAI] No eligible units for auxiliary actions.");
+            Debug.Log("[EnemyAuxiliaryActions] No eligible units for auxiliary actions.");
             onCompleted?.Invoke();
             yield break;
         }
@@ -77,7 +79,12 @@ public class EnemyAuxiliaryActions : MonoBehaviour
             int unitId = candidateUnitIds[randomIndex];
             candidateUnitIds.RemoveAt(randomIndex); //Prevent repetition 
 
-            yield return ExecuteDevelopTileAction(unitId);
+            //Choose action based on weighted chance
+            float roll = UnityEngine.Random.value;
+            if (roll < 0.7f)
+                yield return ExecuteDevelopTileAction(unitId); // 70%
+            else
+                yield return ExecuteUnlockTechAction(); // 30%
 
             yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
         }
@@ -93,72 +100,76 @@ public class EnemyAuxiliaryActions : MonoBehaviour
         Vector2Int? target = FindClosestUndevelopedResource(currentPos);
         if (!target.HasValue)
         {
-            Debug.Log($"[AuxiliaryAI] Unit {unitId}: No undeveloped resource found.");
+            Debug.Log($"[EnemyAuxiliaryActions] Unit {unitId}: No undeveloped resource found.");
             yield break;
         }
 
-        // ? ???????? ? ?????????
+        //If unit already on the resource tile
         if (currentPos == target.Value)
         {
-            if (DevelopResourceAt(target.Value)) // ????
+            if (DevelopResourceAt(target.Value))
             {
-                Debug.Log($"[AuxiliaryAI] ? Unit {unitId} developed resource at {target.Value}");
+                Debug.Log($"[EnemyAuxiliaryActions] Unit {unitId} developed resource at {target.Value}");
                 EventBus.Publish(new EnemyAuxiliaryActionExecutedEvent(3, true));
                 EnemyTracker.Instance?.AddScore(200);
-
-                // ? ????????“???”?Dormant/Aggressive ??????
                 eum.MarkUnitAsActed(unitId);
             }
             yield break;
         }
 
-        // ?? ?????????????????????
+        //Otherwise move toward it
         Vector2Int? nextStep = AIPathFinder.FindNearestReachable(currentPos, target.Value, 1);
         if (nextStep.HasValue && nextStep.Value != currentPos)
         {
-            Debug.Log($"[AuxiliaryAI] Unit {unitId} moves toward resource: {currentPos} ? {nextStep.Value}");
             EventBus.Publish(new EnemyMoveRequestEvent(unitId, nextStep.Value));
-
-            // ?? ???????**?????**???**????????**?
-            // ??????? Dormant/Aggressive Phase ?????????????
         }
     }
 
-    // ———————— Helper Methods ————————
+    private IEnumerator ExecuteUnlockTechAction()
+    {
+        Debug.Log("[EnemyAuxiliaryActions] Successfully unlocked a tech branch.");
+        EventBus.Publish(new EnemyAuxiliaryActionExecutedEvent(6, true));
+        EnemyTracker.Instance?.AddScore(500);
+
+        yield return null;
+    }
 
     private Vector2Int? FindClosestUndevelopedResource(Vector2Int from)
     {
-        List<Vector2Int> candidates = new List<Vector2Int>();
+        List<Vector2Int> candidates = new();
 
-        // ?? FishTile ? DebrisTile?????
-        foreach (var tile in FindObjectsByType<FishTile>(FindObjectsSortMode.None))
-            if (tile != null && !tile.isDeveloped) candidates.Add(tile.HexCoords);
+        //foreach (var tile in FindObjectsByType<FishTile>(FindObjectsSortMode.None))
+        //    if (tile != null && !tile.isDeveloped) candidates.Add(tile.HexCoords);
 
-        foreach (var tile in FindObjectsByType<DebrisTile>(FindObjectsSortMode.None))
-            if (tile != null && !tile.isDeveloped) candidates.Add(tile.HexCoords);
+        //foreach (var tile in FindObjectsByType<DebrisTile>(FindObjectsSortMode.None))
+        //    if (tile != null && !tile.isDeveloped) candidates.Add(tile.HexCoords);
 
-        if (candidates.Count == 0) return null;
+        if (candidates.Count == 0)
+            return null;
 
-        // ?????
         candidates.Sort((a, b) => AIPathFinder.GetHexDistance(from, a).CompareTo(AIPathFinder.GetHexDistance(from, b)));
         return candidates[0];
     }
 
     private bool DevelopResourceAt(Vector2Int hex)
     {
-        FishTile fish = MapManager.Instance.GetTile(hex)?.GetComponent<FishTile>();
-        if (fish != null && !fish.isDeveloped)
-        {
-            fish.Develop();
-            return true;
-        }
+        var map = MapManager.Instance;
+        var tileObj = map.GetTile(hex);
+        if (tileObj == null) return false;
 
-        DebrisTile debris = MapManager.Instance.GetTile(hex)?.GetComponent<DebrisTile>();
-        if (debris != null && !debris.isDeveloped)
-        {
-            debris.Develop();
-            return true;
-        }
+        //var fish = tileObj.GetComponent<FishTile>();
+        //if (fish != null && !fish.isDeveloped)
+        //{
+        //    fish.OnTileTapped();
+        //    return true;
+        //}
+
+        //var debris = tileObj.GetComponent<DebrisTile>();
+        //if (debris != null && !debris.isDeveloped)
+        //{
+        //    debris.OnTileTapped();
+        //    return true;
+        //}
 
         return false;
     }

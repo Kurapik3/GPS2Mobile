@@ -95,21 +95,12 @@ public class AggressiveState : MonoBehaviour
             }
 
             //If no targets, move 1 tile toward locked or new base
-            Vector2Int targetBasePos;
-            if (!lockedTargetBases.TryGetValue(id, out targetBasePos))
-            {
-                targetBasePos = ChooseClosestPlayerBase(currentPos);
-                lockedTargetBases[id] = targetBasePos; //Lock this base
-            }
+            Vector2Int targetBasePos = lockedTargetBases.TryGetValue(id, out var pos) ? pos : (lockedTargetBases[id] = ChooseClosestPlayerBase(currentPos));
 
-            List<Vector2Int> reachable = AIPathFinder.GetReachableHexes(currentPos, 1);
-            reachable.RemoveAll(h => !MapManager.Instance.CanUnitStandHere(h));
-
-            if (reachable.Count > 0)
+            var chosen = AIPathFinder.TryMove(currentPos, targetBasePos, 1);
+            if (chosen.HasValue)
             {
-                reachable.Sort((a, b) => AIPathFinder.GetHexDistance(a, targetBasePos).CompareTo(AIPathFinder.GetHexDistance(b, targetBasePos)));
-                Vector2Int chosen = reachable[0];
-                EventBus.Publish(new EnemyMoveRequestEvent(id, chosen));
+                EventBus.Publish(new EnemyMoveRequestEvent(id, chosen.Value));
             }
 
             yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);

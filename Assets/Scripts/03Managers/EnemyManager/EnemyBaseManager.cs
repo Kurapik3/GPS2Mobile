@@ -92,6 +92,14 @@ public class EnemyBaseManager : MonoBehaviour
 
     private void OnExecuteBasePhase(ExecuteBasePhaseEvent evt)
     {
+        //To notify all bases that a new turn has started
+        //For bases to register their turf radius after base being upgraded
+        foreach (var b in bases.Values)
+        {
+            if (b != null && !b.IsDestroyed)
+                b.OnTurnStart();
+        }
+
         StartCoroutine(SpawnUnitsStepByStep(evt.Turn, evt.OnCompleted));
     }
 

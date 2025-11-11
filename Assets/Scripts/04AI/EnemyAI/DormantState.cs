@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -92,20 +92,26 @@ public class DormantState : MonoBehaviour
 
     private Vector2Int ChooseHexDirection(List<Vector2Int> candidates, Vector2Int current, Vector2Int origin, bool moveTowards)
     {
-        List<Vector2Int> valid = new List<Vector2Int>();
-        int currentDist = AIPathFinder.GetHexDistance(current, origin);
-        foreach (var hex in candidates)
+        if (moveTowards)
         {
-            int distance = AIPathFinder.GetHexDistance(hex, origin);
-            if (moveTowards && distance < currentDist) 
-                valid.Add(hex);
-            if (!moveTowards && distance > currentDist) 
-                valid.Add(hex);
+            var step = AIPathFinder.TryMove(current, origin, 1);
+            if (step.HasValue)
+                return step.Value;
+        }
+        else
+        {
+            int currentDist = AIPathFinder.GetHexDistance(current, origin);
+            List<Vector2Int> farther = new();
+            foreach (var hex in candidates)
+            {
+                if (AIPathFinder.GetHexDistance(hex, origin) > currentDist)
+                    farther.Add(hex);
+            }
+
+            if (farther.Count > 0)
+                return AIPathFinder.RandomChoice(farther);
         }
 
-        if (valid.Count == 0) 
-            valid = candidates;
-
-        return valid[UnityEngine.Random.Range(0, valid.Count)];
+        return AIPathFinder.RandomChoice(candidates);
     }
 }

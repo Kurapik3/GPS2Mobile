@@ -17,6 +17,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
     [SerializeField] protected int movementRange;
     [SerializeField] protected int attackRange;
 
+    public string MonsterName => monsterName;
     public int MovementRange => movementRange;
 
     [Header("Visual")]
@@ -107,7 +108,8 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     private IEnumerator SmoothMove(HexTile newTile)
     {
-        Vector3 start = transform.position;
+        Vector3 start = MapManager.Instance.HexToWorld(CurrentTile.HexCoords);
+        start.y += heightOffset;
         Vector3 end = MapManager.Instance.HexToWorld(newTile.HexCoords);
         end.y += heightOffset;
 
