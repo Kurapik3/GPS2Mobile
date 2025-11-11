@@ -40,7 +40,14 @@ public class SeaMonsterSpawner : MonoBehaviour
         //Convert hex to world position
         Vector2Int coords = tile.HexCoords;
         Vector3 worldPos = MapManager.Instance.HexToWorld(coords);
-        worldPos.y += unitHeightOffset;
+        if (monsterPrefabs[0])//Kraken
+        {
+            worldPos.y += unitHeightOffset;
+        }
+        if (monsterPrefabs[1]) //TurtleWall
+        {
+            worldPos.y += unitHeightOffset + 0.5f;
+        }
 
         //Instantiate the monster
         GameObject go = Instantiate(prefab, worldPos, Quaternion.identity);

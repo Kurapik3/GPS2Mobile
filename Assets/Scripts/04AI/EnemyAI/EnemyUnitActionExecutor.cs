@@ -117,9 +117,6 @@ public class EnemyActionExecutor : MonoBehaviour
     {
         GameObject go = unitManager.UnitObjects[unitId];
 
-        //Release old tile immediately
-        MapManager.Instance.SetUnitOccupied(fromHex, false);
-
         for (int i = 1; i < path.Count; i++)
         {
             Vector2Int prevHex = path[i - 1];
@@ -130,6 +127,9 @@ public class EnemyActionExecutor : MonoBehaviour
 
         unitManager.UnitPositions[unitId] = finalHex;
         MapManager.Instance.SetUnitOccupied(finalHex, true);
+
+        //After unit moved to new hex, then release the old one to prevent overlapping
+        MapManager.Instance.SetUnitOccupied(fromHex, false);
 
         EventBus.Publish(new EnemyMovedEvent(unitId, fromHex, finalHex));
     }
