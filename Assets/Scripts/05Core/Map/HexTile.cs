@@ -51,6 +51,10 @@ public class HexTile : MonoBehaviour
     public bool HasEnemyBase => currentEnemyBase != null;
 
     public bool IsOccupied => HasStructure || HasDynamic;
+
+    private bool isBlockedByTurtleWall = false;
+    public bool IsBlockedByTurtleWall => isBlockedByTurtleWall;
+
     private void OnValidate()
     {
 #if UNITY_EDITOR
@@ -356,6 +360,12 @@ public class HexTile : MonoBehaviour
     {
         return IsWalkable && !IsOccupiedByUnit;
     }
+
+    public void SetBlockedByTurtleWall(bool blocked)
+    {
+        isBlockedByTurtleWall = blocked;
+    }
+
     //For settings renderes on/off
     public void SetContentsVisible(bool visible)
     {
