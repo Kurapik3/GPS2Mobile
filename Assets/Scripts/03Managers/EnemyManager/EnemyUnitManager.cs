@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 /// <summary>
@@ -71,6 +72,8 @@ public class EnemyUnitManager : MonoBehaviour
         MapManager.Instance.SetUnitOccupied(hex, true);
 
         EventBus.Publish(new EnemyAIEvents.EnemySpawnedEvent(id, baseId, type, hex));
+
+        UpdateEnemyVisibility();
     }
 
     public void KillUnit(int unitId)
@@ -246,14 +249,16 @@ public class EnemyUnitManager : MonoBehaviour
             int id = kv.Key;
             GameObject enemy = kv.Value;
             bool visible = IsUnitVisibleToPlayer(id);
-            foreach (var r in enemy.GetComponentsInChildren<Renderer>())
-            {
-                r.enabled = visible;
-            }
-            foreach (var c in enemy.GetComponentsInChildren<Collider>())
-            {
-                c.enabled = visible;
-            }
+            SetLayerRecursively(enemy, visible ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("EnemyHidden"));
+        }
+    }
+
+    private void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
         }
     }
 }
