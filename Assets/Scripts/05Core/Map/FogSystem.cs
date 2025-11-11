@@ -61,6 +61,8 @@ public class FogSystem : MonoBehaviour
         }
         // Reveal starting area
         RevealTilesAround(startingOrigin, visibleRadiusAtStart);
+
+        EnemyUnitManager.Instance?.UpdateEnemyVisibility();
     }
 
     public void RevealTilesAround(Vector2Int center, int radius)
@@ -87,10 +89,11 @@ public class FogSystem : MonoBehaviour
                 }
             }
         }
+
         // Update enemy visibility only if new tiles were revealed
         if (anyNewRevealed && EnemyUnitManager.Instance != null)
         {
-            EnemyUnitManager.Instance.UpdateEnemyVisibility();
+            EnemyUnitManager.Instance?.UpdateEnemyVisibility();
         }
     }
 
@@ -109,6 +112,8 @@ public class FogSystem : MonoBehaviour
             tile.AddFog(fogPrefab);
         }
         RevealTilesAround(startingOrigin, visibleRadiusAtStart);
+
+        EnemyUnitManager.Instance?.UpdateEnemyVisibility();
     }
 
 }

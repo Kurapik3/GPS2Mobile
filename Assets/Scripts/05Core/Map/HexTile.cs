@@ -359,8 +359,13 @@ public class HexTile : MonoBehaviour
     //For settings renderes on/off
     public void SetContentsVisible(bool visible)
     {
+        // Override visibility if developer setting says to show everything
+        if (MapVisibiilitySettings.Instance != null && MapVisibiilitySettings.Instance.showAllContents)
+        {
+            visible = true;
+        }
         //For dynamic tile
-        if(dynamicInstance != null)
+        if (dynamicInstance != null)
         {
             ToggleRenderersAndColliders(dynamicInstance, visible);
         }
@@ -375,6 +380,7 @@ public class HexTile : MonoBehaviour
         }
         // For enemies using tag
         HideObjectsWithTagRecursive(transform, "EnemyBase", visible);
+        //For ruins using tag
         HideObjectsWithTagRecursive(transform, "Ruin", visible);
     }
     private void HideObjectsInLayerRecursive(Transform parent, int layer, bool visible)
