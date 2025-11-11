@@ -51,10 +51,6 @@ public class HexTile : MonoBehaviour
     public bool HasEnemyBase => currentEnemyBase != null;
 
     public bool IsOccupied => HasStructure || HasDynamic;
-
-    private bool isBlockedByTurtleWall = false;
-    public bool IsBlockedByTurtleWall => isBlockedByTurtleWall;
-
     private void OnValidate()
     {
 #if UNITY_EDITOR
@@ -80,7 +76,7 @@ public class HexTile : MonoBehaviour
             if (Application.isPlaying)
             {
                 Destroy(oldMesh.gameObject);
-            }   
+            }
             else
             {
                 DestroyImmediate(oldMesh.gameObject);
@@ -153,7 +149,7 @@ public class HexTile : MonoBehaviour
         fogInstance = Instantiate(fogPrefab, transform);
         fogInstance.name = "Fog";
         fogInstance.transform.localPosition = new Vector3(0, yOffset, 0);
-        
+        SetContentsVisible(false);
     }
     public void RemoveFog()
     {
@@ -170,6 +166,7 @@ public class HexTile : MonoBehaviour
             DestroyImmediate(fogInstance);
         }
         fogInstance = null;
+        SetContentsVisible(true);
     }
     public void ApplyStructureRuntime(StructureData data)
     {
@@ -352,18 +349,72 @@ public class HexTile : MonoBehaviour
 
     public bool CanUnitStandHere()
     {
-        return !unitOccupied && !isBlockedByTurtleWall;
+        return !unitOccupied;
     }
 
     public bool IsWalkableForAI()
     {
-        return IsWalkable && !IsOccupiedByUnit && !isBlockedByTurtleWall;
+        return IsWalkable && !IsOccupiedByUnit;
     }
-
-    public void SetBlockedByTurtleWall(bool blocked)
+    //For settings renderes on/off
+    public void SetContentsVisible(bool visible)
     {
-        isBlockedByTurtleWall = blocked;
+        // Override visibility if developer setting says to show everything
+        if (MapVisibiilitySettings.Instance != null && MapVisibiilitySettings.Instance.showAllContents)
+        {
+            visible = true;
+        }
+        //For dynamic tile
+        if (dynamicInstance != null)
+        {
+            ToggleRenderersAndColliders(dynamicInstance, visible);
+        }
+        //For structures using layer
+        int structureLayer = LayerMask.NameToLayer("structure");
+        foreach (Transform child in transform)
+        {
+            if (child.gameObject.layer == structureLayer)
+            {
+                ToggleRenderersAndColliders(child.gameObject, visible);
+            }
+        }
+        // For enemies using tag
+        HideObjectsWithTagRecursive(transform, "EnemyBase", visible);
+        //For ruins using tag
+        HideObjectsWithTagRecursive(transform, "Ruin", visible);
+    }
+    private void HideObjectsInLayerRecursive(Transform parent, int layer, bool visible)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.gameObject.layer == layer)
+            {
+                ToggleRenderersAndColliders(child.gameObject, visible);
+            }
+            HideObjectsInLayerRecursive(child, layer, visible);
+        }
+    }
+    private void HideObjectsWithTagRecursive(Transform parent, string tag, bool visible)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.CompareTag(tag))
+            {
+                ToggleRenderersAndColliders(child.gameObject, visible);
+            }
+            HideObjectsWithTagRecursive(child, tag, visible);
+        }
     }
 
+    private void ToggleRenderersAndColliders(GameObject obj, bool visible)
+    {
+        foreach (var renderer in obj.GetComponentsInChildren<Renderer>())
+        {
+            renderer.enabled = visible;
+        }
+        foreach (var collider in obj.GetComponentsInChildren<Collider>())
+        {
+            collider.enabled = visible;
+        }
+    }
 }
-
