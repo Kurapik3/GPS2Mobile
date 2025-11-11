@@ -85,14 +85,21 @@ public class EnemyBaseManager : MonoBehaviour
 
         if (bases.Count <= 0)
         {
-            Debug.Log("[EnemyBaseManager] All enemy bases destroyed! Player wins?");
+            Debug.Log("[EnemyBaseManager] All enemy bases destroyed! Player wins.");
             EventBus.Publish(new AllEnemyBasesDestroyed(true));
-            //Wait for global game events to control the game state____
         }
     }
 
     private void OnExecuteBasePhase(ExecuteBasePhaseEvent evt)
     {
+        //To notify all bases that a new turn has started
+        //For bases to register their turf radius after base being upgraded
+        foreach (var b in bases.Values)
+        {
+            if (b != null && !b.IsDestroyed)
+                b.OnTurnStart();
+        }
+
         StartCoroutine(SpawnUnitsStepByStep(evt.Turn, evt.OnCompleted));
     }
 

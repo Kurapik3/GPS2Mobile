@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 
 public static class AIPathFinder
@@ -146,5 +147,64 @@ public static class AIPathFinder
 
         Vector2Int choice = reachable[Random.Range(0, reachable.Count)];
         return MapManager.Instance.GetTile(choice);
+    }
+
+
+    public static List<Vector2Int> GetSmartMoves(Vector2Int from, Vector2Int target, int moveRange = 1)
+    {
+        List<Vector2Int> candidates = GetReachableHexes(from, moveRange);
+        int currentDist = GetHexDistance(from, target);
+
+        List<Vector2Int> smartMoves = new();
+        foreach (var hex in candidates)
+        {
+            int distToTarget = GetHexDistance(hex, target);
+            if (distToTarget <= currentDist)
+            {
+                smartMoves.Add(hex);
+            }
+        }
+
+        if (smartMoves.Count == 0)
+        {
+            if (candidates.Contains(from) && MapManager.Instance.CanUnitStandHere(from))
+            {
+                smartMoves.Add(from);
+            }
+            else if (candidates.Count > 0)
+            {
+                smartMoves = candidates;
+            }
+        }
+
+        return smartMoves;
+    }
+
+    public static Vector2Int RandomChoice(List<Vector2Int> list)
+    {
+        if (list == null || list.Count == 0)
+            return Vector2Int.zero;
+
+        return list[Random.Range(0, list.Count)];
+    }
+
+    public static Vector2Int? TryMove(Vector2Int from, Vector2Int target, int moveRange = 1)
+    {
+        var options = GetSmartMoves(from, target, moveRange);
+        if (options.Count == 0)
+            return null;
+
+        var shuffle = new List<Vector2Int>(options);
+
+        System.Random rng = new System.Random();
+        int num = shuffle.Count;
+        while (num > 1)
+        {
+            num--;
+            int k = rng.Next(num + 1);
+            (shuffle[k], shuffle[num]) = (shuffle[num], shuffle[k]); //Swap
+        }
+
+        return shuffle[Random.Range(0, shuffle.Count)];
     }
 }

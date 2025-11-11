@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using static SeaMonsterEvents;
 
 /// <summary>
@@ -6,6 +6,8 @@ using static SeaMonsterEvents;
 /// </summary>
 public class TurtleWall : SeaMonsterBase
 {
+    private Vector2Int? blockedBackTile = null;
+
     protected override void Awake()
     {
         base.Awake();
@@ -23,9 +25,19 @@ public class TurtleWall : SeaMonsterBase
     {
         base.Initialize(spawnTile);
 
-        //Publish block event so pathfinding knows to mark this tile as blocked
+        //Block self (spawn tile)
         EventBus.Publish(new TurtleWallBlockEvent(this, spawnTile.HexCoords));
-        Debug.Log($"[TurtleWall] Spawned at {spawnTile.HexCoords}. Blocking tile.");
+
+        //Block back tile
+        Vector2Int backCoord = spawnTile.HexCoords + GetBackDirection();
+        if (MapManager.Instance.IsWalkable(backCoord)) //Only block if it's a valid walkable tile
+        {
+            EventBus.Publish(new TurtleWallBlockEvent(this, backCoord));
+            blockedBackTile = backCoord;
+            Debug.Log($"[TurtleWall] Also blocking back tile at {backCoord}");
+        }
+
+        Debug.Log($"[TurtleWall] Spawned at {spawnTile.HexCoords}. Blocking self + back.");
     }
 
     public override void PerformTurnAction()
@@ -47,14 +59,54 @@ public class TurtleWall : SeaMonsterBase
         hasActedThisTurn = true;
     }
 
+    protected override void MoveTo(HexTile target)
+    {
+        //Unblock first
+        if (CurrentTile != null)
+        {
+            EventBus.Publish(new TurtleWallUnblockEvent(this, CurrentTile.HexCoords));
+            if (blockedBackTile.HasValue)
+                EventBus.Publish(new TurtleWallUnblockEvent(this, blockedBackTile.Value));
+        }
+
+        //Move
+        base.MoveTo(target);
+
+        //Block at the new position
+        EventBus.Publish(new TurtleWallBlockEvent(this, target.HexCoords));
+        Vector2Int newBack = target.HexCoords + GetBackDirection();
+        if (MapManager.Instance.IsWalkable(newBack))
+        {
+            EventBus.Publish(new TurtleWallBlockEvent(this, newBack));
+            blockedBackTile = newBack;
+        }
+        else
+        {
+            blockedBackTile = null;
+        }
+    }
+
     protected override void Die()
     {
+        //Unblock self
         if (isBlocking && CurrentTile != null)
         {
             EventBus.Publish(new TurtleWallUnblockEvent(this, CurrentTile.HexCoords));
             isBlocking = false;
         }
 
+        //Unblock back tile
+        if (blockedBackTile.HasValue)
+        {
+            EventBus.Publish(new TurtleWallUnblockEvent(this, blockedBackTile.Value));
+            blockedBackTile = null;
+        }
+
         base.Die();
+    }
+
+    private Vector2Int GetBackDirection()
+    {
+        return new Vector2Int(0, 1);
     }
 }

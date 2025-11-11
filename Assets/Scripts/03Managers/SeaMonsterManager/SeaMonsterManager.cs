@@ -34,12 +34,16 @@ public class SeaMonsterManager : MonoBehaviour
     {
         EventBus.Subscribe<SeaMonsterTurnStartedEvent>(OnTurnStarted);
         EventBus.Subscribe<SeaMonsterKilledEvent>(OnSeaMonsterKilled);
+        EventBus.Subscribe<TurtleWallBlockEvent>(OnTurtleWallBlock);
+        EventBus.Subscribe<TurtleWallUnblockEvent>(OnTurtleWallUnblock);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<SeaMonsterTurnStartedEvent>(OnTurnStarted);
         EventBus.Unsubscribe<SeaMonsterKilledEvent>(OnSeaMonsterKilled);
+        EventBus.Unsubscribe<TurtleWallBlockEvent>(OnTurtleWallBlock);
+        EventBus.Unsubscribe<TurtleWallUnblockEvent>(OnTurtleWallUnblock);
     }
 
     private void Start()
@@ -127,5 +131,21 @@ public class SeaMonsterManager : MonoBehaviour
     public SeaMonsterBase GetMonsterById(int monsterId)
     {
         return activeMonsters.Find(m => m.MonsterId == monsterId);
+    }
+
+    private void OnTurtleWallBlock(TurtleWallBlockEvent evt)
+    {
+        if (MapManager.Instance.TryGetTile(evt.TilePos, out HexTile tile))
+        {
+            tile.SetBlockedByTurtleWall(true);
+        }
+    }
+
+    private void OnTurtleWallUnblock(TurtleWallUnblockEvent evt)
+    {
+        if (MapManager.Instance.TryGetTile(evt.TilePos, out HexTile tile))
+        {
+            tile.SetBlockedByTurtleWall(false);
+        }
     }
 }

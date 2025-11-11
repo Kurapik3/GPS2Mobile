@@ -120,12 +120,12 @@ public class EnemyActionExecutor : MonoBehaviour
         //Release old tile immediately
         MapManager.Instance.SetUnitOccupied(fromHex, false);
 
-        foreach (var hex in path)
+        for (int i = 1; i < path.Count; i++)
         {
-            Vector3 world = MapManager.Instance.HexToWorld(hex);
-            world.y += unitHeightOffset;
-            yield return SmoothMove(go, world);
-            yield return new WaitForSeconds(0.2f);
+            Vector2Int prevHex = path[i - 1];
+            Vector2Int currHex = path[i];
+            yield return SmoothMove(go, prevHex, currHex);
+            yield return new WaitForSeconds(0.15f);
         }
 
         unitManager.UnitPositions[unitId] = finalHex;
@@ -134,55 +134,30 @@ public class EnemyActionExecutor : MonoBehaviour
         EventBus.Publish(new EnemyMovedEvent(unitId, fromHex, finalHex));
     }
 
-    //private void OnMoveRequest(EnemyMoveRequestEvent evt)
-    //{
-    //    if (unitManager == null || !unitManager.CanUnitMove(evt.UnitId))
-    //        return;
-
-    //    Vector2Int from = unitManager.GetUnitPosition(evt.UnitId);
-    //    Vector2Int to = evt.Destination;
-
-    //    if (!MapManager.Instance.CanUnitStandHere(to))
-    //        return;
-
-    //    //Check occupancy
-    //    if (MapManager.Instance.IsTileOccupied(to))
-    //        return;
-
-    //    //Release old tile
-    //    MapManager.Instance.SetUnitOccupied(from, false);
-
-    //    unitManager.UnitPositions[evt.UnitId] = to;
-    //    MapManager.Instance.SetUnitOccupied(to, true);
-
-    //    //Move GameObject visually
-    //    if (unitManager.UnitObjects.TryGetValue(evt.UnitId, out var go))
-    //    {
-    //        Vector3 world = MapManager.Instance.HexToWorld(to);
-    //        world.y += unitHeightOffset;
-    //        StartCoroutine(SmoothMove(go, world));
-    //    }
-
-    //    EventBus.Publish(new EnemyMovedEvent(evt.UnitId, from, to));
-    //}
-
-    private IEnumerator SmoothMove(GameObject unit, Vector3 destination)
+    private IEnumerator SmoothMove(GameObject unit, Vector2Int startHex, Vector2Int endHex)
     {
         if (unit == null) 
             yield break;
 
-        Vector3 start = unit.transform.position;
+        Vector3 startPos = MapManager.Instance.HexToWorld(startHex);
+        startPos.y += unitHeightOffset;
+
+        Vector3 endPos = MapManager.Instance.HexToWorld(endHex);
+        endPos.y += unitHeightOffset;
+
+        unit.transform.position = startPos;
+
         float t = 0f;
         float duration = 0.5f;
 
         while (t < 1f)
         {
             t += Time.deltaTime / duration;
-            unit.transform.position = Vector3.Lerp(start, destination, t);
+            unit.transform.position = Vector3.Lerp(startPos, endPos, t);
             yield return null;
         }
 
-        unit.transform.position = destination;
+        unit.transform.position = endPos;
 
         //Test purpose
         //EnemyTracker.Instance.AddScore(20);

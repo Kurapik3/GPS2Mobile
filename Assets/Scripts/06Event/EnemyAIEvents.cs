@@ -59,6 +59,16 @@ public static class EnemyAIEvents
             OnCompleted = onCompleted;
         }
     }
+    public struct ExecuteAuxiliaryPhaseEvent
+    {
+        public int Turn;
+        public Action OnCompleted;
+        public ExecuteAuxiliaryPhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
+    }
     #endregion
 
     public struct MapReadyEvent 
@@ -96,6 +106,14 @@ public static class EnemyAIEvents
         { 
             AttackerId = attackerId; TargetId = targetId; 
         } 
+    }
+    public struct EnemyAuxiliaryActionRequestEvent
+    {
+        public int ActionId;
+        public EnemyAuxiliaryActionRequestEvent(int actionId)
+        {
+            ActionId = actionId;
+        }
     }
     #endregion
 
@@ -136,6 +154,16 @@ public static class EnemyAIEvents
             AttackerId = a; 
             TargetId = t; 
         } 
+    }
+    public struct EnemyAuxiliaryActionExecutedEvent
+    {
+        public int ActionId;
+        public bool Success;
+        public EnemyAuxiliaryActionExecutedEvent(int actionId, bool success)
+        {
+            ActionId = actionId;
+            Success = success;
+        }
     }
     #endregion
 
