@@ -56,7 +56,7 @@ public static class SeaMonsterEvents
     }
 
 
-    //==================== Kraken only ====================
+    #region Kraken
     public struct KrakenPreSpawnWarningEvent
     {
         public int Turn;
@@ -88,9 +88,9 @@ public static class SeaMonsterEvents
             Target = target;
         }
     }
+    #endregion
 
-
-    //==================== Turtle Wall only ====================
+    #region TurtleWall
     public struct TurtleWallBlockEvent
     {
         public SeaMonsterBase Wall;
@@ -112,4 +112,5 @@ public static class SeaMonsterEvents
             TilePos = tilePos;
         }
     }
+    #endregion
 }

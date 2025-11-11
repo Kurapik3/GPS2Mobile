@@ -11,7 +11,7 @@ public class SeaMonsterSpawner : MonoBehaviour
 
     [Header("Setup")]
     [SerializeField] private List<GameObject> monsterPrefabs; // Kraken / TurtleWall prefabs
-    [SerializeField] private float unitHeightOffset = 1.5f;
+    [SerializeField] private float unitHeightOffset = 2f;
 
     private void Awake()
     {
@@ -40,14 +40,7 @@ public class SeaMonsterSpawner : MonoBehaviour
         //Convert hex to world position
         Vector2Int coords = tile.HexCoords;
         Vector3 worldPos = MapManager.Instance.HexToWorld(coords);
-        if (monsterPrefabs[0])//Kraken
-        {
-            worldPos.y += unitHeightOffset;
-        }
-        if (monsterPrefabs[1]) //TurtleWall
-        {
-            worldPos.y += unitHeightOffset + 0.5f;
-        }
+        worldPos.y += unitHeightOffset;
 
         //Instantiate the monster
         GameObject go = Instantiate(prefab, worldPos, Quaternion.identity);

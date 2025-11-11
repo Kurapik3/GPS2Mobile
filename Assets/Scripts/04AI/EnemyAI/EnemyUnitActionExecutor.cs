@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static EnemyAIEvents;
@@ -100,14 +100,7 @@ public class EnemyActionExecutor : MonoBehaviour
         int moveRange = unitManager.GetUnitMoveRange(evt.UnitId);
         List<Vector2Int> trimmedPath = path.GetRange(0, Mathf.Min(moveRange + 1, path.Count));
         //Final destination for this turn
-        Vector2Int finalHex = trimmedPath[trimmedPath.Count - 1];
-
-        //Stand check
-        if (!MapManager.Instance.CanUnitStandHere(finalHex))
-            return;
-        //Blocked but not final goal tile
-        if (MapManager.Instance.IsTileOccupied(finalHex) && finalHex != to)
-            return;
+        Vector2Int finalHex = trimmedPath[^1];
 
         //Start moving visually
         unitManager.StartCoroutine(MoveUnitPath(evt.UnitId, trimmedPath, from, finalHex));
@@ -117,19 +110,27 @@ public class EnemyActionExecutor : MonoBehaviour
     {
         GameObject go = unitManager.UnitObjects[unitId];
 
+        if (!MapManager.Instance.CanUnitStandHere(finalHex))
+        {
+            Debug.LogWarning($"[EnemyActionExecutor] Move Abort! Unit {unitId} can't move to {finalHex}, which is not standable.");
+            yield break;
+        }
+
+        //Register new tile immediately
+        MapManager.Instance.SetUnitOccupied(finalHex, true);
+
+        //Release old tile
+        MapManager.Instance.SetUnitOccupied(fromHex, false);
+
         for (int i = 1; i < path.Count; i++)
         {
             Vector2Int prevHex = path[i - 1];
             Vector2Int currHex = path[i];
             yield return SmoothMove(go, prevHex, currHex);
-            yield return new WaitForSeconds(0.15f);
+            yield return new WaitForSeconds(0.2f);
         }
 
         unitManager.UnitPositions[unitId] = finalHex;
-        MapManager.Instance.SetUnitOccupied(finalHex, true);
-
-        //After unit moved to new hex, then release the old one to prevent overlapping
-        MapManager.Instance.SetUnitOccupied(fromHex, false);
 
         EventBus.Publish(new EnemyMovedEvent(unitId, fromHex, finalHex));
     }

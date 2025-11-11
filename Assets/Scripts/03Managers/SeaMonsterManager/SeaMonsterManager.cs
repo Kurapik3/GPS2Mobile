@@ -13,9 +13,14 @@ public class SeaMonsterManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private SeaMonsterSpawner spawner;
     [SerializeField] private AudioClip krakenWarningSound;
+    [SerializeField] private AudioClip krakenMoveSound;
+    [SerializeField] private AudioClip krakenAttackSound;
+    [SerializeField] private AudioClip krakenDieSound;
+    [SerializeField] private AudioClip turtleMoveSound;
+    [SerializeField] private AudioClip turtleDieSound;
 
     [Header("Feedback Settings")]
-    [SerializeField] private float preSpawnDelay = 1.5f;
+    [SerializeField] private float preSpawnDelay = 1f;
     [SerializeField] private float shakeIntensity = 0.6f;
     [SerializeField] private float shakeDuration = 0.5f;
 
@@ -34,6 +39,9 @@ public class SeaMonsterManager : MonoBehaviour
     {
         EventBus.Subscribe<SeaMonsterTurnStartedEvent>(OnTurnStarted);
         EventBus.Subscribe<SeaMonsterKilledEvent>(OnSeaMonsterKilled);
+        EventBus.Subscribe<SeaMonsterMoveEvent>(OnMonsterMoved);
+        EventBus.Subscribe<KrakenAttacksUnitEvent>(OnKrakenAttackUnit);
+        EventBus.Subscribe<KrakenAttacksMonsterEvent>(OnKrakenAttackMonster);
         EventBus.Subscribe<TurtleWallBlockEvent>(OnTurtleWallBlock);
         EventBus.Subscribe<TurtleWallUnblockEvent>(OnTurtleWallUnblock);
     }
@@ -132,6 +140,22 @@ public class SeaMonsterManager : MonoBehaviour
     {
         return activeMonsters.Find(m => m.MonsterId == monsterId);
     }
+
+    private void OnMonsterMoved(SeaMonsterMoveEvent evt)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    private void OnKrakenAttackUnit(KrakenAttacksUnitEvent evt)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    private void OnKrakenAttackMonster(KrakenAttacksMonsterEvent evt)
+    {
+        throw new System.NotImplementedException();
+    }
+
 
     private void OnTurtleWallBlock(TurtleWallBlockEvent evt)
     {
