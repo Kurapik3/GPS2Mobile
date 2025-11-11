@@ -35,19 +35,21 @@ public class Kraken : SeaMonsterBase
 
         foreach (HexTile tile in tilesInRange)
         {
-            //Attack player and enemy unit
+            //Priority: Attack player and enemy unit
             if (tile.currentUnit != null)
             {
+                Debug.Log($"[Kraken] Attacking unit: {tile.currentUnit.name} at {tile.HexCoords}");
                 EventBus.Publish(new KrakenAttacksUnitEvent(this, tile.currentUnit));
                 yield break;
             }
 
-            //Attack another sea monster
+            //If no unit around: Attack another sea monster
             if (tile.HasDynamic && tile.dynamicInstance != null)
             {
                 SeaMonsterBase other = tile.dynamicInstance.GetComponent<SeaMonsterBase>();
                 if (other != null && other != this)
                 {
+                    Debug.Log($"[Kraken] Attacking monster: {other.MonsterName} at {tile.HexCoords}");
                     EventBus.Publish(new KrakenAttacksMonsterEvent(this, other));
                     yield break;
                 }
@@ -55,6 +57,7 @@ public class Kraken : SeaMonsterBase
         }
 
         //If no target found
+        Debug.Log("[Kraken] No targets found within range.");
         yield break;
     }
 

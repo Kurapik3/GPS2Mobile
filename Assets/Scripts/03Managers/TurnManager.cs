@@ -51,6 +51,7 @@ public class TurnManager : MonoBehaviour
 
     private void StartPlayerTurn()
     {
+        EventBus.Publish(new SeaMonsterEvents.SeaMonsterTurnStartedEvent(currentTurn));
 
         isPlayerTurn = true;
         Debug.Log($"--- Player Turn {currentTurn} ---");

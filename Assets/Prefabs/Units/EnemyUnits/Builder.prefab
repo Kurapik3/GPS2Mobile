@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8153475861678720898}
   m_Layer: 0
   m_Name: Builder
-  m_TagString: Untagged
+  m_TagString: EnemyUnit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -83,6 +83,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 8135692c07babfe489c88fabaa0a4d21, type: 3}
       propertyPath: m_Name
       value: unit-ship-large
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8135692c07babfe489c88fabaa0a4d21, type: 3}
+      propertyPath: m_TagString
+      value: EnemyUnit
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
