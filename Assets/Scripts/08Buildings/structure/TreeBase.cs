@@ -10,6 +10,8 @@ public class TreeBase : BuildingBase
     [SerializeField] private int healthBonusPerUpgrade = 5;
 
     private int currentUnitsTrained = 0;
+    public int TreeBaseId { get; private set; }
+
 
     public override void Initialize(BuildingData data, HexTile tile)
     {
@@ -17,6 +19,7 @@ public class TreeBase : BuildingBase
         buildingName = "Tree Base";
         apPerTurn = 2;
         health = baseHealth;
+        TreeBaseId = GetInstanceID();
     }
 
     public override void OnTurnStart()

@@ -7,11 +7,12 @@ public class BuildingBase : MonoBehaviour
     public int health;
     public int developCost;
     public int apPerTurn;
-    
-    
-    public HexTile currentTile;
-    public UnitBase currentUnit;
 
+    public int buildingId;
+    public Vector3 RuntimePosition => transform.position;
+
+    public HexTile currentTile { get; private set; }
+    public UnitBase currentUnit;
     [SerializeField] private GameObject GrovePrefab;
 
     public virtual void Initialize(BuildingData data, HexTile tile)
@@ -51,7 +52,7 @@ public class BuildingBase : MonoBehaviour
         }
     }
 
-    protected virtual void DestroyBuilding()
+    protected virtual void DestroyBuilding() //not correct
     {
         Debug.Log($"{buildingName} destroyed!");
         currentTile.BecomeRuin();

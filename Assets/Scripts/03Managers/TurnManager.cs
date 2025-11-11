@@ -46,6 +46,7 @@ public class TurnManager : MonoBehaviour
 
         EventBus.Publish(new TurnUpdatedEvent(0, maxTurns));
         StartPlayerTurn();
+        
     }
 
     private void StartPlayerTurn()
@@ -53,6 +54,12 @@ public class TurnManager : MonoBehaviour
 
         isPlayerTurn = true;
         Debug.Log($"--- Player Turn {currentTurn} ---");
+
+        foreach (var unit in UnitManager.Instance.GetAllUnits())
+        {
+            unit.ResetMove();
+        }
+
 
         EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));
         treeBase.OnTurnStart();
