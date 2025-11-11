@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7137114898064605501}
   m_Layer: 9
   m_Name: Scout
-  m_TagString: PlayerUnit
+  m_TagString: EnemyUnit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -46,6 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fa3233a914882944b34b82dd8e2b2a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rangeIndicatorPrefab: {fileID: 0}
+  unitId: -1
   unitName: 
   cost: 0
   range: 0
@@ -55,6 +57,7 @@ MonoBehaviour:
   isCombat: 0
   isSelected: 0
   currentTile: {fileID: 0}
+  hasMovedThisTurn: 0
   fogRevealRadius: 1
 --- !u!136 &7137114898064605501
 CapsuleCollider:
