@@ -1,5 +1,9 @@
 fileFormatVersion: 2
-guid: e39fbcd7396f22a4e90e185dbd02db8d
+<<<<<<<< Updated upstream:Assets/Art/ArtistStuff/Placeholders/Shooter/Shooter_South Cam.png.meta
+guid: 8c6d6d79b4590f94ab5cd5909affb93f
+========
+guid: 326545ddcdc3e7e4597e7fe23c7a3092
+>>>>>>>> Stashed changes:Assets/Art/ArtistStuff/Placeholders/Scout/Scout_South Cam.png.meta
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
