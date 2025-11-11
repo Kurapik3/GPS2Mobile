@@ -39,6 +39,8 @@ public class EnemyUnitManager : MonoBehaviour
     private int nextUnitId = 1;
     public int NextUnitId => nextUnitId;
 
+    private HashSet<int> actedThisTurn = new HashSet<int>();
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -205,6 +207,22 @@ public class EnemyUnitManager : MonoBehaviour
     }
 
     public int TotalUnitCount() => unitPositions.Count;
+
+
+    public void MarkUnitAsActed(int unitId)
+    {
+        actedThisTurn.Add(unitId);
+    }
+
+    public bool HasUnitActedThisTurn(int unitId)
+    {
+        return actedThisTurn.Contains(unitId);
+    }
+
+    public void ClearActedUnits()
+    {
+        actedThisTurn.Clear();
+    }
     #endregion
 
     #region Damage
