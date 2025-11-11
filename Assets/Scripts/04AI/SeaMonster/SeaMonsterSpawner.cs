@@ -13,9 +13,12 @@ public class SeaMonsterSpawner : MonoBehaviour
     [SerializeField] private List<GameObject> monsterPrefabs; // Kraken / TurtleWall prefabs
     [SerializeField] private float unitHeightOffset = 2f;
 
+    private System.Random rng;
+
     private void Awake()
     {
         Instance = this;
+        rng = new System.Random();
     }
 
     public SeaMonsterBase SpawnRandomMonster()
@@ -68,7 +71,7 @@ public class SeaMonsterSpawner : MonoBehaviour
 
         foreach (var tile in MapManager.Instance.GetTiles())
         {
-            if (tile.IsOccupied) 
+            if (tile.IsOccupied || tile.IsOccupiedByUnit || tile.IsBlockedByTurtleWall)
                 continue;
             if (HasBaseNearby(tile)) 
                 continue;
@@ -79,7 +82,8 @@ public class SeaMonsterSpawner : MonoBehaviour
         if (validTiles.Count == 0)
             return null;
 
-        return validTiles[Random.Range(0, validTiles.Count)];
+        int index = rng.Next(validTiles.Count);
+        return validTiles[index];
     }
 
     private bool HasBaseNearby(HexTile tile)

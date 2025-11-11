@@ -12,6 +12,7 @@ public class SeaMonsterManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private SeaMonsterSpawner spawner;
+    [SerializeField] private FogSystem fogSystem;
     [SerializeField] private AudioClip krakenWarningSound;
     [SerializeField] private AudioClip krakenMoveSound;
     [SerializeField] private AudioClip krakenAttackSound;
@@ -26,6 +27,9 @@ public class SeaMonsterManager : MonoBehaviour
 
     private readonly List<SeaMonsterBase> activeMonsters = new();
     public IReadOnlyList<SeaMonsterBase> ActiveMonsters => activeMonsters;
+
+    private readonly Dictionary<int, Vector2Int> monsterPositions = new();
+    public IReadOnlyDictionary<int, Vector2Int> MonsterPositions => monsterPositions;
 
     private void Awake()
     {
@@ -100,6 +104,11 @@ public class SeaMonsterManager : MonoBehaviour
             return;
         if (!activeMonsters.Contains(monster))
             activeMonsters.Add(monster);
+
+        Vector2Int pos = monster.CurrentTile != null ? monster.CurrentTile.HexCoords : Vector2Int.zero;
+        monsterPositions[monster.MonsterId] = pos;
+
+        UpdateSeaMonsterVisibility();
     }
 
     private IEnumerator ShakeCamera()
@@ -129,6 +138,8 @@ public class SeaMonsterManager : MonoBehaviour
 
         if (activeMonsters.Contains(evt.Monster))
             activeMonsters.Remove(evt.Monster);
+
+        monsterPositions.Remove(evt.Monster.MonsterId);
     }
 
     public List<SeaMonsterBase> GetAllMonsters()
@@ -143,7 +154,11 @@ public class SeaMonsterManager : MonoBehaviour
 
     private void OnMonsterMoved(SeaMonsterMoveEvent evt)
     {
-        throw new System.NotImplementedException();
+        if (evt.Monster == null)
+            return;
+
+        monsterPositions[evt.Monster.MonsterId] = evt.To;
+        UpdateSeaMonsterVisibility();
     }
 
     private void OnKrakenAttackUnit(KrakenAttacksUnitEvent evt)
@@ -170,6 +185,35 @@ public class SeaMonsterManager : MonoBehaviour
         if (MapManager.Instance.TryGetTile(evt.TilePos, out HexTile tile))
         {
             tile.SetBlockedByTurtleWall(false);
+        }
+    }
+
+    private bool IsUnderTheFog(int id)
+    {
+        if (fogSystem == null)
+            return true;
+
+        if (!monsterPositions.TryGetValue(id, out Vector2Int pos))
+            return true;
+
+        return fogSystem.revealedTiles.Contains(pos);
+    }
+
+    public void UpdateSeaMonsterVisibility()
+    {
+        foreach (var monster in activeMonsters)
+        {
+            bool visible = IsUnderTheFog(monster.MonsterId);
+            SetLayerRecursively(monster.gameObject, visible ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("EnemyHidden"));
+        }
+    }
+
+    private void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
         }
     }
 }
