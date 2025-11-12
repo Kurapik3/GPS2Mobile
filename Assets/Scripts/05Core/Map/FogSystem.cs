@@ -40,6 +40,15 @@ public class FogSystem : MonoBehaviour
         if(!enableFog)
         {
             Debug.Log("[FogSystem] Fog disabled — skipping generation.");
+            revealedTiles.Clear();
+            foreach (var kv in MapManager.Instance.GetAllTiles())
+            {
+                Vector2Int coord = kv.Key;
+                HexTile tile = kv.Value;
+
+                tile.RemoveFog();
+                revealedTiles.Add(coord);
+            }
             return;
         }
         if(mapReady)

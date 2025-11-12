@@ -94,7 +94,6 @@ public static class AIPathFinder
     //Returns all hex tiles that can be reached given movement range
     public static List<Vector2Int> GetReachableHexes(Vector2Int startHex, int moveRange)
     {
-        Debug.Log($"[PathFinder] GetReachableHexes from {startHex}, range={moveRange}");
         List<Vector2Int> reachable = new();
 
         for (int dx = -moveRange; dx <= moveRange; dx++)

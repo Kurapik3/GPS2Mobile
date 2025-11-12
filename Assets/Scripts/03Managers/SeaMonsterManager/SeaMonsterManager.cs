@@ -9,6 +9,7 @@ using static SeaMonsterEvents;
 public class SeaMonsterManager : MonoBehaviour
 {
     public static SeaMonsterManager Instance { get; private set; }
+    private Transform mainCameraTransform;
 
     [Header("References")]
     [SerializeField] private SeaMonsterSpawner spawner;
@@ -37,6 +38,11 @@ public class SeaMonsterManager : MonoBehaviour
             Destroy(this);
         else
             Instance = this;
+
+        if (Camera.main != null)
+            mainCameraTransform = Camera.main.transform;
+        else
+            Debug.LogWarning("No main camera found!");
     }
 
     private void OnEnable()
@@ -81,7 +87,7 @@ public class SeaMonsterManager : MonoBehaviour
         {
             EventBus.Publish(new KrakenPreSpawnWarningEvent(turn));
             if (krakenWarningSound)
-                AudioSource.PlayClipAtPoint(krakenWarningSound, Camera.main.transform.position);
+                AudioSource.PlayClipAtPoint(krakenWarningSound, mainCameraTransform.position);
 
             yield return StartCoroutine(ShakeCamera());
             yield return new WaitForSeconds(preSpawnDelay);
@@ -116,25 +122,36 @@ public class SeaMonsterManager : MonoBehaviour
         if (Camera.main == null) 
             yield break;
 
-        Vector3 origin = Camera.main.transform.position;
+        Vector3 origin = mainCameraTransform.position;
         float t = 0f;
 
         while (t < shakeDuration)
         {
             float x = Random.Range(-1f, 1f) * shakeIntensity;
             float y = Random.Range(-1f, 1f) * shakeIntensity;
-            Camera.main.transform.position = origin + new Vector3(x, y, 0);
+            mainCameraTransform.position = origin + new Vector3(x, y, 0);
             t += Time.deltaTime;
             yield return null;
         }
 
-        Camera.main.transform.position = origin;
+        mainCameraTransform.position = origin;
     }
 
     private void OnSeaMonsterKilled(SeaMonsterKilledEvent evt)
     {
         if (evt.Monster == null) 
             return;
+
+        if(evt.Monster is Kraken)
+        {
+            if (krakenDieSound != null)
+                AudioSource.PlayClipAtPoint(krakenDieSound, mainCameraTransform.position);
+        }
+        else if (evt.Monster is TurtleWall)
+        {
+            if (turtleDieSound != null)
+                AudioSource.PlayClipAtPoint(turtleDieSound, mainCameraTransform.position);
+        }
 
         if (activeMonsters.Contains(evt.Monster))
             activeMonsters.Remove(evt.Monster);
@@ -157,18 +174,69 @@ public class SeaMonsterManager : MonoBehaviour
         if (evt.Monster == null)
             return;
 
+        if (evt.Monster is Kraken)
+        {
+            if (krakenMoveSound != null)
+                AudioSource.PlayClipAtPoint(krakenMoveSound, mainCameraTransform.position);
+        }
+        else if (evt.Monster is TurtleWall)
+        {
+            if (turtleMoveSound != null)
+                AudioSource.PlayClipAtPoint(turtleMoveSound, mainCameraTransform.position);
+        }
+
         monsterPositions[evt.Monster.MonsterId] = evt.To;
         UpdateSeaMonsterVisibility();
     }
 
     private void OnKrakenAttackUnit(KrakenAttacksUnitEvent evt)
     {
-        throw new System.NotImplementedException();
+        if (evt.Target == null)
+            return;
+
+        //If target is player unit
+        if (evt.Target.TryGetComponent<UnitBase>(out UnitBase playerUnit))
+        {
+            if(krakenAttackSound != null)
+                AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
+            playerUnit.TakeDamage(evt.Damage);
+
+            Debug.Log($"Kraken attacked player unit {playerUnit.unitName} for {evt.Damage} damage!");
+        }
+        else //If target is enemy unit
+        {
+            int enemyId = FindEnemyId(evt.Target);
+            if (enemyId != -1)
+            {
+                if (krakenAttackSound != null)
+                    AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
+                EnemyUnitManager.Instance.TakeDamage(enemyId, evt.Damage);
+            }
+            else
+            {
+                Debug.LogWarning("Kraken attack target is unknown type!");
+            }
+        }
+    }
+
+    private int FindEnemyId(GameObject target)
+    {
+        foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
+        {
+            if (kv.Value == target)
+                return kv.Key;
+        }
+        return -1;
     }
 
     private void OnKrakenAttackMonster(KrakenAttacksMonsterEvent evt)
     {
-        throw new System.NotImplementedException();
+        if (evt.Target == null)
+            return;
+
+        if (krakenAttackSound != null)
+            AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
+        evt.Target.TakeDamage(evt.Damage);
     }
 
 
@@ -188,6 +256,7 @@ public class SeaMonsterManager : MonoBehaviour
         }
     }
 
+#region Render
     private bool IsUnderTheFog(int id)
     {
         if (fogSystem == null)
@@ -216,4 +285,5 @@ public class SeaMonsterManager : MonoBehaviour
             SetLayerRecursively(child.gameObject, layer);
         }
     }
+#endregion
 }

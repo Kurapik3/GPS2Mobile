@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
 
 // Central hub for all map-related queries during gameplay.
 // Attach this to a GameObject in your scene (only one instance allowed).
@@ -111,6 +112,13 @@ public class MapManager : MonoBehaviour
             rr = -rq - rs;
 
         return new Vector2Int(rq, rr);
+    }
+
+
+    public HexTile GetTileAtHexPosition(Vector2Int pos)
+    {
+        _tiles.TryGetValue(pos, out HexTile tile);
+        return tile;
     }
 
     public int GetHexDistance(Vector2Int a, Vector2Int b) => Mathf.Max(Mathf.Abs(a.x - b.x), Mathf.Abs(a.y - b.y));
