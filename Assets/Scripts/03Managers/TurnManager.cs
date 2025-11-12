@@ -56,10 +56,11 @@ public class TurnManager : MonoBehaviour
         isPlayerTurn = true;
         Debug.Log($"--- Player Turn {currentTurn} ---");
 
-        foreach (var unit in UnitManager.Instance.GetAllUnits())
+        foreach (var unit in UnitManager.Instance?.GetAllUnits() ?? new List<UnitBase>())
         {
             unit.ResetMove();
         }
+
 
 
         EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));

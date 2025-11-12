@@ -12,15 +12,42 @@ public class TreeBase : BuildingBase
     private int currentUnitsTrained = 0;
     public int TreeBaseId { get; private set; }
 
+    [SerializeField] private int turfRadius=2 ;
+
+    private void Start()
+    {
+        // Only assign currentTile if it hasn't been set by Initialize or elsewhere
+        if (currentTile == null && MapManager.Instance != null)
+        {
+            Vector2Int hexCoord = MapManager.Instance.WorldToHex(transform.position);
+            currentTile = MapManager.Instance.GetTile(hexCoord);
+
+            if (currentTile != null)
+            {
+                currentTile.SetBuilding(this);
+                TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
+                 Debug.Log($"{buildingName} placed at Hex {hexCoord} (auto-detected)");
+                Debug.Log($"<color=green>{buildingName} initialized at tile {currentTile.name} with turf radius {turfRadius}</color>");
+            }
+            else
+            {
+                Debug.LogWarning($"{buildingName} could NOT find a hex tile at position {transform.position}");
+            }
+        }
+    }
 
     public override void Initialize(BuildingData data, HexTile tile)
     {
         base.Initialize(data, tile);
+
         buildingName = "Tree Base";
         apPerTurn = 2;
         health = baseHealth;
         TreeBaseId = GetInstanceID();
+
     }
+
+
 
     public override void OnTurnStart()
     {
