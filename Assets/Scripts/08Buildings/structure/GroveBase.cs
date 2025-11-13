@@ -5,7 +5,7 @@ public class GroveBase : BuildingBase
     public override void Initialize(BuildingData data, HexTile tile)
     {
         base.Initialize(data, tile);
-        Debug.Log($"Initialized Grove at tile {tile.name}");
+        Debug.Log($"Initialized <color=yellow>Grove</color> at tile {tile.name}");
     }
 
    

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DG.Tweening.Core.Easing;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -177,6 +178,10 @@ public abstract class UnitBase : MonoBehaviour
         Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
         hasMovedThisTurn = true;
         RevealNearbyFog(currentTile);
+    }
+    public void ResetMove()
+    {
+        hasMovedThisTurn = false;
     }
 
     protected void RevealNearbyFog(HexTile centerTile)

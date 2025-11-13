@@ -7,12 +7,32 @@ public class BuildingBase : MonoBehaviour
     public int health;
     public int developCost;
     public int apPerTurn;
-    
-    
-    public HexTile currentTile;
-    public UnitBase currentUnit;
 
+    public int buildingId;
+    public Vector3 RuntimePosition => transform.position;
+
+    public HexTile currentTile;
     [SerializeField] private GameObject GrovePrefab;
+
+
+    private void Start()
+    {
+        if (currentTile == null && MapManager.Instance != null)
+        {
+            Vector2Int hexCoord = MapManager.Instance.WorldToHex(transform.position);
+            currentTile = MapManager.Instance.GetTile(hexCoord);
+
+            if (currentTile != null)
+            {
+                currentTile.SetBuilding(this);
+                Debug.Log($"{buildingName} placed at Hex {hexCoord} (auto-detected)");
+            }
+            else
+            {
+                Debug.LogWarning($"{buildingName} could NOT find a hex tile at position {transform.position}");
+            }
+        }
+    }
 
     public virtual void Initialize(BuildingData data, HexTile tile)
     {
@@ -21,8 +41,6 @@ public class BuildingBase : MonoBehaviour
         apPerTurn = data.apPerTurn;
         developCost = data.developCost;
 
-        currentTile = tile;
-        tile.SetBuilding(this);
     }
 
     public virtual void OnTurnStart()
@@ -51,7 +69,7 @@ public class BuildingBase : MonoBehaviour
         }
     }
 
-    protected virtual void DestroyBuilding()
+    protected virtual void DestroyBuilding() //not correct
     {
         Debug.Log($"{buildingName} destroyed!");
         currentTile.BecomeRuin();
