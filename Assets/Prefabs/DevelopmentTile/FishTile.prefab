@@ -48,9 +48,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5211198944188094700, guid: db6c6ea176ee6ed479795bfc9054fee5, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: -2152421804941051696, guid: db6c6ea176ee6ed479795bfc9054fee5, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: db6c6ea176ee6ed479795bfc9054fee5, type: 3}
       propertyPath: m_Name
       value: FishTile
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: db6c6ea176ee6ed479795bfc9054fee5, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -87,8 +99,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 0.9768621, z: 1}
-  m_Center: {x: 0, y: 0.5472619, z: 0}
+  m_Size: {x: 2, y: 2, z: 1}
+  m_Center: {x: 0, y: 0.7, z: 0}
 --- !u!114 &1092918692429014602
 MonoBehaviour:
   m_ObjectHideFlags: 0
