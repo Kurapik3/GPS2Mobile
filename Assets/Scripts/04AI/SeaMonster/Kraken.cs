@@ -5,6 +5,9 @@ using static SeaMonsterEvents;
 
 public class Kraken : SeaMonsterBase
 {
+    private bool isTargeting = false;
+    private GameObject currentTarget;
+
     protected override void Awake()
     {
         base.Awake();
@@ -24,71 +27,196 @@ public class Kraken : SeaMonsterBase
         if (hasActedThisTurn || CurrentTile == null)
             return;
 
-        StartCoroutine(AttackNearbyTargets());
+        StartCoroutine(TurnRoutine());
     }
 
-    private IEnumerator AttackNearbyTargets()
+    private IEnumerator TurnRoutine()
     {
-        hasActedThisTurn = true;
+        Debug.Log("<color=blue>===== [Kraken]  Turn starts. =====</color>");
 
-        List<HexTile> tilesInRange = GetTilesInRange(CurrentTile, attackRange);
+        hasActedThisTurn = true; //Mark early to avoid duplicate triggers
 
-        foreach (HexTile tile in tilesInRange)
+        //If already targeting, attack it
+        if (isTargeting && currentTarget != null)
         {
-            //Priority: Attack player and enemy unit
-            if (tile.currentUnit != null)
+            yield return AttackTarget();
+            yield break;
+        }
+
+        //If no target, move to random reachable tile
+        HexTile moveTile = AIPathFinder.GetRandomReachableTileForSeaMonster(this);
+        if (moveTile != null && moveTile != CurrentTile)
+        {
+            MoveTo(moveTile);
+            Debug.Log($"[Kraken] Moves to {moveTile.HexCoords}");
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        //After moving, check if there are any targets in range
+        List<GameObject> targetsInRange = GetTargetsInRange();
+        if (targetsInRange.Count > 0)
+        {
+            //Randomly choose target
+            currentTarget = targetsInRange[Random.Range(0, targetsInRange.Count)];
+            isTargeting = true;
+
+            Debug.Log($"[Kraken] Chooses {currentTarget.name} as target!");
+            EventBus.Publish(new KrakenTargetsUnitEvent(this, currentTarget)); //For UI to indicate sea monster target
+            yield return new WaitForSeconds(0.5f);
+        }
+        else
+        {
+            Debug.Log("[Kraken] No targets found after moving.");
+        }
+
+        Debug.Log("<color=blue>===== [Kraken]  Turn ends. =====</color>");
+        yield break;
+    }
+
+    private IEnumerator AttackTarget()
+    {
+        if (currentTarget == null)
+        {
+            Debug.LogWarning("[Kraken] Target disappeared before attack.");
+            isTargeting = false;
+            yield break;
+        }
+
+        //Where the target located at
+        HexTile targetTile = GetTargetTile(currentTarget);
+        if (targetTile == null)
+        {
+            Debug.LogWarning("[Kraken] Target tile not found, clearing target.");
+            isTargeting = false;
+            currentTarget = null;
+            yield break;
+        }
+
+        //Check if the target tile in within kraken attack range
+        var tilesInRange = GetTilesInRange(CurrentTile, attackRange);
+        if (!tilesInRange.Exists(t => t.HexCoords == targetTile.HexCoords))
+        {
+            Debug.Log("[Kraken] Target moved out of range, stop targeting.");
+            isTargeting = false;
+            currentTarget = null;
+            yield break;
+        }
+
+        Debug.Log($"[Kraken] Attacks {currentTarget.name}!");
+        yield return new WaitForSeconds(0.5f);
+
+        if (currentTarget.TryGetComponent(out UnitBase playerUnit))
+        {
+            EventBus.Publish(new KrakenAttacksUnitEvent(this, playerUnit.gameObject, attack));
+        }
+        else
+        {
+            int enemyId = -1;
+
+            foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
             {
-                Debug.Log($"[Kraken] Attacking unit: {tile.currentUnit.name} at {tile.HexCoords}");
-                EventBus.Publish(new KrakenAttacksUnitEvent(this, tile.currentUnit));
-                yield break;
+                if (kv.Value == currentTarget)
+                {
+                    enemyId = kv.Key;
+                    break;
+                }
             }
 
-            //If no unit around: Attack another sea monster
-            if (tile.HasDynamic && tile.dynamicInstance != null)
+            if (enemyId != -1)
             {
-                SeaMonsterBase other = tile.dynamicInstance.GetComponent<SeaMonsterBase>();
-                if (other != null && other != this)
-                {
-                    Debug.Log($"[Kraken] Attacking monster: {other.MonsterName} at {tile.HexCoords}");
-                    EventBus.Publish(new KrakenAttacksMonsterEvent(this, other));
-                    yield break;
-                }
+                EventBus.Publish(new KrakenAttacksUnitEvent(this, currentTarget, attack));
+            }
+            else if (currentTarget.TryGetComponent<SeaMonsterBase>(out var monster))
+            {
+                EventBus.Publish(new KrakenAttacksMonsterEvent(this, monster, attack));
+            }
+            else
+            {
+                Debug.LogWarning("[Kraken] Unknown target type.");
             }
         }
 
-        //If no target found
-        Debug.Log("[Kraken] No targets found within range.");
-        yield break;
+        //Clear target after attacking
+        isTargeting = false;
+        currentTarget = null;
+    }
+
+    private List<GameObject> GetTargetsInRange()
+    {
+        List<GameObject> result = new List<GameObject>();
+        List<HexTile> tiles = GetTilesInRange(CurrentTile, attackRange);
+
+        foreach (HexTile tile in tiles)
+        {
+            if (tile.currentUnit != null)
+                result.Add(tile.currentUnit.gameObject);
+            else if (tile.HasDynamic && tile.dynamicInstance != null)
+            {
+                SeaMonsterBase other = tile.dynamicInstance.GetComponent<SeaMonsterBase>();
+                if (other != null && other != this)
+                    result.Add(other.gameObject);
+            }
+        }
+
+        return result;
+    }
+
+    private HexTile GetTargetTile(GameObject target)
+    {
+        if (target == null) 
+            return null;
+
+        //Player
+        if (target.TryGetComponent<UnitBase>(out var playerUnit))
+        {
+            return playerUnit.currentTile;
+        }
+
+        //Other Sea Monster
+        if (target.TryGetComponent<SeaMonsterBase>(out var monster))
+        {
+            return monster.CurrentTile;
+        }
+
+        //Enemy
+        foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
+        {
+            if (kv.Value == target)
+            {
+                Vector2Int hexPos = EnemyUnitManager.Instance.GetUnitPosition(kv.Key);
+                return MapManager.Instance.GetTileAtHexPosition(hexPos);
+            }
+        }
+
+        //Fallback
+        return target.GetComponentInParent<HexTile>();
     }
 
     private List<HexTile> GetTilesInRange(HexTile center, int range)
     {
-        List<HexTile> result = new List<HexTile>();
-        if (center == null) 
-            return result;
+        var result = new List<HexTile>();
+        if (center == null) return result;
 
-        Queue<HexTile> frontier = new Queue<HexTile>();
-        HashSet<HexTile> visited = new HashSet<HexTile>();
+        var frontier = new Queue<(HexTile tile, int dist)>();
+        var visited = new HashSet<HexTile>();
 
-        frontier.Enqueue(center);
+        frontier.Enqueue((center, 0));
         visited.Add(center);
 
-        for (int step = 0; step <= range; step++)
+        while (frontier.Count > 0)
         {
-            int count = frontier.Count;
-            for (int i = 0; i < count; i++)
-            {
-                HexTile current = frontier.Dequeue();
-                if (!result.Contains(current))
-                    result.Add(current);
+            var (current, dist) = frontier.Dequeue();
+            result.Add(current);
 
-                foreach (var neighbor in current.neighbours)
+            if (dist >= range)
+                continue;
+
+            foreach (var neighbor in current.neighbours)
+            {
+                if (!visited.Contains(neighbor))
                 {
-                    if (!visited.Contains(neighbor))
-                    {
-                        frontier.Enqueue(neighbor);
-                        visited.Add(neighbor);
-                    }
+                    visited.Add(neighbor);
+                    frontier.Enqueue((neighbor, dist + 1));
                 }
             }
         }
@@ -99,7 +227,6 @@ public class Kraken : SeaMonsterBase
     public override void TakeDamage(int dmg)
     {
         base.TakeDamage(dmg);
-        // TODO: hit animation or sound(?)
     }
 
     protected override void Die()
