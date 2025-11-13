@@ -16,6 +16,10 @@ public class EnemyBase : MonoBehaviour
     [HideInInspector] public int baseId;
     public bool IsDestroyed => health <= 0;
 
+    private int currentTurfRadius = 1;
+    private int upgradeInterval = 3; //Number of turns between each base upgrade, will increase by 1 after each upgrade
+    private int turnsSinceUpgrade = 0;
+
     private void Start()
     {
         if (currentTile == null)
@@ -25,13 +29,9 @@ public class EnemyBase : MonoBehaviour
                 Vector2Int hexCoord = MapManager.Instance.WorldToHex(transform.position);
                 HexTile tile = MapManager.Instance.GetTile(hexCoord);
                 if (tile != null)
-                {
                     currentTile = tile;
-                }
                 else
-                {
                     Debug.LogWarning($"[EnemyBase] No HexTile found at hex {hexCoord} for base '{baseName}' (world pos {transform.position}).");
-                }
             }
             else
             {
@@ -40,22 +40,19 @@ public class EnemyBase : MonoBehaviour
         }
 
         if (currentTile != null)
-        {
             currentTile.currentEnemyBase = this;
-        }
 
         //Randomize HP between 20 and 35
         health = Random.Range(20, 36);
 
         //Register this base
         if (EnemyBaseManager.Instance != null)
-        {
             baseId = EnemyBaseManager.Instance.RegisterBase(this);
-        }
         else
-        {
             Debug.LogError("[EnemyBase] EnemyBaseManager not found in scene!");
-        }
+
+        if (EnemyTurfManager.Instance != null)
+            EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius);
 
         Debug.Log($"[EnemyBase] Spawned {baseName} with {health} HP.");
     }
@@ -64,6 +61,9 @@ public class EnemyBase : MonoBehaviour
     {
         if (EnemyBaseManager.Instance != null)
             EnemyBaseManager.Instance.UnregisterBase(this);
+
+        if (EnemyTurfManager.Instance != null)
+            EnemyTurfManager.Instance.UnregisterBaseArea(currentTile.HexCoords, currentTurfRadius);
     }
 
     public void TakeDamage(int amount)
@@ -72,9 +72,7 @@ public class EnemyBase : MonoBehaviour
         Debug.Log($"[EnemyBase] {baseName} took {amount} damage (HP: {health})");
 
         if (health <= 0)
-        {
             DestroyBase();
-        }
     }
 
     private void DestroyBase()
@@ -82,13 +80,9 @@ public class EnemyBase : MonoBehaviour
         Debug.Log($"[EnemyBase] {baseName} destroyed!");
         EnemyBaseManager.Instance?.OnBaseDestroyed(this);
         if (currentTile != null)
-        {
             SpawnGroveAt(currentTile);
-        }
         else
-        {
             Debug.LogWarning("[EnemyBase] Cannot spawn Groove — currentTile is null!");
-        }
 
         if (currentTile != null)
             currentTile.currentEnemyBase = null;
@@ -98,28 +92,11 @@ public class EnemyBase : MonoBehaviour
 
     private void SpawnGroveAt(HexTile tile)
     {
-        GameObject grovePrefab = Resources.Load<GameObject>("Structures/Grove");
-        if (grovePrefab == null)
-        {
-            Debug.LogError("[EnemyBase] Groove prefab not found! (Expected at Resources/Structures/Grove)");
-            return;
-        }
-
-        GameObject groveObj = Instantiate(grovePrefab, tile.transform.position, Quaternion.identity);
-        BuildingBase groveBuilding = groveObj.GetComponent<BuildingBase>();
-        BuildingData data = groveObj.GetComponent<BuildingData>();
-
-        if (groveBuilding == null)
-        {
-            Debug.LogWarning("[EnemyBase] Spawned Groove prefab but no BuildingBase/GrooveBase component found!");
-            return;
-        }
-        if (data == null)
-        {
-            Debug.LogWarning("[EnemyBase] Groove prefab missing BuildingData component!");
-            return;
-        }
-        groveBuilding.Initialize(data, tile);
+        GameObject groveObj = Instantiate(BuildingFactory.Instance.GrovePrefab, tile.transform.position, Quaternion.identity);
+        GroveBase newGroveBase = groveObj.GetComponent<GroveBase>();
+        newGroveBase.Initialize(BuildingFactory.Instance.GroveData, currentTile);
+        currentTile.SetBuilding(newGroveBase);
+        EnemyTracker.Instance.AddScore(1000);
         Debug.Log($"[EnemyBase] Spawned Groove at {tile.HexCoords}");
     }
 
@@ -135,6 +112,35 @@ public class EnemyBase : MonoBehaviour
 
     public void OnTurnStart()
     {
+        if (IsDestroyed) 
+            return;
+
+        turnsSinceUpgrade++;
         Debug.Log($"[EnemyBase] Turn start for {baseName} (Tile: {currentTile?.HexCoords})");
+
+        if (turnsSinceUpgrade >= upgradeInterval)
+        {
+            UpgradeBase();
+            turnsSinceUpgrade = 0;
+            upgradeInterval++; //Increase by 1 after successfully upgraded
+        }
+    }
+
+    private void UpgradeBase()
+    {
+        if (EnemyTurfManager.Instance == null || currentTile == null)
+        {
+            Debug.LogWarning($"[EnemyBase] Cannot update turf area — Manager or tile missing for {baseName}.");
+            return;
+        }
+
+        currentTurfRadius++;
+        Debug.Log($"[EnemyBase] {baseName} upgraded! New turf radius: {currentTurfRadius}");
+
+        //Remove old turf radius before expanding to new radius to keep territory data consistent
+        EnemyTurfManager.Instance.UnregisterBaseArea(currentTile.HexCoords, currentTurfRadius - 1);
+        EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius);
+
+        EnemyTracker.Instance.AddScore(400);
     }
 }

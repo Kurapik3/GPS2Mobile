@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DG.Tweening.Core.Easing;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -10,9 +11,8 @@ public abstract class UnitBase : MonoBehaviour
 
     private List<HexTile> tilesInRange = new List<HexTile>();
 
-    private static int nextUnitID = 0;
-    public int UnitID { get; private set; }
-
+    [Header("Unit Identity")]
+    public int unitId = -1;
 
     [Header("Base Stats (Loaded from CSV)")]
     public string unitName;
@@ -33,15 +33,15 @@ public abstract class UnitBase : MonoBehaviour
     [Header("Fog of War Settings")]
     [SerializeField] private int fogRevealRadius = 1;
 
-    private void Awake()
-    {
-        UnitID = nextUnitID++;
-        Debug.Log($"Spawned Unit ID: {UnitID}");
-    }
     protected virtual void Start()
     {
         rend = GetComponent<Renderer>();
         UpdateSelectionVisual();
+
+        if (UnitManager.Instance != null)
+        {
+            UnitManager.Instance.RegisterUnit(this);
+        }
 
     }
     public virtual void Initialize(UnitData data, HexTile startingTile)
@@ -101,6 +101,11 @@ public abstract class UnitBase : MonoBehaviour
         Debug.Log($"{unitName} has died!");
 
         HideRangeIndicators();
+
+        if (UnitManager.Instance != null)
+        {
+            UnitManager.Instance.UnregisterUnit(unitId);
+        }
         Destroy(gameObject);
     }
 
@@ -151,24 +156,32 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
-        if (targetTile.HasStructure || targetTile.IsOccupiedByUnit)
+        if (targetTile.IsOccupiedByUnit)
         {
             Debug.Log($"{unitName} can't move there — tile is blocked or occupied!");
             return;
         }
-
-        Move(targetTile);
+        if (!hasMovedThisTurn)
+        {
+            Move(targetTile);
+        }
+        else return;
     }
 
 
     public virtual void Move(HexTile targetTile)
     {
         if (targetTile == null) return;
+        
         transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
         currentTile = targetTile;
         Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
-
+        hasMovedThisTurn = true;
         RevealNearbyFog(currentTile);
+    }
+    public void ResetMove()
+    {
+        hasMovedThisTurn = false;
     }
 
     protected void RevealNearbyFog(HexTile centerTile)
@@ -187,12 +200,6 @@ public abstract class UnitBase : MonoBehaviour
                 }
             }
         }
-
-        //FogSystem fog = FindAnyObjectByType<FogSystem>();
-        //if (fog != null)
-        //{
-        //    fog.RevealTilesAround(centerTile.HexCoords, fogRevealRadius);
-        //}
 
         Debug.Log($"{unitName} revealed fog around tile ({centerTile.q}, {centerTile.r})");
     }

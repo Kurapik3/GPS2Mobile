@@ -46,13 +46,22 @@ public class TurnManager : MonoBehaviour
 
         EventBus.Publish(new TurnUpdatedEvent(0, maxTurns));
         StartPlayerTurn();
+        
     }
 
     private void StartPlayerTurn()
     {
+        EventBus.Publish(new SeaMonsterEvents.SeaMonsterTurnStartedEvent(currentTurn));
 
         isPlayerTurn = true;
         Debug.Log($"--- Player Turn {currentTurn} ---");
+
+        foreach (var unit in UnitManager.Instance?.GetAllUnits() ?? new List<UnitBase>())
+        {
+            unit.ResetMove();
+        }
+
+
 
         EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));
         treeBase.OnTurnStart();
@@ -86,8 +95,8 @@ public class TurnManager : MonoBehaviour
     private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
     {
         Debug.Log($"--- Enemy Turn {evt.Turn} End ---");
-        Debug.Log($"<color=cyan>[TurnManager]</color> Received EnemyTurnEndEvent for Turn {evt.Turn}");
 
+        EnemyUnitManager.Instance.ClearJustSpawnedUnits();
         currentTurn++;
         isProcessingTurn = false;
         if (currentTurn > maxTurns)

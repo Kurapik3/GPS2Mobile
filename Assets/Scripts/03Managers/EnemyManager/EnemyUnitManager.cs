@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,15 +10,17 @@ public class EnemyUnitManager : MonoBehaviour
     public static EnemyUnitManager Instance { get; private set; }
 
     [Header("Runtime")]
-    [SerializeField] private List<GameObject> unitPrefabs;
+    [SerializeField] public List<GameObject> unitPrefabs;
     [SerializeField] private UnitDatabase unitDatabase;
-    [SerializeField] private float unitHeightOffset = 2f;
+    [SerializeField] private FogSystem fogSystem;
 
     //Runtime containers
     private Dictionary<int, Vector2Int> unitPositions = new();
+    public Dictionary<int, Vector2Int> UnitPositions => unitPositions;
     private Dictionary<int, string> unitTypes = new();
     private Dictionary<int, int> unitHP = new();
     private Dictionary<int, GameObject> unitObjects = new();
+    public IReadOnlyDictionary<int, GameObject> UnitObjects => unitObjects;
     private Dictionary<int, int> unitHousedBase = new(); //Track which base a unit is housed in
 
     public enum AIState
@@ -31,86 +32,37 @@ public class EnemyUnitManager : MonoBehaviour
     private HashSet<int> stateLockedUnits = new();
     private Dictionary<int, AIState> pendingStateChange = new();
 
+    public bool IsSpawning { get; set; } = false;
+
     private HashSet<int> justSpawnedUnits = new();
 
     private int nextUnitId = 1;
+    public int NextUnitId => nextUnitId;
+
+    private HashSet<int> actedThisTurn = new HashSet<int>();
 
     private void Awake()
     {
-        Instance = this;;
-    }
-
-    private void OnEnable()
-    {
-        Debug.Log("[EnemyUnitManager] OnEnable called, subscribing events");
-        EventBus.Subscribe<EnemyAIEvents.EnemySpawnRequestEvent>(OnSpawnRequest);
-        EventBus.Subscribe<EnemyAIEvents.EnemyMoveRequestEvent>(OnMoveRequest);
-        EventBus.Subscribe<EnemyAIEvents.EnemyAttackRequestEvent>(OnAttackRequest);
-        EventBus.Subscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
-    }
-
-    private void OnDisable()
-    {
-
-        EventBus.Unsubscribe<EnemyAIEvents.EnemySpawnRequestEvent>(OnSpawnRequest);
-        EventBus.Unsubscribe<EnemyAIEvents.EnemyMoveRequestEvent>(OnMoveRequest);
-        EventBus.Unsubscribe<EnemyAIEvents.EnemyAttackRequestEvent>(OnAttackRequest);
-        EventBus.Unsubscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
-    }
-
-    //Spawn handling: create runtime unit and publish EnemySpawnedEvent
-    private void OnSpawnRequest(EnemyAIEvents.EnemySpawnRequestEvent evt)
-    {
-        Debug.Log($"[EnemyUnitManager] Received Spawn Request for {evt.UnitType}");
-
-        //Find prefab by unit type
-        GameObject prefab = unitPrefabs.Find(p => p.name == evt.UnitType);
-        if (prefab == null)
+        if (Instance != null && Instance != this)
         {
-            Debug.LogWarning($"[EnemyUnitManager] Prefab for '{evt.UnitType}' not found.");
+            Destroy(gameObject);
             return;
         }
-
-        //Get base hex from EnemyBaseManager
-        Vector2Int spawnHex = GetBaseSpawnHex(evt.BaseId);
-        if (spawnHex == Vector2Int.zero)
-        {
-            Debug.LogWarning($"[EnemyUnitManager] Base #{evt.BaseId} has invalid spawn location.");
-            return;
-        }
-
-        Vector3 world = MapManager.Instance.HexToWorld(spawnHex);
-        world.y += (unitHeightOffset + 0.5f);
-
-        //Instantiate unit
-        var unitGO = Instantiate(prefab, world, Quaternion.identity);
-        unitGO.name = $"Enemy_{evt.UnitType}_{nextUnitId}";
-
-        RegisterUnit(unitGO, evt.BaseId, evt.UnitType, spawnHex);
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    private Vector2Int GetBaseSpawnHex(int baseId)
-    {
-        var ebm = EnemyBaseManager.Instance;
-        if (ebm == null)
-            return Vector2Int.zero;
-
-        if (!ebm.Bases.TryGetValue(baseId, out var enemyBase) || enemyBase == null)
-            return Vector2Int.zero;
-
-        return enemyBase.currentTile != null ? enemyBase.currentTile.HexCoords : Vector2Int.zero;
-    }
-
-
-    private void RegisterUnit(GameObject go, int baseId, string type, Vector2Int hex)
+    #region Registration & Destruction
+    public void RegisterUnit(GameObject go, int baseId, string type, Vector2Int hex)
     {
         int id = nextUnitId++;
         unitObjects[id] = go;
         unitPositions[id] = hex;
         unitTypes[id] = type;
         unitHousedBase[id] = baseId;
+
         var data = unitDatabase.GetUnitByName(type);
-        unitHP[id] = data != null ? data.hp : 10;
+        unitHP[id] = data != null ? data.hp : 0;
 
         justSpawnedUnits.Add(id);
         unitStates[id] = AIState.Dormant;
@@ -119,114 +71,13 @@ public class EnemyUnitManager : MonoBehaviour
         MapManager.Instance.SetUnitOccupied(hex, true);
 
         EventBus.Publish(new EnemyAIEvents.EnemySpawnedEvent(id, baseId, type, hex));
+
+        UpdateEnemyVisibility();
     }
-
-    private void OnMoveRequest(EnemyAIEvents.EnemyMoveRequestEvent evt)
-    {
-        if (!unitPositions.ContainsKey(evt.UnitId)) 
-            return;
-
-        //Check if unit can move
-        if (!CanUnitMove(evt.UnitId))
-        {
-            return;
-        }
-
-        Vector2Int from = unitPositions[evt.UnitId];
-        Vector2Int to = evt.Destination;
-
-        if (!MapManager.Instance.CanUnitStandHere(to))
-            return;
-
-        //Check occupancy
-        if (MapManager.Instance.IsTileOccupied(to))
-            return;
-
-        //Release old tile
-        MapManager.Instance.SetUnitOccupied(from, false);
-
-        unitPositions[evt.UnitId] = to;
-        MapManager.Instance.SetUnitOccupied(to, true);
-
-        //Move GameObject visually
-        if (unitObjects.TryGetValue(evt.UnitId, out var go))
-        {
-            Vector3 world = MapManager.Instance.HexToWorld(to);
-            world.y += unitHeightOffset;
-            StartCoroutine(SmoothMove(go, world));
-        }
-
-        EventBus.Publish(new EnemyAIEvents.EnemyMovedEvent(evt.UnitId, from, to));
-    }
-
-    private IEnumerator SmoothMove(GameObject unit, Vector3 destination)
-    {
-        Vector3 start = unit.transform.position;
-        float t = 0f;
-        float duration = 0.5f;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime / duration;
-            Vector3 nextPos = Vector3.Lerp(start, destination, t);
-            unit.transform.position = nextPos;
-            yield return null;
-        }
-
-        unit.transform.position = destination;
-    }
-
-    //Real damage logic will be handled by Combat system listening to this notification
-    private void OnAttackRequest(EnemyAIEvents.EnemyAttackRequestEvent evt)
-    {
-        if (!unitObjects.ContainsKey(evt.AttackerId)) 
-            return;
-
-        int damage = GetUnitAttackPower(evt.AttackerId);
-
-        //================= Enemy attacking another enemy (temp - for testing purpose) ===================
-        if (unitObjects.ContainsKey(evt.TargetId))
-        {
-            TakeDamage(evt.TargetId, damage);
-            EventBus.Publish(new EnemyAIEvents.EnemyAttackedEvent(evt.AttackerId, evt.TargetId));
-            return;
-        }
-
-        //Enemy attacking player
-        //if (PlayerUnitManager.Instance != null)
-        //{
-        //    PlayerUnitManager.Instance.TakeDamage(evt.TargetId, damage);
-        //    EventBus.Publish(new EnemyAIEvents.EnemyAttackedEvent(evt.AttackerId, evt.TargetId));
-        //    return;
-        //}
-        Debug.LogWarning($"[EnemyUnitManager] Target {evt.TargetId} not found");
-    }
-
-    //Get player unit's attack power from database
-    public int GetUnitAttackPower(int id)
-    {
-        if (!unitTypes.TryGetValue(id, out string type)) 
-            return 0;
-        var data = unitDatabase?.GetUnitByName(type);
-        return data != null ? data.attack : 1;
-    }
-
-    public void TakeDamage(int unitId, int amount)
-    {
-        if (!unitHP.ContainsKey(unitId)) 
-            return;
-
-        unitHP[unitId] -= amount;
-        Debug.Log($"[EnemyUnitManager] Unit {unitId} took {amount} damage, HP now {unitHP[unitId]}");
-
-        if (unitHP[unitId] <= 0)
-            KillUnit(unitId);
-    }
-
 
     public void KillUnit(int unitId)
     {
-        if (!unitObjects.ContainsKey(unitId)) 
+        if (!unitObjects.ContainsKey(unitId))
             return;
 
         if (unitHousedBase.TryGetValue(unitId, out int baseId))
@@ -243,15 +94,14 @@ public class EnemyUnitManager : MonoBehaviour
         unitTypes.Remove(unitId);
         unitHousedBase.Remove(unitId);
         unitHP.Remove(unitId);
+        unitStates.Remove(unitId);
+        justSpawnedUnits.Remove(unitId);
 
         Debug.Log($"[EnemyUnitManager] Unit {unitId} destroyed and removed from manager.");
     }
+    #endregion
 
-    private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
-    {
-        justSpawnedUnits.Clear();
-    }
-
+    #region State Management
     public void LockState(int unitId)
     {
         stateLockedUnits.Add(unitId);
@@ -283,19 +133,15 @@ public class EnemyUnitManager : MonoBehaviour
         return unitStates.TryGetValue(unitId, out var state) ? state : AIState.Dormant;
     }
 
+    public void ClearJustSpawnedUnits() => justSpawnedUnits.Clear();
+    #endregion
+
+    #region Queries
     //Check if unit can move this turn
     public bool CanUnitMove(int id)
     {
-        if (!unitPositions.ContainsKey(id)) 
-            return false;
-
-        if (justSpawnedUnits.Contains(id))
-            return false;
-
-        return true;
+        return unitPositions.ContainsKey(id) && !justSpawnedUnits.Contains(id);
     }
-
-    //Query helpers used by AIs
     public List<int> GetOwnedUnitIds() => new List<int>(unitPositions.Keys);
     public Vector2Int GetUnitPosition(int id) => unitPositions.TryGetValue(id, out var pos) ? pos : Vector2Int.zero;
     public string GetUnitType(int id) => unitTypes.TryGetValue(id, out var type) ? type : null;
@@ -311,6 +157,14 @@ public class EnemyUnitManager : MonoBehaviour
         }
         return 0;
     }
+    //Get player unit's attack power from database
+    public int GetPlayerUnitAttackPower(int id)
+    {
+        if (!unitTypes.TryGetValue(id, out string type))
+            return 0;
+        var data = unitDatabase?.GetUnitByName(type);
+        return data != null ? data.attack : 1;
+    }
     public int GetUnitMoveRange(int id)
     {
         if (unitTypes.TryGetValue(id, out var type))
@@ -323,12 +177,26 @@ public class EnemyUnitManager : MonoBehaviour
         return 0;
     }
 
+    public bool IsBuilderUnit(int id)
+    {
+        if (GetUnitType(id) == "Builder")
+            return true;
+        return false;
+    }
+
     public bool IsAnyUnitAt(Vector2Int hex)
     {
         foreach (var pos in unitPositions.Values)
-            if (pos == hex) 
+            if (pos == hex)
                 return true;
         return false;
+    }
+    public bool IsUnitVisibleToPlayer(int id)
+    {
+        if (fogSystem == null)
+            return true;
+        var pos = GetUnitPosition(id);
+        return fogSystem.revealedTiles.Contains(pos);
     }
 
     public int CountUnitsOfType(string type)
@@ -341,4 +209,55 @@ public class EnemyUnitManager : MonoBehaviour
     }
 
     public int TotalUnitCount() => unitPositions.Count;
+
+
+    public void MarkUnitAsActed(int unitId)
+    {
+        actedThisTurn.Add(unitId);
+    }
+
+    public bool HasUnitActedThisTurn(int unitId)
+    {
+        return actedThisTurn.Contains(unitId);
+    }
+
+    public void ClearActedUnits()
+    {
+        actedThisTurn.Clear();
+    }
+    #endregion
+
+    #region Damage
+    public void TakeDamage(int unitId, int amount)
+    {
+        if (!unitHP.ContainsKey(unitId))
+            return;
+
+        unitHP[unitId] -= amount;
+        Debug.Log($"[EnemyUnitManager] Unit {unitId} took {amount} damage, HP now {unitHP[unitId]}");
+
+        if (unitHP[unitId] <= 0)
+            KillUnit(unitId);
+    }
+    #endregion
+
+    public void UpdateEnemyVisibility()
+    {
+        foreach (var kv in unitObjects)
+        {
+            int id = kv.Key;
+            GameObject enemy = kv.Value;
+            bool visible = IsUnitVisibleToPlayer(id);
+            SetLayerRecursively(enemy, visible ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("EnemyHidden"));
+        }
+    }
+
+    private void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
+    }
 }

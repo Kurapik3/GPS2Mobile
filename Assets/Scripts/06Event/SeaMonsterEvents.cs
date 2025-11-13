@@ -56,23 +56,37 @@ public static class SeaMonsterEvents
     }
 
 
-    //==================== Kraken only ====================
+    #region Kraken
     public struct KrakenPreSpawnWarningEvent
     {
         public int Turn;
         public KrakenPreSpawnWarningEvent(int turn) => Turn = turn;
     }
 
+    //Event for UI layer to know Sea Monster targeting any unit and to show indicator
+    public struct KrakenTargetsUnitEvent
+    {
+        public SeaMonsterBase Attacker;
+        public GameObject Target;
+        public KrakenTargetsUnitEvent(Kraken attacker, GameObject target)
+        {
+            Attacker = attacker;
+            Target = target;
+        }
+    }
+
     //Event for Sea Monster attacking player or enemy unit
     public struct KrakenAttacksUnitEvent
     {
         public SeaMonsterBase Attacker;
-        public UnitBase Target;
+        public GameObject Target;
+        public int Damage;
 
-        public KrakenAttacksUnitEvent(SeaMonsterBase attacker, UnitBase target)
+        public KrakenAttacksUnitEvent(Kraken attacker, GameObject target, int damage)
         {
             Attacker = attacker;
             Target = target;
+            Damage = damage;
         }
     }
 
@@ -81,16 +95,18 @@ public static class SeaMonsterEvents
     {
         public SeaMonsterBase Attacker;
         public SeaMonsterBase Target;
+        public int Damage;
 
-        public KrakenAttacksMonsterEvent(SeaMonsterBase attacker, SeaMonsterBase target)
+        public KrakenAttacksMonsterEvent(Kraken attacker, SeaMonsterBase target, int damage)
         {
             Attacker = attacker;
             Target = target;
+            Damage = damage;
         }
     }
+    #endregion
 
-
-    //==================== Turtle Wall only ====================
+    #region TurtleWall
     public struct TurtleWallBlockEvent
     {
         public SeaMonsterBase Wall;
@@ -112,4 +128,5 @@ public static class SeaMonsterEvents
             TilePos = tilePos;
         }
     }
+    #endregion
 }

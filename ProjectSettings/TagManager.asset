@@ -8,6 +8,10 @@ TagManager:
   - EnemyUnit
   - PlayerBase
   - PlayerUnit
+  - Grove
+  - Kraken
+  - TurtleWall
+  - Ruin
   layers:
   - Default
   - TransparentFX
@@ -19,9 +23,9 @@ TagManager:
   - Clickable
   - structure
   - Unit
-  - Fish
-  - Cache
-  - Debris
+  - EnemyHidden
+  - 
+  - 
   - 
   - 
   - 

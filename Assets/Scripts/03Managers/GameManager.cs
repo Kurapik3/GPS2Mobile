@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TurnManager turnManager;
 
     private PlayerTracker player;
-
+    private EnemyTracker enemy;
     private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
     public static GameManager Instance { get; private set; }
     private void Awake()
@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         player = PlayerTracker.Instance;
-        
+        enemy = EnemyTracker.Instance;
         // Try to load saved game (runtime data)
         if (File.Exists(savePath))
         {
@@ -146,7 +146,7 @@ public class GameManager : MonoBehaviour
     public void CheckEnding()
     {
         int playerScore = player.getScore();
-        //int enemyScore = enemy.getScore(); //for ltr when enemy score is implemented
+        int enemyScore = enemy.GetScore(); 
 
         //int playerBaseCount =  //for ltr when player base count is implemented
 
@@ -158,9 +158,9 @@ public class GameManager : MonoBehaviour
         {
             ExecutionEnding();
         }
-        else if(turnManager.CurrentTurn < 30)
+        else if(turnManager.CurrentTurn == 31)
         {
-            if(playerScore > GetEnemyScore())
+            if(playerScore > enemyScore)
             {
                 NormalEnding();
             }
@@ -175,11 +175,6 @@ public class GameManager : MonoBehaviour
     {
         var allBases = FindObjectsByType<TreeBase>(FindObjectsSortMode.None);
         return allBases.Length == 0;
-    }
-
-    private int GetEnemyScore() // just a placeholder
-    {
-        return 0;
     }
 
     private void NormalEnding()

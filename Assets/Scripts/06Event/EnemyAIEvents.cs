@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public static class EnemyAIEvents
 {
+    #region Turn
     //Turn
     public struct EnemyTurnStartEvent 
     { 
@@ -13,23 +15,61 @@ public static class EnemyAIEvents
         public int Turn; 
         public EnemyTurnEndEvent(int turn) => Turn = turn; 
     }
+    #endregion
 
-    //Phase triggers
+    #region Phase
     public struct ExecuteBasePhaseEvent 
-    { 
-        public int Turn; 
-        public ExecuteBasePhaseEvent(int turn) => Turn = turn; 
+    {
+        public int Turn;
+        public Action OnCompleted;
+
+        public ExecuteBasePhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
     }
     public struct ExecuteDormantPhaseEvent 
     { 
-        public int Turn; 
-        public ExecuteDormantPhaseEvent(int turn) => Turn = turn; 
+        public int Turn;
+        public Action OnCompleted;
+        public ExecuteDormantPhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
     }
     public struct ExecuteAggressivePhaseEvent 
     { 
-        public int Turn; 
-        public ExecuteAggressivePhaseEvent(int turn) => Turn = turn; 
+        public int Turn;
+        public Action OnCompleted;
+        public ExecuteAggressivePhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
     }
+    public struct ExecuteBuilderPhaseEvent
+    {
+        public int Turn;
+        public Action OnCompleted;
+        public ExecuteBuilderPhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
+    }
+    public struct ExecuteAuxiliaryPhaseEvent
+    {
+        public int Turn;
+        public Action OnCompleted;
+        public ExecuteAuxiliaryPhaseEvent(int turn, Action onCompleted = null)
+        {
+            Turn = turn;
+            OnCompleted = onCompleted;
+        }
+    }
+    #endregion
 
     public struct MapReadyEvent 
     { 
@@ -37,6 +77,7 @@ public static class EnemyAIEvents
         public MapReadyEvent(MapGenerator m) => Map = m; 
     }
 
+    #region Request
     //Actions - published by AI modules, handled by Unit/Base managers
     public struct EnemySpawnRequestEvent 
     { 
@@ -66,7 +107,17 @@ public static class EnemyAIEvents
             AttackerId = attackerId; TargetId = targetId; 
         } 
     }
+    public struct EnemyAuxiliaryActionRequestEvent
+    {
+        public int ActionId;
+        public EnemyAuxiliaryActionRequestEvent(int actionId)
+        {
+            ActionId = actionId;
+        }
+    }
+    #endregion
 
+    #region NotificationAfterPerformingActions
     //Notifications after managers perform actions
     public struct EnemySpawnedEvent 
     { 
@@ -103,5 +154,28 @@ public static class EnemyAIEvents
             AttackerId = a; 
             TargetId = t; 
         } 
+    }
+    public struct EnemyAuxiliaryActionExecutedEvent
+    {
+        public int ActionId;
+        public bool Success;
+        public EnemyAuxiliaryActionExecutedEvent(int actionId, bool success)
+        {
+            ActionId = actionId;
+            Success = success;
+        }
+    }
+    #endregion
+
+    public struct BuilderDevelopGroveEvent
+    {
+        public int UnitId;
+        public Vector2Int GrovePosition;
+
+        public BuilderDevelopGroveEvent(int unitId, Vector2Int grovePos)
+        {
+            UnitId = unitId;
+            GrovePosition = grovePos;
+        }
     }
 }

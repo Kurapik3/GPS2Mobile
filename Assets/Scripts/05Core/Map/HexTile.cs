@@ -32,7 +32,8 @@ public class HexTile : MonoBehaviour
     //public Vector2Int OffsetCoord => new Vector2Int(q + (r + (r % 2)) / 2, r);
     //public Vector3Int CubeCoord => new Vector3Int(q, -q - r, r);
 
-    public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
+    [HideInInspector] public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
+    [HideInInspector] public bool isPlayerTurf = false; // william
     [SerializeField] public BuildingBase currentBuilding; // by william|
 
     [Header("Structure Data")]
@@ -51,6 +52,10 @@ public class HexTile : MonoBehaviour
     public bool HasEnemyBase => currentEnemyBase != null;
 
     public bool IsOccupied => HasStructure || HasDynamic;
+
+    private bool isBlockedByTurtleWall = false;
+    public bool IsBlockedByTurtleWall => isBlockedByTurtleWall;
+
     private void OnValidate()
     {
 #if UNITY_EDITOR
@@ -76,7 +81,7 @@ public class HexTile : MonoBehaviour
             if (Application.isPlaying)
             {
                 Destroy(oldMesh.gameObject);
-            }   
+            }
             else
             {
                 DestroyImmediate(oldMesh.gameObject);
@@ -149,7 +154,7 @@ public class HexTile : MonoBehaviour
         fogInstance = Instantiate(fogPrefab, transform);
         fogInstance.name = "Fog";
         fogInstance.transform.localPosition = new Vector3(0, yOffset, 0);
-        
+        SetContentsVisible(false);
     }
     public void RemoveFog()
     {
@@ -166,6 +171,7 @@ public class HexTile : MonoBehaviour
             DestroyImmediate(fogInstance);
         }
         fogInstance = null;
+        SetContentsVisible(true);
     }
     public void ApplyStructureRuntime(StructureData data)
     {
@@ -356,6 +362,75 @@ public class HexTile : MonoBehaviour
         return IsWalkable && !IsOccupiedByUnit;
     }
 
+    public void SetBlockedByTurtleWall(bool blocked)
+    {
+        isBlockedByTurtleWall = blocked;
+    }
 
+    //For settings renderes on/off
+    public void SetContentsVisible(bool visible)
+    {
+        // Override visibility if developer setting says to show everything
+        if (MapVisibiilitySettings.Instance != null && MapVisibiilitySettings.Instance.showAllContents)
+        {
+            visible = true;
+        }
+        //For dynamic tile
+        if (dynamicInstance != null)
+        {
+            ToggleRenderersAndColliders(dynamicInstance, visible);
+        }
+        //For structures using layer
+        int structureLayer = LayerMask.NameToLayer("structure");
+        foreach (Transform child in transform)
+        {
+            if (child.gameObject.layer == structureLayer)
+            {
+                ToggleRenderersAndColliders(child.gameObject, visible);
+            }
+        }
+        // For enemies using tag
+        HideObjectsWithTagRecursive(transform, "EnemyBase", visible);
+        //For ruins using tag
+        HideObjectsWithTagRecursive(transform, "Ruin", visible);
+    }
+    private void HideObjectsInLayerRecursive(Transform parent, int layer, bool visible)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.gameObject.layer == layer)
+            {
+                ToggleRenderersAndColliders(child.gameObject, visible);
+            }
+            HideObjectsInLayerRecursive(child, layer, visible);
+        }
+    }
+    private void HideObjectsWithTagRecursive(Transform parent, string tag, bool visible)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.CompareTag(tag))
+            {
+                ToggleRenderersAndColliders(child.gameObject, visible);
+            }
+            HideObjectsWithTagRecursive(child, tag, visible);
+        }
+    }
+
+    private void ToggleRenderersAndColliders(GameObject obj, bool visible)
+    {
+        foreach (var renderer in obj.GetComponentsInChildren<Renderer>())
+        {
+            renderer.enabled = visible;
+        }
+        foreach (var collider in obj.GetComponentsInChildren<Collider>())
+        {
+            collider.enabled = visible;
+        }
+    }
+
+    public void SetTurf(bool value)
+    {
+        isPlayerTurf = value;   
+    }
 }
-

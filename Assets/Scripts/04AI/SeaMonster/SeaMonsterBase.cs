@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using static SeaMonsterEvents;
 
 /// <summary>
 /// Base class for all Sea Monsters (Kraken, TurtleWall)
@@ -8,13 +9,16 @@ using UnityEngine;
 public abstract class SeaMonsterBase : MonoBehaviour
 {
     [Header("Stats")]
-    public string MonsterName;
-    public int Attack;
-    public int Health;
-    public int KillPoints;
-    public int KillAP;
-    public int MovementRange;
-    public int AttackRange;
+    [SerializeField] protected string monsterName;
+    [SerializeField] protected int attack;
+    [SerializeField] protected int health;
+    [SerializeField] protected int killPoints;
+    [SerializeField] protected int killAP;
+    [SerializeField] protected int movementRange;
+    [SerializeField] protected int attackRange;
+
+    public string MonsterName => monsterName;
+    public int MovementRange => movementRange;
 
     [Header("Visual")]
     [SerializeField] protected float heightOffset = 2f;
@@ -36,12 +40,12 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        EventBus.Subscribe<SeaMonsterEvents.SeaMonsterTurnStartedEvent>(OnTurnStarted);
+        EventBus.Subscribe<SeaMonsterTurnStartedEvent>(OnTurnStarted);
     }
 
     protected virtual void OnDisable()
     {
-        EventBus.Unsubscribe<SeaMonsterEvents.SeaMonsterTurnStartedEvent>(OnTurnStarted);
+        EventBus.Unsubscribe<SeaMonsterTurnStartedEvent>(OnTurnStarted);
     }
 
     //Controls sea monster spawning
@@ -55,9 +59,9 @@ public abstract class SeaMonsterBase : MonoBehaviour
         //Register tile occupancy
         MapManager.Instance.SetUnitOccupied(spawnTile.HexCoords, true);
 
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterSpawnedEvent(this, spawnTile.HexCoords));
+        EventBus.Publish(new SeaMonsterSpawnedEvent(this, spawnTile.HexCoords));
 
-        Debug.Log($"[{MonsterName}] Spawned at {spawnTile.HexCoords}");
+        Debug.Log($"[{monsterName}] Spawned at {spawnTile.HexCoords}");
     }
 
     private void OnTurnStarted(SeaMonsterEvents.SeaMonsterTurnStartedEvent evt)
@@ -80,7 +84,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
         //Validate walkability
         if (!MapManager.Instance.IsWalkable(newPos) || MapManager.Instance.IsTileOccupied(newPos))
         {
-            Debug.LogWarning($"[{MonsterName}] Cannot move to {newPos} — blocked or not walkable.");
+            Debug.LogWarning($"[{monsterName}] Cannot move to {newPos} — blocked or not walkable.");
             return;
         }
 
@@ -92,19 +96,20 @@ public abstract class SeaMonsterBase : MonoBehaviour
         //Register new tile as occupied
         MapManager.Instance.SetUnitOccupied(newPos, true);
 
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterMoveEvent(this, oldPos, newPos));
+        EventBus.Publish(new SeaMonsterMoveEvent(this, oldPos, newPos));
 
         //If blocking, trigger reapply event (used by TurtleWall)
         if (isBlocking)
-            EventBus.Publish(new SeaMonsterEvents.TurtleWallBlockEvent(this, newPos));
+            EventBus.Publish(new TurtleWallBlockEvent(this, newPos));
 
-        Debug.Log($"[{MonsterName}] Moved from {oldPos} to {newPos}");
+        Debug.Log($"[{monsterName}] Moved from {oldPos} to {newPos}");
         StartCoroutine(SmoothMove(newTile));
     }
 
     private IEnumerator SmoothMove(HexTile newTile)
     {
-        Vector3 start = transform.position;
+        Vector3 start = MapManager.Instance.HexToWorld(CurrentTile.HexCoords);
+        start.y += heightOffset;
         Vector3 end = MapManager.Instance.HexToWorld(newTile.HexCoords);
         end.y += heightOffset;
 
@@ -124,8 +129,8 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     public virtual void TakeDamage(int dmg)
     {
-        Health -= dmg;
-        if (Health <= 0)
+        health -= dmg;
+        if (health <= 0)
             Die();
     }
 
@@ -137,8 +142,8 @@ public abstract class SeaMonsterBase : MonoBehaviour
         if (CurrentTile != null)
             MapManager.Instance.SetUnitOccupied(pos, false);
 
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterKilledEvent(this, pos));
-        Debug.Log($"[{MonsterName}] died at {pos}");
+        EventBus.Publish(new SeaMonsterKilledEvent(this, pos));
+        Debug.Log($"[{monsterName}] died at {pos}");
 
         Destroy(gameObject);
     }
