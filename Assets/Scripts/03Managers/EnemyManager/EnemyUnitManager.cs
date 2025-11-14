@@ -143,6 +143,15 @@ public class EnemyUnitManager : MonoBehaviour
         return unitPositions.ContainsKey(id) && !justSpawnedUnits.Contains(id);
     }
     public List<int> GetOwnedUnitIds() => new List<int>(unitPositions.Keys);
+    public int GetUnitIdByObject(GameObject obj)
+    {
+        foreach (var kvp in unitObjects)
+        {
+            if (kvp.Value == obj)
+                return kvp.Key;
+        }
+        return -1; //Not found any unit
+    }
     public Vector2Int GetUnitPosition(int id) => unitPositions.TryGetValue(id, out var pos) ? pos : Vector2Int.zero;
     public string GetUnitType(int id) => unitTypes.TryGetValue(id, out var type) ? type : null;
     public int GetUnitHP(int id) => unitHP.TryGetValue(id, out var hp) ? hp : 0;
