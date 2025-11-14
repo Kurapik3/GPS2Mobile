@@ -45,5 +45,24 @@ public class UnitManager : MonoBehaviour
     {
         return new List<UnitBase>(unitsById.Values);
     }
-    
+
+    //For saved states -Ashley
+    public void ClearAllUnits()
+    {
+        foreach (var unit in new List<UnitBase>(unitsById.Values))
+        {
+            if (unit != null)
+                Destroy(unit.gameObject);
+        }
+        unitsById.Clear();
+        nextUnitId = 0;
+    }
+
+    public void SpawnUnit(UnitData data, HexTile tile, GameObject prefab)
+    {
+        GameObject obj = Instantiate(prefab);
+        UnitBase unit = obj.GetComponent<UnitBase>();
+        unit.Initialize(data, tile);
+        RegisterUnit(unit);
+    }
 }

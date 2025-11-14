@@ -1,12 +1,14 @@
 using UnityEngine;
 using System.IO;
 using System;
+using Newtonsoft.Json;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private MapGenerator mapGenerator;
     [SerializeField] private DynamicTileGenerator dynamicTileGen;
     [SerializeField] private FogSystem fogSystem;
     [SerializeField] private TurnManager turnManager;
+    [SerializeField] private UnitSpawner unitSpawner;
 
     private PlayerTracker player;
     private EnemyTracker enemy;
@@ -104,8 +106,39 @@ public class GameManager : MonoBehaviour
 
         //save other states here
 
+         // Player + enemy units
+        foreach (var unit in UnitManager.Instance.GetAllUnits())
+        {
+            data.playerUnits.Add(new GameSaveData.UnitData
+            {
+                unitName = unit.unitName,
+                q = unit.currentTile.q,
+                r = unit.currentTile.r,
+                hp = unit.hp,
+                movement = unit.movement,
+                range = unit.range,
+                isCombat = unit.isCombat
+            });
+        }
 
-        File.WriteAllText(savePath, JsonUtility.ToJson(data, true));
+        foreach (var unit in EnemyUnitManager.Instance.GetAllUnits())
+        {
+            data.enemyUnits.Add(new GameSaveData.UnitData
+            {
+                unitName = unit.unitName,
+                q = unit.currentTile.HexCoords.x,
+                r = unit.currentTile.HexCoords.y,
+                hp = unit.hp
+            });
+        }
+
+        data.currentTurn = turnManager.CurrentTurn;
+        data.playerScore = PlayerTracker.Instance.getScore();
+        data.playerAP = PlayerTracker.Instance.getAp();
+        data.enemyScore = enemy.GetScore();
+
+        string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+        File.WriteAllText(savePath, json);
         Debug.Log($"Game saved to {savePath}");
     }
 
@@ -118,7 +151,7 @@ public class GameManager : MonoBehaviour
         }
 
         string json = File.ReadAllText(savePath);
-        GameSaveData data = JsonUtility.FromJson<GameSaveData>(json);
+        GameSaveData data = JsonConvert.DeserializeObject<GameSaveData>(json);
 
         if (mapGenerator.MapData == null)
         {
@@ -133,8 +166,59 @@ public class GameManager : MonoBehaviour
             fogSystem.RevealTilesAround(new Vector2Int(tileData.q, tileData.r), 0);
         }
 
+        // Load units
+        UnitManager.Instance.ClearAllUnits();
+        foreach (var u in data.playerUnits)
+        {
+            GameObject prefab = null;
+
+            // Match the prefab based on unitName
+            if (u.unitName == "Builder")
+                prefab = unitSpawner.BuilderPrefab;
+            else if (u.unitName == "Scout")
+                prefab = unitSpawner.ScoutPrefab;
+            // add more if you have other unit types
+
+            if (prefab == null)
+            {
+                Debug.LogWarning($"Prefab for {u.unitName} not found, skipping.");
+                continue;
+            }
+
+            // Find CSV index for this unit
+            int csvIndex = unitSpawner.unitDatabase.GetAllUnits().FindIndex(d => d.unitName == u.unitName);
+            if (csvIndex < 0)
+            {
+                Debug.LogWarning($"Unit {u.unitName} not found in database, skipping.");
+                continue;
+            }
+
+            // Use the existing CreateUnit method — do not edit it
+            unitSpawner.CreateUnit(prefab, csvIndex);
+        }
+
+            EnemyUnitManager.Instance.ClearAll();
+        foreach (var u in data.enemyUnits)
+        {
+            var prefab = EnemyUnitManager.Instance.unitPrefabs
+                .Find(p => p.name == u.unitName);
+            if (prefab != null)
+                EnemyUnitManager.Instance.RegisterUnit(
+                    Instantiate(prefab),
+                    0,
+                    u.unitName,
+                    new Vector2Int(u.q, u.r)
+                );
+        }
+
+        turnManager.CurrentTurn = data.currentTurn;
+        PlayerTracker.Instance.currentScore = data.playerScore;
+        PlayerTracker.Instance.currentAP = data.playerAP;
+        enemy.currentScore = data.enemyScore;
+
         // Load dynamic objects
         dynamicTileGen.LoadDynamicObjects(data);
+        EnemyUnitManager.Instance.UpdateEnemyVisibility();
         Debug.Log("Game loaded!");
     }
     bool allEnemyBasesDestroyed = false;
@@ -142,6 +226,16 @@ public class GameManager : MonoBehaviour
     {
         allEnemyBasesDestroyed = destroyed.baseDestroyed;
     }
+
+    public void ClearSave()
+    {
+        if (File.Exists(savePath))
+        {
+            File.Delete(savePath);
+            Debug.Log("Save data cleared!");
+        }
+    }
+
 
     public void CheckEnding()
     {
@@ -197,4 +291,9 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("Failure Ending");
     }
+
+    #if UNITY_EDITOR
+        [ContextMenu("Clear Saved Data")]
+        void EditorClearSave() => ClearSave();
+    #endif
 }

@@ -260,4 +260,32 @@ public class EnemyUnitManager : MonoBehaviour
             SetLayerRecursively(child.gameObject, layer);
         }
     }
+
+
+    //For savedd states - Ashley
+    public List<UnitBase> GetAllUnits()
+    {
+        List<UnitBase> units = new();
+        foreach (var obj in unitObjects.Values)
+        {
+            var u = obj.GetComponent<UnitBase>();
+            if (u != null)
+                units.Add(u);
+        }
+        return units;
+    }
+
+    public void ClearAll()
+    {
+        foreach (var obj in unitObjects.Values)
+        {
+            if (obj != null)
+                Destroy(obj);
+        }
+        unitObjects.Clear();
+        unitPositions.Clear();
+        unitTypes.Clear();
+        unitHP.Clear();
+        nextUnitId = 1;
+    }
 }

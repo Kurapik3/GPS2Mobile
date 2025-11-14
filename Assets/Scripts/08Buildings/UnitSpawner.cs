@@ -4,12 +4,12 @@ public class UnitSpawner : MonoBehaviour
 {
     [Header("Initialize")]
     [SerializeField] private PlayerTracker player;
-    [SerializeField] private UnitDatabase unitDatabase;
+    [SerializeField] public UnitDatabase unitDatabase;
     [SerializeField] private TechTree techTree;
 
     [Header("Units Prefab")]
-    [SerializeField] private GameObject BuilderPrefab;
-    [SerializeField] private GameObject ScoutPrefab;
+    [SerializeField] public GameObject BuilderPrefab;
+    [SerializeField] public GameObject ScoutPrefab;
     //[SerializeField] private GameObject TankerPrefab; 
     //[SerializeField] private GameObject ShooterPrefab;
     //[SerializeField] private GameObject BomberPrefab;

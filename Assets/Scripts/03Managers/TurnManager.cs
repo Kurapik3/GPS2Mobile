@@ -17,7 +17,12 @@ public class TurnManager : MonoBehaviour
     private int currentTurn = 0;
     private bool isPlayerTurn = true;
 
-    public int CurrentTurn => currentTurn;
+    public int CurrentTurn
+    {
+        get => currentTurn;
+        set => currentTurn = value;
+    }
+    
     public bool IsPlayerTurn => isPlayerTurn;
 
     public delegate void TurnEvent();
