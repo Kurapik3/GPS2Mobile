@@ -228,4 +228,35 @@ public class DebirisSelect : MonoBehaviour
         // Cleanup
         DeselectAll();
     }
+    public void OnExtractButtonPressed()
+    {
+        if (DebirisSelect.instance != null)
+            DebirisSelect.instance.DevelopSelectedTile();
+    }
+    public void DevelopSelectedTile()
+    {
+        if (debrisSelected.Count == 0 || debrisSelected[0] == null)
+        {
+            Debug.Log("No debris selected.");
+            return;
+        }
+
+        DebrisTile tile = debrisSelected[0].GetComponent<DebrisTile>();
+        if (tile != null)
+        {
+            bool success = tile.OnTileTapped();
+            if (success)
+            {
+                Debug.Log("Developed debris tile: " + debrisSelected[0].name);
+                CloseStats();
+                CloseStructureInfoPanel();
+
+                debrisSelected.Clear();
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Selected object has no DebrisTile component: " + debrisSelected[0].name);
+        }
+    }
 }
