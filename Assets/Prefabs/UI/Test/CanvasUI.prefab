@@ -1741,9 +1741,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UnitS, Assembly-CSharp
-        m_MethodName: CloseStats
+      - m_Target: {fileID: 6947560607924623478, guid: 8d998bc60f0ae6a4693f4145a43d6853, type: 3}
+        m_TargetAssemblyTypeName: FishSelection, Assembly-CSharp
+        m_MethodName: OnExtractButtonPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -13379,9 +13379,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UnitS, Assembly-CSharp
-        m_MethodName: CloseStats
+      - m_Target: {fileID: 2320059687388445337, guid: ef14bd8dfba381041b14dc4f04836a05, type: 3}
+        m_TargetAssemblyTypeName: DebirisSelect, Assembly-CSharp
+        m_MethodName: DevelopSelectedTile
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
