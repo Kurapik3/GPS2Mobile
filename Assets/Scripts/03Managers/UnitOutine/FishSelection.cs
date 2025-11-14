@@ -36,6 +36,7 @@ public class FishSelection : MonoBehaviour
     private bool isSFXPlayed = true;
     public static bool IsUIBlockingInput { get; set; } = false;
 
+
     // Touch tracking
     private Vector2 touchStartPos;
     private float touchStartTime;
@@ -227,5 +228,38 @@ public class FishSelection : MonoBehaviour
     {
         // Cleanup
         DeselectAll();
+    }
+    public void OnExtractButtonPressed()
+    {
+        if (FishSelection.instance != null)
+            FishSelection.instance.DevelopSelectedTile();
+    }
+    public void DevelopSelectedTile()
+    {
+        if (fishSelected.Count == 0 || fishSelected[0] == null)
+        {
+            Debug.Log("No fish selected.");
+            return;
+        }
+
+        FishTile tile = fishSelected[0].GetComponent<FishTile>();
+        if (tile != null)
+        {
+            bool success = tile.OnTileTapped();
+            if (success)
+            {
+                Debug.Log("Developed fish tile: " + fishSelected[0].name);
+                // Close the UI panels
+                CloseStats();          // status window
+                CloseStructureInfoPanel(); // info panel
+
+                // Remove the fish from selection list
+                fishSelected.Clear();
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Selected object has no FishTile component: " + fishSelected[0].name);
+        }
     }
 }

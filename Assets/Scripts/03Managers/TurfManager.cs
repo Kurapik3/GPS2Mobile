@@ -50,4 +50,11 @@ public class TurfManager : MonoBehaviour
         }
         turfTiles.Clear();
     }
+
+    //Added By Ashley to access Turf Tiles
+    public IEnumerable<HexTile> GetAllTurfTiles()
+    {
+        return turfTiles;
+    }
+
 }

@@ -48,7 +48,7 @@ MonoBehaviour:
   debrisSelected: []
   debris:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4096
   tapTimeThreshold: 0.3
   tapDistanceThreshold: 50
   debrisInfoPanelMove: {fileID: 0}
