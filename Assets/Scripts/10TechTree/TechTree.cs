@@ -29,6 +29,16 @@ public class TechTree : MonoBehaviour
     [SerializeField] public bool IsHunterMask = false;
     [SerializeField] public bool IsTaming = false;
 
+    public static TechTree Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
     // Development branch
     public void Fishing(int cost)
     {
