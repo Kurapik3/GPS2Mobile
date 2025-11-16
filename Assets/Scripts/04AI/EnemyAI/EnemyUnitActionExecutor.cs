@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static EnemyAIEvents;
+using static UnityEngine.GraphicsBuffer;
 
 /// <summary>
 /// Handles executing enemy actions: spawn, move, attack.
@@ -19,13 +20,16 @@ public class EnemyActionExecutor : MonoBehaviour
         EventBus.Subscribe<EnemySpawnRequestEvent>(OnSpawnRequest);
         EventBus.Subscribe<EnemyMoveRequestEvent>(OnMoveRequest);
         EventBus.Subscribe<EnemyAttackRequestEvent>(OnAttackRequest);
+        EventBus.Subscribe<BuilderDevelopGroveEvent>(OnBuilderDevelopGrove);
     }
+
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<EnemySpawnRequestEvent>(OnSpawnRequest);
         EventBus.Unsubscribe<EnemyMoveRequestEvent>(OnMoveRequest);
         EventBus.Unsubscribe<EnemyAttackRequestEvent>(OnAttackRequest);
+        EventBus.Unsubscribe<BuilderDevelopGroveEvent>(OnBuilderDevelopGrove);
     }
 
     #region Spawn
@@ -168,27 +172,118 @@ public class EnemyActionExecutor : MonoBehaviour
     #region Attack
     private void OnAttackRequest(EnemyAttackRequestEvent evt)
     {
-        if (unitManager == null) 
-            return;
-
-        int damage = unitManager.GetPlayerUnitAttackPower(evt.AttackerId);
-
-        //Attack enemy unit (temp, for testing purpose)
-        if (unitManager.UnitObjects.ContainsKey(evt.TargetId))
+        if (evt.Target == null)
         {
-            unitManager.TakeDamage(evt.TargetId, damage);
-            EventBus.Publish(new EnemyAttackedEvent(evt.AttackerId, evt.TargetId));
+            Debug.LogWarning($"[EnemyActionExecutor] Target GameObject missing for attacker {evt.AttackerId}!");
             return;
         }
 
-        //TODO: handle player units if PlayerUnitManager exists, eg:
-        //if(PlayerUnitManager.UnitObjects.ContainsKey(evt.TargetId))
-        //{
-        //    PlayerUnitManager.TakeDamage(evt.TargetId, damage);
-        //    EventBus.Publish(new EnemyAttackedEvent(evt.AttackerId, evt.TargetId));
-        //    return;
-        //}
-        Debug.LogWarning($"[EnemyActionExecutor] Target {evt.TargetId} not found.");
+        Debug.Log($"[EnemyActionExecutor] Attacker {evt.AttackerId} attacking target {evt.Target.name}");
+
+        var attackerGO = unitManager.UnitObjects[evt.AttackerId];
+        if (attackerGO != null)
+        {
+            var ar = attackerGO.GetComponentInChildren<Renderer>();
+            if (ar != null)
+            {
+                Color aOriginal = ar.material.color;
+                ar.material.color = Color.yellow;
+                StartCoroutine(RestoreColor(ar, aOriginal, 0.2f));
+            }
+        }
+
+        int damage = unitManager.GetPlayerUnitAttackPower(evt.AttackerId);
+
+        var unit = evt.Target.GetComponent<UnitBase>();
+        if (unit != null)
+        {
+            unit.TakeDamage(damage);
+            Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to PlayerUnit {unit.name}, HP now {unit.hp}");
+            EventBus.Publish(new EnemyAttackedEvent(evt.AttackerId, unit.gameObject));
+            return;
+        }
+
+        var tb = evt.Target.GetComponent<TreeBase>();
+        if (tb != null)
+        {
+            tb.TakeDamage(damage);
+            Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to TreeBase {tb.name}");
+            EventBus.Publish(new EnemyAttackedEvent(evt.AttackerId, tb.gameObject));
+            return;
+        }
+
+        var sm = evt.Target.GetComponent<SeaMonsterBase>();
+        if (sm != null)
+        {
+            sm.TakeDamage(damage);
+            Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to SeaMonster {sm.name}");
+            EventBus.Publish(new EnemyAttackedEvent(evt.AttackerId, sm.gameObject));
+            return;
+        }
+
+        //Temp, for testing
+        Renderer r = evt.Target.GetComponentInChildren<Renderer>();
+        if (r != null)
+        {
+            Color original = r.material.color;
+            r.material.color = Color.red;
+            StartCoroutine(RestoreColor(r, original, 0.2f));
+        }
+
+        Debug.LogWarning($"[EnemyActionExecutor] Target {evt.Target} not found.");
+    }
+
+    //Temp, for testing
+    private IEnumerator RestoreColor(Renderer r, Color original, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (r != null)
+            r.material.color = original;
+    }
+    #endregion
+
+    #region Builder
+    private void OnBuilderDevelopGrove(BuilderDevelopGroveEvent evt)
+    {
+        //Get Tile Position
+        HexTile tile = MapManager.Instance.GetTile(evt.GrovePosition);
+        if (tile == null || tile.currentBuilding == null)
+        {
+            Debug.LogWarning($"[EnemyActionExecutor] Target tile {evt.GrovePosition} invalid for building.");
+            return;
+        }
+
+        GroveBase grove = tile.currentBuilding.GetComponent<GroveBase>();
+        if (grove == null)
+        {
+            Debug.LogWarning($"[EnemyActionExecutor] No GroveBase at {evt.GrovePosition}");
+            return;
+        }
+
+        //Remove the grove
+        Destroy(grove.gameObject);
+        tile.currentBuilding = null;
+
+        //Instantiate Enemy Base at the same tile
+        if (EnemyBaseManager.Instance == null || EnemyBaseManager.Instance.basePrefab == null)
+        {
+            Debug.LogWarning("[EnemyActionExecutor] EnemyBase prefab missing!");
+            return;
+        }
+
+        Vector3 spawnPos = MapManager.Instance.HexToWorld(evt.GrovePosition);
+        spawnPos.y += 2f;
+        GameObject newEnemyBase = Instantiate(EnemyBaseManager.Instance.basePrefab, spawnPos, Quaternion.identity);
+
+        //Register to EnemyBaseManager
+        EnemyBase newBase = newEnemyBase.GetComponent<EnemyBase>();
+        if (newBase != null)
+            EnemyBaseManager.Instance.RegisterBase(newBase);
+
+        //Successfully build a base, add score to enemy
+        EnemyTracker.Instance.AddScore(1000);
+
+        Debug.Log($"[EnemyActionExecutor] Builder {evt.UnitId} developed Grove into Enemy Base at {evt.GrovePosition}");
     }
     #endregion
 }

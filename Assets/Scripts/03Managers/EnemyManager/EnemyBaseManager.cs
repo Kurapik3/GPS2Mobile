@@ -11,6 +11,7 @@ public class EnemyBaseManager : MonoBehaviour
 
     [Header("Spawn Settings")]
     [SerializeField] private float spawnDelay = 0.5f;
+    [SerializeField] public GameObject basePrefab;
 
     private readonly Dictionary<int, EnemyBase> bases = new();
     public IReadOnlyDictionary<int, EnemyBase> Bases => bases;

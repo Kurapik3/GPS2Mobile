@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static SeaMonsterEvents;
@@ -111,26 +111,23 @@ public class Kraken : SeaMonsterBase
         }
         else
         {
-            int enemyId = -1;
-
-            foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
+            bool attackedEnemy = false;
+            foreach (var enemy in EnemyUnitManager.Instance.UnitObjects)
             {
-                if (kv.Value == currentTarget)
+                if (enemy.Value == currentTarget)
                 {
-                    enemyId = kv.Key;
+                    EventBus.Publish(new KrakenAttacksUnitEvent(this, currentTarget, attack));
+                    attackedEnemy = true;
                     break;
                 }
             }
 
-            if (enemyId != -1)
-            {
-                EventBus.Publish(new KrakenAttacksUnitEvent(this, currentTarget, attack));
-            }
-            else if (currentTarget.TryGetComponent<SeaMonsterBase>(out var monster))
+            if (!attackedEnemy && currentTarget.TryGetComponent(out SeaMonsterBase monster))
             {
                 EventBus.Publish(new KrakenAttacksMonsterEvent(this, monster, attack));
             }
-            else
+
+            if (!attackedEnemy && !currentTarget.TryGetComponent<SeaMonsterBase>(out _))
             {
                 Debug.LogWarning("[Kraken] Unknown target type.");
             }
@@ -141,16 +138,26 @@ public class Kraken : SeaMonsterBase
         currentTarget = null;
     }
 
-    private List<GameObject> GetTargetsInRange()
+     private List<GameObject> GetTargetsInRange()
     {
         List<GameObject> result = new List<GameObject>();
         List<HexTile> tiles = GetTilesInRange(CurrentTile, attackRange);
 
         foreach (HexTile tile in tiles)
         {
+            //Player Unit
             if (tile.currentUnit != null)
                 result.Add(tile.currentUnit.gameObject);
-            else if (tile.HasDynamic && tile.dynamicInstance != null)
+
+            //Enemy Unit
+            foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
+            {
+                if (kv.Value == tile.dynamicInstance)
+                    result.Add(kv.Value);
+            }
+
+            //Other sea monster
+            if (tile.HasDynamic && tile.dynamicInstance != null)
             {
                 SeaMonsterBase other = tile.dynamicInstance.GetComponent<SeaMonsterBase>();
                 if (other != null && other != this)

@@ -142,6 +142,10 @@ public class EnemyUnitManager : MonoBehaviour
     {
         return unitPositions.ContainsKey(id) && !justSpawnedUnits.Contains(id);
     }
+    public bool CanUnitAttack(int id)
+    {
+        return !justSpawnedUnits.Contains(id);
+    }
     public List<int> GetOwnedUnitIds() => new List<int>(unitPositions.Keys);
     public int GetUnitIdByObject(GameObject obj)
     {
@@ -181,7 +185,10 @@ public class EnemyUnitManager : MonoBehaviour
             var data = unitDatabase?.GetUnitByName(type);
             if (data == null)
                 return 0;
-            return data.movement;
+
+            if (type == "Builder")
+                return 2;
+            return 1;
         }
         return 0;
     }

@@ -96,7 +96,6 @@ public class EnemyBase : MonoBehaviour
         GroveBase newGroveBase = groveObj.GetComponent<GroveBase>();
         newGroveBase.Initialize(BuildingFactory.Instance.GroveData, currentTile);
         currentTile.SetBuilding(newGroveBase);
-        EnemyTracker.Instance.AddScore(1000);
         Debug.Log($"[EnemyBase] Spawned Groove at {tile.HexCoords}");
     }
 

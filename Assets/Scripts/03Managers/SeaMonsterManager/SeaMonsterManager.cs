@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using static EnemyAIEvents;
 using static SeaMonsterEvents;
 
 /// <summary>
@@ -197,25 +198,22 @@ public class SeaMonsterManager : MonoBehaviour
         //If target is player unit
         if (evt.Target.TryGetComponent<UnitBase>(out UnitBase playerUnit))
         {
-            if(krakenAttackSound != null)
-                AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
             playerUnit.TakeDamage(evt.Damage);
-
             Debug.Log($"Kraken attacked player unit {playerUnit.unitName} for {evt.Damage} damage!");
+            return;
         }
-        else //If target is enemy unit
+
+        int enemyId = FindEnemyId(evt.Target);
+        if (enemyId != -1)
         {
-            int enemyId = FindEnemyId(evt.Target);
-            if (enemyId != -1)
-            {
-                if (krakenAttackSound != null)
-                    AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
-                EnemyUnitManager.Instance.TakeDamage(enemyId, evt.Damage);
-            }
-            else
-            {
-                Debug.LogWarning("Kraken attack target is unknown type!");
-            }
+            if (krakenAttackSound != null)
+                AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
+            EnemyUnitManager.Instance.TakeDamage(enemyId, evt.Damage);
+            Debug.Log($"Kraken attacked player unit {EnemyUnitManager.Instance.GetUnitType(enemyId)} for {evt.Damage} damage!");
+        }
+        else
+        {
+            Debug.LogWarning("Kraken attack target is unknown type!");
         }
     }
 
