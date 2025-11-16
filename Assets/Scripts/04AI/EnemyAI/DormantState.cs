@@ -52,11 +52,11 @@ public class DormantState : MonoBehaviour
         {
             eum.LockState(id);
 
-            //if (eum.IsBuilderUnit(id))
-            //{
-            //    Debug.Log($"[DormantAI] Unit {id} is Builder, do nothing.");
-            //    continue;
-            //}
+            if (eum.IsBuilderUnit(id))
+            {
+                Debug.Log($"[DormantAI] Unit {id} is Builder, do nothing.");
+                continue;
+            }
 
             //Skip visible (aggressive)
             if (eum.IsUnitVisibleToPlayer(id))
@@ -72,8 +72,7 @@ public class DormantState : MonoBehaviour
             }
 
             Vector2Int current = eum.GetUnitPosition(id);
-            int moveRange = 1;
-            List<Vector2Int> candidates = AIPathFinder.GetReachableHexes(current, moveRange);
+            List<Vector2Int> candidates = AIPathFinder.GetReachableHexes(current, eum.GetUnitMoveRange(id));
             //Filter walkable
             candidates.RemoveAll(hex => !MapManager.Instance.CanUnitStandHere(hex));
 

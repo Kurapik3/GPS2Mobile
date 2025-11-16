@@ -11,6 +11,7 @@ public class EnemyBaseManager : MonoBehaviour
 
     [Header("Spawn Settings")]
     [SerializeField] private float spawnDelay = 0.5f;
+    [SerializeField] public GameObject basePrefab;
 
     private readonly Dictionary<int, EnemyBase> bases = new();
     public IReadOnlyDictionary<int, EnemyBase> Bases => bases;
@@ -171,5 +172,15 @@ public class EnemyBaseManager : MonoBehaviour
         if (!bases.ContainsKey(evt.BaseId)) 
             return;
         bases[evt.BaseId].OnUnitSpawned();
+    }
+
+    public int GetBaseIdByObject(EnemyBase targetBase)
+    {
+        foreach (var kvp in bases)
+        {
+            if (kvp.Value == targetBase)
+                return kvp.Key;
+        }
+        return -1; //Not found any base
     }
 }

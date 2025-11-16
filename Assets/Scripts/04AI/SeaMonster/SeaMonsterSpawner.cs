@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
@@ -40,14 +40,9 @@ public class SeaMonsterSpawner : MonoBehaviour
             return null;
         }
 
-        //Convert hex to world position
-        Vector2Int coords = tile.HexCoords;
-        Vector3 worldPos = MapManager.Instance.HexToWorld(coords);
-        worldPos.y += unitHeightOffset;
-
         //Instantiate the monster
-        GameObject go = Instantiate(prefab, worldPos, Quaternion.identity);
-        go.name = $"SeaMonster_{prefab.name}_({coords.x}, {coords.y})";
+        GameObject go = Instantiate(prefab, MapManager.Instance.HexToWorld(tile.HexCoords), Quaternion.identity);
+        go.name = $"SeaMonster_{prefab.name}_({tile.HexCoords.x}, {tile.HexCoords.y})";
 
         //Get SeaMonsterBase component
         SeaMonsterBase monster = go.GetComponent<SeaMonsterBase>();
@@ -57,6 +52,10 @@ public class SeaMonsterSpawner : MonoBehaviour
             Destroy(go);
             return null;
         }
+
+        Vector3 worldPos = MapManager.Instance.HexToWorld(tile.HexCoords);
+        worldPos.y += monster.heightOffset;
+        go.transform.position = worldPos;
 
         //Link monster and tile
         monster.CurrentTile = tile;
