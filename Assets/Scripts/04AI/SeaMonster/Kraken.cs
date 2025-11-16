@@ -109,28 +109,17 @@ public class Kraken : SeaMonsterBase
         {
             EventBus.Publish(new KrakenAttacksUnitEvent(this, playerUnit.gameObject, attack));
         }
+        else if (currentTarget.TryGetComponent(out EnemyUnit enemyUnit))
+        {
+            EventBus.Publish(new KrakenAttacksUnitEvent(this, enemyUnit.gameObject, attack));
+        }
+        else if(currentTarget.TryGetComponent(out SeaMonsterBase monster))
+        {
+            EventBus.Publish(new KrakenAttacksMonsterEvent(this, monster, attack));
+        }
         else
         {
-            bool attackedEnemy = false;
-            foreach (var enemy in EnemyUnitManager.Instance.UnitObjects)
-            {
-                if (enemy.Value == currentTarget)
-                {
-                    EventBus.Publish(new KrakenAttacksUnitEvent(this, currentTarget, attack));
-                    attackedEnemy = true;
-                    break;
-                }
-            }
-
-            if (!attackedEnemy && currentTarget.TryGetComponent(out SeaMonsterBase monster))
-            {
-                EventBus.Publish(new KrakenAttacksMonsterEvent(this, monster, attack));
-            }
-
-            if (!attackedEnemy && !currentTarget.TryGetComponent<SeaMonsterBase>(out _))
-            {
-                Debug.LogWarning("[Kraken] Unknown target type.");
-            }
+            Debug.LogWarning("[Kraken] Unknown target type.");
         }
 
         //Clear target after attacking
@@ -150,11 +139,8 @@ public class Kraken : SeaMonsterBase
                 result.Add(tile.currentUnit.gameObject);
 
             //Enemy Unit
-            foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
-            {
-                if (kv.Value == tile.dynamicInstance)
-                    result.Add(kv.Value);
-            }
+            if (tile.currentEnemyUnit != null)
+                result.Add(tile.currentEnemyUnit.gameObject);
 
             //Other sea monster
             if (tile.HasDynamic && tile.dynamicInstance != null)
@@ -178,21 +164,13 @@ public class Kraken : SeaMonsterBase
         {
             return playerUnit.currentTile;
         }
-
-        //Other Sea Monster
-        if (target.TryGetComponent<SeaMonsterBase>(out var monster))
+        else if (target.TryGetComponent<SeaMonsterBase>(out var monster)) //Other Sea Monster
         {
             return monster.CurrentTile;
         }
-
-        //Enemy
-        foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
+        else if (target.TryGetComponent<EnemyUnit>(out var enemyUnit)) //Enemy
         {
-            if (kv.Value == target)
-            {
-                Vector2Int hexPos = EnemyUnitManager.Instance.GetUnitPosition(kv.Key);
-                return MapManager.Instance.GetTileAtHexPosition(hexPos);
-            }
+            return enemyUnit.currentTile;
         }
 
         //Fallback

@@ -134,7 +134,14 @@ public class EnemyActionExecutor : MonoBehaviour
             yield return new WaitForSeconds(0.2f);
         }
 
+        //Update Position
         unitManager.UnitPositions[unitId] = finalHex;
+        EnemyUnit unit = go.GetComponent<EnemyUnit>();
+        if (unit != null)
+        {
+            HexTile finalTile = MapManager.Instance.GetTile(finalHex);
+            unit.UpdatePosition(finalTile);
+        }
 
         EventBus.Publish(new EnemyMovedEvent(unitId, fromHex, finalHex));
     }

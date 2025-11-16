@@ -242,22 +242,19 @@ public class SeaMonsterManager : MonoBehaviour
         //If target is player unit
         if (evt.Target.TryGetComponent<UnitBase>(out UnitBase playerUnit))
         {
+            if (krakenAttackSound != null)
+                AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
             playerUnit.TakeDamage(evt.Damage);
-            Debug.Log($"Kraken attacked player unit {playerUnit.unitName} for {evt.Damage} damage!");
+            Debug.Log($"Kraken attacked player {playerUnit.unitName} unit for {evt.Damage} damage!");
             return;
         }
 
-        int enemyId = FindEnemyId(evt.Target);
-        if (enemyId != -1)
+        if (evt.Target.TryGetComponent<EnemyUnit>(out EnemyUnit enemyUnit))
         {
             if (krakenAttackSound != null)
                 AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
-            EnemyUnitManager.Instance.TakeDamage(enemyId, evt.Damage);
-            Debug.Log($"Kraken attacked player unit {EnemyUnitManager.Instance.GetUnitType(enemyId)} for {evt.Damage} damage!");
-        }
-        else
-        {
-            Debug.LogWarning("Kraken attack target is unknown type!");
+            enemyUnit.TakeDamage(evt.Damage);
+            Debug.Log($"Kraken attacked enemy {enemyUnit.unitType} unit for {evt.Damage} damage!");
         }
 
         //Temp, for testing
@@ -276,16 +273,6 @@ public class SeaMonsterManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         if (r != null)
             r.material.color = original;
-    }
-
-    private int FindEnemyId(GameObject target)
-    {
-        foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
-        {
-            if (kv.Value == target)
-                return kv.Key;
-        }
-        return -1;
     }
 
     private void OnKrakenAttackMonster(KrakenAttacksMonsterEvent evt)
