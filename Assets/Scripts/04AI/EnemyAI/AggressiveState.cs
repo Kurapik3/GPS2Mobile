@@ -126,50 +126,6 @@ public class AggressiveState : MonoBehaviour
     }
 
     #region Target Gathering
-    //private List<int> GetPlayerUnitsInRange(Vector2Int from, int range)
-    //{
-    //    List<int> result = new();
-    //    var players = GameObject.FindGameObjectsWithTag("PlayerUnit");
-    //    foreach (var go in players)
-    //    {
-    //        Vector2Int hex = MapManager.Instance.WorldToHex(go.transform.position);
-    //        //if (AIPathFinder.GetHexDistance(from, hex) <= range)
-    //            //result.Add(go.GetComponent<UnitBase>().UnitID);
-    //    }
-    //    return result;
-    //}
-    //private List<int> GetBasesInRange(Vector2Int from, int range)
-    //{
-    //    List<int> result = new();
-    //    TreeBase[] playerBases = FindObjectsByType<TreeBase>(FindObjectsSortMode.None);
-
-    //    foreach (var baseObj in playerBases)
-    //    {
-    //        if (baseObj == null || baseObj.currentTile == null)
-    //            continue;
-
-    //        Vector2Int hex = baseObj.currentTile.HexCoords;
-    //        if (AIPathFinder.GetHexDistance(from, hex) <= range)
-    //            result.Add(baseObj.GetInstanceID()); //Will change to specific BaseID later
-    //    }
-    //    return result;
-    //}
-
-    //private List<int> GetSeaMonstersInRange(Vector2Int from, int range)
-    //{
-    //    List<int> result = new();
-    //    if (SeaMonsterManager.Instance == null)
-    //        return result;
-    //    var monsters = SeaMonsterManager.Instance.GetAllMonsters();
-    //    foreach (var m in monsters)
-    //    {
-    //        int dist = AIPathFinder.GetHexDistance(from, m.CurrentTile.HexCoords);
-    //        if (dist <= range)
-    //            result.Add(m.MonsterId);
-    //    }
-    //    return result;
-    //}
-
     private void GetTargetsInRange(Vector2Int from, int range, out List<GameObject> baseTargets, out List<GameObject> seaTargets, out List<GameObject> unitTargets)
     {
         baseTargets = new();

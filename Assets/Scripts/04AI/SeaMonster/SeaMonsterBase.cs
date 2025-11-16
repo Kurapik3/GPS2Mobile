@@ -21,7 +21,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
     public int MovementRange => movementRange;
 
     [Header("Visual")]
-    [SerializeField] protected float heightOffset = 2f;
+    [SerializeField] public float heightOffset = 2f;
 
     public HexTile CurrentTile;
     public int CurrentTurn;

@@ -16,6 +16,7 @@ public class SeaMonsterManager : MonoBehaviour
     [SerializeField] private SeaMonsterSpawner spawner;
     [SerializeField] private FogSystem fogSystem;
     [SerializeField] private AudioClip krakenWarningSound;
+    [SerializeField] private AudioClip krakenSpawnSound;
     [SerializeField] private AudioClip krakenMoveSound;
     [SerializeField] private AudioClip krakenAttackSound;
     [SerializeField] private AudioClip krakenDieSound;
@@ -92,6 +93,13 @@ public class SeaMonsterManager : MonoBehaviour
 
             yield return StartCoroutine(ShakeCamera());
             yield return new WaitForSeconds(preSpawnDelay);
+        }
+        else
+        {
+            if (krakenSpawnSound)
+            {
+                AudioSource.PlayClipAtPoint(krakenSpawnSound, mainCameraTransform.position);
+            }
         }
 
         //Spawn random monster
@@ -186,14 +194,50 @@ public class SeaMonsterManager : MonoBehaviour
                 AudioSource.PlayClipAtPoint(turtleMoveSound, mainCameraTransform.position);
         }
 
+        StartCoroutine(SmoothMove(evt.Monster, evt.To));
         monsterPositions[evt.Monster.MonsterId] = evt.To;
         UpdateSeaMonsterVisibility();
+    }
+
+    private IEnumerator SmoothMove(SeaMonsterBase sm, Vector2Int endHex)
+    {
+        if (sm == null)
+            yield break;
+
+        Vector3 startPos = sm.transform.position;
+        startPos.y += sm.heightOffset;
+
+        Vector3 endPos = MapManager.Instance.HexToWorld(endHex);
+        endPos.y += sm.heightOffset;
+
+        float t = 0f;
+        float duration = 0.5f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / duration;
+            sm.transform.position = Vector3.Lerp(startPos, endPos, t);
+            yield return null;
+        }
+
+        sm.transform.position = endPos;
     }
 
     private void OnKrakenAttackUnit(KrakenAttacksUnitEvent evt)
     {
         if (evt.Target == null)
             return;
+
+        if (evt.Attacker != null)
+        {
+            var render = evt.Attacker.GetComponentInChildren<Renderer>();
+            if (render != null)
+            {
+                Color aOriginal = render.material.color;
+                render.material.color = Color.yellow;
+                StartCoroutine(RestoreColor(render, aOriginal, 0.2f));
+            }
+        }
 
         //If target is player unit
         if (evt.Target.TryGetComponent<UnitBase>(out UnitBase playerUnit))
@@ -215,6 +259,23 @@ public class SeaMonsterManager : MonoBehaviour
         {
             Debug.LogWarning("Kraken attack target is unknown type!");
         }
+
+        //Temp, for testing
+        Renderer r = evt.Target.GetComponentInChildren<Renderer>();
+        if (r != null)
+        {
+            Color original = r.material.color;
+            r.material.color = Color.red;
+            StartCoroutine(RestoreColor(r, original, 0.2f));
+        }
+    }
+
+    //Temp, for testing
+    private IEnumerator RestoreColor(Renderer r, Color original, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (r != null)
+            r.material.color = original;
     }
 
     private int FindEnemyId(GameObject target)

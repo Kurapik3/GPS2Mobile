@@ -163,9 +163,6 @@ public class EnemyActionExecutor : MonoBehaviour
         }
 
         unit.transform.position = endPos;
-
-        //Test purpose
-        //EnemyTracker.Instance.AddScore(20);
     }
     #endregion
 
