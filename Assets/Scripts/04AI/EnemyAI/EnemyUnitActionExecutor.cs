@@ -10,9 +10,6 @@ using static UnityEngine.GraphicsBuffer;
 /// </summary>
 public class EnemyActionExecutor : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private float unitHeightOffset = 2f;
-
     private EnemyUnitManager unitManager => EnemyUnitManager.Instance;
 
     private void OnEnable()
@@ -21,6 +18,7 @@ public class EnemyActionExecutor : MonoBehaviour
         EventBus.Subscribe<EnemyMoveRequestEvent>(OnMoveRequest);
         EventBus.Subscribe<EnemyAttackRequestEvent>(OnAttackRequest);
         EventBus.Subscribe<BuilderDevelopGroveEvent>(OnBuilderDevelopGrove);
+        EventBus.Subscribe<EnemyAuxiliaryActionRequestEvent>(OnAuxiliaryActionRequested);
     }
 
 
@@ -30,6 +28,7 @@ public class EnemyActionExecutor : MonoBehaviour
         EventBus.Unsubscribe<EnemyMoveRequestEvent>(OnMoveRequest);
         EventBus.Unsubscribe<EnemyAttackRequestEvent>(OnAttackRequest);
         EventBus.Unsubscribe<BuilderDevelopGroveEvent>(OnBuilderDevelopGrove);
+        EventBus.Unsubscribe<EnemyAuxiliaryActionRequestEvent>(OnAuxiliaryActionRequested);
     }
 
     #region Spawn
@@ -58,7 +57,7 @@ public class EnemyActionExecutor : MonoBehaviour
             }
 
             Vector3 world = MapManager.Instance.HexToWorld(spawnHex);
-            world.y += (unitHeightOffset + 0.5f);
+            world.y += 2.5f;
 
             GameObject unitGO = Instantiate(prefab, world, Quaternion.identity);
             unitGO.name = $"Enemy_{evt.UnitType}_{unitManager.NextUnitId}";
@@ -146,18 +145,22 @@ public class EnemyActionExecutor : MonoBehaviour
         EventBus.Publish(new EnemyMovedEvent(unitId, fromHex, finalHex));
     }
 
-    private IEnumerator SmoothMove(GameObject unit, Vector2Int startHex, Vector2Int endHex)
+    private IEnumerator SmoothMove(GameObject unitGO, Vector2Int startHex, Vector2Int endHex)
     {
+        if (unitGO == null) 
+            yield break;
+
+        EnemyUnit unit = unitGO.GetComponent<EnemyUnit>();
         if (unit == null) 
             yield break;
 
         Vector3 startPos = MapManager.Instance.HexToWorld(startHex);
-        startPos.y += unitHeightOffset;
+        startPos.y += unit.baseHeightOffset;
 
         Vector3 endPos = MapManager.Instance.HexToWorld(endHex);
-        endPos.y += unitHeightOffset;
+        endPos.y += unit.baseHeightOffset;
 
-        unit.transform.position = startPos;
+        unitGO.transform.position = startPos;
 
         float t = 0f;
         float duration = 0.5f;
@@ -165,11 +168,11 @@ public class EnemyActionExecutor : MonoBehaviour
         while (t < 1f)
         {
             t += Time.deltaTime / duration;
-            unit.transform.position = Vector3.Lerp(startPos, endPos, t);
+            unitGO.transform.position = Vector3.Lerp(startPos, endPos, t);
             yield return null;
         }
 
-        unit.transform.position = endPos;
+        unit.UpdatePosition(MapManager.Instance.GetTile(endHex));
     }
     #endregion
 
@@ -288,6 +291,65 @@ public class EnemyActionExecutor : MonoBehaviour
         EnemyTracker.Instance.AddScore(1000);
 
         Debug.Log($"[EnemyActionExecutor] Builder {evt.UnitId} developed Grove into Enemy Base at {evt.GrovePosition}");
+    }
+    #endregion
+
+    #region AuxiliaryActions
+    private void OnAuxiliaryActionRequested(EnemyAuxiliaryActionRequestEvent evt)
+    {
+        switch (evt.ActionId)
+        {
+            case 3: //Develop tile
+                ExecuteDevelopTile(evt.UnitId, evt.TargetPos);
+                break;
+
+            case 6: //Unlock tech
+                ExecuteUnlockTech();
+                break;
+        }
+    }
+
+    private void ExecuteDevelopTile(int unitId, Vector2Int pos)
+    {
+        HexTile tile = MapManager.Instance.GetTile(pos);
+
+        if (tile == null)
+        {
+            EventBus.Publish(new EnemyAuxiliaryActionExecutedEvent(3, false));
+            return;
+        }
+
+        bool success = false;
+
+        // Fish
+        if (tile.fishTile != null)
+        {
+            Destroy(tile.fishTile.gameObject);
+            tile.fishTile = null;
+            success = true;
+        }
+        // Debris
+        else if (tile.debrisTile != null)
+        {
+            Destroy(tile.debrisTile.gameObject);
+            tile.debrisTile = null;
+            success = true;
+        }
+
+        EventBus.Publish(new EnemyAuxiliaryActionExecutedEvent(3, success));
+
+        if (success)
+        {
+            EnemyUnitManager.Instance.MarkUnitAsActed(unitId);
+            EnemyTracker.Instance?.AddScore(200);
+        }
+    }
+
+    private void ExecuteUnlockTech()
+    {
+        Debug.Log("[EnemyActionExecutor] Unlocked tech");
+        EventBus.Publish(new EnemyAuxiliaryActionExecutedEvent(6, true));
+        EnemyTracker.Instance?.AddScore(500);
     }
     #endregion
 }
