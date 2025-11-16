@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class TurfManager : MonoBehaviour
 {
     public static TurfManager Instance;
-
+    public static event Action OnTurfChanged;
     private HashSet<HexTile> turfTiles = new HashSet<HexTile>();
 
     private void Awake()
@@ -33,8 +34,8 @@ public class TurfManager : MonoBehaviour
         turfTiles.Add(centerTile);
         centerTile.SetTurf(true);
 
+        OnTurfChanged?.Invoke();
         Debug.Log($"Turf claimed at center ({centerTile.q},{centerTile.r}) with radius {radius}");
-
     }
 
     public bool IsInsideTurf(HexTile tile)
@@ -49,6 +50,7 @@ public class TurfManager : MonoBehaviour
             tile.SetTurf(false);
         }
         turfTiles.Clear();
+        OnTurfChanged?.Invoke();
     }
 
     //Added By Ashley to access Turf Tiles
