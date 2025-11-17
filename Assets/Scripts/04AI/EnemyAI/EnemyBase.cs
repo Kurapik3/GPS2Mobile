@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
 /// Represents an AI-controlled enemy base on the map.
@@ -12,13 +12,13 @@ public class EnemyBase : MonoBehaviour
     public int maxUnits = 3;
     public int currentUnits = 0; //To track how many units are housed in each base
     public HexTile currentTile;
+    [SerializeField] private int level = 1;
+    [SerializeField] private int currentPop = 0;
 
     [HideInInspector] public int baseId;
     public bool IsDestroyed => health <= 0;
 
     private int currentTurfRadius = 1;
-    private int upgradeInterval = 3; //Number of turns between each base upgrade, will increase by 1 after each upgrade
-    private int turnsSinceUpgrade = 0;
 
     private void Start()
     {
@@ -52,7 +52,7 @@ public class EnemyBase : MonoBehaviour
             Debug.LogError("[EnemyBase] EnemyBaseManager not found in scene!");
 
         if (EnemyTurfManager.Instance != null)
-            EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius);
+            EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius, this);
 
         Debug.Log($"[EnemyBase] Spawned {baseName} with {health} HP.");
     }
@@ -82,7 +82,7 @@ public class EnemyBase : MonoBehaviour
         if (currentTile != null)
             SpawnGroveAt(currentTile);
         else
-            Debug.LogWarning("[EnemyBase] Cannot spawn Groove — currentTile is null!");
+            Debug.LogWarning("[EnemyBase] Cannot spawn Groove â€” currentTile is null!");
 
         if (currentTile != null)
             currentTile.currentEnemyBase = null;
@@ -114,32 +114,63 @@ public class EnemyBase : MonoBehaviour
         if (IsDestroyed) 
             return;
 
-        turnsSinceUpgrade++;
         Debug.Log($"[EnemyBase] Turn start for {baseName} (Tile: {currentTile?.HexCoords})");
 
-        if (turnsSinceUpgrade >= upgradeInterval)
+        TryUpgradeBase();
+    }
+
+    public void AddPopulation(int population)
+    {
+        currentPop += population;
+        Debug.Log($"[EnemyBase] {baseName} gained {population} population. CurrentPop = {currentPop}");
+        TryUpgradeBase();
+    }
+
+    private void TryUpgradeBase()
+    {
+        int popRequired = level == 1 ? 2 : level == 2 ? 3 : 4;
+
+        if (currentPop >= popRequired)
         {
+            currentPop -= popRequired;
+
             UpgradeBase();
-            turnsSinceUpgrade = 0;
-            upgradeInterval++; //Increase by 1 after successfully upgraded
+
+            level++;
+        }
+        else
+        {
+            Debug.Log($"[EnemyBase] Not enough population to upgrade {baseName}. Current: {currentPop}, Required: {popRequired}");
         }
     }
 
     private void UpgradeBase()
     {
-        if (EnemyTurfManager.Instance == null || currentTile == null)
+        health += 5;
+        Debug.Log($"[EnemyBase] Base upgraded! Base current level is {level}. Health +5, current HP = {health}");
+
+        bool chooseScore = Random.value < 0.5f;
+
+        if (chooseScore)
         {
-            Debug.LogWarning($"[EnemyBase] Cannot update turf area — Manager or tile missing for {baseName}.");
-            return;
+            EnemyTracker.Instance.AddScore(400);
+            Debug.Log("[EnemyBase] Base upgrade choice: +400 score");
         }
+        else
+        {
+            if (currentTile != null && EnemyTurfManager.Instance != null)
+            {
+                currentTurfRadius++;
 
-        currentTurfRadius++;
-        Debug.Log($"[EnemyBase] {baseName} upgraded! New turf radius: {currentTurfRadius}");
-
-        //Remove old turf radius before expanding to new radius to keep territory data consistent
-        EnemyTurfManager.Instance.UnregisterBaseArea(currentTile.HexCoords, currentTurfRadius - 1);
-        EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius);
-
-        EnemyTracker.Instance.AddScore(400);
+                //Remove old turf radius before expanding to new radius to keep territory data consistent
+                EnemyTurfManager.Instance.UnregisterBaseArea(currentTile.HexCoords, currentTurfRadius - 1);
+                EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius, this);
+                Debug.Log($"[EnemyBase] Base upgrade choice: turf increased! New radius: {currentTurfRadius}");
+            }
+            else
+            {
+                Debug.LogWarning($"[EnemyBase] Cannot increase turf! Tile or manager missing.");
+            }
+        }
     }
 }

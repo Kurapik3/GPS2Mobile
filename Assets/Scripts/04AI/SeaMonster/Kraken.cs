@@ -24,7 +24,7 @@ public class Kraken : SeaMonsterBase
 
     public override void PerformTurnAction()
     {
-        if (hasActedThisTurn || CurrentTile == null)
+        if (hasActedThisTurn || currentTile == null)
             return;
 
         StartCoroutine(TurnRoutine());
@@ -45,7 +45,7 @@ public class Kraken : SeaMonsterBase
 
         //If no target, move to random reachable tile
         HexTile moveTile = AIPathFinder.GetRandomReachableTileForSeaMonster(this);
-        if (moveTile != null && moveTile != CurrentTile)
+        if (moveTile != null && moveTile != currentTile)
         {
             MoveTo(moveTile);
             Debug.Log($"[Kraken] Moves to {moveTile.HexCoords}");
@@ -93,7 +93,7 @@ public class Kraken : SeaMonsterBase
         }
 
         //Check if the target tile in within kraken attack range
-        var tilesInRange = GetTilesInRange(CurrentTile, attackRange);
+        var tilesInRange = GetTilesInRange(currentTile, attackRange);
         if (!tilesInRange.Exists(t => t.HexCoords == targetTile.HexCoords))
         {
             Debug.Log("[Kraken] Target moved out of range, stop targeting.");
@@ -103,34 +103,39 @@ public class Kraken : SeaMonsterBase
         }
 
         Debug.Log($"[Kraken] Attacks {currentTarget.name}!");
-        yield return new WaitForSeconds(0.5f);
+
+        //Animation here
+        //animator.SetTrigger();
+        
+        OnAttackHit(); //Need to remove after adding animation 
+    }
+
+    //Event for animator to call when playing the animation
+    public void OnAttackHit()
+    {
+        if (currentTarget == null) 
+            return;
 
         if (currentTarget.TryGetComponent(out UnitBase playerUnit))
-        {
             EventBus.Publish(new KrakenAttacksUnitEvent(this, playerUnit.gameObject, attack));
-        }
         else if (currentTarget.TryGetComponent(out EnemyUnit enemyUnit))
-        {
             EventBus.Publish(new KrakenAttacksUnitEvent(this, enemyUnit.gameObject, attack));
-        }
-        else if(currentTarget.TryGetComponent(out SeaMonsterBase monster))
-        {
+        else if (currentTarget.TryGetComponent(out SeaMonsterBase monster))
             EventBus.Publish(new KrakenAttacksMonsterEvent(this, monster, attack));
-        }
         else
-        {
             Debug.LogWarning("[Kraken] Unknown target type.");
-        }
+
 
         //Clear target after attacking
         isTargeting = false;
         currentTarget = null;
     }
 
-     private List<GameObject> GetTargetsInRange()
+
+    private List<GameObject> GetTargetsInRange()
     {
         List<GameObject> result = new List<GameObject>();
-        List<HexTile> tiles = GetTilesInRange(CurrentTile, attackRange);
+        List<HexTile> tiles = GetTilesInRange(currentTile, attackRange);
 
         foreach (HexTile tile in tiles)
         {
@@ -143,12 +148,8 @@ public class Kraken : SeaMonsterBase
                 result.Add(tile.currentEnemyUnit.gameObject);
 
             //Other sea monster
-            if (tile.HasDynamic && tile.dynamicInstance != null)
-            {
-                SeaMonsterBase other = tile.dynamicInstance.GetComponent<SeaMonsterBase>();
-                if (other != null && other != this)
-                    result.Add(other.gameObject);
-            }
+            if (tile.currentSeaMonster != null && tile.currentSeaMonster != this)
+                result.Add(tile.currentSeaMonster.gameObject);
         }
 
         return result;
@@ -166,7 +167,7 @@ public class Kraken : SeaMonsterBase
         }
         else if (target.TryGetComponent<SeaMonsterBase>(out var monster)) //Other Sea Monster
         {
-            return monster.CurrentTile;
+            return monster.currentTile;
         }
         else if (target.TryGetComponent<EnemyUnit>(out var enemyUnit)) //Enemy
         {

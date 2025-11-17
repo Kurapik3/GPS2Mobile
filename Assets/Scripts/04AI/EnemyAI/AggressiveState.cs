@@ -164,12 +164,12 @@ public class AggressiveState : MonoBehaviour
         {
             foreach (var sm in SeaMonsterManager.Instance.GetAllMonsters())
             {
-                if (sm.CurrentTile == null) 
+                if (sm.currentTile == null) 
                     continue;
-                if (AIPathFinder.GetHexDistance(from, sm.CurrentTile.HexCoords) <= range)
+                if (AIPathFinder.GetHexDistance(from, sm.currentTile.HexCoords) <= range)
                 {
                     seaTargets.Add(sm.gameObject);
-                    Debug.Log($"[AggressiveAI] Found SeaMonster target: {sm.name} at {sm.CurrentTile.HexCoords}");
+                    Debug.Log($"[AggressiveAI] Found SeaMonster target: {sm.name} at {sm.currentTile.HexCoords}");
                 }
             }
         }

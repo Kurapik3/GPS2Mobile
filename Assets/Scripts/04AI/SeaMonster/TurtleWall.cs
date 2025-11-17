@@ -42,11 +42,11 @@ public class TurtleWall : SeaMonsterBase
 
     public override void PerformTurnAction()
     {
-        if (hasActedThisTurn || CurrentTile == null)
+        if (hasActedThisTurn || currentTile == null)
             return;
 
         HexTile target = AIPathFinder.GetRandomReachableTileForSeaMonster(this); 
-        if (target != null && target != CurrentTile)
+        if (target != null && target != currentTile)
         {
             MoveTo(target);
             Debug.Log($"[TurtleWall] Moves to {target.HexCoords}");
@@ -62,9 +62,9 @@ public class TurtleWall : SeaMonsterBase
     protected override void MoveTo(HexTile target)
     {
         //Unblock first
-        if (CurrentTile != null)
+        if (currentTile != null)
         {
-            EventBus.Publish(new TurtleWallUnblockEvent(this, CurrentTile.HexCoords));
+            EventBus.Publish(new TurtleWallUnblockEvent(this, currentTile.HexCoords));
             if (blockedBackTile.HasValue)
                 EventBus.Publish(new TurtleWallUnblockEvent(this, blockedBackTile.Value));
         }
@@ -89,9 +89,9 @@ public class TurtleWall : SeaMonsterBase
     protected override void Die()
     {
         //Unblock self
-        if (isBlocking && CurrentTile != null)
+        if (isBlocking && currentTile != null)
         {
-            EventBus.Publish(new TurtleWallUnblockEvent(this, CurrentTile.HexCoords));
+            EventBus.Publish(new TurtleWallUnblockEvent(this, currentTile.HexCoords));
             isBlocking = false;
         }
 

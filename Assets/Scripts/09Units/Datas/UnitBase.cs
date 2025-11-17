@@ -87,17 +87,20 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
-        bool isUnit = target.currentEnemyUnit != null;
-        if (isUnit)
+        if (target.currentEnemyUnit != null)
         {
             target.currentEnemyUnit.TakeDamage(attack);
         }
-        else 
+        else if(target.currentEnemyBase != null)
         {
             target.currentEnemyBase.TakeDamage(attack);
         }
+        else if(target.currentSeaMonster != null)
+        {
+            target.currentSeaMonster.TakeDamage(attack);
+        }
 
-        Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
+            Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
     }
 
     public virtual void TakeDamage(int amount)

@@ -137,10 +137,10 @@ public static class AIPathFinder
 
     public static HexTile GetRandomReachableTileForSeaMonster(SeaMonsterBase monster)
     {
-        if (monster.CurrentTile == null)
+        if (monster.currentTile == null)
             return null;
 
-        var reachable = GetReachableHexes(monster.CurrentTile.HexCoords, monster.MovementRange);
+        var reachable = GetReachableHexes(monster.currentTile.HexCoords, monster.MovementRange);
         if (reachable == null || reachable.Count == 0)
             return null;
 
