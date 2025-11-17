@@ -6,7 +6,7 @@ using static EnemyAIEvents;
 
 /// <summary>
 /// Global Builder AI module, attached in hierarchy.
-/// Manages all Builder units on the map during Builder phase.
+/// Manages all Enemy Builder units on the map during Builder phase.
 /// </summary>
 public class BuilderAction : MonoBehaviour
 {
@@ -52,82 +52,52 @@ public class BuilderAction : MonoBehaviour
             yield break;
         }
 
+        //Check if current tile having grove structure
         foreach (int unitId in builderIds)
         {
             if (!unitManager.UnitObjects.ContainsKey(unitId)) 
                 continue;
 
-            // Skip if just spawned and can't move yet
+            //If builder unit is on a grove tile
+            Vector2Int currentPos = unitManager.GetUnitPosition(unitId);
+            HexTile currentTile = MapManager.Instance.GetTileAtHexPosition(currentPos);
+            if (currentTile != null)
+            {
+                GroveBase grove = currentTile.currentBuilding?.GetComponent<GroveBase>();
+                if (grove != null)
+                {
+                    Debug.Log($"[BuilderAI] Builder {unitId} is on Grove at start of turn, building Enemy Base this turn.");
+                    EventBus.Publish(new BuilderDevelopGroveEvent(unitId, currentPos));
+                    yield return new WaitForSeconds(0.3f);
+                    continue;
+                }
+            }
+
+            //If not, try to move
+            //Skip if just spawned and can't move yet
             if (!unitManager.CanUnitMove(unitId))
                 continue;
-
-            Vector2Int currentPos = unitManager.GetUnitPosition(unitId);
 
             //Find closest Grove
             Vector2Int target = FindClosestGrove(currentPos);
 
-            //If already at grove, develop
+            //If already at grove, wait for next turn to build base
             if (currentPos == target)
             {
-                Debug.Log($"[BuilderAI] Builder {unitId} builds at {target}");
-                EventBus.Publish(new BuilderDevelopGroveEvent(unitId, target));
-                yield return new WaitForSeconds(0.3f);
+                Debug.Log($"[BuilderAI] Builder {unitId} is standing on Grove, ready to build next turn.");
                 continue;
             }
 
-            Vector2Int? step = AIPathFinder.FindNearestReachable(currentPos, target, 2);
-
-            if (step == null)
+            Vector2Int? destination = AIPathFinder.FindNearestReachable(currentPos, target, EnemyUnitManager.Instance.GetUnitMoveRange(unitId));
+            if (destination == null || destination.Value == currentPos)
             {
-                Debug.LogWarning($"[BuilderAI] Builder {unitId} cannot find path toward {target}, skipping.");
+                Debug.Log($"[BuilderAI] Builder {unitId} cannot find reachable path towards {target}, skipping.");
                 continue;
             }
 
-            Vector2Int dest = step.Value;
-            if (dest == currentPos)
-            {
-                Debug.Log($"[BuilderAI] Builder {unitId} stays in place (blocked).");
-                continue;
-            }
-
-            Debug.Log($"[BuilderAI] Builder {unitId} -> Move request: {currentPos} -> {dest}");
-
-            bool moveFinished = false;
-            Action<EnemyMovedEvent> onMoved = (evt) =>
-            {
-                if (evt.UnitId == unitId)
-                    moveFinished = true;
-            };
-
-            EventBus.Subscribe<EnemyMovedEvent>(onMoved);
-            EventBus.Publish(new EnemyMoveRequestEvent(unitId, dest));
-
-            // Wait max 2 seconds to avoid deadlock
-            float wait = 0f;
-            while (!moveFinished && wait < 2f)
-            {
-                wait += Time.deltaTime;
-                yield return null;
-            }
-            EventBus.Unsubscribe<EnemyMovedEvent>(onMoved);
-
-            if (!moveFinished)
-            {
-                Debug.LogWarning($"[BuilderAI] WARNING: Builder {unitId} never received EnemyMovedEvent!");
-            }
-
-            Vector2Int newPos = unitManager.GetUnitPosition(unitId);
-
-            if (newPos == target)
-            {
-                Debug.Log($"[BuilderAI] Builder {unitId} arrived & builds at {target}");
-                EventBus.Publish(new BuilderDevelopGroveEvent(unitId, target));
-                yield return new WaitForSeconds(0.3f);
-            }
-
-            yield return new WaitForSeconds(0.15f);
+            EventBus.Publish(new EnemyMoveRequestEvent(unitId, destination.Value));
+            Debug.Log($"[BuilderAI] Builder {unitId} moves from {currentPos} to {destination.Value}");
         }
-
 
         onCompleted?.Invoke();
     }
@@ -143,25 +113,47 @@ public class BuilderAction : MonoBehaviour
             return from;
         }
 
-        GroveBase closestGrove = groves[0];
-        int minDist = AIPathFinder.GetHexDistance(from, closestGrove.currentTile?.HexCoords ?? from);
-
-        foreach (GroveBase grove in groves)
+        if(groves.Length > 0)
         {
-            if (grove == null || grove.currentTile == null)
-                continue;
+            GroveBase closestGrove = groves[0];
+            int minDist = AIPathFinder.GetHexDistance(from, closestGrove.currentTile?.HexCoords ?? from);
 
-            Vector2Int pos = grove.currentTile.HexCoords;
-            int dist = AIPathFinder.GetHexDistance(from, pos);
-            if (dist < minDist)
+            foreach (GroveBase grove in groves)
             {
-                minDist = dist;
-                closestGrove = grove;
+                if (grove == null || grove.currentTile == null)
+                    continue;
+
+                Vector2Int pos = grove.currentTile.HexCoords;
+                int dist = AIPathFinder.GetHexDistance(from, pos);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    closestGrove = grove;
+                }
+            }
+
+            if (closestGrove == null || closestGrove.currentTile == null)
+                return from;
+            return closestGrove.currentTile.HexCoords;
+        }
+
+        //If there were no groves left on the map, move to random walkable tile
+        List<HexTile> walkableTiles = new List<HexTile>();
+        foreach (var tile in MapManager.Instance.GetAllTiles().Values)
+        {
+            if (tile.IsWalkableForAI())
+            {
+                walkableTiles.Add(tile);
             }
         }
 
-        if (closestGrove == null || closestGrove.currentTile == null)
+        if (walkableTiles.Count == 0)
+        {
+            Debug.LogWarning("[BuilderAI] No walkable tiles found! Builder will stay in place.");
             return from;
-        return closestGrove.currentTile.HexCoords;
+        }
+
+        HexTile randomTile = walkableTiles[UnityEngine.Random.Range(0, walkableTiles.Count)];
+        return randomTile.HexCoords;
     }
 }

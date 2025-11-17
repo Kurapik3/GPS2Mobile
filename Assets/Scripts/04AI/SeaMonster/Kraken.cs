@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static SeaMonsterEvents;
@@ -109,31 +109,17 @@ public class Kraken : SeaMonsterBase
         {
             EventBus.Publish(new KrakenAttacksUnitEvent(this, playerUnit.gameObject, attack));
         }
+        else if (currentTarget.TryGetComponent(out EnemyUnit enemyUnit))
+        {
+            EventBus.Publish(new KrakenAttacksUnitEvent(this, enemyUnit.gameObject, attack));
+        }
+        else if(currentTarget.TryGetComponent(out SeaMonsterBase monster))
+        {
+            EventBus.Publish(new KrakenAttacksMonsterEvent(this, monster, attack));
+        }
         else
         {
-            int enemyId = -1;
-
-            foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
-            {
-                if (kv.Value == currentTarget)
-                {
-                    enemyId = kv.Key;
-                    break;
-                }
-            }
-
-            if (enemyId != -1)
-            {
-                EventBus.Publish(new KrakenAttacksUnitEvent(this, currentTarget, attack));
-            }
-            else if (currentTarget.TryGetComponent<SeaMonsterBase>(out var monster))
-            {
-                EventBus.Publish(new KrakenAttacksMonsterEvent(this, monster, attack));
-            }
-            else
-            {
-                Debug.LogWarning("[Kraken] Unknown target type.");
-            }
+            Debug.LogWarning("[Kraken] Unknown target type.");
         }
 
         //Clear target after attacking
@@ -141,16 +127,23 @@ public class Kraken : SeaMonsterBase
         currentTarget = null;
     }
 
-    private List<GameObject> GetTargetsInRange()
+     private List<GameObject> GetTargetsInRange()
     {
         List<GameObject> result = new List<GameObject>();
         List<HexTile> tiles = GetTilesInRange(CurrentTile, attackRange);
 
         foreach (HexTile tile in tiles)
         {
+            //Player Unit
             if (tile.currentUnit != null)
                 result.Add(tile.currentUnit.gameObject);
-            else if (tile.HasDynamic && tile.dynamicInstance != null)
+
+            //Enemy Unit
+            if (tile.currentEnemyUnit != null)
+                result.Add(tile.currentEnemyUnit.gameObject);
+
+            //Other sea monster
+            if (tile.HasDynamic && tile.dynamicInstance != null)
             {
                 SeaMonsterBase other = tile.dynamicInstance.GetComponent<SeaMonsterBase>();
                 if (other != null && other != this)
@@ -171,21 +164,13 @@ public class Kraken : SeaMonsterBase
         {
             return playerUnit.currentTile;
         }
-
-        //Other Sea Monster
-        if (target.TryGetComponent<SeaMonsterBase>(out var monster))
+        else if (target.TryGetComponent<SeaMonsterBase>(out var monster)) //Other Sea Monster
         {
             return monster.CurrentTile;
         }
-
-        //Enemy
-        foreach (var kv in EnemyUnitManager.Instance.UnitObjects)
+        else if (target.TryGetComponent<EnemyUnit>(out var enemyUnit)) //Enemy
         {
-            if (kv.Value == target)
-            {
-                Vector2Int hexPos = EnemyUnitManager.Instance.GetUnitPosition(kv.Key);
-                return MapManager.Instance.GetTileAtHexPosition(hexPos);
-            }
+            return enemyUnit.currentTile;
         }
 
         //Fallback

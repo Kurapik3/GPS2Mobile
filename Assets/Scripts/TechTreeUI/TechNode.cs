@@ -25,7 +25,6 @@ public class TechNode : MonoBehaviour
     [HideInInspector] public TechState state = TechState.Locked;
 
     private PlayerTracker player;
-    private Tween glowTween;
 
     public Sprite lockedSprite;
     public Sprite unloackedSprite;
@@ -45,29 +44,6 @@ public class TechNode : MonoBehaviour
 
         UpdateVisual();
     }
-
-    //public void Setup(string name, int cost, Color color)
-    //{
-    //    techName = name;
-    //    costAP = cost;
-    //    nameText.text = name;
-    //    costText.text = cost + " AP";
-    //    background.color = color;
-
-    //    techTree = FindAnyObjectByType<TechTree>();
-    //    player = FindAnyObjectByType<PlayerTracker>();
-
-    //    UpdateVisual();
-    //}
-
-    private void Update()
-    {
-        //if (state == TechState.Available)
-        //{
-        //    TechTreeUI.instance.OpenConfirmPopup(this);
-        //}
-    }
-
     public void OnClick()
     {
         Debug.Log("CLICKED");
@@ -83,7 +59,6 @@ public class TechNode : MonoBehaviour
     {
         state = TechState.Unlocked;
         UpdateVisual();
-        StopGlow();
         UpdateConnectedNodes();
     }
 
@@ -94,38 +69,19 @@ public class TechNode : MonoBehaviour
             case TechState.Locked:
                 background.sprite = lockedSprite;
                 button.interactable = false;
-                StopGlow();
                 break;
 
             case TechState.Available:
                 background.sprite = availableSprite;
                 button.interactable = true;
-                StartGlow();
                 break;
 
             case TechState.Unlocked:
                 background.sprite = unloackedSprite;
                 button.interactable = false;
-                StopGlow();
                 break;
         }
         UpdateLines();
-    }
-
-    private void StartGlow()
-    {
-        StopGlow();
-
-        if (background == null) return;
-
-        glowTween = background.DOColor(new Color(0.7f, 1f, 1f), 1f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
-    }
-
-    private void StopGlow()
-    {
-        if (glowTween != null && glowTween.IsActive()) glowTween.Kill();
-
-        if(background != null) background.color = Color.white;
     }
 
     void UpdateConnectedNodes()

@@ -63,25 +63,34 @@ public abstract class UnitBase : MonoBehaviour
 
     }
 
-    public virtual void Attack(UnitBase target)
+    public virtual void Attack(HexTile target)
     {
-        if (currentTile == null || target.currentTile == null)
+        if (currentTile == null || target == null)
         {
             Debug.LogWarning("Either attacker or target is not on a tile!");
             return;
         }
 
-        int distance = HexDistance(currentTile.q, currentTile.r, target.currentTile.q, target.currentTile.r);
+        int distance = HexDistance(currentTile.q, currentTile.r, target.q, target.r);
 
         // Check if target is within attack range
         if (distance > range)
         {
-            Debug.Log($"{unitName} tried to attack {target.unitName}, but target is out of range! (distance: {distance}, range: {range})");
+            Debug.Log($"{unitName} tried to attack {target.currentEnemyUnit.unitType}, but target is out of range! (distance: {distance}, range: {range})");
             return;
         }
 
-        target.TakeDamage(attack);
-        Debug.Log($"{unitName} attacked {target.unitName} for {attack} damage!");
+        bool isUnit = target.currentEnemyUnit != null;
+        if (isUnit)
+        {
+            target.currentEnemyUnit.TakeDamage(attack);
+        }
+        else 
+        {
+            target.currentEnemyBase.TakeDamage(attack);
+        }
+
+        Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
     }
 
     public virtual void TakeDamage(int amount)

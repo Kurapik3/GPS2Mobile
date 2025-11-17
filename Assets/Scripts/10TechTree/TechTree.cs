@@ -46,6 +46,7 @@ public class TechTree : MonoBehaviour
         {
             if (player.getAp() >= cost)
             {
+                Debug.Log("IT WORKS!! FUCK YOU!!!");
                 player.useAP(cost);
                 IsFishing = true;
             }
@@ -54,7 +55,6 @@ public class TechTree : MonoBehaviour
                 Debug.Log("Not enough AP!");
             }
         }
-        
     }
 
     public void MetalScraps(int cost)

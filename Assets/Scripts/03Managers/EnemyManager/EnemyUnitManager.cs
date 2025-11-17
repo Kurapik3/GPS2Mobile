@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Tracks enemy units (positions, types, HP), handles spawn/move/attack requests.
-/// Exposes a simple Instance for queries used by AIs.
+/// Represents an AI-controlled enemy unit on the map.
+/// HP, type from UnitDataBase.
 /// </summary>
 public class EnemyUnitManager : MonoBehaviour
 {
@@ -18,7 +18,6 @@ public class EnemyUnitManager : MonoBehaviour
     private Dictionary<int, Vector2Int> unitPositions = new();
     public Dictionary<int, Vector2Int> UnitPositions => unitPositions;
     private Dictionary<int, string> unitTypes = new();
-    private Dictionary<int, int> unitHP = new();
     private Dictionary<int, GameObject> unitObjects = new();
     public IReadOnlyDictionary<int, GameObject> UnitObjects => unitObjects;
     private Dictionary<int, int> unitHousedBase = new(); //Track which base a unit is housed in
@@ -56,13 +55,19 @@ public class EnemyUnitManager : MonoBehaviour
     public void RegisterUnit(GameObject go, int baseId, string type, Vector2Int hex)
     {
         int id = nextUnitId++;
+
+        EnemyUnit unitGO = go.GetComponent<EnemyUnit>();
+        if (unitGO != null)
+        {
+            var data = unitDatabase.GetUnitByName(type);
+            int hp = data != null ? data.hp : 0;
+            unitGO.Initialize(id, type, hp, MapManager.Instance.GetTile(hex));
+        }
+
         unitObjects[id] = go;
         unitPositions[id] = hex;
         unitTypes[id] = type;
         unitHousedBase[id] = baseId;
-
-        var data = unitDatabase.GetUnitByName(type);
-        unitHP[id] = data != null ? data.hp : 0;
 
         justSpawnedUnits.Add(id);
         unitStates[id] = AIState.Dormant;
@@ -88,12 +93,19 @@ public class EnemyUnitManager : MonoBehaviour
             }
         }
 
-        Destroy(unitObjects[unitId]);
+        var obj = unitObjects[unitId];
+        if (obj != null)
+        {
+            EnemyUnit unitGO = obj.GetComponent<EnemyUnit>();
+            if (unitGO != null && unitGO.currentTile != null)
+                unitGO.currentTile.currentEnemyUnit = null;
+            Destroy(obj);
+        }
+
         unitObjects.Remove(unitId);
         unitPositions.Remove(unitId);
         unitTypes.Remove(unitId);
         unitHousedBase.Remove(unitId);
-        unitHP.Remove(unitId);
         unitStates.Remove(unitId);
         justSpawnedUnits.Remove(unitId);
 
@@ -142,19 +154,13 @@ public class EnemyUnitManager : MonoBehaviour
     {
         return unitPositions.ContainsKey(id) && !justSpawnedUnits.Contains(id);
     }
-    public List<int> GetOwnedUnitIds() => new List<int>(unitPositions.Keys);
-    public int GetUnitIdByObject(GameObject obj)
+    public bool CanUnitAttack(int id)
     {
-        foreach (var kvp in unitObjects)
-        {
-            if (kvp.Value == obj)
-                return kvp.Key;
-        }
-        return -1; //Not found any unit
+        return !justSpawnedUnits.Contains(id);
     }
+    public List<int> GetOwnedUnitIds() => new List<int>(unitPositions.Keys);
     public Vector2Int GetUnitPosition(int id) => unitPositions.TryGetValue(id, out var pos) ? pos : Vector2Int.zero;
     public string GetUnitType(int id) => unitTypes.TryGetValue(id, out var type) ? type : null;
-    public int GetUnitHP(int id) => unitHP.TryGetValue(id, out var hp) ? hp : 0;
     public int GetUnitAttackRange(int id)
     {
         if (unitTypes.TryGetValue(id, out var type))
@@ -181,7 +187,10 @@ public class EnemyUnitManager : MonoBehaviour
             var data = unitDatabase?.GetUnitByName(type);
             if (data == null)
                 return 0;
-            return data.movement;
+
+            if (type == "Builder")
+                return 2;
+            return 1;
         }
         return 0;
     }
@@ -219,35 +228,9 @@ public class EnemyUnitManager : MonoBehaviour
 
     public int TotalUnitCount() => unitPositions.Count;
 
-
-    public void MarkUnitAsActed(int unitId)
-    {
-        actedThisTurn.Add(unitId);
-    }
-
-    public bool HasUnitActedThisTurn(int unitId)
-    {
-        return actedThisTurn.Contains(unitId);
-    }
-
-    public void ClearActedUnits()
-    {
-        actedThisTurn.Clear();
-    }
-    #endregion
-
-    #region Damage
-    public void TakeDamage(int unitId, int amount)
-    {
-        if (!unitHP.ContainsKey(unitId))
-            return;
-
-        unitHP[unitId] -= amount;
-        Debug.Log($"[EnemyUnitManager] Unit {unitId} took {amount} damage, HP now {unitHP[unitId]}");
-
-        if (unitHP[unitId] <= 0)
-            KillUnit(unitId);
-    }
+    public void MarkUnitAsActed(int unitId) => actedThisTurn.Add(unitId);
+    public bool HasUnitActedThisTurn(int unitId) => actedThisTurn.Contains(unitId);
+    public void ClearActedUnits() => actedThisTurn.Clear();
     #endregion
 
     public void UpdateEnemyVisibility()
@@ -294,7 +277,6 @@ public class EnemyUnitManager : MonoBehaviour
         unitObjects.Clear();
         unitPositions.Clear();
         unitTypes.Clear();
-        unitHP.Clear();
         nextUnitId = 1;
     }
 }

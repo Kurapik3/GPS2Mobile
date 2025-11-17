@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &9178033290531103707
+--- !u!1 &2545025057684576442
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6832819805979503706}
-  - component: {fileID: 773633729461410123}
+  - component: {fileID: 7424896864993732560}
+  - component: {fileID: 960826563766814643}
   m_Layer: 0
   m_Name: TurtleWall
   m_TagString: TurtleWall
@@ -17,112 +17,104 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6832819805979503706
+--- !u!4 &7424896864993732560
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9178033290531103707}
+  m_GameObject: {fileID: 2545025057684576442}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 2, z: 0}
+  m_LocalScale: {x: 0.015, y: 0.015, z: 0.015}
+  m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 5621239857392154785}
+  - {fileID: 4822852293601087840}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &773633729461410123
+--- !u!114 &960826563766814643
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9178033290531103707}
+  m_GameObject: {fileID: 2545025057684576442}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c13b404d27a1c8458025436abc2809e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MonsterName: Turtle Wall
-  Attack: 0
-  Health: 35
-  KillPoints: 2000
-  KillAP: 20
-  MovementRange: 1
-  AttackRange: 0
+  monsterName: 
+  attack: 0
+  health: 0
+  killPoints: 0
+  killAP: 0
+  movementRange: 0
+  attackRange: 0
   heightOffset: 2
   CurrentTile: {fileID: 0}
   CurrentTurn: 0
   MonsterId: 0
-  baseHealth: 35
-  baseMovementRange: 1
-  rewardAP: 20
-  rewardPoints: 2000
---- !u!1001 &5298518648634023754
+--- !u!1001 &5000279707430172299
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 6832819805979503706}
+    m_TransformParent: {fileID: 7424896864993732560}
     m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
+    - target: {fileID: 919132149155446097, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
       propertyPath: m_Name
-      value: unit-wall-tower
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
-      propertyPath: m_TagString
-      value: TurtleWall
+      value: Model_Turtle Island
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
---- !u!4 &5621239857392154785 stripped
+  m_SourcePrefab: {fileID: 100100000, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
+--- !u!4 &4822852293601087840 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0b308c48bd01fa2409508a795bc6fb8c, type: 3}
-  m_PrefabInstance: {fileID: 5298518648634023754}
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: dd9886179cbe62b4da938b2940f85d65, type: 3}
+  m_PrefabInstance: {fileID: 5000279707430172299}
   m_PrefabAsset: {fileID: 0}

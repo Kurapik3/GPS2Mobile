@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class Shooter : UnitBase
 {
-    public override void Attack(UnitBase target)
+    public override void Attack(HexTile target)
     {
-        int distance = HexDistance(currentTile.q, currentTile.r, target.currentTile.q, target.currentTile.r);
+        int distance = HexDistance(currentTile.q, currentTile.r, target.q, target.r);
 
         if (distance < 2)
         {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ public class EnemyTurfManager : MonoBehaviour
 {
     public static EnemyTurfManager Instance { get; private set; }
     private HashSet<Vector2Int> turfTiles = new();
+    public static event Action OnEnemyTurfChanged;
 
     private void Awake()
     {
@@ -18,6 +20,7 @@ public class EnemyTurfManager : MonoBehaviour
         {
             turfTiles.Add(tile.HexCoords);
         }
+        OnEnemyTurfChanged?.Invoke();
     }
 
     public void UnregisterBaseArea(Vector2Int currentTile, int radius)
@@ -27,6 +30,7 @@ public class EnemyTurfManager : MonoBehaviour
         {
             turfTiles.Remove(tile.HexCoords);
         }
+        OnEnemyTurfChanged?.Invoke();
     }
 
     public bool IsInTurf(Vector2Int hex) => turfTiles.Contains(hex);
@@ -45,4 +49,8 @@ public class EnemyTurfManager : MonoBehaviour
         }
     }
 #endif 
+    public IEnumerable<Vector2Int> GetAllEnemyTurfCoords()
+    {
+        return turfTiles;
+    }
 }

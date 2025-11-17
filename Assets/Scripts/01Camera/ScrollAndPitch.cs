@@ -63,7 +63,7 @@ public class ScrollAndPitch : MonoBehaviour
             float zoomFactor = (currentDistance - prevDistance) * zoomSpeed;
 
             Vector3 forward = cam.transform.forward;
-            Vector3 newPos = cam.transform.position - forward * zoomFactor;
+            Vector3 newPos = cam.transform.position + forward * zoomFactor;
 
             float currentDistanceFromGround = Vector3.Distance(newPos, transform.position);
             if (currentDistanceFromGround >= minZoomDistance && currentDistanceFromGround <= maxZoomDistance)

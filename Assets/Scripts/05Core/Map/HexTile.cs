@@ -48,9 +48,11 @@ public class HexTile : MonoBehaviour
 
     [Header("SeaMonsterSpawnLocation")]
     public bool HasTreeBase => currentBuilding is TreeBase;
-    public EnemyBase currentEnemyBase;
+    [HideInInspector] public EnemyBase currentEnemyBase;
     public bool HasEnemyBase => currentEnemyBase != null;
-
+    [HideInInspector] public EnemyUnit currentEnemyUnit;
+    [HideInInspector] public FishTile fishTile;
+    [HideInInspector] public DebrisTile debrisTile;
     public bool IsOccupied => HasStructure || HasDynamic;
 
     private bool isBlockedByTurtleWall = false;

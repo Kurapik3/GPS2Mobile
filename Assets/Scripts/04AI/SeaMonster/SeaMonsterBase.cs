@@ -21,10 +21,10 @@ public abstract class SeaMonsterBase : MonoBehaviour
     public int MovementRange => movementRange;
 
     [Header("Visual")]
-    [SerializeField] protected float heightOffset = 2f;
+    [SerializeField] public float heightOffset = 2f;
 
-    [HideInInspector] public HexTile CurrentTile;
-    [HideInInspector] public int CurrentTurn;
+    public HexTile CurrentTile;
+    public int CurrentTurn;
 
     //Unified ID for all sea monsters
     [HideInInspector] public int MonsterId;

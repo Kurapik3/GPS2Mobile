@@ -85,7 +85,8 @@ public static class EnemyAIEvents
         public string UnitType; 
         public EnemySpawnRequestEvent(int baseId, string unitType) 
         { 
-            BaseId = baseId; UnitType = unitType; 
+            BaseId = baseId; 
+            UnitType = unitType; 
         } 
     }
     public struct EnemyMoveRequestEvent 
@@ -101,18 +102,24 @@ public static class EnemyAIEvents
     public struct EnemyAttackRequestEvent 
     {
         public int AttackerId; 
-        public int TargetId; 
-        public EnemyAttackRequestEvent(int attackerId, int targetId) 
+        public GameObject Target; 
+        public EnemyAttackRequestEvent(int attackerId, GameObject target) 
         { 
-            AttackerId = attackerId; TargetId = targetId; 
+            AttackerId = attackerId; 
+            Target = target; 
         } 
     }
     public struct EnemyAuxiliaryActionRequestEvent
     {
         public int ActionId;
-        public EnemyAuxiliaryActionRequestEvent(int actionId)
+        public int UnitId;
+        public Vector2Int TargetPos;
+
+        public EnemyAuxiliaryActionRequestEvent(int actionId, int unitId, Vector2Int targetPos)
         {
             ActionId = actionId;
+            UnitId = unitId;
+            TargetPos = targetPos;
         }
     }
     #endregion
@@ -148,11 +155,11 @@ public static class EnemyAIEvents
     public struct EnemyAttackedEvent 
     { 
         public int AttackerId; 
-        public int TargetId; 
-        public EnemyAttackedEvent(int a, int t) 
+        public GameObject Target; 
+        public EnemyAttackedEvent(int a, GameObject t) 
         { 
             AttackerId = a; 
-            TargetId = t; 
+            Target = t; 
         } 
     }
     public struct EnemyAuxiliaryActionExecutedEvent

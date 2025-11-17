@@ -14,14 +14,19 @@ public class EnemyAuxiliaryActions : MonoBehaviour
 {
     [SerializeField] private float stepDelay = 0.5f;
 
+    private bool actionCompleted = false;
+    private bool actionSuccess = false;
+
     private void OnEnable()
     {
         EventBus.Subscribe<ExecuteAuxiliaryPhaseEvent>(OnAuxiliaryPhase);
+        EventBus.Subscribe<EnemyAuxiliaryActionExecutedEvent>(OnAuxiliaryActionExecuted);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<ExecuteAuxiliaryPhaseEvent>(OnAuxiliaryPhase);
+        EventBus.Unsubscribe<EnemyAuxiliaryActionExecutedEvent>(OnAuxiliaryActionExecuted);
     }
 
     private void OnAuxiliaryPhase(ExecuteAuxiliaryPhaseEvent evt)
@@ -79,12 +84,12 @@ public class EnemyAuxiliaryActions : MonoBehaviour
             int unitId = candidateUnitIds[randomIndex];
             candidateUnitIds.RemoveAt(randomIndex); //Prevent repetition 
 
-            //Choose action based on weighted chance
+            //Weighted random: 70% develop tile, 30% unlock tech
             float roll = UnityEngine.Random.value;
             if (roll < 0.7f)
-                yield return ExecuteDevelopTileAction(unitId); // 70%
+                yield return ExecuteDevelopTileAction(unitId);
             else
-                yield return ExecuteUnlockTechAction(); // 30%
+                yield return ExecuteUnlockTechAction();
 
             yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
         }
@@ -97,80 +102,93 @@ public class EnemyAuxiliaryActions : MonoBehaviour
         var eum = EnemyUnitManager.Instance;
         Vector2Int currentPos = eum.GetUnitPosition(unitId);
 
-        Vector2Int? target = FindClosestUndevelopedResource(currentPos);
-        if (!target.HasValue)
+        HexTile targetTile = FindClosestUndevelopedResource(currentPos);
+        if (targetTile == null)
         {
             Debug.Log($"[EnemyAuxiliaryActions] Unit {unitId}: No undeveloped resource found.");
             yield break;
         }
 
-        //If unit already on the resource tile
-        if (currentPos == target.Value)
+        //If unit is on the target tile
+        if (currentPos == targetTile.HexCoords)
         {
-            if (DevelopResourceAt(target.Value))
-            {
-                Debug.Log($"[EnemyAuxiliaryActions] Unit {unitId} developed resource at {target.Value}");
-                EventBus.Publish(new EnemyAuxiliaryActionExecutedEvent(3, true));
-                EnemyTracker.Instance?.AddScore(200);
-                eum.MarkUnitAsActed(unitId);
-            }
+            yield return RequestDevelopTile(unitId, targetTile.HexCoords);
+            eum.MarkUnitAsActed(unitId);
             yield break;
         }
 
-        //Otherwise move toward it
-        Vector2Int? nextStep = AIPathFinder.FindNearestReachable(currentPos, target.Value, 1);
-        if (nextStep.HasValue && nextStep.Value != currentPos)
+        //If not, try move to the target tile
+        int moveRange = eum.GetUnitMoveRange(unitId);
+        Vector2Int? nextStep = AIPathFinder.FindNearestReachable(currentPos, targetTile.HexCoords, moveRange);
+        if (!nextStep.HasValue || nextStep.Value == currentPos)
         {
-            EventBus.Publish(new EnemyMoveRequestEvent(unitId, nextStep.Value));
+            Debug.Log($"[EnemyAuxiliaryActions] Unit {unitId} cannot move towards {targetTile.HexCoords}, skipping move.");
+            yield break;
         }
+
+        EventBus.Publish(new EnemyMoveRequestEvent(unitId, nextStep.Value));
+        Debug.Log($"[EnemyAuxiliaryActions] Unit {unitId} moves from {currentPos} to {nextStep.Value}");
+
+        eum.MarkUnitAsActed(unitId);
+        yield return null;
+    }
+
+    private IEnumerator RequestDevelopTile(int unitId, Vector2Int pos)
+    {
+        actionCompleted = false;
+
+        Debug.Log($"[EnemyAuxiliaryActions] Request tile develop at {pos}");
+        EventBus.Publish(new EnemyAuxiliaryActionRequestEvent(3, unitId, pos));
+
+        // Wait until Executor fires the result event
+        while (!actionCompleted)
+            yield return null;
+
+        if (actionSuccess)
+            Debug.Log($"[EnemyAuxiliaryActions] Tile {pos} successfully developed");
+        else
+            Debug.Log($"[EnemyAuxiliaryActions] Tile {pos} develop failed");
     }
 
     private IEnumerator ExecuteUnlockTechAction()
     {
-        Debug.Log("[EnemyAuxiliaryActions] Successfully unlocked a tech branch.");
-        EventBus.Publish(new EnemyAuxiliaryActionExecutedEvent(6, true));
-        EnemyTracker.Instance?.AddScore(500);
+        actionCompleted = false;
+
+        Debug.Log("[EnemyAuxiliaryActions] Request unlock tech");
+        EventBus.Publish(new EnemyAuxiliaryActionRequestEvent(6, -1, Vector2Int.zero));
+
+        while (!actionCompleted)
+            yield return null;
 
         yield return null;
     }
 
-    private Vector2Int? FindClosestUndevelopedResource(Vector2Int from)
+    private void OnAuxiliaryActionExecuted(EnemyAuxiliaryActionExecutedEvent evt)
     {
-        List<Vector2Int> candidates = new();
-
-        //foreach (var tile in FindObjectsByType<FishTile>(FindObjectsSortMode.None))
-        //    if (tile != null && !tile.isDeveloped) candidates.Add(tile.HexCoords);
-
-        //foreach (var tile in FindObjectsByType<DebrisTile>(FindObjectsSortMode.None))
-        //    if (tile != null && !tile.isDeveloped) candidates.Add(tile.HexCoords);
-
-        if (candidates.Count == 0)
-            return null;
-
-        candidates.Sort((a, b) => AIPathFinder.GetHexDistance(from, a).CompareTo(AIPathFinder.GetHexDistance(from, b)));
-        return candidates[0];
+        actionCompleted = true;
+        actionSuccess = evt.Success;
     }
 
-    private bool DevelopResourceAt(Vector2Int hex)
+    private HexTile FindClosestUndevelopedResource(Vector2Int from)
     {
-        var map = MapManager.Instance;
-        var tileObj = map.GetTile(hex);
-        if (tileObj == null) return false;
+        HexTile closest = null;
+        int minDist = int.MaxValue;
 
-        //var fish = tileObj.GetComponent<FishTile>();
-        //if (fish != null && !fish.isDeveloped)
-        //{
-        //    fish.OnTileTapped();
-        //    return true;
-        //}
+        foreach (var tile in MapManager.Instance.GetTiles())
+        {
+            bool hasResource = tile.fishTile != null || tile.debrisTile != null;
 
-        //var debris = tileObj.GetComponent<DebrisTile>();
-        //if (debris != null && !debris.isDeveloped)
-        //{
-        //    debris.OnTileTapped();
-        //    return true;
-        //}
+            if (!hasResource)
+                continue;
 
-        return false;
+            int dist = AIPathFinder.GetHexDistance(from, tile.HexCoords);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = tile;
+            }
+        }
+
+        return closest;
     }
 }
