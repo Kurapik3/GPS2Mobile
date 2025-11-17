@@ -17,6 +17,10 @@ public class EnemyUnit : MonoBehaviour
 
     public float baseHeightOffset = 2.0f;
 
+    // ---- KENNETH'S ----
+    private EnemyHPDisplay hpDisplay;
+    // -------------------
+
     private float GetHeightOffset(HexTile tile)
     {
         //If there is a structure, then use 2.5f offset instead
@@ -37,12 +41,22 @@ public class EnemyUnit : MonoBehaviour
         Vector3 pos = MapManager.Instance.HexToWorld(tile.HexCoords);
         pos.y += GetHeightOffset(tile);
         transform.position = pos;
+
+        // ---- KENNETH'S ----
+        hpDisplay = GetComponentInChildren<EnemyHPDisplay>();
     }
 
     public void TakeDamage(int amount)
     {
         currentHP -= amount;
         Debug.Log($"[EnemyUnit] {unitType} took {amount} damage (HP: {currentHP})");
+
+        // ---- KENNETH'S ----
+        if (hpDisplay != null)
+        {
+            hpDisplay.OnHealthChanged();
+        }
+        // -------------------
 
         if (currentHP <= 0)
             Die();

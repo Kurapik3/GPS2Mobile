@@ -33,6 +33,10 @@ public abstract class UnitBase : MonoBehaviour
     [Header("Fog of War Settings")]
     [SerializeField] private int fogRevealRadius = 1;
 
+    // ---- KENNETH'S ----
+    private UnitHPDisplay hpDisplay;
+    // --------------------
+
     protected virtual void Start()
     {
         rend = GetComponent<Renderer>();
@@ -43,6 +47,9 @@ public abstract class UnitBase : MonoBehaviour
             UnitManager.Instance.RegisterUnit(this);
         }
 
+        // ---- KENNETH'S ----
+        hpDisplay = GetComponent<UnitHPDisplay>();
+        // --------------------
     }
     public virtual void Initialize(UnitData data, HexTile startingTile)
     {
@@ -102,6 +109,14 @@ public abstract class UnitBase : MonoBehaviour
             hp = 0;
             Die();
         }
+
+        // ---- KENNETH'S ----
+        if (hpDisplay != null)
+        {
+            hpDisplay.UpdateHPDisplay();
+        }
+        // --------------------
+
         Debug.Log($"{unitName} took {amount} damage. Remaining HP: {hp}");
     }
 
@@ -277,31 +292,6 @@ public abstract class UnitBase : MonoBehaviour
         activeIndicators.Clear();
         tilesInRange.Clear();
     }
-
-    //private void CalculateTilesInRange()
-    //{
-    //    tilesInRange.Clear();
-
-    //    if (MapManager.Instance == null)
-    //    {
-    //        Debug.LogError("MapManager.Instance is null!");
-    //        return;
-    //    }
-
-    //    Dictionary<Vector2Int, HexTile> allTiles = (Dictionary<Vector2Int, HexTile>)MapManager.Instance.GetAllTiles();
-
-    //    foreach (var kvp in allTiles)
-    //    {
-    //        HexTile tile = kvp.Value;
-    //        int distance = HexDistance(currentTile.q, currentTile.r, tile.q, tile.r);
-
-    //        // Only include tiles within movement range
-    //        if (distance > 0 && distance <= movement)
-    //        {
-    //            tilesInRange.Add(tile);
-    //        }
-    //    }
-    //}
 
     private void CalculateTilesInRange()
     {

@@ -46,8 +46,8 @@ public class TechNode : MonoBehaviour
     }
     public void OnClick()
     {
-        Debug.Log("CLICKED");
-        TechTreeUI.instance.OpenConfirmPopup(this);
+        //Debug.Log("CLICKED");
+        //TechTreeUI.instance.OpenConfirmPopup(this);
 
         if (state == TechState.Available)
         {
