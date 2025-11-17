@@ -3,18 +3,16 @@ using System.Collections.Generic;
 
 public class Bomber : UnitBase
 {
-    public override void Attack(UnitBase target)
+    public override void Attack(HexTile target)
     {
         base.Attack(target);
-
-        if (target.hp <= 0) return;
 
         List<UnitBase> allUnits = UnitManager.Instance.GetAllUnits();
         foreach (var unit in allUnits)
         {
             if (unit == target || unit == this || unit.currentTile == null) continue;
 
-            int dist = HexDistance(target.currentTile.q, target.currentTile.r, unit.currentTile.q, unit.currentTile.r);
+            int dist = HexDistance(target.q, target.r, unit.currentTile.q, unit.currentTile.r);
 
             // splash to 1-tile radius
             if (dist == 1)
