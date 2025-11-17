@@ -55,7 +55,7 @@ public class FishTile : MonoBehaviour
         // Give population to nearby base if found
         if (nearbyBase != null)
         {
-            //nearbyBase.UpgradeBase(); // here should be population gain
+            nearbyBase.GainPop(populationGain);// here should be population gain
             Debug.Log($"Developed Fish Tile, +{populationGain} population to base.");
         }
         else

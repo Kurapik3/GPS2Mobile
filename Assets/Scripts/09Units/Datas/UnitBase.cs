@@ -63,25 +63,43 @@ public abstract class UnitBase : MonoBehaviour
 
     }
 
-    public virtual void Attack(UnitBase target)
+    //hp 
+    public virtual int GetHp()
     {
-        if (currentTile == null || target.currentTile == null)
-        {
-            Debug.LogWarning("Either attacker or target is not on a tile!");
-            return;
-        }
+        return hp;
+    }
 
-        int distance = HexDistance(currentTile.q, currentTile.r, target.currentTile.q, target.currentTile.r);
+    public virtual void Attack()
+    {
+        //if (currentTile == null || target.currentTile == null)
+        //{
+        //    Debug.LogWarning("Either attacker or target is not on a tile!");
+        //    return;
+        //}
 
-        // Check if target is within attack range
-        if (distance > range)
-        {
-            Debug.Log($"{unitName} tried to attack {target.unitName}, but target is out of range! (distance: {distance}, range: {range})");
-            return;
-        }
+        //int distance = HexDistance(currentTile.q, currentTile.r, target.currentTile.q, target.currentTile.r);
 
-        target.TakeDamage(attack);
-        Debug.Log($"{unitName} attacked {target.unitName} for {attack} damage!");
+        //// Check if target is within attack range
+        //if (distance > range)
+        //{
+        //    Debug.Log($"{unitName} tried to attack {target.unitName}, but target is out of range! (distance: {distance}, range: {range})");
+        //    return;
+        //}
+
+        //target.TakeDamage(attack);
+        //Debug.Log($"{unitName} attacked {target.unitName} for {attack} damage!");
+
+
+    }
+
+    public virtual void AttackBuilding()
+    {
+
+    }
+
+    public virtual void AttackUnit()
+    {
+
     }
 
     public virtual void TakeDamage(int amount)
@@ -111,17 +129,26 @@ public abstract class UnitBase : MonoBehaviour
 
     public void SetSelected(bool selected)
     {
-        isSelected = selected;
-        UpdateSelectionVisual();
-        HideRangeIndicators();
-        if (isSelected)
+        if(hasMovedThisTurn)
         {
-            ShowRangeIndicators();
+            HideRangeIndicators();
+            return;
         }
         else
         {
+            isSelected = selected;
+            UpdateSelectionVisual();
             HideRangeIndicators();
+            if (isSelected)
+            {
+                ShowRangeIndicators();
+            }
+            else
+            {
+                HideRangeIndicators();
+            }
         }
+            
         
     }
     private void UpdateSelectionVisual()
@@ -375,4 +402,5 @@ public abstract class UnitBase : MonoBehaviour
     {
         HideRangeIndicators();
     }
+   
 }

@@ -4,10 +4,19 @@ public class TreeBase : BuildingBase
 {
     [Header("Tree Base Properties")]
     [SerializeField] private int maxUnits = 3;
-    [SerializeField] private int populationLevel = 1;
     [SerializeField] private int baseHealth = 20;
     [SerializeField] private int apBonusPerUpgrade = 1;
     [SerializeField] private int healthBonusPerUpgrade = 5;
+    [SerializeField] private int level = 1;
+    [SerializeField] private int currentPop = 0;
+    [SerializeField] private int maxUpgrades = 3;
+    [SerializeField] private int ToLvlBase2 = 2;
+    [SerializeField] private int ToLvlBase3 = 3;
+    [SerializeField] private int ToLvlBaseMore = 4;
+
+    [Header("Tree Base Prefabs")]
+    [SerializeField] private GameObject Level2Base;
+    [SerializeField] private GameObject Level3Base;
 
     private int currentUnitsTrained = 0;
     public int TreeBaseId { get; private set; }
@@ -47,8 +56,6 @@ public class TreeBase : BuildingBase
 
     }
 
-
-
     public override void OnTurnStart()
     {
         PlayerTracker.Instance.addAP(apPerTurn);
@@ -71,20 +78,55 @@ public class TreeBase : BuildingBase
         Instantiate(unitPrefab, transform.position, Quaternion.identity);
         Debug.Log($"Unit trained! ({currentUnitsTrained}/{maxUnits})");
     }
-
-    public void UpgradeBase()
+    public void GainPop(int amount)
     {
-        populationLevel++;
+        currentPop += amount;
+    }
+    public bool CanUpgrade()
+    {
+        if (level >= maxUpgrades)
+        {
+            Debug.Log("Tree Base is fully upgraded!");
+            return false;
+        }
+        // if 
+       if(level==1 && currentPop >= 2 )
+        {
 
-        // Apply bonuses per upgrade
-        apPerTurn += apBonusPerUpgrade;
+        }
+        return true;
+    }
+
+    private void ApplyUpgradeBase()
+    {
+        level++;
         baseHealth += healthBonusPerUpgrade;
-        health = baseHealth; // restore health after upgrade
+        health = baseHealth;
+
+        Debug.Log($"Tree Base upgraded to Level {level}");
+    }
+
+    //baseUpgrade for KENNEHTH TO USE 
+    public void ChooseScore()
+    {
+        ApplyUpgradeBase();
 
         PlayerTracker.Instance.addScore(1000);
-        //PlayerTracker.Instance.IncreaseTurfRadius(1);
+    }
 
-        Debug.Log($"Tree Base upgraded! Population {populationLevel}, AP {apPerTurn}, Max HP {baseHealth}");
+    public void ChooseApPerTurn()
+    {
+        ApplyUpgradeBase();
+
+        apPerTurn += apBonusPerUpgrade;
+    }
+
+    public void ChooseTurfUp()
+    {
+        ApplyUpgradeBase();
+
+        turfRadius += 1;
+        
     }
 
     protected override void DestroyBuilding()
