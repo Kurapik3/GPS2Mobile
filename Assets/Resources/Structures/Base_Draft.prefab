@@ -262,10 +262,17 @@ MonoBehaviour:
   currentTile: {fileID: 0}
   GrovePrefab: {fileID: 8712921903553767909, guid: 6125173ba2ed77a4288716f4d2eb8f2e, type: 3}
   maxUnits: 3
-  populationLevel: 1
   baseHealth: 20
   apBonusPerUpgrade: 1
   healthBonusPerUpgrade: 5
+  level: 1
+  currentPop: 0
+  maxUpgrades: 3
+  ToLvlBase2: 2
+  ToLvlBase3: 3
+  ToLvlBaseMore: 4
+  Level2Base: {fileID: 0}
+  Level3Base: {fileID: 0}
   turfRadius: 2
 --- !u!114 &4212086869934161068
 MonoBehaviour:

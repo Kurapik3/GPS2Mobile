@@ -1,4 +1,4 @@
-using UnityEngine;
+    using UnityEngine;
 
 public class DebrisTile : MonoBehaviour
 {
@@ -52,7 +52,7 @@ public class DebrisTile : MonoBehaviour
 
         if (nearbyBase != null)
         {
-            //nearbyBase.UpgradeBase(); // here should be population gain
+            nearbyBase.GainPop(populationGain); // here should be population gain
             Debug.Log($"Developed Debris Tile, +{populationGain} population to base.");
         }
         else
