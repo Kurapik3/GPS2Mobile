@@ -1,7 +1,8 @@
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
-using System.Collections.Generic;
 
 public class UnitTouchController : MonoBehaviour
 {
@@ -37,9 +38,24 @@ public class UnitTouchController : MonoBehaviour
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
             if (tile != null && selectedUnit != null && selectedUnit.GetAvailableTiles().Contains(tile))
             {
-                selectedUnit.TryMove(tile);
-                DeselectUnit();
-                return;
+                if (tile.currentEnemyUnit != null)
+                {
+                    selectedUnit.Attack(tile); //For attack unit
+                    DeselectUnit();
+                    return;
+                }
+                if(tile.currentEnemyBase != null)
+                {
+                    selectedUnit.Attack(tile); //For attack enemy base
+                    DeselectUnit();
+                    return;
+                }
+                else
+                {
+                    selectedUnit.TryMove(tile);
+                    DeselectUnit();
+                    return;
+                }
             }
 
             // Deselect if tapped elsewhere

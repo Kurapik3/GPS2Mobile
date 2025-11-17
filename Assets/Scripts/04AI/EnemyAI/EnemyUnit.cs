@@ -15,9 +15,13 @@ public class EnemyUnit : MonoBehaviour
     public HexTile currentTile;
     public bool IsDestroyed => currentHP <= 0;
 
-    private int currentTurfRadius = 1;
-    private int upgradeInterval = 3; //Number of turns between each base upgrade, will increase by 1 after each upgrade
-    private int turnsSinceUpgrade = 0;
+    public float baseHeightOffset = 2.0f;
+
+    private float GetHeightOffset(HexTile tile)
+    {
+        //If there is a structure, then use 2.5f offset instead
+        return (tile.currentBuilding != null || currentTile.currentEnemyBase != null) ? 2.5f : 2.0f;
+    }
 
     public void Initialize(int id, string type, int hp, HexTile tile)
     {
@@ -30,7 +34,9 @@ public class EnemyUnit : MonoBehaviour
         if (currentTile != null)
             currentTile.currentEnemyUnit = this;
 
-        transform.position = MapManager.Instance.HexToWorld(tile.HexCoords);
+        Vector3 pos = MapManager.Instance.HexToWorld(tile.HexCoords);
+        pos.y += GetHeightOffset(tile);
+        transform.position = pos;
     }
 
     public void TakeDamage(int amount)
@@ -56,6 +62,8 @@ public class EnemyUnit : MonoBehaviour
         currentTile = newTile;
         currentTile.currentEnemyUnit = this;
 
-        transform.position = MapManager.Instance.HexToWorld(newTile.HexCoords);
+        Vector3 pos = MapManager.Instance.HexToWorld(newTile.HexCoords);
+        pos.y += GetHeightOffset(newTile);
+        transform.position = pos;
     }
 }

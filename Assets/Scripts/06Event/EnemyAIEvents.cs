@@ -112,9 +112,14 @@ public static class EnemyAIEvents
     public struct EnemyAuxiliaryActionRequestEvent
     {
         public int ActionId;
-        public EnemyAuxiliaryActionRequestEvent(int actionId)
+        public int UnitId;
+        public Vector2Int TargetPos;
+
+        public EnemyAuxiliaryActionRequestEvent(int actionId, int unitId, Vector2Int targetPos)
         {
             ActionId = actionId;
+            UnitId = unitId;
+            TargetPos = targetPos;
         }
     }
     #endregion

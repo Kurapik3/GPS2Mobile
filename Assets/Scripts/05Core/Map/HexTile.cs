@@ -51,6 +51,8 @@ public class HexTile : MonoBehaviour
     [HideInInspector] public EnemyBase currentEnemyBase;
     public bool HasEnemyBase => currentEnemyBase != null;
     [HideInInspector] public EnemyUnit currentEnemyUnit;
+    [HideInInspector] public FishTile fishTile;
+    [HideInInspector] public DebrisTile debrisTile;
     public bool IsOccupied => HasStructure || HasDynamic;
 
     private bool isBlockedByTurtleWall = false;
