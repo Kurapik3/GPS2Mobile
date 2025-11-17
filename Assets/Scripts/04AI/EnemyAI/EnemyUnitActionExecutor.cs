@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static EnemyAIEvents;
-using static UnityEngine.GraphicsBuffer;
 
 /// <summary>
 /// Handles executing enemy actions: spawn, move, attack.
@@ -327,6 +326,7 @@ public class EnemyActionExecutor : MonoBehaviour
             Destroy(tile.fishTile.gameObject);
             tile.fishTile = null;
             success = true;
+            
         }
         // Debris
         else if (tile.debrisTile != null)
@@ -342,6 +342,14 @@ public class EnemyActionExecutor : MonoBehaviour
         {
             EnemyUnitManager.Instance.MarkUnitAsActed(unitId);
             EnemyTracker.Instance?.AddScore(200);
+
+            EnemyBase baseRef = EnemyTurfManager.Instance.GetBaseByTile(pos);
+            if (baseRef != null)
+            {
+                baseRef.AddPopulation(1);
+                Debug.Log($"[EnemyActionExecutor] Added 1 population to base {baseRef.baseName}");
+            }
+
         }
     }
 

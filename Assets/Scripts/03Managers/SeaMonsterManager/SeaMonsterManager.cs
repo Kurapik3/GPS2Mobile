@@ -94,13 +94,6 @@ public class SeaMonsterManager : MonoBehaviour
             yield return StartCoroutine(ShakeCamera());
             yield return new WaitForSeconds(preSpawnDelay);
         }
-        else
-        {
-            if (krakenSpawnSound)
-            {
-                AudioSource.PlayClipAtPoint(krakenSpawnSound, mainCameraTransform.position);
-            }
-        }
 
         //Spawn random monster
         SeaMonsterBase monster = spawner.SpawnRandomMonster();
@@ -108,8 +101,13 @@ public class SeaMonsterManager : MonoBehaviour
         {
             RegisterMonster(monster);
 
-            Vector2Int tilePos = monster.CurrentTile != null ? monster.CurrentTile.HexCoords : Vector2Int.zero;
+            Vector2Int tilePos = monster.currentTile != null ? monster.currentTile.HexCoords : Vector2Int.zero;
             EventBus.Publish(new SeaMonsterSpawnedEvent(monster, tilePos));
+
+            if (monster is Kraken && krakenSpawnSound != null)
+            {
+                AudioSource.PlayClipAtPoint(krakenSpawnSound, mainCameraTransform.position);
+            }
         }
     }
 
@@ -120,7 +118,7 @@ public class SeaMonsterManager : MonoBehaviour
         if (!activeMonsters.Contains(monster))
             activeMonsters.Add(monster);
 
-        Vector2Int pos = monster.CurrentTile != null ? monster.CurrentTile.HexCoords : Vector2Int.zero;
+        Vector2Int pos = monster.currentTile != null ? monster.currentTile.HexCoords : Vector2Int.zero;
         monsterPositions[monster.MonsterId] = pos;
 
         UpdateSeaMonsterVisibility();

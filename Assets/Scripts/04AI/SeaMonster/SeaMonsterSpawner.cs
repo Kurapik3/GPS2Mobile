@@ -58,7 +58,7 @@ public class SeaMonsterSpawner : MonoBehaviour
         go.transform.position = worldPos;
 
         //Link monster and tile
-        monster.CurrentTile = tile;
+        monster.currentTile = tile;
         MapManager.Instance.SetUnitOccupied(tile.HexCoords, true);
 
         return monster;

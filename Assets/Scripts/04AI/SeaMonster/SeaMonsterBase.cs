@@ -23,7 +23,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
     [Header("Visual")]
     [SerializeField] public float heightOffset = 2f;
 
-    public HexTile CurrentTile;
+    public HexTile currentTile;
     public int CurrentTurn;
 
     //Unified ID for all sea monsters
@@ -51,13 +51,14 @@ public abstract class SeaMonsterBase : MonoBehaviour
     //Controls sea monster spawning
     public virtual void Initialize(HexTile spawnTile)
     {
-        CurrentTile = spawnTile;
+        currentTile = spawnTile;
         Vector3 world = MapManager.Instance.HexToWorld(spawnTile.HexCoords);
         world.y += heightOffset;
         transform.position = world;
 
         //Register tile occupancy
         MapManager.Instance.SetUnitOccupied(spawnTile.HexCoords, true);
+        currentTile.currentSeaMonster = this;
 
         EventBus.Publish(new SeaMonsterSpawnedEvent(this, spawnTile.HexCoords));
 
@@ -75,10 +76,10 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     protected virtual void MoveTo(HexTile newTile)
     {
-        if (newTile == null || newTile == CurrentTile)
+        if (newTile == null || newTile == currentTile)
             return;
 
-        Vector2Int oldPos = CurrentTile.HexCoords;
+        Vector2Int oldPos = currentTile.HexCoords;
         Vector2Int newPos = newTile.HexCoords;
 
         //Validate walkability
@@ -91,7 +92,11 @@ public abstract class SeaMonsterBase : MonoBehaviour
         //Clear previous tile occupation
         MapManager.Instance.SetUnitOccupied(oldPos, false);
 
-        CurrentTile = newTile;
+        if (currentTile != null)
+            currentTile.currentSeaMonster = null;
+
+        currentTile = newTile;
+        currentTile.currentSeaMonster = this;
 
         //Register new tile as occupied
         MapManager.Instance.SetUnitOccupied(newPos, true);
@@ -108,7 +113,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     private IEnumerator SmoothMove(HexTile newTile)
     {
-        Vector3 start = MapManager.Instance.HexToWorld(CurrentTile.HexCoords);
+        Vector3 start = MapManager.Instance.HexToWorld(currentTile.HexCoords);
         start.y += heightOffset;
         Vector3 end = MapManager.Instance.HexToWorld(newTile.HexCoords);
         end.y += heightOffset;
@@ -136,11 +141,14 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     protected virtual void Die()
     {
-        Vector2Int pos = CurrentTile != null ? CurrentTile.HexCoords : Vector2Int.zero;
+        Vector2Int pos = currentTile != null ? currentTile.HexCoords : Vector2Int.zero;
 
         //Free up the tile
-        if (CurrentTile != null)
+        if (currentTile != null)
+        {
             MapManager.Instance.SetUnitOccupied(pos, false);
+            currentTile.currentSeaMonster = null;
+        }
 
         EventBus.Publish(new SeaMonsterKilledEvent(this, pos));
         Debug.Log($"[{monsterName}] died at {pos}");

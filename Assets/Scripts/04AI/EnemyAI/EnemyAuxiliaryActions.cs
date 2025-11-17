@@ -181,6 +181,9 @@ public class EnemyAuxiliaryActions : MonoBehaviour
             if (!hasResource)
                 continue;
 
+            if (EnemyTurfManager.Instance.IsInTurf(tile.HexCoords))
+                continue;
+
             int dist = AIPathFinder.GetHexDistance(from, tile.HexCoords);
             if (dist < minDist)
             {

@@ -38,15 +38,9 @@ public class UnitTouchController : MonoBehaviour
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
             if (tile != null && selectedUnit != null && selectedUnit.GetAvailableTiles().Contains(tile))
             {
-                if (tile.currentEnemyUnit != null)
+                if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
                 {
                     selectedUnit.Attack(tile); //For attack unit
-                    DeselectUnit();
-                    return;
-                }
-                if(tile.currentEnemyBase != null)
-                {
-                    selectedUnit.Attack(tile); //For attack enemy base
                     DeselectUnit();
                     return;
                 }
