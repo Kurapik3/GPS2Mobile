@@ -79,8 +79,12 @@ public abstract class UnitBase : MonoBehaviour
             Debug.Log($"{unitName} tried to attack {target.unitName}, but target is out of range! (distance: {distance}, range: {range})");
             return;
         }
+        else
+        {
+            // Show attack indicator
+        }
 
-        target.TakeDamage(attack);
+            target.TakeDamage(attack);
         Debug.Log($"{unitName} attacked {target.unitName} for {attack} damage!");
     }
 

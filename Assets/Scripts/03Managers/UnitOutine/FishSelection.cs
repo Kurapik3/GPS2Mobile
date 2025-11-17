@@ -54,21 +54,17 @@ public class FishSelection : MonoBehaviour
 
     private void OnEnable()
     {
-        // Enable Enhanced Touch Support for mobile
         EnhancedTouchSupport.Enable();
 
-        // Subscribe to touch events
         Touch.onFingerDown += OnFingerDown;
         Touch.onFingerUp += OnFingerUp;
     }
 
     private void OnDisable()
     {
-        // Unsubscribe from touch events
         Touch.onFingerDown -= OnFingerDown;
         Touch.onFingerUp -= OnFingerUp;
 
-        // Disable Enhanced Touch Support
         EnhancedTouchSupport.Disable();
     }
 
@@ -76,53 +72,42 @@ public class FishSelection : MonoBehaviour
     {
         cam = Camera.main;
 
-        // Set initial positions off-screen
         fishInfoPanelMove.anchoredPosition = offScreenPos;
         fishStatusWindowMove.anchoredPosition = offScreenPos;
 
-        // Mobile optimization: set target frame rate
         Application.targetFrameRate = 60;
     }
 
     private void OnFingerDown(Finger finger)
     {
-        // Ignore if not the first finger (for multi-touch scenarios)
         if (finger.index != 0) return;
 
-        // Store touch start data for tap detection
         touchStartPos = finger.screenPosition;
         touchStartTime = Time.time;
     }
 
     private void OnFingerUp(Finger finger)
     {
-        // Ignore if not the first finger
         if (finger.index != 0) return;
 
-        // Check if it was a tap (quick press without much movement)
         float touchDuration = Time.time - touchStartTime;
         float touchDistance = Vector2.Distance(touchStartPos, finger.screenPosition);
 
         if (touchDuration > tapTimeThreshold || touchDistance > tapDistanceThreshold)
         {
-            // This was a drag/swipe, not a tap
             return;
         }
 
-        // Get the touch position
         Vector2 touchPosition = finger.screenPosition;
 
-        // Check if touching UI
         if (IsPointerOverUI(touchPosition))
         {
             return;
         }
 
-        // Perform raycast to check for structures
         Ray ray = cam.ScreenPointToRay(touchPosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, fish))
         {
-            // Structure was hit
             SelectByClicking(hit.collider.gameObject);
             StructureInfoPanelMove();
             Debug.Log("Fish Bitch");
@@ -135,25 +120,19 @@ public class FishSelection : MonoBehaviour
         }
         else
         {
-            // Tapped empty space
             isSFXPlayed = true;
             DeselectAll();
             CloseStructureInfoPanel();
         }
     }
 
-    /// <summary>
-    /// Check if touch is over UI (mobile-optimized)
-    /// </summary>
     private bool IsPointerOverUI(Vector2 screenPosition)
     {
-        // Create pointer event data
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
         {
             position = screenPosition
         };
 
-        // Raycast to check for UI elements
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 

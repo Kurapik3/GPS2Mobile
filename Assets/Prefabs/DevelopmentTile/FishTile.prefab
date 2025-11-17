@@ -74,6 +74,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: db6c6ea176ee6ed479795bfc9054fee5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1092918692429014602}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: db6c6ea176ee6ed479795bfc9054fee5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -3289697490387290337}
   m_SourcePrefab: {fileID: 100100000, guid: db6c6ea176ee6ed479795bfc9054fee5, type: 3}
 --- !u!1 &6333052953490443669 stripped
 GameObject:
@@ -116,3 +119,22 @@ MonoBehaviour:
   apCost: 2
   populationGain: 1
   removeAfterDevelop: 1
+--- !u!114 &-3289697490387290337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6333052953490443669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f41bae1489e6f1408d6a90906900498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectData:
+    objectName: Fish
+    description: Extract Fish to upgrade your city
+    icon: {fileID: 0}
+  interactableLayer:
+    serializedVersion: 2
+    m_Bits: 2048

@@ -8,7 +8,7 @@ public class InGameSceneManager : MonoBehaviour
     [SerializeField] private CanvasGroup settingButton;
     [SerializeField] private CanvasGroup techTreeButton;
     [SerializeField] private CanvasGroup endTurnButton;
-    [SerializeField] private CanvasGroup interactablePanel;
+    [SerializeField] private CanvasGroup blockPanel;
     [SerializeField] private CanvasGroup techTreePage;
 
     [SerializeField] private RectTransform settingPanelMove;
@@ -36,14 +36,14 @@ public class InGameSceneManager : MonoBehaviour
     public void Setting()
     {
         SettingPopUp();
-        interactablePanel.blocksRaycasts = true;
+        blockPanel.blocksRaycasts = true;
         ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
     public void CloseSetting()
     {
         settingPanelMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
-        interactablePanel.blocksRaycasts = false;
+        blockPanel.blocksRaycasts = false;
         ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
@@ -79,14 +79,14 @@ public class InGameSceneManager : MonoBehaviour
     public void OpenTribeStats()
     {
         TribeStatsPopUp();
-        interactablePanel.blocksRaycasts = true;
+        blockPanel.blocksRaycasts = true;
         ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
     public void ClosetribeStats()
     {
         CloseTribeStatsPopUp();
-        interactablePanel.blocksRaycasts = false;
+        blockPanel.blocksRaycasts = false;
         ManagerAudio.instance.PlaySFX("ButtonPressed");
     }
 
