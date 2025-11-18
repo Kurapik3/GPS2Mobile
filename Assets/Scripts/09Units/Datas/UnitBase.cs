@@ -1,5 +1,4 @@
 ﻿using DG.Tweening.Core.Easing;
-using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -8,7 +7,10 @@ public abstract class UnitBase : MonoBehaviour
 {
     [Header("Indicators")]
     [SerializeField] private GameObject rangeIndicatorPrefab;
+    [SerializeField] private GameObject attackIndicatorPrefab;
     private List<GameObject> activeIndicators = new List<GameObject>();
+    private List<GameObject> activeAttackIndicators = new List<GameObject>();
+    private List<HexTile> tilesInAttackRange = new List<HexTile>();
 
     private List<HexTile> tilesInRange = new List<HexTile>();
 
@@ -30,12 +32,14 @@ public abstract class UnitBase : MonoBehaviour
     private Renderer rend;
 
     public bool hasMovedThisTurn = false;
+    public bool HasAttackThisTurn  = false;
 
     [Header("Fog of War Settings")]
     [SerializeField] private int fogRevealRadius = 1;
 
     // ---- KENNETH'S ----
     private UnitHPDisplay hpDisplay;
+
     // --------------------
 
     protected virtual void Start()
@@ -88,20 +92,31 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
+        if (target.currentEnemyUnit == null && target.currentEnemyBase == null && target.currentSeaMonster == null)
+        {
+            return;
+        }
+        
         if (target.currentEnemyUnit != null)
         {
             target.currentEnemyUnit.TakeDamage(attack);
+            Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
+            HasAttackThisTurn = false;
         }
         else if(target.currentEnemyBase != null)
         {
             target.currentEnemyBase.TakeDamage(attack);
+            Debug.Log($"{unitName} attacked {target.currentEnemyBase} for {attack} damage!");
+            HasAttackThisTurn = false;
         }
         else if(target.currentSeaMonster != null)
         {
             target.currentSeaMonster.TakeDamage(attack);
+            Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
+            HasAttackThisTurn = false;
         }
 
-            Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
+        HideAttackIndicators();
     }
 
     public virtual void TakeDamage(int amount)
@@ -128,6 +143,7 @@ public abstract class UnitBase : MonoBehaviour
     {
         Debug.Log($"{unitName} has died!");
 
+        currentTile?.SetOccupiedByUnit(false); //Release current tile
         HideRangeIndicators();
 
         if (UnitManager.Instance != null)
@@ -142,7 +158,8 @@ public abstract class UnitBase : MonoBehaviour
         isSelected = selected;
         UpdateSelectionVisual();
         HideRangeIndicators();
-        if (isSelected)
+        HideAttackIndicators();
+        if (isSelected && !hasMovedThisTurn)
         {
             ShowRangeIndicators();
         }
@@ -200,9 +217,11 @@ public abstract class UnitBase : MonoBehaviour
     public virtual void Move(HexTile targetTile)
     {
         if (targetTile == null) return;
-        
+
+        currentTile?.SetOccupiedByUnit(false); //Release old tile
         transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
         currentTile = targetTile;
+        currentTile.SetOccupiedByUnit(true); //Occupied new tile
         Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
         hasMovedThisTurn = true;
         RevealNearbyFog(currentTile);
@@ -210,6 +229,7 @@ public abstract class UnitBase : MonoBehaviour
     public void ResetMove()
     {
         hasMovedThisTurn = false;
+        HasAttackThisTurn = false;
     }
 
     protected void RevealNearbyFog(HexTile centerTile)
@@ -377,18 +397,64 @@ public abstract class UnitBase : MonoBehaviour
     private void OnDestroy()
     {
         HideRangeIndicators();
+        HideAttackIndicators();
     }
 
-    public void SetPositionToTile(int q, int r)
+
+
+    //Attack UI indictor 
+    public void ShowAttackIndicators()
     {
-        if (MapManager.Instance.TryGetTile(new Vector2Int(q, r), out HexTile tile))
+        HideAttackIndicators();
+
+        if (attackIndicatorPrefab == null)
         {
-            transform.position = tile.transform.position + Vector3.up * 2f;
-            currentTile = tile;
+            Debug.LogWarning($"{unitName}: Attack Indicator Prefab not assigned!");
+            return;
         }
-        else
+
+        if (currentTile == null)
+            return;
+
+        CalculateTilesInAttackRange();
+
+        foreach (var tile in tilesInAttackRange)
         {
-            Debug.LogWarning($"Tile ({q}, {r}) not found!");
+            Vector3 pos = new Vector3(tile.transform.position.x, 2f, tile.transform.position.z);
+            GameObject indicator = Instantiate(attackIndicatorPrefab, pos, Quaternion.Euler(90, 0, 0));
+            indicator.name = $"AttackIndicator{tile.q}{tile.r}";
+            activeAttackIndicators.Add(indicator);
         }
     }
+
+    public void HideAttackIndicators()
+    {
+        foreach (var ind in activeAttackIndicators)
+            if (ind != null)
+                Destroy(ind);
+
+        activeAttackIndicators.Clear();
+        tilesInAttackRange.Clear();
+    }
+
+    private void CalculateTilesInAttackRange()
+    {
+        tilesInAttackRange.Clear();
+
+        foreach (HexTile tile in MapManager.Instance.GetTiles())
+        {
+            int dist = HexDistance(currentTile.q, currentTile.r, tile.q, tile.r);
+
+            if (dist <= range && dist > 0) // cannot attack itself
+            {
+                if (tile.currentEnemyUnit != null ||
+                    tile.currentEnemyBase != null ||
+                    tile.currentSeaMonster != null)
+                {
+                    tilesInAttackRange.Add(tile);
+                }
+            }
+        }
+    }
+
 }

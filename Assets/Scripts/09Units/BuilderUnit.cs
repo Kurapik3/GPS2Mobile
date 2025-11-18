@@ -39,14 +39,11 @@ public class BuilderUnit : UnitBase
         // Remove the Grove
         Destroy(grove.gameObject);
 
-        // Build the TreeBase on the same tile
+        // Build the TreeBase on the same tiles
         BuildingBase newBuilding = Instantiate(treeBasePrefab, currentTile.transform.position, Quaternion.identity);
         newBuilding.Initialize(newBuilding.GetComponent<BuildingData>(), currentTile);
 
         Debug.Log($"{unitName} upgraded Grove to TreeBase!");
     }
-    public void TreeToTree2()
-    {
-
-    }
+    
 }

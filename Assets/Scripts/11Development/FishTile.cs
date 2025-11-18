@@ -21,6 +21,15 @@ public class FishTile : MonoBehaviour
         }
         techTree = TechTree.Instance;
         myHex = GetComponentInParent<HexTile>();
+
+        if (myHex != null)
+        {
+            myHex.fishTile = this;
+        }
+        else
+        {
+            Debug.LogWarning("FishTile has no HexTile parent!");
+        }
     }
 
     //call this when player wants to develop tile

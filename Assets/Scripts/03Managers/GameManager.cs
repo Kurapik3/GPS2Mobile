@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
     private GameSaveData cachedLoadData;
     private bool waitingForMapReady = false;
 
+    private TribeStatsUI tribeStats;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -375,26 +377,32 @@ public class GameManager : MonoBehaviour
     {
         int playerScore = PlayerTracker.Instance?.getScore() ?? 0;
         int enemyScore = EnemyTracker.Instance?.GetScore() ?? 0;
+        Debug.Log($"[GameManager] Checking ending condition at Turn {turnManager.CurrentTurn}");
 
         //int playerBaseCount =  //for ltr when player base count is implemented
 
         if (allEnemyBasesDestroyed)
         {
             GenocideEnding();
+            tribeStats?.ShowAsEndGameResult(isVictory: true);
         }
         else if(PlayerBasesDestroyed())
         {
             ExecutionEnding();
+            tribeStats?.ShowAsEndGameResult(isVictory: false);
         }
-        else if(turnManager.CurrentTurn == 31)
+        else if(turnManager.CurrentTurn == 30)
         {
-            if(playerScore > enemyScore)
+            Debug.Log($"[GameManager] Turn 30 reached! Player Score: {playerScore}, Enemy Score: {enemyScore}");
+            if (playerScore > enemyScore)
             {
                 NormalEnding();
+                tribeStats?.ShowAsEndGameResult(isVictory: true);
             }
             else
             {
                 FailureEnding();
+                tribeStats?.ShowAsEndGameResult(isVictory: false);
             }
         }
     }
@@ -407,27 +415,26 @@ public class GameManager : MonoBehaviour
 
     private void NormalEnding()
     {
-
-        Debug.Log("Normal Ending");
+        Debug.Log("Normal Ending - Victory");
     }
+
     private void GenocideEnding()
     {
-
-        Debug.Log("Genocide Ending");
+        Debug.Log("Genocide Ending - Victory");
     }
+
     private void ExecutionEnding()
     {
-
-        Debug.Log("Execution Ending");
+        Debug.Log("Execution Ending - Defeat");
     }
+
     private void FailureEnding()
     {
-
-        Debug.Log("Failure Ending");
+        Debug.Log("Failure Ending - Defeat");
     }
 
-    #if UNITY_EDITOR
-        [ContextMenu("Clear Saved Data")]
+#if UNITY_EDITOR
+    [ContextMenu("Clear Saved Data")]
         void EditorClearSave() => ClearSave();
 #endif
 

@@ -6,6 +6,8 @@ public class EnemyTracker : MonoBehaviour
 
     [SerializeField] public int currentScore = 0;
 
+    public static event System.Action OnScoreChanged;
+
     private void Awake()
     {
         Instance = this;
@@ -18,6 +20,9 @@ public class EnemyTracker : MonoBehaviour
     public void AddScore(int amount)
     {
         currentScore += amount;
+
+        OnScoreChanged?.Invoke();
+
         //Debug.Log($"<color=purple>EnemyScore is now {currentScore}.</color>");
     }
 }

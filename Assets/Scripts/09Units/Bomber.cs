@@ -5,22 +5,43 @@ public class Bomber : UnitBase
 {
     public override void Attack(HexTile target)
     {
+        // Do main attack
         base.Attack(target);
 
-        List<UnitBase> allUnits = UnitManager.Instance.GetAllUnits();
-        foreach (var unit in allUnits)
+        int splashDamage = Mathf.FloorToInt(attack * 0.5f);
+
+        // Get all tiles in radius 1 around the target
+        List<HexTile> splashTiles = MapManager.Instance.GetNeighborsWithinRadius(target.q, target.r,1 );
+
+        foreach (HexTile tile in splashTiles)
         {
-            if (unit == target || unit == this || unit.currentTile == null) continue;
+            // Skip the main target tile
+            if (tile == target)
+                continue;
 
-            int dist = HexDistance(target.q, target.r, unit.currentTile.q, unit.currentTile.r);
-
-            // splash to 1-tile radius
-            if (dist == 1)
+            // Splash enemy unit
+            if (tile.currentEnemyUnit != null)
             {
-                int splash = Mathf.FloorToInt(attack * 0.5f);
-                unit.TakeDamage(splash);
-                Debug.Log($"{unitName} dealt {splash} splash damage to {unit.unitName}");
+                tile.currentEnemyUnit.TakeDamage(splashDamage);
+                Debug.Log($"{unitName} dealt {splashDamage} splash damage to {tile.currentEnemyUnit.unitType}");
+            }
+
+            // Splash enemy base
+            if (tile.currentEnemyBase != null)
+            {
+                tile.currentEnemyBase.TakeDamage(splashDamage);
+                Debug.Log($"{unitName} dealt {splashDamage} splash damage to an enemy base!");
+            }
+
+            // Splash sea monster
+            if (tile.currentSeaMonster != null)
+            {
+                tile.currentSeaMonster.TakeDamage(splashDamage);
+                Debug.Log($"{unitName} dealt {splashDamage} splash damage to a Sea Monster!");
             }
         }
+        HideAttackIndicators();
     }
+
+
 }

@@ -100,6 +100,19 @@ public class Interactablemanager : MonoBehaviour
 
     private void SelectObject(InteractableObject obj)
     {
+        //// Deselect previous object if any
+        //if (currentSelectedObject != null)
+        //{
+        //    InteractableObject prevInteractable = currentSelectedObject.GetComponent<InteractableObject>();
+        //    if (prevInteractable != null)
+        //    {
+        //        prevInteractable.OnDeselected();
+        //    }
+        //}
+
+        //currentSelectedObject = obj.gameObject;
+        //obj.OnSelected();
+
         // Deselect previous object if any
         if (currentSelectedObject != null)
         {
@@ -112,6 +125,16 @@ public class Interactablemanager : MonoBehaviour
 
         currentSelectedObject = obj.gameObject;
         obj.OnSelected();
+
+        // Add the object to the appropriate selection manager based on type
+        if (obj.objectData.objectType == ObjectType.Fish)
+        {
+            FishSelection.instance?.AddFishToSelection(obj.gameObject);
+        }
+        else if (obj.objectData.objectType == ObjectType.Debris)
+        {
+            DebirisSelect.instance?.AddDebrisToSelection(obj.gameObject);
+        }
     }
 
     private void DeselectObject()

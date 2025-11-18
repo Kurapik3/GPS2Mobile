@@ -35,21 +35,26 @@ public class UnitTouchController : MonoBehaviour
             }
 
             // Detect tile
-            HexTile tile = hit.collider.GetComponentInParent<HexTile>();
-            if (tile != null && selectedUnit != null && selectedUnit.GetAvailableTiles().Contains(tile))
+            //HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+            if (selectedUnit != null && hit.collider.GetComponentInParent<HexTile>() is HexTile tile)
             {
                 if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
                 {
+                    Debug.Log($"Attacking target on tile ({tile.q},{tile.r})");
                     selectedUnit.Attack(tile); //For attack unit
                     DeselectUnit();
                     return;
                 }
-                else
+
+                if (selectedUnit.GetAvailableTiles().Contains(tile))
                 {
                     selectedUnit.TryMove(tile);
                     DeselectUnit();
                     return;
                 }
+
+                Debug.Log("Tile not reachable or blocked!");
+                return;
             }
 
             // Deselect if tapped elsewhere

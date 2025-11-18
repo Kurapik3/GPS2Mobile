@@ -60,7 +60,7 @@ public class EnemyHPDisplay : MonoBehaviour
             RectTransform canvasRect = worldCanvas.GetComponent<RectTransform>();
             if (canvasRect != null)
             {
-                canvasRect.sizeDelta = new Vector2(100, 20);
+                canvasRect.sizeDelta = new Vector2(80, 20);
                 canvasRect.localScale = new Vector3(canvasScale, canvasScale, canvasScale);
             }
         }
@@ -79,7 +79,7 @@ public class EnemyHPDisplay : MonoBehaviour
             iconToUse = scoutIcon;
         else if (lowerType.Contains("enemy bomber"))
             iconToUse = bomberIcon;
-        else if (lowerType.Contains("enemy builder"))
+        else if (lowerType.Contains("builder"))
             iconToUse = builderIcon;
 
         unitIconImage.sprite = iconToUse != null ? iconToUse : defaultIcon;

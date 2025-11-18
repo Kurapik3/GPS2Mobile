@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5207833334010493152}
   - component: {fileID: 9158243054360054010}
   - component: {fileID: 4434947014847639716}
+  - component: {fileID: 8169470041135423783}
   m_Layer: 12
   m_Name: DebrisTile
   m_TagString: Untagged
@@ -70,6 +71,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 0.6563995, z: 1.1547005}
   m_Center: {x: 0, y: 0.32819974, z: 0}
+--- !u!114 &8169470041135423783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7248350702419272795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f41bae1489e6f1408d6a90906900498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectData:
+    objectName: Debris
+    description: Extract Debris to upgrade your city VBlash
+    icon: {fileID: 21300000, guid: ae0e89eba3792be48ac7f0e4dd218da6, type: 3}
+    objectType: 1
+    apCost: 2
+  selectionIndicator: {fileID: 0}
 --- !u!1001 &5327481931624300118
 PrefabInstance:
   m_ObjectHideFlags: 0
