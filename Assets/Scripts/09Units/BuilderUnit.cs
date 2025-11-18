@@ -10,6 +10,10 @@ public class BuilderUnit : UnitBase
         Debug.Log($"{unitName} is a Builder unit ready to build! \nHP:{hp}, Attack:{attack}, Movement:{movement}");
     }
 
+    public void Attack(HexTile Target)
+    {
+        base.Attack(Target);
+    }
     public void UpgradeStructure()
     {
         // Check if builder is standing on a tile

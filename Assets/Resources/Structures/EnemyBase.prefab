@@ -54,6 +54,7 @@ MonoBehaviour:
   level: 1
   currentPop: 0
   baseId: 0
+  overlayPrefab: {fileID: 2721191828819798448, guid: b866f77b2a316a94ea625bf0bb156637, type: 3}
 --- !u!65 &-2787212113558159785
 BoxCollider:
   m_ObjectHideFlags: 0

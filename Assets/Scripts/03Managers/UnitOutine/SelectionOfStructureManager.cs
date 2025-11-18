@@ -18,8 +18,8 @@ public class SelectionOfStructureManager : MonoBehaviour
 
     [Header("Input Settings")]
     [SerializeField] private LayerMask structure;
-    [SerializeField] private float tapTimeThreshold = 0.3f; // Max time for a tap
-    [SerializeField] private float tapDistanceThreshold = 50f; // Max movement for a tap
+    [SerializeField] private float tapTimeThreshold = 0.3f; 
+    [SerializeField] private float tapDistanceThreshold = 50f; 
 
     [Header("UI Animation")]
     [SerializeField] private RectTransform structureInfoPanelMove;
@@ -35,6 +35,9 @@ public class SelectionOfStructureManager : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private CanvasGroup infoBar;
     [SerializeField] private CanvasGroup panel;
+
+    [Header("Selection Indicator")]
+    [SerializeField] private string selectionIndicatorTag = "SelectionIndicator"; // Tag for the indicator child
 
     private Camera cam;
     private bool isStatusClosed = false;
@@ -58,21 +61,17 @@ public class SelectionOfStructureManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // Enable Enhanced Touch Support for mobile
         EnhancedTouchSupport.Enable();
 
-        // Subscribe to touch events
         Touch.onFingerDown += OnFingerDown;
         Touch.onFingerUp += OnFingerUp;
     }
 
     private void OnDisable()
     {
-        // Unsubscribe from touch events
         Touch.onFingerDown -= OnFingerDown;
         Touch.onFingerUp -= OnFingerUp;
 
-        // Disable Enhanced Touch Support
         EnhancedTouchSupport.Disable();
     }
 
@@ -84,49 +83,39 @@ public class SelectionOfStructureManager : MonoBehaviour
         structureInfoPanelMove.anchoredPosition = offScreenPos;
         structureStatusWindowMove.anchoredPosition = offScreenPos;
 
-        // Mobile optimization: set target frame rate
         Application.targetFrameRate = 60;
     }
 
     private void OnFingerDown(Finger finger)
     {
-        // Ignore if not the first finger (for multi-touch scenarios)
         if (finger.index != 0) return;
 
-        // Store touch start data for tap detection
         touchStartPos = finger.screenPosition;
         touchStartTime = Time.time;
     }
 
     private void OnFingerUp(Finger finger)
     {
-        // Ignore if not the first finger
         if (finger.index != 0) return;
 
-        // Check if it was a tap (quick press without much movement)
         float touchDuration = Time.time - touchStartTime;
         float touchDistance = Vector2.Distance(touchStartPos, finger.screenPosition);
 
         if (touchDuration > tapTimeThreshold || touchDistance > tapDistanceThreshold)
         {
-            // This was a drag/swipe, not a tap
             return;
         }
 
-        // Get the touch position
         Vector2 touchPosition = finger.screenPosition;
 
-        // Check if touching UI
         if (IsPointerOverUI(touchPosition))
         {
             return;
         }
 
-        // Perform raycast to check for structures
         Ray ray = cam.ScreenPointToRay(touchPosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, structure))
         {
-            // Structure was hit
             SelectByClicking(hit.collider.gameObject);
             StructureInfoPanelMove();
 
@@ -138,7 +127,6 @@ public class SelectionOfStructureManager : MonoBehaviour
         }
         else
         {
-            // Tapped empty space
             isSFXPlayed = true;
             DeselectAll();
             CloseStructureInfoPanel();
@@ -147,13 +135,11 @@ public class SelectionOfStructureManager : MonoBehaviour
 
     private bool IsPointerOverUI(Vector2 screenPosition)
     {
-        // Create pointer event data
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
         {
             position = screenPosition
         };
 
-        // Raycast to check for UI elements
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 
@@ -164,7 +150,7 @@ public class SelectionOfStructureManager : MonoBehaviour
     {
         foreach (var structure in structureSelected)
         {
-            if (structure != null) // Null check for safety
+            if (structure != null) 
             {
                 TriggerSelectionIndicator(structure, false);
             }
@@ -181,10 +167,44 @@ public class SelectionOfStructureManager : MonoBehaviour
 
     private void TriggerSelectionIndicator(GameObject structure, bool isVisible)
     {
-        if (structure != null && structure.transform.childCount > 0)
+        //if (structure != null && structure.transform.childCount > 0)
+        //{
+        //    structure.transform.GetChild(0).gameObject.SetActive(isVisible);
+        //}
+
+        if (structure == null) return;
+
+        // Method 1: Find by tag (RECOMMENDED)
+        Transform indicator = structure.transform.Find("SelectionIndicator");
+        if (indicator != null)
         {
-            structure.transform.GetChild(0).gameObject.SetActive(isVisible);
+            indicator.gameObject.SetActive(isVisible);
+            return;
         }
+
+        // Method 2: Find by tag if named differently
+        foreach (Transform child in structure.transform)
+        {
+            if (child.CompareTag(selectionIndicatorTag))
+            {
+                child.gameObject.SetActive(isVisible);
+                return;
+            }
+        }
+
+        // Method 3: Fallback - look for specific indicator names
+        string[] indicatorNames = { "SelectionIndicator", "Indicator", "Selection", "Ring" };
+        foreach (string name in indicatorNames)
+        {
+            Transform found = structure.transform.Find(name);
+            if (found != null)
+            {
+                found.gameObject.SetActive(isVisible);
+                return;
+            }
+        }
+
+        Debug.LogWarning($"No selection indicator found on {structure.name}. Add a child named 'SelectionIndicator' or tag it with '{selectionIndicatorTag}'");
     }
 
     private void StructureInfoPanelMove()
@@ -213,6 +233,7 @@ public class SelectionOfStructureManager : MonoBehaviour
         infoBar.interactable = false;
         panel.blocksRaycasts = true;
         StructureStatusWindowMove();
+
     }
 
     public void CloseStats()
@@ -243,5 +264,12 @@ public class SelectionOfStructureManager : MonoBehaviour
             structureSelected.Add(structure);
             TriggerSelectionIndicator(structure, true);
         }
+    }
+
+    public GameObject GetSelectedUnit()
+    {
+        if (structureSelected.Count > 0)
+            return structureSelected[0];
+        return null;
     }
 }
