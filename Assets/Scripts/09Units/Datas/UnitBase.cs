@@ -457,4 +457,17 @@ public abstract class UnitBase : MonoBehaviour
         }
     }
 
+    public void SetPositionToTile(int q, int r)
+    {
+        if (MapManager.Instance.TryGetTile(new Vector2Int(q, r), out HexTile tile))
+        {
+            transform.position = tile.transform.position + Vector3.up * 2f;
+            currentTile = tile;
+        }
+        else
+        {
+            Debug.LogWarning($"Tile ({q}, {r}) not found!");
+        }
+    }
+
 }

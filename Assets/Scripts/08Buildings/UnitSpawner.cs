@@ -2,6 +2,8 @@
 using UnityEngine.UI;
 public class UnitSpawner : MonoBehaviour
 {
+    public static UnitSpawner Instance;
+
     [Header("Initialize")]
     [SerializeField] private PlayerTracker player;
     [SerializeField] public UnitDatabase unitDatabase;
@@ -10,9 +12,9 @@ public class UnitSpawner : MonoBehaviour
     [Header("Units Prefab")]
     [SerializeField] public GameObject BuilderPrefab;
     [SerializeField] public GameObject ScoutPrefab;
-    //[SerializeField] private GameObject TankerPrefab; 
-    //[SerializeField] private GameObject ShooterPrefab;
-    //[SerializeField] private GameObject BomberPrefab;
+    [SerializeField] private GameObject TankerPrefab; 
+    [SerializeField] private GameObject ShooterPrefab;
+    [SerializeField] private GameObject BomberPrefab;
 
     [Header("Spawn Settings")]
     [SerializeField] private Vector2Int spawnCoord = new Vector2Int(6, -1); 
@@ -21,18 +23,23 @@ public class UnitSpawner : MonoBehaviour
     [Header("UI Buttons")]
     [SerializeField] private Button builderButton;
     [SerializeField] private Button scoutButton;
-    //[SerializeField] private Button TankerButton;
-    //[SerializeField] private Button ShooterButton;
-    //[SerializeField] private Button BomberButton;
+    [SerializeField] private Button TankerButton;
+    [SerializeField] private Button ShooterButton;
+    [SerializeField] private Button BomberButton;
 
     // --------------------- Kenneth's --------------------------
     [SerializeField] private UnitButtonStatus builderStatus;
     [SerializeField] private UnitButtonStatus scoutStatus;
-    //[SerializeField] private UnitButtonStatus tankerStatus;
-    //[SerializeField] private UnitButtonStatus shooterStatus;
-    //[SerializeField] private UnitButtonStatus bomberStatus;
+    [SerializeField] private UnitButtonStatus tankerStatus;
+    [SerializeField] private UnitButtonStatus shooterStatus;
+    [SerializeField] private UnitButtonStatus bomberStatus;
     // --------------------- Kenneth's --------------------------
 
+    private TreeBase selectedTreeBase = null;
+    private void Awake()
+    {
+        Instance = this;
+    }
     private void Start()
     {
         if (builderButton != null)
@@ -41,14 +48,14 @@ public class UnitSpawner : MonoBehaviour
         if (scoutButton != null)
             scoutButton.onClick.AddListener(OnScoutButtonClicked);
 
-        //if (TankerButton != null)
-        //    TankerButton.onClick.AddListener(OnTankButtonClicked);
+        if (TankerButton != null)
+            TankerButton.onClick.AddListener(OnTankButtonClicked);
 
-        //if (ShooterButton != null)
-        //    ShooterButton.onClick.AddListener(OnShooterButtonClicked);
+        if (ShooterButton != null)
+            ShooterButton.onClick.AddListener(OnShooterButtonClicked);
 
-        //if (BomberButton != null)
-        //    BomberButton.onClick.AddListener(OnBomberButtonClicked);
+        if (BomberButton != null)
+            BomberButton.onClick.AddListener(OnBomberButtonClicked);
 
         // --------------------- Kenneth's --------------------------
         if (builderStatus != null)
@@ -85,12 +92,16 @@ public class UnitSpawner : MonoBehaviour
     {
         if (builderStatus != null) builderStatus.UpdateStatus();
         if (scoutStatus != null) scoutStatus.UpdateStatus();
-        //if (tankerStatus != null) tankerStatus.UpdateStatus();
-        //if (shooterStatus != null) shooterStatus.UpdateStatus();
-        //if (bomberStatus != null) bomberStatus.UpdateStatus();
+        if (tankerStatus != null) tankerStatus.UpdateStatus();
+        if (shooterStatus != null) shooterStatus.UpdateStatus();
+        if (bomberStatus != null) bomberStatus.UpdateStatus();
     }
     // --------------------- Kenneth's --------------------------
-
+    public void SetSelectedTreeBase(TreeBase tb)
+    {
+        selectedTreeBase = tb;
+        Debug.Log("[UnitSpawner] TreeBase selected as spawn point.");
+    }
     private void OnScoutButtonClicked()
     {
         if (!techTree.IsScouting)
@@ -110,7 +121,7 @@ public class UnitSpawner : MonoBehaviour
             return;
         }
 
-        //TrySpawnUnit(TankerPrefab, 1, 3);
+        TrySpawnUnit(TankerPrefab, 2, 3);
     }
 
     private void OnShooterButtonClicked()
@@ -121,7 +132,7 @@ public class UnitSpawner : MonoBehaviour
             return;
         }
 
-        //TrySpawnUnit(ShooterPrefab, 1, 3);
+        TrySpawnUnit(ShooterPrefab, 3, 5);
     }
     private void OnBomberButtonClicked()
     {
@@ -131,7 +142,7 @@ public class UnitSpawner : MonoBehaviour
             return;
         }
 
-        //TrySpawnUnit(BomberPrefab, 1, 3);
+        TrySpawnUnit(BomberPrefab, 4, 12);
     }
     private void TrySpawnUnit(GameObject prefab, int csvIndex, int cost)
     {
@@ -223,14 +234,14 @@ public class UnitSpawner : MonoBehaviour
             SetLayerRecursively(child.gameObject, layer);
         }
     }
-    //Added by Ashley to get UnitPrefab
+
     public GameObject GetUnitPrefabByName(string name)
     {
         if (name == "Builder") return BuilderPrefab;
         if (name == "Scout") return ScoutPrefab;
-        // if (name == "Tanker") return TankerPrefab;
-        // if (name == "Shooter") return ShooterPrefab;
-        // if (name == "Bomber") return BomberPrefab;
+        if (name == "Tanker") return TankerPrefab;
+        if (name == "Shooter") return ShooterPrefab;
+        if (name == "Bomber") return BomberPrefab;
 
         Debug.LogWarning($"Unit prefab not found for name: {name}");
         return null;
