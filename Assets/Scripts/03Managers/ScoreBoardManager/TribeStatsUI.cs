@@ -8,19 +8,34 @@ using Unity.VisualScripting;
 public class TribeStatsUI : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private TextMeshProUGUI titleText; // "Tribe Stats"
-    [SerializeField] private Transform contentParent; // Parent for score rows
-    [SerializeField] private GameObject scoreRowPrefab; // Prefab for each row (You, Enemy 1, etc.)
+    [SerializeField] private TextMeshProUGUI titleText; 
+    [SerializeField] private Transform contentParent;
+    [SerializeField] private GameObject scoreRowPrefab;
+    [SerializeField] private Button closeButton; 
+    [SerializeField] private Button homeButton; 
 
     [Header("Icons")]
-    [SerializeField] private Sprite playerIcon; // Your tribe icon (e.g., blue circle)
-    [SerializeField] private Sprite enemyIcon; // Enemy tribe icon (e.g., pink skull)
+    [SerializeField] private Sprite playerIcon; 
+    [SerializeField] private Sprite enemyIcon;
+
+    [Header("End Game Settings")]
+    [SerializeField] private Sprite victoryIcon;
+    [SerializeField] private Sprite defeatIcon;
 
     private List<ScoreRow> scoreRows = new List<ScoreRow>();
+    private bool isEndGameMode = false;
 
     private void Awake()
     {
-        Hide(); 
+        Hide();
+
+        homeButton.gameObject.SetActive(false);
+
+        if (closeButton != null)
+            closeButton.onClick.AddListener(Hide);
+
+        if (homeButton != null)
+            homeButton.onClick.AddListener(OnHomeClicked);
     }
 
     private void OnEnable()
@@ -38,6 +53,57 @@ public class TribeStatsUI : MonoBehaviour
         EnemyTracker.OnScoreChanged -= UpdateScoreboard;
     }
 
+    // Call this from GameManager to show the end-game screen
+    public void ShowAsEndGameResult(bool isVictory)
+    {
+        Debug.Log($"[ScoreboardPanel] ShowAsEndGameResult called with isVictory: {isVictory}");
+
+        isEndGameMode = true;
+        gameObject.SetActive(true);
+
+        // Set title based on result
+        if (isVictory)
+        {
+            titleText.text = "Victory";
+            Debug.Log("[ScoreboardPanel] Title set to 'Victory'");
+            // Optional: Set an icon next to the title if you have a TitleIcon Image component
+            // titleIcon.sprite = victoryIcon;
+        }
+        else
+        {
+            titleText.text = "Defeat";
+            Debug.Log("[ScoreboardPanel] Title set to 'Defeat'");
+            // Optional: Set an icon next to the title
+            // titleIcon.sprite = defeatIcon;
+        }
+
+        // Hide the close button in end-game mode (optional)
+        if (closeButton != null)
+            closeButton.gameObject.SetActive(false);
+
+        if (homeButton != null)
+            homeButton.gameObject.SetActive(true);
+
+        UpdateScoreboard(); // Ensure scores are current
+    }
+
+    // Call this to show the regular scoreboard during gameplay
+    public void ShowAsRegularScoreboard()
+    {
+        isEndGameMode = false;
+        gameObject.SetActive(true);
+        titleText.text = "Tribe Stats";
+
+        // Show the close button
+        if (closeButton != null)
+            closeButton.gameObject.SetActive(true);
+
+        if (homeButton != null)
+            homeButton.gameObject.SetActive(false);
+
+        UpdateScoreboard();
+    }
+
     // This function is called externally (e.g., from a button's OnClick) to show the panel
     public void Show()
     {
@@ -45,7 +111,7 @@ public class TribeStatsUI : MonoBehaviour
         UpdateScoreboard(); // Ensure scores are current
     }
 
-    // This function is called externally (e.g., from a close button's OnClick) to hide the panel
+    //This function is called externally(e.g., from a close button's OnClick) to hide the panel
     public void Hide()
     {
         gameObject.SetActive(false);
@@ -82,6 +148,14 @@ public class TribeStatsUI : MonoBehaviour
             row.SetData(entry.label, entry.score, entry.icon);
             scoreRows.Add(row);
         }
+    }
+
+    private void OnHomeClicked()
+    {
+        Debug.Log("Home button clicked. Implement logic to return to main menu or restart.");
+        // Example: SceneManager.LoadScene("MainMenu");
+        // Or simply hide the panel if it's just an overlay:
+        // Hide();
     }
 
     // Helper struct to hold score data for sorting

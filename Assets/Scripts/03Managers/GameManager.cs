@@ -14,6 +14,9 @@ public class GameManager : MonoBehaviour
     private EnemyTracker enemy;
     private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
     public static GameManager Instance { get; private set; }
+
+    private TribeStatsUI tribeStats;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -239,6 +242,8 @@ public class GameManager : MonoBehaviour
 
     public void CheckEnding()
     {
+        Debug.Log($"[GameManager] Checking ending condition at Turn {turnManager.CurrentTurn}");
+
         int playerScore = player.getScore();
         int enemyScore = enemy.GetScore(); 
 
@@ -247,20 +252,25 @@ public class GameManager : MonoBehaviour
         if(allEnemyBasesDestroyed)
         {
             GenocideEnding();
+            tribeStats?.ShowAsEndGameResult(isVictory: true);
         }
         else if(PlayerBasesDestroyed())
         {
             ExecutionEnding();
+            tribeStats?.ShowAsEndGameResult(isVictory: false);
         }
-        else if(turnManager.CurrentTurn == 31)
+        else if(turnManager.CurrentTurn == 30)
         {
-            if(playerScore > enemyScore)
+            Debug.Log($"[GameManager] Turn 30 reached! Player Score: {playerScore}, Enemy Score: {enemyScore}");
+            if (playerScore > enemyScore)
             {
                 NormalEnding();
+                tribeStats?.ShowAsEndGameResult(isVictory: true);
             }
             else
             {
                 FailureEnding();
+                tribeStats?.ShowAsEndGameResult(isVictory: false);
             }
         }
     }

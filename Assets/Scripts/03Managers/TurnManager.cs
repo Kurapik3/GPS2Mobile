@@ -32,6 +32,8 @@ public class TurnManager : MonoBehaviour
 
      public TreeBase treeBase;
 
+    [SerializeField] private TribeStatsUI tribeStats;
+
     private void OnEnable()
     {
         EventBus.Subscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
@@ -98,27 +100,56 @@ public class TurnManager : MonoBehaviour
         //Invoke(nameof(EndEnemyTurn), 2f);
     }
 
+    //private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
+    //{
+    //    Debug.Log($"--- Enemy Turn {evt.Turn} End ---");
+
+    //    EnemyUnitManager.Instance.ClearJustSpawnedUnits();
+    //    currentTurn++;
+    //    Debug.Log($"[TurnManager] OnEnemyTurnEnd - CurrentTurn incremented to: {currentTurn}");
+
+    //    isProcessingTurn = false;
+    //    if (currentTurn > maxTurns)
+    //    {
+    //        Debug.Log("[TurnManager] Max turns reached! Calling EndGame or CheckEnding.");
+    //        //EndGame();
+    //        GameManager.Instance?.CheckEnding();
+    //        return;
+    //    }
+
+    //    foreach (var building in allBuildings) // gain AP
+    //        building.OnTurnStart();
+
+    //    GameManager.Instance.CheckEnding();
+    //    Debug.Log($"[TurnManager] Called GameManager.Instance?.CheckEnding();");
+
+    //    StartPlayerTurn();
+    //}
+
     private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
     {
-        Debug.Log($"--- Enemy Turn {evt.Turn} End ---");
+        Debug.Log($"[TurnManager] OnEnemyTurnEnd - Enemy Turn {evt.Turn} Ended. CurrentTurn before increment: {currentTurn}");
 
         EnemyUnitManager.Instance.ClearJustSpawnedUnits();
         currentTurn++;
-
+        Debug.Log($"[TurnManager] OnEnemyTurnEnd - CurrentTurn incremented to: {currentTurn}");
 
         isProcessingTurn = false;
-        if (currentTurn > maxTurns)
-        {
-            EndGame();
-            return;
-        }
 
         foreach (var building in allBuildings) // gain AP
             building.OnTurnStart();
 
-        GameManager.Instance.CheckEnding();
-
-        StartPlayerTurn();
+        // --- NEW LOGIC: Check for End Game Condition ---
+        if (currentTurn >= maxTurns)
+        {
+            Debug.Log("[TurnManager] Max turns reached! Game Over.");
+            EndGame(); // Call the EndGame method to show the screen
+        }
+        else
+        {
+            // If game didn't end, start the next player turn
+            StartPlayerTurn();
+        }
     }
 
     public void EndTurn()
@@ -136,10 +167,37 @@ public class TurnManager : MonoBehaviour
         StartEnemyTurn();
     }
 
+    //private void EndGame()
+    //{
+    //    Debug.Log("Game Over! Max turns reached.");
+    //    // Here you can add code to calculate score, show summary UI, etc.
+    //    GameManager.Instance.CheckEnding();
+    //}
+
     private void EndGame()
     {
-        Debug.Log("Game Over! Max turns reached.");
-        // Here you can add code to calculate score, show summary UI, etc.
-        GameManager.Instance.CheckEnding();
+        int playerScore = PlayerTracker.Instance?.getScore() ?? 0;
+        int enemyScore = EnemyTracker.Instance?.GetScore() ?? 0;
+
+        Debug.Log($"[TurnManager] EndGame called. Player Score: {playerScore}, Enemy Score: {enemyScore}");
+
+        bool isPlayerVictory = playerScore > enemyScore;
+
+        // Show the victory/defeat screen directly
+        if (tribeStats != null)
+        {
+            tribeStats.ShowAsEndGameResult(isPlayerVictory);
+        }
+        else
+        {
+            Debug.LogError("[TurnManager] scoreBoardPanel reference is null! Cannot show end game screen.");
+        }
+
+        // Optional: Disable other UI elements like End Turn button
+        if (endTurnButton != null)
+            endTurnButton.interactable = false;
+
+        // Optional: Perform other end-game cleanup here
     }
+
 }
