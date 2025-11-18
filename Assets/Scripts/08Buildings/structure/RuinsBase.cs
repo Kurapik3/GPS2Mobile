@@ -9,10 +9,11 @@ public class Ruin : BuildingBase
     [SerializeField] private int apWhenDeveloped = 2;
     //[SerializeField] private GameObject developedPrefab;
 
-    [SerializeField] private PlayerTracker player;
+    private PlayerTracker player;
     public override void Initialize(BuildingData data, HexTile tile)
     {
         base.Initialize(data, tile);
+        player = GetComponentInParent<PlayerTracker>();
         isDeveloped = false;
         apPerTurn = apWhenRuin;
 
