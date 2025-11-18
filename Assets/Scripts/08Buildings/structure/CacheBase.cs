@@ -5,11 +5,12 @@ public class CacheBase : BuildingBase
     [Header("Cache Properties")]
     [SerializeField] private bool isDeveloped = false;
     [SerializeField] private int apRewardOnDevelop = 10;
-    [SerializeField] private PlayerTracker player;
+    private PlayerTracker player;
 
     public override void Initialize(BuildingData data, HexTile tile)
     {
         base.Initialize(data, tile);
+        player = GetComponentInParent<PlayerTracker>();
         isDeveloped = false;
         Debug.Log($"Initialized Cache at ({tile.q}, {tile.r}) — waiting to be developed.");
     }
