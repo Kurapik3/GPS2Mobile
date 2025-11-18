@@ -20,6 +20,8 @@ public class TreeBase : BuildingBase
     [SerializeField] private GameObject Level2Base;
     [SerializeField] private GameObject Level3Base;
 
+    private EnemyHPDisplay hpDisplay;
+
     private int currentUnitsTrained = 0;
     public int TreeBaseId { get; private set; }
 
@@ -117,6 +119,15 @@ public class TreeBase : BuildingBase
         baseHealth += healthBonusPerUpgrade;
         health = baseHealth;
 
+        // ---- KENNETH'S ----
+        TreeBaseHPDisplay hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
+        if (hpDisplay != null)
+        {
+            hpDisplay.ShowUpgradePopup();
+        }
+        // -------------------
+
+        Debug.Log($"Tree Base upgraded to Level {level}");
         Debug.Log($"Tree Base upgraded to Level {level} (+{healthBonusPerUpgrade} HP)");
     }
 
@@ -161,5 +172,20 @@ public class TreeBase : BuildingBase
         }
 
         Destroy(gameObject);
+    }
+
+    // ---- KENNETH'S ----
+    public void TakeDamage(int amount)
+    {
+        health -= amount;
+        Debug.Log($"[TreeBase] Tree Base took {amount} damage (HP: {health})");
+
+        if (hpDisplay != null)
+        {
+            hpDisplay.OnHealthChanged();
+        }
+
+        if (health <= 0)
+            DestroyBuilding();
     }
 }
