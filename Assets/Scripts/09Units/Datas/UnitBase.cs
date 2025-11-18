@@ -117,6 +117,7 @@ public abstract class UnitBase : MonoBehaviour
         }
 
         HideAttackIndicators();
+        EventBus.Publish(new ActionMadeEvent());
     }
 
     public virtual void TakeDamage(int amount)
@@ -137,6 +138,7 @@ public abstract class UnitBase : MonoBehaviour
         // --------------------
 
         Debug.Log($"{unitName} took {amount} damage. Remaining HP: {hp}");
+        EventBus.Publish(new ActionMadeEvent());
     }
 
     protected virtual void Die()
@@ -151,6 +153,7 @@ public abstract class UnitBase : MonoBehaviour
             UnitManager.Instance.UnregisterUnit(unitId);
         }
         Destroy(gameObject);
+        EventBus.Publish(new ActionMadeEvent());
     }
 
     public void SetSelected(bool selected)
@@ -225,6 +228,7 @@ public abstract class UnitBase : MonoBehaviour
         Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
         hasMovedThisTurn = true;
         RevealNearbyFog(currentTile);
+        EventBus.Publish(new ActionMadeEvent());
     }
     public void ResetMove()
     {
