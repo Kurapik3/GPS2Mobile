@@ -10,10 +10,6 @@ public class BuilderUnit : UnitBase
         Debug.Log($"{unitName} is a Builder unit ready to build! \nHP:{hp}, Attack:{attack}, Movement:{movement}");
     }
 
-    public void Attack(HexTile Target)
-    {
-        base.Attack(Target);
-    }
     public void UpgradeStructure()
     {
         // Check if builder is standing on a tile
@@ -43,14 +39,11 @@ public class BuilderUnit : UnitBase
         // Remove the Grove
         Destroy(grove.gameObject);
 
-        // Build the TreeBase on the same tile
+        // Build the TreeBase on the same tiles
         BuildingBase newBuilding = Instantiate(treeBasePrefab, currentTile.transform.position, Quaternion.identity);
         newBuilding.Initialize(newBuilding.GetComponent<BuildingData>(), currentTile);
 
         Debug.Log($"{unitName} upgraded Grove to TreeBase!");
     }
-    public void TreeToTree2()
-    {
-
-    }
+    
 }
