@@ -23,8 +23,7 @@ public class EnemyUnit : MonoBehaviour
 
     private float GetHeightOffset(HexTile tile)
     {
-        //If there is a structure, then use 2.5f offset instead
-        return (tile.currentBuilding != null || currentTile.currentEnemyBase != null) ? 2.5f : 2.0f;
+        return 2.0f;
     }
 
     public void Initialize(int id, string type, int hp, HexTile tile)
