@@ -40,6 +40,8 @@ public class Bomber : UnitBase
                 Debug.Log($"{unitName} dealt {splashDamage} splash damage to a Sea Monster!");
             }
         }
+        HideAttackIndicators();
     }
+
 
 }

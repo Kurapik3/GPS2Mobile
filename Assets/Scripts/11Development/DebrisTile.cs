@@ -20,6 +20,14 @@ public class DebrisTile : MonoBehaviour
         }
         techTree = TechTree.Instance;
         myHex = GetComponentInParent<HexTile>();
+        if (myHex != null)
+        {
+            myHex.debrisTile = this;
+        }
+        else
+        {
+            Debug.LogWarning("DebrisTile has no HexTile parent!");
+        }
     }
 
     //call this when player wants to develop tile

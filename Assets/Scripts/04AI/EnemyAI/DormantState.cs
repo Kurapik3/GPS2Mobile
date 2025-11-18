@@ -58,6 +58,12 @@ public class DormantState : MonoBehaviour
                 continue;
             }
 
+            if (eum.HasUnitActedThisTurn(id))
+            {
+                Debug.Log($"[DormantAI] Unit {id} just acted an action, skip movement.");
+                continue;
+            }
+
             //Skip visible (aggressive)
             if (eum.IsUnitVisibleToPlayer(id))
             {
@@ -83,6 +89,8 @@ public class DormantState : MonoBehaviour
             Vector2Int chosen = ChooseHexDirection(candidates, current, origin, moveTowards);
 
             EventBus.Publish(new EnemyMoveRequestEvent(id, chosen));
+            Debug.Log($"[Dormant] Unit {id} is MOVING.");
+            eum.MarkUnitAsActed(id);
             yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
         }
 

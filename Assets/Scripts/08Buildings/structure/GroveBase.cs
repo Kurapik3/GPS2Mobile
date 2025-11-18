@@ -2,7 +2,11 @@ using UnityEngine;
 
 public class GroveBase : BuildingBase
 {
+    public enum BaseOrigin { Player, Enemy }
+    public BaseOrigin Origin { get; private set; }
+
     private int formerTreeLevel = 1; // Store level of previous TreeBase
+    private int formerEnemyBaseLevel = 1;
 
     public override void Initialize(BuildingData data, HexTile tile)
     {
@@ -15,9 +19,22 @@ public class GroveBase : BuildingBase
         return unit != null && unit.unitName == "Builder";
     }
 
-    public void SetFormerLevel(int level)
+    public void SetFormerLevel(int level, BaseOrigin origin)
     {
-        formerTreeLevel = level;
+        Origin = origin;
+        if (origin == BaseOrigin.Player)
+        {
+            formerTreeLevel = level;
+        }
+        else
+        { 
+            formerEnemyBaseLevel = level;
+        }
+    }
+
+    public int GetFormerLevel()
+    {
+        return Origin == BaseOrigin.Player ? formerTreeLevel : formerEnemyBaseLevel;
     }
 
     public void Develop()

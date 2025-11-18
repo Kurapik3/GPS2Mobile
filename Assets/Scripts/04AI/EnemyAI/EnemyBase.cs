@@ -12,8 +12,11 @@ public class EnemyBase : MonoBehaviour
     public int maxUnits = 3;
     public int currentUnits = 0; //To track how many units are housed in each base
     public HexTile currentTile;
-    [SerializeField] private int level = 1;
+    [SerializeField] public int level = 1;
     [SerializeField] private int currentPop = 0;
+
+    [Header("Different Models for Each Level")]
+    public GameObject[] levelModels;
 
     [HideInInspector] public int baseId;
     public bool IsDestroyed => health <= 0;
@@ -40,7 +43,14 @@ public class EnemyBase : MonoBehaviour
         }
 
         if (currentTile != null)
+        {
+            if (currentTile.currentEnemyBase != null)
+            {
+                Debug.LogWarning($"[EnemyBase] Tile {currentTile.HexCoords} already has a base, skipping registration.");
+                return;
+            }
             currentTile.currentEnemyBase = this;
+        }
 
         //Randomize HP between 20 and 35
         health = Random.Range(20, 36);
@@ -54,6 +64,8 @@ public class EnemyBase : MonoBehaviour
         if (EnemyTurfManager.Instance != null)
             EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius, this);
 
+
+        UpdateModel();
         Debug.Log($"[EnemyBase] Spawned {baseName} with {health} HP.");
     }
 
@@ -94,6 +106,10 @@ public class EnemyBase : MonoBehaviour
     {
         GameObject groveObj = Instantiate(BuildingFactory.Instance.GrovePrefab, tile.transform.position, Quaternion.identity);
         GroveBase newGroveBase = groveObj.GetComponent<GroveBase>();
+
+        //Pass the current EnemyBase level to the Grove
+        newGroveBase.SetFormerLevel(level, GroveBase.BaseOrigin.Enemy);
+
         newGroveBase.Initialize(BuildingFactory.Instance.GroveData, currentTile);
         currentTile.SetBuilding(newGroveBase);
         Debug.Log($"[EnemyBase] Spawned Groove at {tile.HexCoords}");
@@ -122,7 +138,7 @@ public class EnemyBase : MonoBehaviour
     public void AddPopulation(int population)
     {
         currentPop += population;
-        Debug.Log($"[EnemyBase] {baseName} gained {population} population. CurrentPop = {currentPop}");
+        Debug.Log($"[EnemyBase] {baseName} in ({currentTile.HexCoords}) gained {population} population. CurrentPop = {currentPop}");
         TryUpgradeBase();
     }
 
@@ -135,8 +151,6 @@ public class EnemyBase : MonoBehaviour
             currentPop -= popRequired;
 
             UpgradeBase();
-
-            level++;
         }
         else
         {
@@ -146,7 +160,9 @@ public class EnemyBase : MonoBehaviour
 
     private void UpgradeBase()
     {
+        level++;
         health += 5;
+        UpdateModel();
         Debug.Log($"[EnemyBase] Base upgraded! Base current level is {level}. Health +5, current HP = {health}");
 
         bool chooseScore = Random.value < 0.5f;
@@ -172,5 +188,16 @@ public class EnemyBase : MonoBehaviour
                 Debug.LogWarning($"[EnemyBase] Cannot increase turf! Tile or manager missing.");
             }
         }
+    }
+
+    public void UpdateModel()
+    {
+        //Disable all models
+        foreach (var model in levelModels)
+            model.SetActive(false);
+
+        //Enable current level model
+        int idx = Mathf.Clamp(level - 1, 0, levelModels.Length - 1);
+        levelModels[idx].SetActive(true);
     }
 }

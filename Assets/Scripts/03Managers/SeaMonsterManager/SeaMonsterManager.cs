@@ -243,6 +243,10 @@ public class SeaMonsterManager : MonoBehaviour
             if (krakenAttackSound != null)
                 AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
             playerUnit.TakeDamage(evt.Damage);
+            if(playerUnit.unitName == "Tanker")
+            {
+                evt.Attacker.TakeDamage(evt.Damage);
+            }
             Debug.Log($"Kraken attacked player {playerUnit.unitName} unit for {evt.Damage} damage!");
             return;
         }

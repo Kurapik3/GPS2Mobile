@@ -57,6 +57,11 @@ public class AIController : MonoBehaviour
         EventBus.Publish(new ExecuteBuilderPhaseEvent(currentTurn, onBuilderComplete));
         yield return new WaitUntil(() => builderDone);
 
+        bool auxiliaryDone = false;
+        Action onAuxiliaryComplete = () => auxiliaryDone = true;
+        EventBus.Publish(new ExecuteAuxiliaryPhaseEvent(currentTurn, onAuxiliaryComplete));
+        yield return new WaitUntil(() => auxiliaryDone);
+
         //Dormant phase (dormant units move)
         bool dormantDone = false;
         Action onDormantComplete = () => dormantDone = true;
