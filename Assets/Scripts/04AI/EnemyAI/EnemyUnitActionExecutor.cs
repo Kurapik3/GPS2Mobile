@@ -270,6 +270,9 @@ public class EnemyActionExecutor : MonoBehaviour
             return;
         }
 
+        //Store grove level
+        int baseLevel = grove.GetFormerLevel();
+
         //Remove the grove
         Destroy(grove.gameObject);
         tile.currentBuilding = null;
@@ -283,12 +286,15 @@ public class EnemyActionExecutor : MonoBehaviour
 
         Vector3 spawnPos = MapManager.Instance.HexToWorld(evt.GrovePosition);
         spawnPos.y += 2f;
-        GameObject newEnemyBase = Instantiate(EnemyBaseManager.Instance.basePrefab, spawnPos, Quaternion.identity);
+        GameObject newEnemyBaseObj = Instantiate(EnemyBaseManager.Instance.basePrefab, spawnPos, Quaternion.identity);
 
-        //Register to EnemyBaseManager
-        EnemyBase newBase = newEnemyBase.GetComponent<EnemyBase>();
-        if (newBase != null)
-            EnemyBaseManager.Instance.RegisterBase(newBase);
+        EnemyBase newEnemyBase = newEnemyBaseObj.GetComponent<EnemyBase>();
+        if (newEnemyBase != null)
+        {
+            newEnemyBase.level = baseLevel;
+            newEnemyBase.UpdateModel();
+            Debug.Log($"[EnemyActionExecutor] Restored EnemyBase with level {baseLevel}");
+        }
 
         //Successfully build a base, add score to enemy
         EnemyTracker.Instance.AddScore(1000);
@@ -323,14 +329,14 @@ public class EnemyActionExecutor : MonoBehaviour
         }
 
         bool success = false;
-
+        int popToAdd = 0;
         // Fish
         if (tile.fishTile != null)
         {
             Destroy(tile.fishTile.gameObject);
             tile.fishTile = null;
             success = true;
-            
+            popToAdd = 1;
         }
         // Debris
         else if (tile.debrisTile != null)
@@ -338,6 +344,7 @@ public class EnemyActionExecutor : MonoBehaviour
             Destroy(tile.debrisTile.gameObject);
             tile.debrisTile = null;
             success = true;
+            popToAdd = 2;
         }
 
         EventBus.Publish(new EnemyAuxiliaryActionExecutedEvent(3, success));
@@ -350,10 +357,9 @@ public class EnemyActionExecutor : MonoBehaviour
             EnemyBase baseRef = EnemyTurfManager.Instance.GetBaseByTile(pos);
             if (baseRef != null)
             {
-                baseRef.AddPopulation(1);
-                Debug.Log($"[EnemyActionExecutor] Added 1 population to base {baseRef.baseName}");
+                baseRef.AddPopulation(popToAdd);
+                Debug.Log($"[EnemyActionExecutor] Added {popToAdd} population to base {baseRef.baseName}");
             }
-
         }
     }
 

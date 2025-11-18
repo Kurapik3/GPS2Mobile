@@ -31,6 +31,12 @@ public class TreeBase : BuildingBase
     {
         TreeBaseId = GetInstanceID();
 
+        if (currentTile == null && MapManager.Instance != null)
+        {
+            Vector2Int hexCoord = MapManager.Instance.WorldToHex(transform.position);
+            currentTile = MapManager.Instance.GetTile(hexCoord);
+        }
+
         if (currentTile != null)
         {
             currentTile.SetBuilding(this);
@@ -168,7 +174,7 @@ public class TreeBase : BuildingBase
             // Pass previous level to Grove so it can restore on rebuild
             GroveBase groveScript = grove.GetComponent<GroveBase>();
             if (groveScript != null)
-                groveScript.SetFormerLevel(level);
+                groveScript.SetFormerLevel(level, GroveBase.BaseOrigin.Player);
         }
 
         Destroy(gameObject);

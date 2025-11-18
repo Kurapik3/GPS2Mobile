@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public static class AIPathFinder
 {
@@ -92,7 +93,7 @@ public static class AIPathFinder
     }
 
     //Returns all hex tiles that can be reached given movement range
-    public static List<Vector2Int> GetReachableHexes(Vector2Int startHex, int moveRange)
+    public static List<Vector2Int> GetReachableHexes(Vector2Int startHex, int moveRange, Vector2Int? target = null)
     {
         List<Vector2Int> reachable = new();
 
@@ -102,10 +103,12 @@ public static class AIPathFinder
             {
                 Vector2Int hex = new(startHex.x + dx, startHex.y + dy);
 
-                if (!MapManager.Instance.IsWalkable(hex))
+                bool isTarget = target.HasValue && hex == target.Value;
+
+                if (!MapManager.Instance.IsWalkable(hex) && !isTarget)
                     continue;
 
-                if (MapManager.Instance.IsTileOccupied(hex))
+                if (MapManager.Instance.IsTileOccupied(hex) && !isTarget)
                     continue;
 
                 reachable.Add(hex);
@@ -151,7 +154,7 @@ public static class AIPathFinder
 
     public static List<Vector2Int> GetSmartMoves(Vector2Int from, Vector2Int target, int moveRange = 1)
     {
-        List<Vector2Int> candidates = GetReachableHexes(from, moveRange);
+        List<Vector2Int> candidates = GetReachableHexes(from, moveRange, target);
         int currentDist = GetHexDistance(from, target);
 
         List<Vector2Int> smartMoves = new();
@@ -167,13 +170,9 @@ public static class AIPathFinder
         if (smartMoves.Count == 0)
         {
             if (candidates.Contains(from) && MapManager.Instance.CanUnitStandHere(from))
-            {
                 smartMoves.Add(from);
-            }
             else if (candidates.Count > 0)
-            {
                 smartMoves = candidates;
-            }
         }
 
         return smartMoves;
@@ -201,7 +200,7 @@ public static class AIPathFinder
         {
             num--;
             int k = rng.Next(num + 1);
-            (shuffle[k], shuffle[num]) = (shuffle[num], shuffle[k]); //Swap
+            (shuffle[k], shuffle[num]) = (shuffle[num], shuffle[k]);
         }
 
         return shuffle[Random.Range(0, shuffle.Count)];

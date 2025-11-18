@@ -83,7 +83,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
         Vector2Int newPos = newTile.HexCoords;
 
         //Validate walkability
-        if (!MapManager.Instance.IsWalkable(newPos) || MapManager.Instance.IsTileOccupied(newPos))
+        if (!MapManager.Instance.IsWalkable(newPos) || MapManager.Instance.IsTileOccupied(newPos) || newTile.currentBuilding != null || newTile.currentEnemyBase != null)
         {
             Debug.LogWarning($"[{monsterName}] Cannot move to {newPos} — blocked or not walkable.");
             return;

@@ -176,7 +176,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: da61b6ea1118a5248b3834636cbc76fd, type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: PlayerBase
       objectReference: {fileID: 0}
     - target: {fileID: 2372101842476191254, guid: da61b6ea1118a5248b3834636cbc76fd, type: 3}
       propertyPath: m_Layer
@@ -271,9 +271,9 @@ MonoBehaviour:
   level: 1
   currentPop: 0
   maxUpgrades: 3
-  ToLvlBase2: 2
-  ToLvlBase3: 3
-  ToLvlBaseMore: 4
+  popForLvl2: 2
+  popForLvl3: 3
+  popForLvlMore: 4
   Level2Base: {fileID: 0}
   Level3Base: {fileID: 0}
   turfRadius: 2

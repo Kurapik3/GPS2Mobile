@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static EnemyAIEvents;
 
@@ -11,7 +12,6 @@ using static EnemyAIEvents;
 public class AggressiveState : MonoBehaviour
 {
     [SerializeField] private float stepDelay = 1f;
-    private Dictionary<int, Vector2Int> lockedTargetBases = new(); // unitId -> target base hex
 
     private void OnEnable()
     {
@@ -57,6 +57,12 @@ public class AggressiveState : MonoBehaviour
                 continue;
             }
 
+            if (eum.HasUnitActedThisTurn(id))
+            {
+                Debug.Log($"[AggressiveAI] Unit {id} just acted an action, do nothing.");
+                continue;
+            }
+
             if (!eum.IsUnitVisibleToPlayer(id))
             {
                 eum.TrySetState(id, EnemyUnitManager.AIState.Dormant);
@@ -98,26 +104,40 @@ public class AggressiveState : MonoBehaviour
             if (target != null)
             {
                 EventBus.Publish(new EnemyAttackRequestEvent(id, target));
+                eum.MarkUnitAsActed(id);
                 yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
                 continue; //End the turn after attack
             }
 
             //If no targets, move 1 tile toward locked or new base
-            Vector2Int targetBasePos;
-            if (!lockedTargetBases.TryGetValue(id, out targetBasePos))
-            {
-                targetBasePos = ChooseClosestPlayerBase(currentPos);
-                lockedTargetBases[id] = targetBasePos;
-            }
+            Vector2Int targetBasePos = ChooseClosestPlayerBase(currentPos);
+            Debug.Log($"[AggressiveAI] Unit {id} target base position: {targetBasePos}");
 
             //Only move if not already on target
-            if (targetBasePos != currentPos) 
+            if (targetBasePos != currentPos)
             {
-                Vector2Int? nextMove = AIPathFinder.TryMove(currentPos, targetBasePos, eum.GetUnitMoveRange(id));
+                int moveRange = eum.GetUnitMoveRange(id);
+                Debug.Log($"[AggressiveAI] Unit {id} move range: {moveRange}");
+
+                Vector2Int? nextMove = AIPathFinder.TryMove(currentPos, targetBasePos, moveRange);
+
                 if (nextMove.HasValue)
+                {
+                    Debug.Log($"[AggressiveAI] Unit {id} MOVING from {currentPos} to {nextMove.Value}");
                     EventBus.Publish(new EnemyMoveRequestEvent(id, nextMove.Value));
+                }
+                else
+                {
+                    Debug.Log($"[AggressiveAI] Unit {id} CANNOT MOVE - TryMove returned NULL");
+                }
+            }
+            else
+            {
+                Debug.Log($"[AggressiveAI] Unit {id} already at target base position, no movement needed.");
             }
 
+
+            eum.MarkUnitAsActed(id);
             yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
             //NO attack after moving
         }
@@ -132,82 +152,73 @@ public class AggressiveState : MonoBehaviour
         seaTargets = new();
         unitTargets = new();
 
-        //Tree Base
-        TreeBase[] playerBases = FindObjectsByType<TreeBase>(FindObjectsSortMode.None);
-        foreach (var pb in playerBases)
+        var allTiles = MapManager.Instance.GetAllTiles();
+        foreach (var kvp in allTiles)
         {
-            if (pb == null || pb.currentTile == null) 
-                continue;
-            if (AIPathFinder.GetHexDistance(from, pb.currentTile.HexCoords) <= range)
-            {
-                baseTargets.Add(pb.gameObject);
-                Debug.Log($"[AggressiveAI] Found Base target: {pb.name} at {pb.currentTile.HexCoords}");
-            }
-        }
+            Vector2Int hex = kvp.Key;
+            HexTile tile = kvp.Value;
 
-        //Player Units
-        GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("PlayerUnit");
-        foreach (var pu in playerUnits)
-        {
-            if (pu == null) 
+            //Check target tile is within the attack range
+            if (AIPathFinder.GetHexDistance(from, hex) > range)
                 continue;
-            Vector2Int hex = MapManager.Instance.WorldToHex(pu.transform.position);
-            if (AIPathFinder.GetHexDistance(from, hex) <= range)
-            {
-                unitTargets.Add(pu);
-                Debug.Log($"[AggressiveAI] Found PlayerUnit target: {pu.name} at {hex}");
-            }
-        }
 
-        // Sea Monsters
-        if (SeaMonsterManager.Instance != null)
-        {
-            foreach (var sm in SeaMonsterManager.Instance.GetAllMonsters())
+            //Tree Base
+            if (tile.HasTreeBase && tile.currentBuilding != null)
             {
-                if (sm.currentTile == null) 
-                    continue;
-                if (AIPathFinder.GetHexDistance(from, sm.currentTile.HexCoords) <= range)
-                {
-                    seaTargets.Add(sm.gameObject);
-                    Debug.Log($"[AggressiveAI] Found SeaMonster target: {sm.name} at {sm.currentTile.HexCoords}");
-                }
+                baseTargets.Add(tile.currentBuilding.gameObject);
+                Debug.Log($"[AggressiveAI] Found PLAYER Base target at {hex}");
+            }
+
+            //Player units
+            if (tile.currentUnit != null)
+            {
+                unitTargets.Add(tile.currentUnit.gameObject);
+                Debug.Log($"[AggressiveAI] Found PlayerUnit target at {hex}");
+            }
+
+            //Sea monsters
+            if (tile.currentSeaMonster != null)
+            {
+                seaTargets.Add(tile.currentSeaMonster.gameObject);
+                Debug.Log($"[AggressiveAI] Found SeaMonster target at {hex}");
             }
         }
     }
-
     #endregion
 
     private Vector2Int ChooseClosestPlayerBase(Vector2Int from)
     {
-        TreeBase[] playerBases = FindObjectsByType<TreeBase>(FindObjectsSortMode.None);
-        Debug.Log($"[AggressiveAI] Found {playerBases.Length} PlayerBase objects in scene");
+        TreeBase closestBase = null;
+        int minDist = int.MaxValue;
 
-        if (playerBases.Length == 0)
+        var allTiles = MapManager.Instance.GetAllTiles();
+        foreach (var kvp in allTiles)
+        {
+            Vector2Int hex = kvp.Key;
+            HexTile tile = kvp.Value;
+
+            if (!tile.HasTreeBase || tile.currentBuilding == null)
+                continue;
+
+            TreeBase treeBase = tile.currentBuilding as TreeBase;
+            if (treeBase == null)
+                continue;
+
+            int dist = AIPathFinder.GetHexDistance(from, hex);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closestBase = treeBase;
+            }
+        }
+
+        if (closestBase == null || closestBase.currentTile == null)
         {
             Debug.LogWarning("[AggressiveAI] NO PLAYER BASES FOUND! Aggressive unit will not move toward base.");
             return from;
         }
 
-        TreeBase closestBase = null;
-        int minDist = int.MaxValue;
-
-        foreach (TreeBase pb in playerBases)
-        {
-            if (pb == null || pb.currentTile == null)
-                continue;
-
-            Vector2Int pos = pb.currentTile.HexCoords;
-            int dist = AIPathFinder.GetHexDistance(from, pos);
-            if (dist < minDist)
-            {
-                minDist = dist;
-                closestBase = pb;
-            }
-        }
-
-        if (closestBase == null || closestBase.currentTile == null)
-            return from;
-
+        Debug.Log($"[AggressiveAI] Closest player base at {closestBase.currentTile.HexCoords}, distance: {minDist}");
         return closestBase.currentTile.HexCoords;
     }
 }

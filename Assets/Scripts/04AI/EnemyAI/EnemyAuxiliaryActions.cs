@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using static EnemyAIEvents;
 
@@ -47,12 +48,14 @@ public class EnemyAuxiliaryActions : MonoBehaviour
 
         //Based on enemy base count, decide the maximum auxiliary actions enemy units can do
         int baseCount = ebm.Bases.Count;
+        Debug.Log($"[EnemyAuxiliaryActions] Base count: {ebm.Bases.Count}");
 
         //If baseCount == 2, maxActions == 1
-        //   baseCount == 3, maxActions == 2
+        //   baseCount == 3, maxActions == 1
         //   baseCount == 4, maxActions == 2
-        //   baseCount == 5, maxActions == 3
-        int maxActions = Mathf.FloorToInt((baseCount + 1) / 2f);
+        //   baseCount == 5, maxActions == 2
+        int maxActions = baseCount / 2;
+
         if (maxActions <= 0)
         {
             Debug.Log($"[EnemyAuxiliaryActions] {baseCount} bases ? 0 auxiliary actions allowed.");
@@ -60,40 +63,70 @@ public class EnemyAuxiliaryActions : MonoBehaviour
             yield break;
         }
 
+
         //Only units that are not Builder unit and havent act during the current turn can execute auxiliary action
-        List<int> candidateUnitIds = new List<int>();
+        List<int> priorityUnits = new List<int>();
+        List<int> normalUnits = new List<int>();
+
         foreach (int id in eum.GetOwnedUnitIds())
         {
-            if (!eum.IsBuilderUnit(id) && !eum.HasUnitActedThisTurn(id))
-            {
-                candidateUnitIds.Add(id);
-            }
+            if (eum.IsBuilderUnit(id) || eum.HasUnitActedThisTurn(id))
+                continue;
+
+            HexTile tile = MapManager.Instance.GetTile(eum.GetUnitPosition(id));
+            bool hasResource = tile != null && (tile.fishTile != null || tile.debrisTile != null);
+
+            if (hasResource)
+                priorityUnits.Add(id); //Priority units: already on development tile, choose develop action first
+            else
+                normalUnits.Add(id);
         }
 
-        if (candidateUnitIds.Count == 0)
+        if (priorityUnits.Count + normalUnits.Count == 0)
         {
             Debug.Log("[EnemyAuxiliaryActions] No eligible units for auxiliary actions.");
             onCompleted?.Invoke();
             yield break;
         }
 
-        int numToSelect = Mathf.Min(maxActions, candidateUnitIds.Count);
+        int numToSelect = Mathf.Min(maxActions, priorityUnits.Count + normalUnits.Count);
+        int actionsDone = 0;
         for (int i = 0; i < numToSelect; i++)
         {
-            int randomIndex = UnityEngine.Random.Range(0, candidateUnitIds.Count);
-            int unitId = candidateUnitIds[randomIndex];
-            candidateUnitIds.RemoveAt(randomIndex); //Prevent repetition 
+            int unitId;
+            if (priorityUnits.Count > 0)
+            {
+                int idx = UnityEngine.Random.Range(0, priorityUnits.Count);
+                unitId = priorityUnits[idx];
+                priorityUnits.RemoveAt(idx);
 
-            //Weighted random: 70% develop tile, 30% unlock tech
-            float roll = UnityEngine.Random.value;
-            if (roll < 0.7f)
                 yield return ExecuteDevelopTileAction(unitId);
+            }
             else
-                yield return ExecuteUnlockTechAction();
+            {
+                if (normalUnits.Count == 0)
+                    break;
+
+                int idx = UnityEngine.Random.Range(0, normalUnits.Count);
+                unitId = normalUnits[idx];
+                normalUnits.RemoveAt(idx);
+
+                //Weighted random: 70% develop tile, 30% unlock tech
+                float roll = UnityEngine.Random.value;
+
+                if (roll < 0.7f && eum.CanUnitMove(unitId))
+                    yield return ExecuteDevelopTileAction(unitId);
+                else
+                    yield return ExecuteUnlockTechAction();
+            }
+
+            actionsDone++;
+            Debug.Log($"[EnemyAuxiliaryActions] Turn {turn}: {actionsDone}/{numToSelect} auxiliary actions executed so far.");
 
             yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
         }
 
+        Debug.Log($"[EnemyAuxiliaryActions] Turn {turn} completed. Total auxiliary actions: {actionsDone}");
         onCompleted?.Invoke();
     }
 
@@ -102,18 +135,20 @@ public class EnemyAuxiliaryActions : MonoBehaviour
         var eum = EnemyUnitManager.Instance;
         Vector2Int currentPos = eum.GetUnitPosition(unitId);
 
+        HexTile currentTile = MapManager.Instance.GetTile(currentPos);
+
+        //If unit is on the target tile
+        if (currentTile != null && (currentTile.fishTile != null || currentTile.debrisTile != null))
+        {
+            yield return RequestDevelopTile(unitId, currentPos);
+            eum.MarkUnitAsActed(unitId);
+            yield break;
+        }
+
         HexTile targetTile = FindClosestUndevelopedResource(currentPos);
         if (targetTile == null)
         {
             Debug.Log($"[EnemyAuxiliaryActions] Unit {unitId}: No undeveloped resource found.");
-            yield break;
-        }
-
-        //If unit is on the target tile
-        if (currentPos == targetTile.HexCoords)
-        {
-            yield return RequestDevelopTile(unitId, targetTile.HexCoords);
-            eum.MarkUnitAsActed(unitId);
             yield break;
         }
 
