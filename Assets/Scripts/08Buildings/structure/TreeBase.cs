@@ -10,9 +10,11 @@ public class TreeBase : BuildingBase
     [SerializeField] private int level = 1;
     [SerializeField] private int currentPop = 0;
     [SerializeField] private int maxUpgrades = 3;
-    [SerializeField] private int ToLvlBase2 = 2;
-    [SerializeField] private int ToLvlBase3 = 3;
-    [SerializeField] private int ToLvlBaseMore = 4;
+
+    [Header("Population needed per upgrade")]
+    [SerializeField] private int popForLvl2 = 2;
+    [SerializeField] private int popForLvl3 = 3;
+    [SerializeField] private int popForLvlMore = 4;
 
     [Header("Tree Base Prefabs")]
     [SerializeField] private GameObject Level2Base;
@@ -21,27 +23,17 @@ public class TreeBase : BuildingBase
     private int currentUnitsTrained = 0;
     public int TreeBaseId { get; private set; }
 
-    [SerializeField] private int turfRadius=2 ;
+    [SerializeField] private int turfRadius = 2;
 
     private void Start()
     {
-        // Only assign currentTile if it hasn't been set by Initialize or elsewhere
-        if (currentTile == null && MapManager.Instance != null)
-        {
-            Vector2Int hexCoord = MapManager.Instance.WorldToHex(transform.position);
-            currentTile = MapManager.Instance.GetTile(hexCoord);
+        TreeBaseId = GetInstanceID();
 
-            if (currentTile != null)
-            {
-                currentTile.SetBuilding(this);
-                TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
-                 Debug.Log($"{buildingName} placed at Hex {hexCoord} (auto-detected)");
-                Debug.Log($"<color=green>{buildingName} initialized at tile {currentTile.name} with turf radius {turfRadius}</color>");
-            }
-            else
-            {
-                Debug.LogWarning($"{buildingName} could NOT find a hex tile at position {transform.position}");
-            }
+        if (currentTile != null)
+        {
+            currentTile.SetBuilding(this);
+            TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
+            Debug.Log($"{buildingName} placed at Hex ({currentTile.q},{currentTile.r}) with turf radius {turfRadius}");
         }
     }
 
@@ -54,6 +46,8 @@ public class TreeBase : BuildingBase
         health = baseHealth;
         TreeBaseId = GetInstanceID();
 
+        // Claim turf on initialization
+        TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
     }
 
     public override void OnTurnStart()
@@ -78,10 +72,12 @@ public class TreeBase : BuildingBase
         Instantiate(unitPrefab, transform.position, Quaternion.identity);
         Debug.Log($"Unit trained! ({currentUnitsTrained}/{maxUnits})");
     }
+
     public void GainPop(int amount)
     {
         currentPop += amount;
     }
+
     public bool CanUpgrade()
     {
         if (level >= maxUpgrades)
@@ -89,54 +85,81 @@ public class TreeBase : BuildingBase
             Debug.Log("Tree Base is fully upgraded!");
             return false;
         }
-        // if 
-       if(level==1 && currentPop >= 2 )
-        {
 
+        int requiredPop = level switch
+        {
+            1 => popForLvl2,
+            2 => popForLvl3,
+            _ => popForLvlMore
+        };
+
+        if (currentPop < requiredPop)
+        {
+            Debug.Log($"Not enough population to upgrade! Need {requiredPop}, have {currentPop}");
+            return false;
         }
+
         return true;
     }
 
     private void ApplyUpgradeBase()
     {
+        int requiredPop = level switch
+        {
+            1 => popForLvl2,
+            2 => popForLvl3,
+            _ => popForLvlMore
+        };
+
+        currentPop -= requiredPop;
+
         level++;
         baseHealth += healthBonusPerUpgrade;
         health = baseHealth;
 
-        Debug.Log($"Tree Base upgraded to Level {level}");
+        Debug.Log($"Tree Base upgraded to Level {level} (+{healthBonusPerUpgrade} HP)");
     }
 
-    //baseUpgrade for KENNEHTH TO USE 
     public void ChooseScore()
     {
         ApplyUpgradeBase();
-
         PlayerTracker.Instance.addScore(1000);
     }
 
     public void ChooseApPerTurn()
     {
         ApplyUpgradeBase();
-
         apPerTurn += apBonusPerUpgrade;
     }
 
     public void ChooseTurfUp()
     {
         ApplyUpgradeBase();
-
-        turfRadius += 1;
-        
+        turfRadius++;
+        TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
     }
 
     protected override void DestroyBuilding()
     {
         Debug.Log("Tree Base destroyed! Becomes Grove.");
 
+        // Remove turf for this base
+        TurfManager.Instance.ClearTurf(); // optionally, make a per-building RemoveTurfArea
+
         if (BuildingFactory.Instance.GrovePrefab != null)
         {
-            Instantiate(BuildingFactory.Instance.GrovePrefab, transform.position, Quaternion.identity);
+            GameObject grove = Instantiate(
+                BuildingFactory.Instance.GrovePrefab,
+                transform.position,
+                Quaternion.identity
+            );
+
+            // Pass previous level to Grove so it can restore on rebuild
+            GroveBase groveScript = grove.GetComponent<GroveBase>();
+            if (groveScript != null)
+                groveScript.SetFormerLevel(level);
         }
+
         Destroy(gameObject);
     }
 }
