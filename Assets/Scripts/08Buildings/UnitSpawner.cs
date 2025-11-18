@@ -25,7 +25,13 @@ public class UnitSpawner : MonoBehaviour
     //[SerializeField] private Button ShooterButton;
     //[SerializeField] private Button BomberButton;
 
-
+    // --------------------- Kenneth's --------------------------
+    [SerializeField] private UnitButtonStatus builderStatus;
+    [SerializeField] private UnitButtonStatus scoutStatus;
+    //[SerializeField] private UnitButtonStatus tankerStatus;
+    //[SerializeField] private UnitButtonStatus shooterStatus;
+    //[SerializeField] private UnitButtonStatus bomberStatus;
+    // --------------------- Kenneth's --------------------------
 
     private void Start()
     {
@@ -44,7 +50,46 @@ public class UnitSpawner : MonoBehaviour
         //if (BomberButton != null)
         //    BomberButton.onClick.AddListener(OnBomberButtonClicked);
 
+        // --------------------- Kenneth's --------------------------
+        if (builderStatus != null)
+        {
+            builderStatus.apCost = 2;
+            builderStatus.techName = "builder";
+        }
+
+        if (scoutStatus != null)
+        {
+            scoutStatus.apCost = 3;
+            scoutStatus.techName = "scouting";
+        }
+
+        if (player != null)
+        {
+            player.OnAPChanged += UpdateAllUnitButtons;
+        }
+
+        UpdateAllUnitButtons();
+        // --------------------- Kenneth's --------------------------
     }
+
+    // --------------------- Kenneth's --------------------------
+    private void OnDestroy()
+    {
+        if (player != null)
+        {
+            player.OnAPChanged -= UpdateAllUnitButtons;
+        }
+    }
+
+    private void UpdateAllUnitButtons()
+    {
+        if (builderStatus != null) builderStatus.UpdateStatus();
+        if (scoutStatus != null) scoutStatus.UpdateStatus();
+        //if (tankerStatus != null) tankerStatus.UpdateStatus();
+        //if (shooterStatus != null) shooterStatus.UpdateStatus();
+        //if (bomberStatus != null) bomberStatus.UpdateStatus();
+    }
+    // --------------------- Kenneth's --------------------------
 
     private void OnScoutButtonClicked()
     {

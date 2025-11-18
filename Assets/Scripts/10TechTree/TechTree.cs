@@ -2,34 +2,33 @@ using UnityEngine;
 
 public class TechTree : MonoBehaviour
 {
+    public static TechTree Instance { get; private set; }
+
     [SerializeField] private PlayerTracker player;
 
     [Header("Development Branch Conditions")]
-
     [SerializeField] public bool IsFishing = false;
     [SerializeField] public bool IsMetalScraps = false;
     [SerializeField] public bool IsArmor = false;
 
     [Header("Development Navigation")]
-
     [SerializeField] public bool IsScouting = false;
     [SerializeField] public bool IsCamouflage = false;
     [SerializeField] public bool IsClearSight = false;
 
     [Header("Development Combat")]
-
     [SerializeField] public bool IsHomeDef = false;
     [SerializeField] public bool IsShooter = false;
     [SerializeField] public bool IsNavalWarfare = false;
 
     [Header("Sea Creatures")]
-
     [SerializeField] public bool IsCreaturesResearch = false;
     [SerializeField] public bool IsMutualism = false;
     [SerializeField] public bool IsHunterMask = false;
     [SerializeField] public bool IsTaming = false;
 
-    public static TechTree Instance { get; private set; }
+    public static TechTree instance { get; private set; } // Keep the lowercase version too
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -38,219 +37,268 @@ public class TechTree : MonoBehaviour
             return;
         }
         Instance = this;
+        instance = this; // Also assign to lowercase version
     }
-    // Development branch
-    public void Fishing(int cost)
+
+    // Check if a tech can be unlocked (prerequisites only)
+    public bool CanUnlockTech(string techName)
     {
-        if(IsFishing == false)
+        switch (techName.ToLower())
         {
-            if (player.getAp() >= cost)
-            {
-                Debug.Log("IT WORKS!! FUCK YOU!!!");
-                player.useAP(cost);
-                IsFishing = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            case "fishing": return !IsFishing;
+            case "metalscraps": return IsFishing && !IsMetalScraps;
+            case "armor": return IsMetalScraps && !IsArmor;
+            case "scouting": return !IsScouting;
+            case "camouflage": return IsScouting && !IsCamouflage;
+            case "clearsight": return IsCamouflage && !IsClearSight;
+            case "homedef": return !IsHomeDef;
+            case "shooter": return IsHomeDef && !IsShooter;
+            case "navalwarfare": return IsShooter && !IsNavalWarfare;
+            case "creaturesresearch": return !IsCreaturesResearch;
+            case "mutualism": return IsCreaturesResearch && !IsMutualism;
+            case "huntermask": return IsMutualism && !IsHunterMask;
+            case "taming": return IsHunterMask && !IsTaming;
+            default: return false;
         }
     }
 
-    public void MetalScraps(int cost)
+    // Main unlock method that checks both prerequisites and AP
+    public bool UnlockTech(string techName, int cost)
     {
-        if (IsFishing == true)
+        if (player == null)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsMetalScraps = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            Debug.LogError("[TechTree] PlayerTracker not assigned!");
+            return false;
+        }
+
+        if (player.getAp() < cost)
+        {
+            Debug.Log("Not enough AP!");
+            return false;
+        }
+
+        if (!CanUnlockTech(techName))
+        {
+            Debug.Log($"Cannot unlock {techName} - prerequisites not met!");
+            return false;
+        }
+
+        // Call the specific unlock method based on tech name
+        switch (techName.ToLower())
+        {
+            case "fishing":
+                Fishing(cost);
+                return true;
+            case "metalscraps":
+                MetalScraps(cost);
+                return true;
+            case "armor":
+                Armor(cost);
+                return true;
+            case "scouting":
+                Scouting(cost);
+                return true;
+            case "camouflage":
+                Camouflage(cost);
+                return true;
+            case "clearsight":
+                ClearSight(cost);
+                return true;
+            case "homedef":
+                HomeDef(cost);
+                return true;
+            case "shooter":
+                Shooter(cost);
+                return true;
+            case "navalwarfare":
+                NavalWarfare(cost);
+                return true;
+            case "creaturesresearch":
+                CreaturesResearch(cost);
+                return true;
+            case "mutualism":
+                Mutualism(cost);
+                return true;
+            case "huntermask":
+                HunterMask(cost);
+                return true;
+            case "taming":
+                Taming(cost);
+                return true;
+            default:
+                Debug.LogError($"Unknown tech: {techName}");
+                return false;
         }
     }
 
-    public void Armor(int cost) // unlock Tanker
+    // Keep your original methods but make them private/internal
+    private void Fishing(int cost)
     {
-        if (IsMetalScraps == true)
+        if (!IsFishing && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsArmor = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            Debug.Log("Fishing unlocked!");
+            player.useAP(cost);
+            IsFishing = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP or already unlocked!");
         }
     }
 
-    // Navigation
-
-    public void Scouting(int cost) // unlocks scout
+    private void MetalScraps(int cost)
     {
-        if (IsScouting == false)
+        if (IsFishing && !IsMetalScraps && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsScouting = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            player.useAP(cost);
+            IsMetalScraps = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
         }
     }
 
-    public void Camouflage(int cost)
+    private void Armor(int cost)
     {
-        if (IsScouting == true)
+        if (IsMetalScraps && !IsArmor && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsCamouflage = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            player.useAP(cost);
+            IsArmor = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
         }
     }
 
-    public void ClearSight(int cost)
+    private void Scouting(int cost)
     {
-        if (IsCamouflage == true)
+        if (!IsScouting && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsClearSight = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            player.useAP(cost);
+            IsScouting = true;
         }
-        // is fogRaduis by 1 
-    }
-
-    // combat 
-
-    public void HomeDef(int cost)
-    {
-        if (IsHomeDef == false)
+        else
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsHomeDef = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            Debug.Log("Not enough AP or already unlocked!");
         }
     }
 
-    public void Shooter(int cost) // unlock shooter
+    private void Camouflage(int cost)
     {
-        if (IsHomeDef == true)
+        if (IsScouting && !IsCamouflage && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsShooter = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            player.useAP(cost);
+            IsCamouflage = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
         }
     }
 
-    public void NavalWarfare(int cost) // unlock Bomber
+    private void ClearSight(int cost)
     {
-        if (IsShooter == true)
+        if (IsCamouflage && !IsClearSight && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsNavalWarfare = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            player.useAP(cost);
+            IsClearSight = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
         }
     }
 
-    // Sea Creatures
-
-    public void CreaturesResearch(int cost)
+    private void HomeDef(int cost)
     {
-        if (IsCreaturesResearch == false)
+        if (!IsHomeDef && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsCreaturesResearch = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            player.useAP(cost);
+            IsHomeDef = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP or already unlocked!");
         }
     }
 
-    public void Mutualism(int cost)
+    private void Shooter(int cost)
     {
-        if (IsCreaturesResearch == true)
+        if (IsHomeDef && !IsShooter && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsMutualism = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            player.useAP(cost);
+            IsShooter = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
         }
     }
-    public void HunterMask(int cost)
+
+    private void NavalWarfare(int cost)
     {
-        if (IsMutualism == true)
+        if (IsShooter && !IsNavalWarfare && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsHunterMask = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            player.useAP(cost);
+            IsNavalWarfare = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
         }
     }
-    public void Taming(int cost)
+
+    private void CreaturesResearch(int cost)
     {
-        if (IsHunterMask == true)
+        if (!IsCreaturesResearch && player.getAp() >= cost)
         {
-            if (player.getAp() >= cost)
-            {
-                player.useAP(cost);
-                IsTaming = true;
-            }
-            else
-            {
-                Debug.Log("Not enough AP!");
-            }
+            player.useAP(cost);
+            IsCreaturesResearch = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP or already unlocked!");
+        }
+    }
+
+    private void Mutualism(int cost)
+    {
+        if (IsCreaturesResearch && !IsMutualism && player.getAp() >= cost)
+        {
+            player.useAP(cost);
+            IsMutualism = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
+        }
+    }
+
+    private void HunterMask(int cost)
+    {
+        if (IsMutualism && !IsHunterMask && player.getAp() >= cost)
+        {
+            player.useAP(cost);
+            IsHunterMask = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
+        }
+    }
+
+    private void Taming(int cost)
+    {
+        if (IsHunterMask && !IsTaming && player.getAp() >= cost)
+        {
+            player.useAP(cost);
+            IsTaming = true;
+        }
+        else
+        {
+            Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
         }
     }
 }
