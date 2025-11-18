@@ -86,7 +86,7 @@ MonoBehaviour:
   objectData:
     objectName: Fish
     description: Sucxk
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: f76545e836fd0f046a5070c704d20ad7, type: 3}
     objectType: 0
   selectionIndicator: {fileID: 0}
 --- !u!1001 &1084710376727161494

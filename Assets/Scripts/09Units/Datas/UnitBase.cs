@@ -141,7 +141,7 @@ public abstract class UnitBase : MonoBehaviour
         isSelected = selected;
         UpdateSelectionVisual();
         HideRangeIndicators();
-        if (isSelected)
+        if (isSelected && !hasMovedThisTurn)
         {
             ShowRangeIndicators();
         }
@@ -149,7 +149,7 @@ public abstract class UnitBase : MonoBehaviour
         {
             HideRangeIndicators();
         }
-        
+
     }
     private void UpdateSelectionVisual()
     {
