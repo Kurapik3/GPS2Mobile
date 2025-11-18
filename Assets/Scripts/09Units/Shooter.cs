@@ -8,10 +8,11 @@ public class Shooter : UnitBase
 
         if (distance < 2)
         {
-            Debug.Log($"{unitName} cannot attack targets within 2 tiles! Distance: {distance}");
+            Debug.Log($"{unitName} cannot attack enemies within 2 tiles! Distance: {distance}");
             return;
         }
 
         base.Attack(target);
     }
+
 }
