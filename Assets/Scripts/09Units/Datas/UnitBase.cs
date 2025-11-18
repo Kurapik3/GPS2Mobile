@@ -87,20 +87,26 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
+        if (target.currentEnemyUnit == null && target.currentEnemyBase == null && target.currentSeaMonster == null)
+        {
+            return;
+        }
+        
         if (target.currentEnemyUnit != null)
         {
             target.currentEnemyUnit.TakeDamage(attack);
+            Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
         }
         else if(target.currentEnemyBase != null)
         {
             target.currentEnemyBase.TakeDamage(attack);
+            Debug.Log($"{unitName} attacked {target.currentEnemyBase} for {attack} damage!");
         }
         else if(target.currentSeaMonster != null)
         {
             target.currentSeaMonster.TakeDamage(attack);
+            Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
         }
-
-            Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
     }
 
     public virtual void TakeDamage(int amount)
@@ -127,6 +133,7 @@ public abstract class UnitBase : MonoBehaviour
     {
         Debug.Log($"{unitName} has died!");
 
+        currentTile?.SetOccupiedByUnit(false); //Release current tile
         HideRangeIndicators();
 
         if (UnitManager.Instance != null)
@@ -199,9 +206,11 @@ public abstract class UnitBase : MonoBehaviour
     public virtual void Move(HexTile targetTile)
     {
         if (targetTile == null) return;
-        
+
+        currentTile?.SetOccupiedByUnit(false); //Release old tile
         transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
         currentTile = targetTile;
+        currentTile.SetOccupiedByUnit(true); //Occupied new tile
         Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
         hasMovedThisTurn = true;
         RevealNearbyFog(currentTile);
