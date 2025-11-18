@@ -56,13 +56,6 @@ public class TreeBase : BuildingBase
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(0))
             return;
 
-        // PC click
-        if (Input.GetMouseButtonUp(0))
-        {
-            ProcessRaycast(Input.mousePosition);
-        }
-
-        // MOBILE touch
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
         {
             ProcessRaycast(Input.GetTouch(0).position);

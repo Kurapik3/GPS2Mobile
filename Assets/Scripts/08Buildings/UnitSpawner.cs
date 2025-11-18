@@ -17,7 +17,6 @@ public class UnitSpawner : MonoBehaviour
     [SerializeField] private GameObject BomberPrefab;
 
     [Header("Spawn Settings")]
-    [SerializeField] private Vector2Int spawnCoord = new Vector2Int(6, -1); 
     [SerializeField] private Transform fallbackSpawnPoint;
 
     [Header("UI Buttons")]
@@ -28,6 +27,7 @@ public class UnitSpawner : MonoBehaviour
     [SerializeField] private Button BomberButton;
 
     // --------------------- Kenneth's --------------------------
+    [Header("Status Buttons")]
     [SerializeField] private UnitButtonStatus builderStatus;
     [SerializeField] private UnitButtonStatus scoutStatus;
     [SerializeField] private UnitButtonStatus tankerStatus;
@@ -40,7 +40,7 @@ public class UnitSpawner : MonoBehaviour
     {
         Instance = this;
     }
-    private void Start()
+    public void Start()
     {
         if (builderButton != null)
             builderButton.onClick.AddListener(() => TrySpawnUnit(BuilderPrefab, 0, 2));
@@ -148,7 +148,7 @@ public class UnitSpawner : MonoBehaviour
     {
         if (player.currentAP >= cost)
         {
-            CreateUnit(prefab, csvIndex);
+            CreateUnit(prefab, csvIndex, selectedTreeBase);
             player.useAP(cost); 
         }
         else
@@ -157,83 +157,37 @@ public class UnitSpawner : MonoBehaviour
         }
     }
 
-    public void CreateUnit(GameObject unitPrefab, int csvIndex)
+    public void CreateUnit(GameObject unitPrefab, int csvIndex, TreeBase baseToSpawnAt)
     {
-        if (unitPrefab == null)
+        if (unitPrefab == null) return;
+        if (baseToSpawnAt == null) return;
+
+        HexTile spawnTile = baseToSpawnAt.currentTile;
+
+        if (spawnTile == null || spawnTile.IsOccupiedByUnit)
         {
-            Debug.LogError("Unit prefab is missing!");
+            Debug.Log("Spawn tile is occupied!");
             return;
         }
 
-        if (csvIndex < 0 || csvIndex >= unitDatabase.GetAllUnits().Count)
-        {
-            Debug.LogError($"Invalid CSV index {csvIndex}");
-            return;
-        }
+        Vector3 spawnPos = spawnTile.transform.position;
+        spawnPos.y += 2f;
 
-        // Get starting tile
-        HexTile startingTile = MapManager.Instance.GetTile(spawnCoord);
-
-        // Check if the tile is free
-        if (startingTile == null  || startingTile.IsOccupiedByUnit)
-        {
-            bool found = false;
-            foreach (var tile in startingTile.neighbours)
-            {
-                if (tile != null && tile.IsWalkableForAI())
-                {
-                    startingTile = tile;
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                Debug.LogWarning("No available tile found near spawn coordinates!");
-                if (fallbackSpawnPoint == null)
-                {
-                    Debug.LogError("No fallback spawn point assigned!");
-                    return;
-                }
-
-                // Spawn at fallback
-                GameObject fallbackUnit = Instantiate(unitPrefab, fallbackSpawnPoint.position, Quaternion.identity);
-                Debug.Log($"Spawned {unitPrefab.name} at fallback point {fallbackSpawnPoint.position}");
-                return;
-            }
-        }
-
-        Vector3 spawnPos = startingTile.transform.position;
-        spawnPos.y += 2f; // optional small height offset
         GameObject newUnit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
-
-        Debug.Log($"Spawned {unitPrefab.name} on tile ({startingTile.q}, {startingTile.r})");
-
-        SetLayerRecursively(newUnit, LayerMask.NameToLayer("Unit"));
+        newUnit.layer = LayerMask.NameToLayer("Unit");
 
         UnitData data = unitDatabase.GetAllUnits()[csvIndex];
         UnitBase unitBase = newUnit.GetComponent<UnitBase>();
+
         if (unitBase != null)
         {
-            unitBase.Initialize(data, startingTile);
-            startingTile.SetOccupiedByUnit(true);
-            Debug.Log($"Initialized {unitBase.unitName} from CSV row {csvIndex + 2}");
+            unitBase.Initialize(data, spawnTile);
+            spawnTile.SetOccupiedByUnit(true);
         }
-        else
-        {
-            Debug.LogWarning("Spawned unit has no UnitBase component.");
-        }
+
+        Debug.Log($"Spawned {unitPrefab.name} on base at tile ({spawnTile.q}, {spawnTile.r})");
     }
 
-    private void SetLayerRecursively(GameObject obj, int layer)
-    {
-        obj.layer = layer;
-        foreach (Transform child in obj.transform)
-        {
-            SetLayerRecursively(child.gameObject, layer);
-        }
-    }
 
     public GameObject GetUnitPrefabByName(string name)
     {
