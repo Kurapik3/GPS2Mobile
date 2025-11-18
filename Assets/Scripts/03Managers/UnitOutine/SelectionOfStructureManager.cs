@@ -272,4 +272,19 @@ public class SelectionOfStructureManager : MonoBehaviour
             return structureSelected[0];
         return null;
     }
+
+    public TreeBase GetSelectedTreeBase()
+    {
+        if (structureSelected.Count == 0)
+            return null;
+
+        // Try to get TreeBase component from the first selected structure
+        GameObject selectedObj = structureSelected[0];
+        if (selectedObj == null)
+            return null;
+
+        TreeBase tb = selectedObj.GetComponent<TreeBase>();
+        return tb; // returns null if not a TreeBase
+    }
+
 }

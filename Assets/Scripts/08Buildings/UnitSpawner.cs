@@ -102,6 +102,7 @@ public class UnitSpawner : MonoBehaviour
         selectedTreeBase = tb;
         Debug.Log("[UnitSpawner] TreeBase selected as spawn point.");
     }
+
     private void OnScoutButtonClicked()
     {
         if (!techTree.IsScouting)
@@ -146,47 +147,95 @@ public class UnitSpawner : MonoBehaviour
     }
     private void TrySpawnUnit(GameObject prefab, int csvIndex, int cost)
     {
-        if (player.currentAP >= cost)
-        {
-            CreateUnit(prefab, csvIndex, selectedTreeBase);
-            player.useAP(cost); 
-        }
-        else
-        {
-            Debug.Log("Not enough AP!");
-        }
-    }
+        // Get the currently selected TreeBase from the selection manager
+        TreeBase selected = SelectionOfStructureManager.instance.GetSelectedTreeBase();
 
-    public void CreateUnit(GameObject unitPrefab, int csvIndex, TreeBase baseToSpawnAt)
-    {
-        if (unitPrefab == null) return;
-        if (baseToSpawnAt == null) return;
-
-        HexTile spawnTile = baseToSpawnAt.currentTile;
-
-        if (spawnTile == null || spawnTile.IsOccupiedByUnit)
+        if (selected == null)
         {
-            Debug.Log("Spawn tile is occupied!");
+            Debug.LogWarning("No TreeBase selected. Cannot spawn unit!");
             return;
         }
 
-        Vector3 spawnPos = spawnTile.transform.position;
-        spawnPos.y += 2f;
-
-        GameObject newUnit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
-        newUnit.layer = LayerMask.NameToLayer("Unit");
-
-        UnitData data = unitDatabase.GetAllUnits()[csvIndex];
-        UnitBase unitBase = newUnit.GetComponent<UnitBase>();
-
-        if (unitBase != null)
+        if (player.currentAP < cost)
         {
-            unitBase.Initialize(data, spawnTile);
-            spawnTile.SetOccupiedByUnit(true);
+            Debug.Log("Not enough AP!");
+            return;
         }
 
-        Debug.Log($"Spawned {unitPrefab.name} on base at tile ({spawnTile.q}, {spawnTile.r})");
+        // Spawn the unit on the selected TreeBase
+        UnitBase spawnedUnit = CreateUnit(prefab, csvIndex, selected);
+
+        if (spawnedUnit != null)
+        {
+            player.useAP(cost);
+            Debug.Log($"Unit {spawnedUnit.unitName} spawned successfully!");
+        }
     }
+
+
+    public UnitBase CreateUnit(GameObject unitPrefab, int csvIndex, TreeBase baseToSpawnAt)
+    {
+        if (unitPrefab == null)
+        {
+            Debug.LogError("CreateUnit failed: prefab is NULL");
+            return null;
+        }
+
+        if (baseToSpawnAt == null)
+        {
+            Debug.LogError("CreateUnit failed: TreeBase is NULL");
+            return null;
+        }
+
+        HexTile spawnTile = baseToSpawnAt.currentTile;
+
+        if (spawnTile == null)
+        {
+            Debug.LogError($"TreeBase has NO TILE! Fix TreeBase.Initialize().");
+            return null;
+        }
+
+        if (spawnTile.IsOccupiedByUnit)
+        {
+            foreach (var n in spawnTile.neighbours)
+            {
+                if (n != null && !n.IsOccupiedByUnit && n.IsWalkableForAI())
+                {
+                    spawnTile = n;
+                    break;
+                }
+            }
+        }
+
+        if (spawnTile == null || spawnTile.IsOccupiedByUnit)
+        {
+            Debug.LogError("No place to spawn unit!");
+            return null;
+        }
+
+        Vector3 pos = spawnTile.transform.position;
+        pos.y += 2f;
+
+        GameObject newUnit = Instantiate(unitPrefab, pos, Quaternion.identity);
+        newUnit.layer = LayerMask.NameToLayer("Unit");
+
+        UnitBase unit = newUnit.GetComponent<UnitBase>();
+
+        if (unit == null)
+        {
+            Debug.LogError("Prefab has NO UnitBase component!");
+            return null;
+        }
+
+        UnitData data = unitDatabase.GetAllUnits()[csvIndex];
+        unit.Initialize(data, spawnTile);
+
+        spawnTile.SetOccupiedByUnit(true);
+
+        Debug.Log($"Spawned {unit.unitName} at ({spawnTile.q}, {spawnTile.r})");
+        return unit;
+    }
+
 
     //public void SpawnUnit(GameObject unitPrefab, int csvIndex)
     //{

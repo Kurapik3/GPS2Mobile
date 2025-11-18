@@ -45,35 +45,8 @@ public class TreeBase : BuildingBase
             Debug.Log($"{buildingName} placed at Hex ({currentTile.q},{currentTile.r}) with turf radius {turfRadius}");
         }
     }
-    void Update()
-    {
-        HandleMobileTap();
-    }
 
-    private void HandleMobileTap()
-    {
-        // Ignore if touching a UI button
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(0))
-            return;
 
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
-        {
-            ProcessRaycast(Input.GetTouch(0).position);
-        }
-    }
-
-    private void ProcessRaycast(Vector2 screenPos)
-    {
-        Ray ray = Camera.main.ScreenPointToRay(screenPos);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f))
-        {
-            if (hit.collider.gameObject == this.gameObject)
-            {
-                UnitSpawner.Instance.SetSelectedTreeBase(this);
-                Debug.Log("[TreeBase] Selected TreeBase at tile: " + currentTile.q + "," + currentTile.r);
-            }
-        }
-    }
     public override void Initialize(BuildingData data, HexTile tile)
     {
         base.Initialize(data, tile);

@@ -100,19 +100,19 @@ public abstract class UnitBase : MonoBehaviour
         if (target.currentEnemyUnit != null)
         {
             target.currentEnemyUnit.TakeDamage(attack);
-            Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
+            //Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
             HasAttackThisTurn = false;
         }
         else if(target.currentEnemyBase != null)
         {
             target.currentEnemyBase.TakeDamage(attack);
-            Debug.Log($"{unitName} attacked {target.currentEnemyBase} for {attack} damage!");
+            //Debug.Log($"{unitName} attacked {target.currentEnemyBase} for {attack} damage!");
             HasAttackThisTurn = false;
         }
         else if(target.currentSeaMonster != null)
         {
             target.currentSeaMonster.TakeDamage(attack);
-            Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
+           //Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
             HasAttackThisTurn = false;
         }
 
