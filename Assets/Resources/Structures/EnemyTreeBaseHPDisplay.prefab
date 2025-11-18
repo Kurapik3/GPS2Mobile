@@ -223,9 +223,8 @@ GameObject:
   - component: {fileID: 7278070020745856476}
   - component: {fileID: 7329136682257192883}
   - component: {fileID: 5398616065629721809}
-  - component: {fileID: 3595336445826809586}
   m_Layer: 5
-  m_Name: EnemyHPDisplayCanvas
+  m_Name: EnemyTreeBaseHPDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -315,24 +314,3 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &3595336445826809586
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4932612609339057407}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b1ac1b4a5074844cbc42ca7f70c49f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  worldCanvas: {fileID: 7278070020745856476}
-  unitIconImage: {fileID: 5867625124434890442}
-  hpText: {fileID: 5543328128398894142}
-  scoutIcon: {fileID: 21300000, guid: 8a0ec7fec6eef604ba5c4128b587c63e, type: 3}
-  bomberIcon: {fileID: 21300000, guid: f770402bbe5cab747bd24d467ee37c28, type: 3}
-  builderIcon: {fileID: 21300000, guid: 20c58370606973d4483abcf13e594de8, type: 3}
-  defaultIcon: {fileID: 0}
-  displayOffset: {x: 0, y: 1, z: 0}
-  canvasScale: 0.006

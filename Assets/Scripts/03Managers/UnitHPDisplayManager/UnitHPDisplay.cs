@@ -60,7 +60,7 @@ public class UnitHPDisplay : MonoBehaviour
             RectTransform canvasRect = worldCanvas.GetComponent<RectTransform>();
             if (canvasRect != null)
             {
-                canvasRect.sizeDelta = new Vector2(100, 20);
+                canvasRect.sizeDelta = new Vector2(80, 20);
                 canvasRect.localScale = new Vector3(canvasScale, canvasScale, canvasScale);
             }
         }

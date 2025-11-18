@@ -273,27 +273,26 @@ public class GameManager : MonoBehaviour
 
     private void NormalEnding()
     {
-
-        Debug.Log("Normal Ending");
+        Debug.Log("Normal Ending - Victory");
     }
+
     private void GenocideEnding()
     {
-
-        Debug.Log("Genocide Ending");
+        Debug.Log("Genocide Ending - Victory");
     }
+
     private void ExecutionEnding()
     {
-
-        Debug.Log("Execution Ending");
+        Debug.Log("Execution Ending - Defeat");
     }
+
     private void FailureEnding()
     {
-
-        Debug.Log("Failure Ending");
+        Debug.Log("Failure Ending - Defeat");
     }
 
-    #if UNITY_EDITOR
-        [ContextMenu("Clear Saved Data")]
+#if UNITY_EDITOR
+    [ContextMenu("Clear Saved Data")]
         void EditorClearSave() => ClearSave();
     #endif
 }

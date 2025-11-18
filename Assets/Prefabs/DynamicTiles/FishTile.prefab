@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3898778326559991156}
   - component: {fileID: 6068247085845709566}
   - component: {fileID: 3938139520173913250}
+  - component: {fileID: -8482876013403790469}
   m_Layer: 11
   m_Name: FishTile
   m_TagString: Untagged
@@ -70,6 +71,24 @@ MonoBehaviour:
   apCost: 2
   populationGain: 1
   removeAfterDevelop: 1
+--- !u!114 &-8482876013403790469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4439049149587326917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f41bae1489e6f1408d6a90906900498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectData:
+    objectName: Fish
+    description: Sucxk
+    icon: {fileID: 0}
+    objectType: 0
+  selectionIndicator: {fileID: 0}
 --- !u!1001 &1084710376727161494
 PrefabInstance:
   m_ObjectHideFlags: 0
