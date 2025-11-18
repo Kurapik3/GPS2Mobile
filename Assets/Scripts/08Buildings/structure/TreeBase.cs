@@ -7,9 +7,9 @@ public class TreeBase : BuildingBase
     [SerializeField] private int baseHealth = 20;
     [SerializeField] private int apBonusPerUpgrade = 1;
     [SerializeField] private int healthBonusPerUpgrade = 5;
-    [SerializeField] private int level = 1;
+    [SerializeField] public int level = 1;
     [SerializeField] private int currentPop = 0;
-    [SerializeField] private int maxUpgrades = 3;
+    [SerializeField] public int maxUpgrades = 3;
 
     [Header("Population needed per upgrade")]
     [SerializeField] private int popForLvl2 = 2;
@@ -187,5 +187,10 @@ public class TreeBase : BuildingBase
 
         if (health <= 0)
             DestroyBuilding();
+    }
+
+    public int GetCurrentBuildingLevel()
+    {
+        return level;
     }
 }
