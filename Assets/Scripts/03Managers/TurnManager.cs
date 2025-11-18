@@ -17,6 +17,7 @@ public class TurnManager : MonoBehaviour
     private int currentTurn = 0;
     private bool isPlayerTurn = true;
 
+
     public int CurrentTurn
     {
         get => currentTurn;
@@ -49,6 +50,7 @@ public class TurnManager : MonoBehaviour
             endTurnButton.onClick.AddListener(EndTurn);
         }
 
+
         EventBus.Publish(new TurnUpdatedEvent(0, maxTurns));
         StartPlayerTurn();
         
@@ -65,7 +67,6 @@ public class TurnManager : MonoBehaviour
         {
             unit.ResetMove();
         }
-
 
 
         EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));
@@ -103,6 +104,8 @@ public class TurnManager : MonoBehaviour
 
         EnemyUnitManager.Instance.ClearJustSpawnedUnits();
         currentTurn++;
+
+
         isProcessingTurn = false;
         if (currentTurn > maxTurns)
         {
