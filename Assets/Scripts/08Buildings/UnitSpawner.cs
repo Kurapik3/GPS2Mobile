@@ -188,6 +188,73 @@ public class UnitSpawner : MonoBehaviour
         Debug.Log($"Spawned {unitPrefab.name} on base at tile ({spawnTile.q}, {spawnTile.r})");
     }
 
+    //public void SpawnUnit(GameObject unitPrefab, int csvIndex)
+    //{
+    //    if (unitPrefab == null)
+    //    {
+    //        Debug.LogError("Unit prefab is missing!");
+    //        return;
+    //    }
+
+    //    if (csvIndex < 0 || csvIndex >= unitDatabase.GetAllUnits().Count)
+    //    {
+    //        Debug.LogError($"Invalid CSV index {csvIndex}");
+    //        return;
+    //    }
+
+    //    // Get starting tile
+    //    HexTile startingTile = MapManager.Instance.GetTile(spawnCoord);
+
+    //    // Check if the tile is free
+    //    if (startingTile == null || startingTile.IsOccupiedByUnit)
+    //    {
+    //        bool found = false;
+    //        foreach (var tile in startingTile.neighbours)
+    //        {
+    //            if (tile != null && tile.IsWalkableForAI())
+    //            {
+    //                startingTile = tile;
+    //                found = true;
+    //                break;
+    //            }
+    //        }
+
+    //        if (!found)
+    //        {
+    //            Debug.LogWarning("No available tile found near spawn coordinates!");
+    //            if (fallbackSpawnPoint == null)
+    //            {
+    //                Debug.LogError("No fallback spawn point assigned!");
+    //                return;
+    //            }
+
+    //            // Spawn at fallback
+    //            GameObject fallbackUnit = Instantiate(unitPrefab, fallbackSpawnPoint.position, Quaternion.identity);
+    //            Debug.Log($"Spawned {unitPrefab.name} at fallback point {fallbackSpawnPoint.position}");
+    //            return;
+    //        }
+    //    }
+
+    //    Vector3 spawnPos = startingTile.transform.position;
+    //    spawnPos.y += 2f; // optional small height offset
+    //    GameObject newUnit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
+
+    //    Debug.Log($"Spawned {unitPrefab.name} on tile ({startingTile.q}, {startingTile.r})");
+
+    //        UnitData data = unitDatabase.GetAllUnits()[csvIndex];
+    //    UnitBase unitBase = newUnit.GetComponent<UnitBase>();
+    //    if (unitBase != null)
+    //    {
+    //        unitBase.Initialize(data, startingTile);
+    //        startingTile.SetOccupiedByUnit(true);
+    //        Debug.Log($"Initialized {unitBase.unitName} from CSV row {csvIndex + 2}");
+    //    }   
+    //    else
+    //    {
+    //        Debug.LogWarning("Spawned unit has no UnitBase component.");
+    //    }
+    //}
+
 
     public GameObject GetUnitPrefabByName(string name)
     {
