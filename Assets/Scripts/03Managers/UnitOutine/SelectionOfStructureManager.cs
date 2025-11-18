@@ -152,7 +152,7 @@ public class SelectionOfStructureManager : MonoBehaviour
         {
             if (structure != null) 
             {
-                TriggerSelectionIndicator(structure, false);
+                //TriggerSelectionIndicator(structure, false);
             }
         }
         structureSelected.Clear();
@@ -162,50 +162,50 @@ public class SelectionOfStructureManager : MonoBehaviour
     {
         DeselectAll();
         structureSelected.Add(structure);
-        TriggerSelectionIndicator(structure, true);
+        //TriggerSelectionIndicator(structure, true);
     }
 
-    private void TriggerSelectionIndicator(GameObject structure, bool isVisible)
-    {
-        //if (structure != null && structure.transform.childCount > 0)
-        //{
-        //    structure.transform.GetChild(0).gameObject.SetActive(isVisible);
-        //}
+    //private void TriggerSelectionIndicator(GameObject structure, bool isVisible)
+    //{
+    //    //if (structure != null && structure.transform.childCount > 0)
+    //    //{
+    //    //    structure.transform.GetChild(0).gameObject.SetActive(isVisible);
+    //    //}
 
-        if (structure == null) return;
+    //    if (structure == null) return;
 
-        // Method 1: Find by tag (RECOMMENDED)
-        Transform indicator = structure.transform.Find("SelectionIndicator");
-        if (indicator != null)
-        {
-            indicator.gameObject.SetActive(isVisible);
-            return;
-        }
+    //    // Method 1: Find by tag (RECOMMENDED)
+    //    Transform indicator = structure.transform.Find("SelectionIndicator");
+    //    if (indicator != null)
+    //    {
+    //        indicator.gameObject.SetActive(isVisible);
+    //        return;
+    //    }
 
-        // Method 2: Find by tag if named differently
-        foreach (Transform child in structure.transform)
-        {
-            if (child.CompareTag(selectionIndicatorTag))
-            {
-                child.gameObject.SetActive(isVisible);
-                return;
-            }
-        }
+    //    // Method 2: Find by tag if named differently
+    //    foreach (Transform child in structure.transform)
+    //    {
+    //        if (child.CompareTag(selectionIndicatorTag))
+    //        {
+    //            child.gameObject.SetActive(isVisible);
+    //            return;
+    //        }
+    //    }
 
-        // Method 3: Fallback - look for specific indicator names
-        string[] indicatorNames = { "SelectionIndicator", "Indicator", "Selection", "Ring" };
-        foreach (string name in indicatorNames)
-        {
-            Transform found = structure.transform.Find(name);
-            if (found != null)
-            {
-                found.gameObject.SetActive(isVisible);
-                return;
-            }
-        }
+    //    // Method 3: Fallback - look for specific indicator names
+    //    string[] indicatorNames = { "SelectionIndicator", "Indicator", "Selection", "Ring" };
+    //    foreach (string name in indicatorNames)
+    //    {
+    //        Transform found = structure.transform.Find(name);
+    //        if (found != null)
+    //        {
+    //            found.gameObject.SetActive(isVisible);
+    //            return;
+    //        }
+    //    }
 
-        Debug.LogWarning($"No selection indicator found on {structure.name}. Add a child named 'SelectionIndicator' or tag it with '{selectionIndicatorTag}'");
-    }
+    //    Debug.LogWarning($"No selection indicator found on {structure.name}. Add a child named 'SelectionIndicator' or tag it with '{selectionIndicatorTag}'");
+    //}
 
     private void StructureInfoPanelMove()
     {
@@ -257,12 +257,12 @@ public class SelectionOfStructureManager : MonoBehaviour
         if (structureSelected.Contains(structure))
         {
             structureSelected.Remove(structure);
-            TriggerSelectionIndicator(structure, false);
+            //TriggerSelectionIndicator(structure, false);
         }
         else
         {
             structureSelected.Add(structure);
-            TriggerSelectionIndicator(structure, true);
+            //TriggerSelectionIndicator(structure, true);
         }
     }
 
