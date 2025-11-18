@@ -50,7 +50,7 @@ public class InGameSceneManager : MonoBehaviour
     public void MainMenu()
     {
         //LoadMainMenu("MainMenu");
-
+        GameManager.Instance?.SaveGame();
         SceneManager.LoadScene("MainMenu");
 
         ManagerAudio.instance.PlaySFX("ButtonPressed");

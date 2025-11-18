@@ -121,6 +121,7 @@ public class TurnManager : MonoBehaviour
             building.OnTurnStart();
 
         GameManager.Instance.CheckEnding();
+        EventBus.Publish(new ActionMadeEvent());
         Debug.Log($"[TurnManager] Called GameManager.Instance?.CheckEnding();");
 
         StartPlayerTurn();
