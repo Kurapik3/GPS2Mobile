@@ -204,6 +204,10 @@ public class EnemyActionExecutor : MonoBehaviour
         if (unit != null)
         {
             unit.TakeDamage(damage);
+            if(unit.unitName == "Tanker")
+            {
+                attackerGO.GetComponent<EnemyUnit>().TakeDamage(damage);
+            }
             Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to PlayerUnit {unit.name}, HP now {unit.hp}");
             EventBus.Publish(new EnemyAttackedEvent(evt.AttackerId, unit.gameObject));
             return;

@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6904344848589817911
 Transform:
   m_ObjectHideFlags: 0
@@ -74,6 +74,7 @@ MonoBehaviour:
   maxHP: 0
   currentHP: 0
   currentTile: {fileID: 0}
+  baseHeightOffset: 2
 --- !u!1001 &3917029063986639568
 PrefabInstance:
   m_ObjectHideFlags: 0
