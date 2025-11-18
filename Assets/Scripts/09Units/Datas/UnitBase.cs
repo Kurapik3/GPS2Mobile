@@ -1,4 +1,5 @@
 ﻿using DG.Tweening.Core.Easing;
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -376,5 +377,18 @@ public abstract class UnitBase : MonoBehaviour
     private void OnDestroy()
     {
         HideRangeIndicators();
+    }
+
+    public void SetPositionToTile(int q, int r)
+    {
+        if (MapManager.Instance.TryGetTile(new Vector2Int(q, r), out HexTile tile))
+        {
+            transform.position = tile.transform.position + Vector3.up * 2f;
+            currentTile = tile;
+        }
+        else
+        {
+            Debug.LogWarning($"Tile ({q}, {r}) not found!");
+        }
     }
 }

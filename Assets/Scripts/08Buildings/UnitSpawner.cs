@@ -178,4 +178,16 @@ public class UnitSpawner : MonoBehaviour
             SetLayerRecursively(child.gameObject, layer);
         }
     }
+    //Added by Ashley to get UnitPrefab
+    public GameObject GetUnitPrefabByName(string name)
+    {
+        if (name == "Builder") return BuilderPrefab;
+        if (name == "Scout") return ScoutPrefab;
+        // if (name == "Tanker") return TankerPrefab;
+        // if (name == "Shooter") return ShooterPrefab;
+        // if (name == "Bomber") return BomberPrefab;
+
+        Debug.LogWarning($"Unit prefab not found for name: {name}");
+        return null;
+    }
 }

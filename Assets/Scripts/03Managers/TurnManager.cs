@@ -114,7 +114,7 @@ public class TurnManager : MonoBehaviour
             building.OnTurnStart();
 
         GameManager.Instance.CheckEnding();
-
+        EventBus.Publish(new ActionMadeEvent());
         StartPlayerTurn();
     }
 

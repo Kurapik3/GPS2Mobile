@@ -63,6 +63,7 @@ public class DebrisTile : MonoBehaviour
         if (removeAfterDevelop)
         {
             RemoveDebrisTile();
+            EventBus.Publish(new ActionMadeEvent());
         }
         return true;
     }

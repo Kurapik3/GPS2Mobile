@@ -66,6 +66,7 @@ public class FishTile : MonoBehaviour
         if (removeAfterDevelop)
         {
             RemoveFishTile();
+            EventBus.Publish(new ActionMadeEvent());
         }
         return true;
     }
