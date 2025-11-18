@@ -100,57 +100,57 @@ public class TurnManager : MonoBehaviour
         //Invoke(nameof(EndEnemyTurn), 2f);
     }
 
-    //private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
-    //{
-    //    Debug.Log($"--- Enemy Turn {evt.Turn} End ---");
-
-    //    EnemyUnitManager.Instance.ClearJustSpawnedUnits();
-    //    currentTurn++;
-    //    Debug.Log($"[TurnManager] OnEnemyTurnEnd - CurrentTurn incremented to: {currentTurn}");
-
-    //    isProcessingTurn = false;
-    //    if (currentTurn > maxTurns)
-    //    {
-    //        Debug.Log("[TurnManager] Max turns reached! Calling EndGame or CheckEnding.");
-    //        //EndGame();
-    //        GameManager.Instance?.CheckEnding();
-    //        return;
-    //    }
-
-    //    foreach (var building in allBuildings) // gain AP
-    //        building.OnTurnStart();
-
-    //    GameManager.Instance.CheckEnding();
-    //    Debug.Log($"[TurnManager] Called GameManager.Instance?.CheckEnding();");
-
-    //    StartPlayerTurn();
-    //}
-
     private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
     {
-        Debug.Log($"[TurnManager] OnEnemyTurnEnd - Enemy Turn {evt.Turn} Ended. CurrentTurn before increment: {currentTurn}");
+        Debug.Log($"--- Enemy Turn {evt.Turn} End ---");
 
         EnemyUnitManager.Instance.ClearJustSpawnedUnits();
         currentTurn++;
         Debug.Log($"[TurnManager] OnEnemyTurnEnd - CurrentTurn incremented to: {currentTurn}");
 
         isProcessingTurn = false;
+        if (currentTurn > maxTurns)
+        {
+            Debug.Log("[TurnManager] Max turns reached! Calling EndGame or CheckEnding.");
+            //EndGame();
+            GameManager.Instance?.CheckEnding();
+            return;
+        }
 
         foreach (var building in allBuildings) // gain AP
             building.OnTurnStart();
 
-        // --- NEW LOGIC: Check for End Game Condition ---
-        if (currentTurn >= maxTurns)
-        {
-            Debug.Log("[TurnManager] Max turns reached! Game Over.");
-            EndGame(); // Call the EndGame method to show the screen
-        }
-        else
-        {
-            // If game didn't end, start the next player turn
-            StartPlayerTurn();
-        }
+        GameManager.Instance.CheckEnding();
+        Debug.Log($"[TurnManager] Called GameManager.Instance?.CheckEnding();");
+
+        StartPlayerTurn();
     }
+
+    //private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
+    //{
+    //    Debug.Log($"[TurnManager] OnEnemyTurnEnd - Enemy Turn {evt.Turn} Ended. CurrentTurn before increment: {currentTurn}");
+
+    //    EnemyUnitManager.Instance.ClearJustSpawnedUnits();
+    //    currentTurn++;
+    //    Debug.Log($"[TurnManager] OnEnemyTurnEnd - CurrentTurn incremented to: {currentTurn}");
+
+    //    isProcessingTurn = false;
+
+    //    foreach (var building in allBuildings) // gain AP
+    //        building.OnTurnStart();
+
+    //    // --- NEW LOGIC: Check for End Game Condition ---
+    //    if (currentTurn >= maxTurns)
+    //    {
+    //        Debug.Log("[TurnManager] Max turns reached! Game Over.");
+    //        EndGame(); // Call the EndGame method to show the screen
+    //    }
+    //    else
+    //    {
+    //        // If game didn't end, start the next player turn
+    //        StartPlayerTurn();
+    //    }
+    //}
 
     public void EndTurn()
     {
