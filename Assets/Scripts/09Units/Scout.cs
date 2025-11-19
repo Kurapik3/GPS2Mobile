@@ -29,6 +29,10 @@ public class Scout : UnitBase
 
         base.TryMove(targetTile);
         movesLeftThisTurn--; 
+        if(movesLeftThisTurn > 0)
+        {
+            hasMovedThisTurn = false;
+        }
     }
 
 }
