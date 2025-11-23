@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 165914205584031336}
   - component: {fileID: 5108962347387144279}
   - component: {fileID: 3149152723104593649}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Cache
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55,7 +55,6 @@ MonoBehaviour:
   GrovePrefab: {fileID: 0}
   isDeveloped: 0
   apRewardOnDevelop: 10
-  player: {fileID: 0}
 --- !u!65 &3149152723104593649
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -125,9 +124,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7547988612322845313, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
+      propertyPath: m_Layer
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: -5547542145952523856, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
+      propertyPath: m_Layer
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: -2097218277451053535, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
+      propertyPath: m_Layer
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
       propertyPath: m_Name
       value: Cache_Placeholder Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
+      propertyPath: m_Layer
+      value: 16
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
