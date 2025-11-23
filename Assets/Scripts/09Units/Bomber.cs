@@ -7,6 +7,7 @@ public class Bomber : UnitBase
     {
         // Do main attack
         base.Attack(target);
+        ManagerAudio.instance.PlaySFX("BomberBombing");
 
         int splashDamage = Mathf.FloorToInt(attack * 0.5f);
 

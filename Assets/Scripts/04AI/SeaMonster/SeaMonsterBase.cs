@@ -108,28 +108,6 @@ public abstract class SeaMonsterBase : MonoBehaviour
             EventBus.Publish(new TurtleWallBlockEvent(this, newPos));
 
         Debug.Log($"[{monsterName}] Moved from {oldPos} to {newPos}");
-        StartCoroutine(SmoothMove(newTile));
-    }
-
-    private IEnumerator SmoothMove(HexTile newTile)
-    {
-        Vector3 start = MapManager.Instance.HexToWorld(currentTile.HexCoords);
-        start.y += heightOffset;
-        Vector3 end = MapManager.Instance.HexToWorld(newTile.HexCoords);
-        end.y += heightOffset;
-
-        float t = 0f;
-        float duration = 1f / AIController.AISpeedMultiplier; ;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime / duration;
-            Vector3 nextPos = Vector3.Lerp(start, end, t);
-            transform.position = nextPos;
-            yield return null;
-        }
-
-        transform.position = end;
     }
 
     public virtual void TakeDamage(int dmg)

@@ -60,7 +60,7 @@ public class EnemyActionExecutor : MonoBehaviour
 
             GameObject unitGO = Instantiate(prefab, world, Quaternion.identity);
             unitGO.name = $"Enemy_{evt.UnitType}_{unitManager.NextUnitId}";
-
+            ManagerAudio.instance.PlaySFX("UnitSpawn");
             unitManager.RegisterUnit(unitGO, evt.BaseId, evt.UnitType, spawnHex);
         }
         finally
@@ -159,6 +159,10 @@ public class EnemyActionExecutor : MonoBehaviour
         Vector3 endPos = MapManager.Instance.HexToWorld(endHex);
         endPos.y += unit.baseHeightOffset;
 
+        float angle = GetRotationAngleTo(startPos, endPos);
+        //Face movement direction on Y axis
+        unitGO.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
         unitGO.transform.position = startPos;
 
         float t = 0f;
@@ -172,6 +176,15 @@ public class EnemyActionExecutor : MonoBehaviour
         }
 
         unit.UpdatePosition(MapManager.Instance.GetTile(endHex));
+    }
+
+    private float GetRotationAngleTo(Vector3 worldStart, Vector3 worldEnd)
+    {
+        Vector3 dir = worldEnd - worldStart;
+        dir.y = 0; //Ignore vertical move
+
+        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+        return angle;
     }
     #endregion
 
@@ -204,7 +217,16 @@ public class EnemyActionExecutor : MonoBehaviour
         if (unit != null)
         {
             unit.TakeDamage(damage);
-            if(unit.unitName == "Tanker")
+            if(EnemyUnitManager.Instance.GetUnitType(evt.AttackerId) == "Shooter")
+            {
+                ManagerAudio.instance.PlaySFX("ShooterShooting");
+            }
+            else if(EnemyUnitManager.Instance.GetUnitType(evt.AttackerId) == "Bomber")
+            {
+                ManagerAudio.instance.PlaySFX("BomberBombing");
+            }
+
+            if (unit.unitName == "Tanker")
             {
                 attackerGO.GetComponent<EnemyUnit>().TakeDamage(damage);
             }
@@ -287,6 +309,10 @@ public class EnemyActionExecutor : MonoBehaviour
         Vector3 spawnPos = MapManager.Instance.HexToWorld(evt.GrovePosition);
         spawnPos.y += 2f;
         GameObject newEnemyBaseObj = Instantiate(EnemyBaseManager.Instance.basePrefab, spawnPos, Quaternion.identity);
+        ManagerAudio.instance.PlaySFX("BuilderBuilding");
+
+        HexTile spawnTile = MapManager.Instance.GetTileAtHexPosition(evt.GrovePosition);
+        spawnTile.SetContentsVisible(false);
 
         EnemyBase newEnemyBase = newEnemyBaseObj.GetComponent<EnemyBase>();
         if (newEnemyBase != null)

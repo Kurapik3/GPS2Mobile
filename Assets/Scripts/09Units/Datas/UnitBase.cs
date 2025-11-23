@@ -1,5 +1,6 @@
-﻿using DG.Tweening.Core.Easing;
+﻿using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening.Core.Easing;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -216,13 +217,13 @@ public abstract class UnitBase : MonoBehaviour
         else return;
     }
 
-
     public virtual void Move(HexTile targetTile)
     {
         if (targetTile == null) return;
 
         currentTile?.SetOccupiedByUnit(false); //Release old tile
-        transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
+        StartCoroutine(MoveUnitPath(targetTile));
+        //transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
         currentTile = targetTile;
         currentTile.SetOccupiedByUnit(true); //Occupied new tile
         Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
@@ -230,6 +231,48 @@ public abstract class UnitBase : MonoBehaviour
         RevealNearbyFog(currentTile);
         EventBus.Publish(new ActionMadeEvent());
     }
+    private IEnumerator MoveUnitPath(HexTile targetTile)
+    {
+        List<Vector2Int> path = AIPathFinder.GetPath(currentTile.HexCoords, targetTile.HexCoords);
+        if (path == null || path.Count == 0)
+            yield break;
+
+        for (int i = 1; i < path.Count; i++)
+        {
+            Vector2Int prevHex = path[i - 1];
+            Vector2Int currHex = path[i];
+            yield return SmoothMove(prevHex, currHex);
+        }
+    }
+
+    private IEnumerator SmoothMove(Vector2Int startHex, Vector2Int endHex)
+    {
+
+        Vector3 startPos = MapManager.Instance.HexToWorld(startHex);
+        startPos.y += 2f;
+
+        Vector3 endPos = MapManager.Instance.HexToWorld(endHex);
+        endPos.y += 2f;
+
+        Vector3 direction = endPos - startPos;
+        direction.y = 0; //Ignore vertical move
+
+        float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+
+        //Face movement direction on Y axis
+        transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+        float t = 0f;
+        float duration = 0.5f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / duration;
+            transform.position = Vector3.Lerp(startPos, endPos, t);
+            yield return null;
+        }
+    }
+
     public void ResetMove()
     {
         hasMovedThisTurn = false;
