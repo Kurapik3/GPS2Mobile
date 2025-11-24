@@ -13,6 +13,7 @@ public class Shooter : UnitBase
         }
 
         base.Attack(target);
+        ManagerAudio.instance.PlaySFX("ShooterShooting");
     }
 
 }

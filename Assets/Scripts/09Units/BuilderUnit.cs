@@ -41,6 +41,7 @@ public class BuilderUnit : UnitBase
 
         // Build the TreeBase on the same tiles
         BuildingBase newBuilding = Instantiate(treeBasePrefab, currentTile.transform.position, Quaternion.identity);
+        ManagerAudio.instance.PlaySFX("BuilderBuilding");
         newBuilding.Initialize(newBuilding.GetComponent<BuildingData>(), currentTile);
 
         Debug.Log($"{unitName} upgraded Grove to TreeBase!");

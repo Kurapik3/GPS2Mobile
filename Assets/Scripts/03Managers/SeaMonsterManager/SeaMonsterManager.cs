@@ -15,13 +15,6 @@ public class SeaMonsterManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private SeaMonsterSpawner spawner;
     [SerializeField] private FogSystem fogSystem;
-    [SerializeField] private AudioClip krakenWarningSound;
-    [SerializeField] private AudioClip krakenSpawnSound;
-    [SerializeField] private AudioClip krakenMoveSound;
-    [SerializeField] private AudioClip krakenAttackSound;
-    [SerializeField] private AudioClip krakenDieSound;
-    [SerializeField] private AudioClip turtleMoveSound;
-    [SerializeField] private AudioClip turtleDieSound;
 
     [Header("Feedback Settings")]
     [SerializeField] private float preSpawnDelay = 1f;
@@ -88,8 +81,7 @@ public class SeaMonsterManager : MonoBehaviour
         if (turn == 10)
         {
             EventBus.Publish(new KrakenPreSpawnWarningEvent(turn));
-            if (krakenWarningSound)
-                AudioSource.PlayClipAtPoint(krakenWarningSound, mainCameraTransform.position);
+            ManagerAudio.instance.PlaySFX("SeaMonsterSpawn");
 
             yield return StartCoroutine(ShakeCamera());
             yield return new WaitForSeconds(preSpawnDelay);
@@ -104,9 +96,9 @@ public class SeaMonsterManager : MonoBehaviour
             Vector2Int tilePos = monster.currentTile != null ? monster.currentTile.HexCoords : Vector2Int.zero;
             EventBus.Publish(new SeaMonsterSpawnedEvent(monster, tilePos));
 
-            if (monster is Kraken && krakenSpawnSound != null)
+            if (monster is Kraken)
             {
-                AudioSource.PlayClipAtPoint(krakenSpawnSound, mainCameraTransform.position);
+                ManagerAudio.instance.PlaySFX("KrakenSpawn");
             }
         }
     }
@@ -151,13 +143,11 @@ public class SeaMonsterManager : MonoBehaviour
 
         if(evt.Monster is Kraken)
         {
-            if (krakenDieSound != null)
-                AudioSource.PlayClipAtPoint(krakenDieSound, mainCameraTransform.position);
+            ManagerAudio.instance.PlaySFX("KrakenDie");
         }
         else if (evt.Monster is TurtleWall)
         {
-            if (turtleDieSound != null)
-                AudioSource.PlayClipAtPoint(turtleDieSound, mainCameraTransform.position);
+            ManagerAudio.instance.PlaySFX("TurtleDie");
         }
 
         if (activeMonsters.Contains(evt.Monster))
@@ -176,6 +166,7 @@ public class SeaMonsterManager : MonoBehaviour
         return activeMonsters.Find(m => m.MonsterId == monsterId);
     }
 
+    #region Move
     private void OnMonsterMoved(SeaMonsterMoveEvent evt)
     {
         if (evt.Monster == null)
@@ -183,30 +174,32 @@ public class SeaMonsterManager : MonoBehaviour
 
         if (evt.Monster is Kraken)
         {
-            if (krakenMoveSound != null)
-                AudioSource.PlayClipAtPoint(krakenMoveSound, mainCameraTransform.position);
+            ManagerAudio.instance.PlaySFX("KrakenMove");
         }
         else if (evt.Monster is TurtleWall)
         {
-            if (turtleMoveSound != null)
-                AudioSource.PlayClipAtPoint(turtleMoveSound, mainCameraTransform.position);
+            ManagerAudio.instance.PlaySFX("TurtleMove");
         }
 
-        StartCoroutine(SmoothMove(evt.Monster, evt.To));
+        StartCoroutine(SmoothMove(evt.Monster, evt.From, evt.To));
         monsterPositions[evt.Monster.MonsterId] = evt.To;
         UpdateSeaMonsterVisibility();
     }
 
-    private IEnumerator SmoothMove(SeaMonsterBase sm, Vector2Int endHex)
+    private IEnumerator SmoothMove(SeaMonsterBase sm, Vector2Int startHex,Vector2Int endHex)
     {
         if (sm == null)
             yield break;
 
-        Vector3 startPos = sm.transform.position;
+        Vector3 startPos = MapManager.Instance.HexToWorld(startHex);
         startPos.y += sm.heightOffset;
 
         Vector3 endPos = MapManager.Instance.HexToWorld(endHex);
         endPos.y += sm.heightOffset;
+
+        float angle = GetRotationAngleTo(startPos, endPos);
+        //Face movement direction on Y axis
+        sm.transform.rotation = Quaternion.Euler(0f, angle + 180f, 0f);
 
         float t = 0f;
         float duration = 0.5f;
@@ -220,6 +213,16 @@ public class SeaMonsterManager : MonoBehaviour
 
         sm.transform.position = endPos;
     }
+
+    private float GetRotationAngleTo(Vector3 worldStart, Vector3 worldEnd)
+    {
+        Vector3 dir = worldEnd - worldStart;
+        dir.y = 0; //Ignore vertical move
+
+        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+        return angle;
+    }
+    #endregion
 
     private void OnKrakenAttackUnit(KrakenAttacksUnitEvent evt)
     {
@@ -240,8 +243,7 @@ public class SeaMonsterManager : MonoBehaviour
         //If target is player unit
         if (evt.Target.TryGetComponent<UnitBase>(out UnitBase playerUnit))
         {
-            if (krakenAttackSound != null)
-                AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
+            ManagerAudio.instance.PlaySFX("KrakenAttack");
             playerUnit.TakeDamage(evt.Damage);
             if(playerUnit.unitName == "Tanker")
             {
@@ -253,8 +255,7 @@ public class SeaMonsterManager : MonoBehaviour
 
         if (evt.Target.TryGetComponent<EnemyUnit>(out EnemyUnit enemyUnit))
         {
-            if (krakenAttackSound != null)
-                AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
+            ManagerAudio.instance.PlaySFX("KrakenAttack");
             enemyUnit.TakeDamage(evt.Damage);
             Debug.Log($"Kraken attacked enemy {enemyUnit.unitType} unit for {evt.Damage} damage!");
         }
@@ -282,8 +283,7 @@ public class SeaMonsterManager : MonoBehaviour
         if (evt.Target == null)
             return;
 
-        if (krakenAttackSound != null)
-            AudioSource.PlayClipAtPoint(krakenAttackSound, mainCameraTransform.position);
+        ManagerAudio.instance.PlaySFX("KrakenAttack");
         evt.Target.TakeDamage(evt.Damage);
     }
 
