@@ -46,17 +46,17 @@ public class TechTree : MonoBehaviour
         switch (techName.ToLower())
         {
             case "fishing": return !IsFishing;
-            case "metalscraps": return IsFishing && !IsMetalScraps;
+            case "metal scrap": return IsFishing && !IsMetalScraps;
             case "armor": return IsMetalScraps && !IsArmor;
             case "scouting": return !IsScouting;
             case "camouflage": return IsScouting && !IsCamouflage;
             case "clearsight": return IsCamouflage && !IsClearSight;
-            case "homedef": return !IsHomeDef;
+            case "home defense": return !IsHomeDef;
             case "shooter": return IsHomeDef && !IsShooter;
-            case "navalwarfare": return IsShooter && !IsNavalWarfare;
-            case "creaturesresearch": return !IsCreaturesResearch;
+            case "naval warfare": return IsShooter && !IsNavalWarfare;
+            case "mob research": return !IsCreaturesResearch;
             case "mutualism": return IsCreaturesResearch && !IsMutualism;
-            case "huntermask": return IsMutualism && !IsHunterMask;
+            case "hunter's mark": return IsMutualism && !IsHunterMask;
             case "taming": return IsHunterMask && !IsTaming;
             default: return false;
         }
@@ -89,7 +89,7 @@ public class TechTree : MonoBehaviour
             case "fishing":
                 Fishing(cost);
                 return true;
-            case "metalscraps":
+            case "metal scrap":
                 MetalScraps(cost);
                 return true;
             case "armor":
@@ -104,22 +104,22 @@ public class TechTree : MonoBehaviour
             case "clearsight":
                 ClearSight(cost);
                 return true;
-            case "homedef":
-                HomeDef(cost);
+            case "home defense":
+                HomeDefense(cost);
                 return true;
-            case "shooter":
+            case "shooterunit":
                 Shooter(cost);
                 return true;
-            case "navalwarfare":
+            case "naval warfare":
                 NavalWarfare(cost);
                 return true;
-            case "creaturesresearch":
-                CreaturesResearch(cost);
+            case "mob research":
+                MobResearch(cost);
                 return true;
             case "mutualism":
                 Mutualism(cost);
                 return true;
-            case "huntermask":
+            case "hunter's mark":
                 HunterMask(cost);
                 return true;
             case "taming":
@@ -211,7 +211,7 @@ public class TechTree : MonoBehaviour
         }
     }
 
-    private void HomeDef(int cost)
+    private void HomeDefense(int cost)
     {
         if (!IsHomeDef && player.getAp() >= cost)
         {
@@ -250,7 +250,7 @@ public class TechTree : MonoBehaviour
         }
     }
 
-    private void CreaturesResearch(int cost)
+    private void MobResearch(int cost)
     {
         if (!IsCreaturesResearch && player.getAp() >= cost)
         {

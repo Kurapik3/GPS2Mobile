@@ -6,7 +6,7 @@ public class InteractableObject : MonoBehaviour
     public ObjectData objectData;
 
     [Header("Optional: Selection Indicator")]
-    public GameObject selectionIndicator; // Optional visual feedback
+    public GameObject selectionIndicator; 
 
     // Called when this object is selected
     public void OnSelected()

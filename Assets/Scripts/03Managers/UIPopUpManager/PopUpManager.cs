@@ -1,7 +1,6 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static TMPro.Examples.TMP_ExampleScript_01;
 
 [System.Serializable]
 public class ObjectData
@@ -15,7 +14,15 @@ public class ObjectData
 public enum ObjectType
 {
     Fish,
-    Debris
+    Debris,
+    Ruins,
+    Clam, 
+    Groove, 
+    WaterTile,
+    Kraken, 
+    Enemy, 
+    EnemyBase, 
+    Turtle
 }
 
 public class PopUpManager : MonoBehaviour
@@ -152,31 +159,6 @@ public class PopUpManager : MonoBehaviour
 
     private void UpdateButtonVisibility()
     {
-        //if (currentData == null) return;
-
-        //TechTree techTree = FindAnyObjectByType<TechTree>();
-        //if (techTree == null) return;
-
-        //bool isUnlocked = false;
-        //bool showTechTreeButton = false;
-
-        //switch (currentData.objectType)
-        //{
-        //    case ObjectType.Fish:
-        //        isUnlocked = techTree.IsFishing;
-        //        showTechTreeButton = !isUnlocked;
-        //        break;
-        //    case ObjectType.Debris:
-        //        isUnlocked = techTree.IsMetalScraps;
-        //        showTechTreeButton = !isUnlocked;
-        //        break;
-        //}
-
-        //// Show/hide appropriate buttons
-        //if (extractFishButton != null) extractFishButton.gameObject.SetActive(!showTechTreeButton && currentData.objectType == ObjectType.Fish);
-        //if (extractDebrisButton != null) extractDebrisButton.gameObject.SetActive(!showTechTreeButton && currentData.objectType == ObjectType.Debris);
-        //if (techTreeButton != null) techTreeButton.gameObject.SetActive(showTechTreeButton);
-
         if (currentData == null) return;
 
         TechTree techTree = FindAnyObjectByType<TechTree>();

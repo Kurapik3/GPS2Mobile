@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 165914205584031336}
   - component: {fileID: 5108962347387144279}
   - component: {fileID: 3149152723104593649}
-  m_Layer: 0
+  - component: {fileID: -2310650065846371859}
+  m_Layer: 16
   m_Name: Cache
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55,7 +56,6 @@ MonoBehaviour:
   GrovePrefab: {fileID: 0}
   isDeveloped: 0
   apRewardOnDevelop: 10
-  player: {fileID: 0}
 --- !u!65 &3149152723104593649
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -77,6 +77,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 0.7993209, z: 1.1547005}
   m_Center: {x: 0, y: 0.39966044, z: 0}
+--- !u!114 &-2310650065846371859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9126118525235510570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f41bae1489e6f1408d6a90906900498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectData:
+    objectName: Clam
+    description: Move a Unit here to collect the resource
+    icon: {fileID: 21300000, guid: d67f65565ad96b74a85a11d1e91b548f, type: 3}
+    objectType: 3
+    apCost: 0
+  selectionIndicator: {fileID: 0}
 --- !u!1001 &6982030555925237416
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -125,9 +144,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7547988612322845313, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
+      propertyPath: m_Layer
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: -5547542145952523856, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
+      propertyPath: m_Layer
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: -2097218277451053535, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
+      propertyPath: m_Layer
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
       propertyPath: m_Name
       value: Cache_Placeholder Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8133c4f2f7f244b4b9b7670ee9268269, type: 3}
+      propertyPath: m_Layer
+      value: 16
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -268,6 +268,12 @@ public class ConfirmPopup : MonoBehaviour
         {
             // Let the node know it's unlocked to update visuals
             selectedNode.Unlock();
+
+            var extractionButtons = FindObjectsOfType<ExtractionButtonStatus>();
+            foreach (var btn in extractionButtons)
+            {
+                btn.ForceRefresh();
+            }
         }
 
         gameObject.SetActive(false);
