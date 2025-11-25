@@ -108,6 +108,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Model_Kraken
       objectReference: {fileID: 0}
+    - target: {fileID: 4431670454091400558, guid: 2cdfe725eadb69d4daf74291fd0a0dc9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 857b020650485f64cab706e9d1fe9f81, type: 2}
+    - target: {fileID: 7487694812811765117, guid: 2cdfe725eadb69d4daf74291fd0a0dc9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 5b2f53be5b267504fa178b3cf86ab70a, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
