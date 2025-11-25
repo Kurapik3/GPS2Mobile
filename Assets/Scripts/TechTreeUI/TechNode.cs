@@ -55,11 +55,6 @@ public class TechNode : MonoBehaviour
 
         player.OnAPChanged += UpdateVisual;
     }
-    private void OnDestroy()
-    {
-        player.OnAPChanged -= UpdateVisual;
-    }
-
     public void OnClick()
     {
         Debug.Log($"TechNode clicked: {techName}, State: {state}");
@@ -68,6 +63,11 @@ public class TechNode : MonoBehaviour
         {
             TechTreeUI.instance.OpenConfirmPopup(this);
         }
+    }
+
+    private void OnDestroy()
+    {
+        player.OnAPChanged -= UpdateVisual;
     }
 
     public void Unlock()
