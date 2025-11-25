@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 9222742391696497563}
   - component: {fileID: 4439866791185208099}
-  m_Layer: 0
+  - component: {fileID: 7156800315396222806}
+  m_Layer: 19
   m_Name: Kraken
   m_TagString: Kraken
   m_Icon: {fileID: 0}
@@ -56,6 +57,25 @@ MonoBehaviour:
   currentTile: {fileID: 0}
   CurrentTurn: 0
   MonsterId: 0
+--- !u!114 &7156800315396222806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607040072654141610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f41bae1489e6f1408d6a90906900498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectData:
+    objectName: 
+    description: 
+    icon: {fileID: 0}
+    objectType: 0
+    apCost: 2
+  selectionIndicator: {fileID: 0}
 --- !u!1001 &2040518967866993172
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -108,6 +128,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Model_Kraken
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2cdfe725eadb69d4daf74291fd0a0dc9, type: 3}
+      propertyPath: m_Layer
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 3764337995928963850, guid: 2cdfe725eadb69d4daf74291fd0a0dc9, type: 3}
+      propertyPath: m_Layer
+      value: 19
+      objectReference: {fileID: 0}
     - target: {fileID: 4431670454091400558, guid: 2cdfe725eadb69d4daf74291fd0a0dc9, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -116,6 +144,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 5b2f53be5b267504fa178b3cf86ab70a, type: 2}
+    - target: {fileID: 8487167654232718067, guid: 2cdfe725eadb69d4daf74291fd0a0dc9, type: 3}
+      propertyPath: m_Layer
+      value: 19
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

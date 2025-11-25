@@ -9,13 +9,13 @@ using static SeaMonsterEvents;
 public abstract class SeaMonsterBase : MonoBehaviour
 {
     [Header("Stats")]
-    [SerializeField] protected string monsterName;
-    [SerializeField] protected int attack;
-    [SerializeField] protected int health;
-    [SerializeField] protected int killPoints;
-    [SerializeField] protected int killAP;
-    [SerializeField] protected int movementRange;
-    [SerializeField] protected int attackRange;
+    [SerializeField] public string monsterName;
+    [SerializeField] public int attack;
+    [SerializeField] public int health;
+    [SerializeField] public int killPoints;
+    [SerializeField] public int killAP;
+    [SerializeField] public int movementRange;
+    [SerializeField] public int attackRange;
 
     public string MonsterName => monsterName;
     public int MovementRange => movementRange;
