@@ -32,7 +32,7 @@ public class HexTile : MonoBehaviour
     //public Vector2Int OffsetCoord => new Vector2Int(q + (r + (r % 2)) / 2, r);
     //public Vector3Int CubeCoord => new Vector3Int(q, -q - r, r);
 
-    [HideInInspector] public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
+    public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
     [HideInInspector] public bool isPlayerTurf = false; // william
     [SerializeField] public BuildingBase currentBuilding; // by william|
 

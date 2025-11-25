@@ -230,6 +230,7 @@ public class UnitSpawner : MonoBehaviour
         UnitData data = unitDatabase.GetAllUnits()[csvIndex];
         unit.Initialize(data, spawnTile);
 
+        spawnTile.currentUnit = unit;
         spawnTile.SetOccupiedByUnit(true);
 
         Debug.Log($"Spawned {unit.unitName} at ({spawnTile.q}, {spawnTile.r})");
