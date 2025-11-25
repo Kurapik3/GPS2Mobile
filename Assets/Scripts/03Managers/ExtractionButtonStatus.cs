@@ -75,7 +75,7 @@ public class ExtractionButtonStatus : MonoBehaviour
         switch (techName.ToLower())
         {
             case "fishing": return techTree.IsFishing;
-            case "metalscraps": return techTree.IsMetalScraps;
+            case "metal scrap": return techTree.IsMetalScraps;
             default: return false;
         }
     }
@@ -140,5 +140,10 @@ public class ExtractionButtonStatus : MonoBehaviour
         // You'll need to assign these in the Inspector
         // For now, return null or create a method to get icons from a database
         return null;
+    }
+
+    public void ForceRefresh()
+    {
+        UpdateStatus();
     }
 }

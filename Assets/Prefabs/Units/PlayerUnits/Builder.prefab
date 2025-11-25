@@ -62,6 +62,7 @@ MonoBehaviour:
   hasMovedThisTurn: 0
   HasAttackThisTurn: 0
   fogRevealRadius: 1
+  projectilePrefab: {fileID: 1194255820716703395, guid: 96aeb0b574238af4fafd5a0671291a59, type: 3}
   treeBasePrefab: {fileID: 0}
 --- !u!136 &-3442360951602841205
 CapsuleCollider:
@@ -234,19 +235,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1740d4b7632bffb4fa381e28312f69c2, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.5
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1740d4b7632bffb4fa381e28312f69c2, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.5
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1740d4b7632bffb4fa381e28312f69c2, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1740d4b7632bffb4fa381e28312f69c2, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1740d4b7632bffb4fa381e28312f69c2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -254,7 +255,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1740d4b7632bffb4fa381e28312f69c2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1740d4b7632bffb4fa381e28312f69c2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z

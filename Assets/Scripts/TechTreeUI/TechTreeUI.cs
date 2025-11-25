@@ -10,6 +10,8 @@ public class TechTreeUI : MonoBehaviour
     public Transform nodeParent;
     public GameObject confirmPopup;
     public GameObject infoPopup;
+    public GameObject techInfoPopup;   
+    public GameObject unitInfoPopup;
 
     private void Awake() => instance = this;
 
@@ -45,7 +47,58 @@ public class TechTreeUI : MonoBehaviour
 
     public void OpenInfoPopUp(TechNode node)
     {
-        infoPopup.SetActive(true);
-        infoPopup.GetComponent<InfoPopUp>().Setup(node);
+        if (node == null) return;
+
+        bool isUnitTech = IsUnitTech(node.techName);
+
+        if (isUnitTech)
+        {
+            if (unitInfoPopup == null)
+            {
+                Debug.LogError("[TechTreeUI] UnitInfoPopup not assigned!");
+                return;
+            }
+            var popup = unitInfoPopup.GetComponent<UnitInfoPopup>();
+            if (popup == null)
+            {
+                Debug.LogError("[TechTreeUI] No UnitInfoPopup component found!");
+                return;
+            }
+            unitInfoPopup.SetActive(true);
+            popup.Setup(node);
+        }
+        else
+        {
+            if (techInfoPopup == null)
+            {
+                Debug.LogError("[TechTreeUI] TechInfoPopup not assigned!");
+                return;
+            }
+            var popup = techInfoPopup.GetComponent<TechInfoPopup>();
+            if (popup == null)
+            {
+                Debug.LogError("[TechTreeUI] No TechInfoPopup component found!");
+                return;
+            }
+            techInfoPopup.SetActive(true);
+            popup.Setup(node);
+        }
+    }
+
+    private bool IsUnitTech(string techName)
+    {
+        string[] unitTechNames = {
+            "Armor", "Scouting", "Shooter", "Naval Warfare",
+            "Tank", "Scout", "Shooter", "Bomber"
+        };
+
+        foreach (string name in unitTechNames)
+        {
+            if (techName.Equals(name, System.StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 }
+

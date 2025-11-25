@@ -30,7 +30,7 @@ public class HexTile : MonoBehaviour
     public GameObject dynamicInstance;
     public bool HasDynamic => dynamicInstance != null;
 
-    [HideInInspector] public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
+    public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
     [HideInInspector] public bool isPlayerTurf = false; // william
     [SerializeField] public BuildingBase currentBuilding; // by william|
 

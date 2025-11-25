@@ -1,7 +1,10 @@
-﻿using DG.Tweening.Core.Easing;
+﻿using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
+using DG.Tweening.Core.Easing;
 using Unity.VisualScripting;
 using UnityEngine;
+using static EnemyAIEvents;
 
 public abstract class UnitBase : MonoBehaviour
 {
@@ -42,6 +45,8 @@ public abstract class UnitBase : MonoBehaviour
 
     // --------------------
 
+    [Header("Range Attack")]
+    [SerializeField] private GameObject projectilePrefab;
     protected virtual void Start()
     {
         rend = GetComponent<Renderer>();
@@ -92,32 +97,151 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
+        HideAttackIndicators();
+
+        StartCoroutine(PerformAttack(target));
+
+        EventBus.Publish(new ActionMadeEvent());
+    }
+
+    protected virtual IEnumerator PerformAttack(HexTile target)
+    {
+        //Default: Melee attack
+        yield return PlayAttackAnimation(target, false);
+    }
+
+    protected IEnumerator PlayAttackAnimation(HexTile target, bool isRanged, int splashRadius = 0)
+    {
+        Vector3 startPos = transform.position;
+        Vector3 endPos = target.transform.position + Vector3.up * 2f;
+
+        if (!isRanged)
+        {
+            //Melee: dash and return
+            yield return LerpPosition(transform, startPos, endPos, 0.2f);
+            HitTarget(target, splashRadius);
+            yield return LerpPosition(transform, endPos, startPos, 0.2f);
+        }
+        else
+        {
+            //Ranged: projectile arc
+            Vector3 projStart = startPos + Vector3.up * 1.5f;
+            Vector3 projEnd = endPos;
+            GameObject proj = Instantiate(projectilePrefab, projStart, Quaternion.identity);
+
+            float t = 0f;
+            float duration = 1f;
+            Vector3 mid = (projStart + projEnd) / 2 + Vector3.up * 2.5f;
+
+            while (t < 1f)
+            {
+                t += Time.deltaTime / duration;
+                Vector3 m1 = Vector3.Lerp(projStart, mid, t);
+                Vector3 m2 = Vector3.Lerp(mid, projEnd, t);
+                proj.transform.position = Vector3.Lerp(m1, m2, t);
+                yield return null;
+            }
+
+            Destroy(proj);
+            HitTarget(target, splashRadius);
+        }
+    }
+
+    private IEnumerator LerpPosition(Transform t, Vector3 from, Vector3 to, float duration)
+    {
+        float time = 0f;
+        Vector3 direction = to - from;
+        direction.y = 0;
+        if (direction != Vector3.zero)
+        {
+            float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg; //Facing target direction
+            t.rotation = Quaternion.Euler(0f, angle, 0f);
+        }
+
+        while (time < 1f)
+        {
+            time += Time.deltaTime / duration;
+            t.position = Vector3.Lerp(from, to, time);
+            yield return null;
+        }
+    }
+
+    protected GameObject GetTargetGameObject(HexTile tile)
+    {
+        if (tile == null) return null;
+
+        if (tile.currentEnemyUnit != null) 
+            return tile.currentEnemyUnit.gameObject;
+        if (tile.currentEnemyBase != null) 
+            return tile.currentEnemyBase.gameObject;
+        if (tile.currentSeaMonster != null) 
+            return tile.currentSeaMonster.gameObject;
+
+        return null;
+    }
+
+    protected void HitTarget(HexTile target, int splashRadius = 0)
+    {
+        GameObject targetGO = GetTargetGameObject(target);
+        if (targetGO != null)
+        {
+            Knockback(targetGO, this.transform.forward.normalized, () =>
+            {
+                ApplyDamage(target, attack, splashRadius); //Play animation first, then apply damage
+            });
+        }
+        else
+        {
+            ApplyDamage(target, attack, splashRadius);
+        }
+    }
+
+    private void Knockback(GameObject target, Vector3 direction, System.Action onComplete = null)
+    {
+        if (target == null)
+            return;
+
+        Vector3 hitPos = target.transform.position + direction.normalized * 0.3f;
+
+        target.transform
+        .DOMove(hitPos, 0.1f)
+        .SetLoops(2, LoopType.Yoyo)
+        .SetEase(Ease.OutQuad)
+        .OnComplete(() =>
+        {
+            onComplete?.Invoke(); //Wait until animation completed then apply damage
+        });
+    }
+
+    private void ApplyDamage(HexTile target, int damage, int splashRadius = 0)
+    {
         if (target.currentEnemyUnit == null && target.currentEnemyBase == null && target.currentSeaMonster == null)
         {
             return;
         }
-        
+
         if (target.currentEnemyUnit != null)
         {
             target.currentEnemyUnit.TakeDamage(attack);
             //Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
+            if (target.currentEnemyUnit.unitType == "Tanker")
+            {
+                this.TakeDamage(damage);
+            }
             HasAttackThisTurn = false;
         }
-        else if(target.currentEnemyBase != null)
+        else if (target.currentEnemyBase != null)
         {
             target.currentEnemyBase.TakeDamage(attack);
             //Debug.Log($"{unitName} attacked {target.currentEnemyBase} for {attack} damage!");
             HasAttackThisTurn = false;
         }
-        else if(target.currentSeaMonster != null)
+        else if (target.currentSeaMonster != null)
         {
             target.currentSeaMonster.TakeDamage(attack);
-           //Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
+            //Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
             HasAttackThisTurn = false;
         }
-
-        HideAttackIndicators();
-        EventBus.Publish(new ActionMadeEvent());
     }
 
     public virtual void TakeDamage(int amount)
@@ -144,8 +268,13 @@ public abstract class UnitBase : MonoBehaviour
     protected virtual void Die()
     {
         Debug.Log($"{unitName} has died!");
-
-        currentTile?.SetOccupiedByUnit(false); //Release current tile
+        ManagerAudio.instance.PlaySFX("UnitDie");
+        //Release current tile
+        if (currentTile != null)
+        {
+            currentTile.SetOccupiedByUnit(false);
+            currentTile.currentUnit = null;
+        }
         HideRangeIndicators();
 
         if (UnitManager.Instance != null)
@@ -216,20 +345,72 @@ public abstract class UnitBase : MonoBehaviour
         else return;
     }
 
-
     public virtual void Move(HexTile targetTile)
     {
         if (targetTile == null) return;
 
-        currentTile?.SetOccupiedByUnit(false); //Release old tile
-        transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
+        //Release old tile
+        if (currentTile != null)
+        {
+            currentTile.SetOccupiedByUnit(false);
+            currentTile.currentUnit = null;
+        }
+        StartCoroutine(MoveUnitPath(targetTile));
+        //transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
+
+        //Update new tile
         currentTile = targetTile;
         currentTile.SetOccupiedByUnit(true); //Occupied new tile
+        targetTile.currentUnit = this;
+
         Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
         hasMovedThisTurn = true;
         RevealNearbyFog(currentTile);
         EventBus.Publish(new ActionMadeEvent());
     }
+
+    private IEnumerator MoveUnitPath(HexTile targetTile)
+    {
+        List<Vector2Int> path = AIPathFinder.GetPath(currentTile.HexCoords, targetTile.HexCoords);
+        if (path == null || path.Count == 0)
+            yield break;
+
+        for (int i = 1; i < path.Count; i++)
+        {
+            Vector2Int prevHex = path[i - 1];
+            Vector2Int currHex = path[i];
+            yield return SmoothMove(prevHex, currHex);
+        }
+    }
+
+    private IEnumerator SmoothMove(Vector2Int startHex, Vector2Int endHex)
+    {
+
+        Vector3 startPos = MapManager.Instance.HexToWorld(startHex);
+        startPos.y += 2f;
+
+        Vector3 endPos = MapManager.Instance.HexToWorld(endHex);
+        endPos.y += 2f;
+
+        Vector3 direction = endPos - startPos;
+        direction.y = 0; //Ignore vertical move
+
+        float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+
+        //Face movement direction on Y axis
+        transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+        float t = 0f;
+        float duration = 0.5f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / duration;
+            transform.position = Vector3.Lerp(startPos, endPos, t);
+            yield return null;
+        }
+    }
+
     public void ResetMove()
     {
         hasMovedThisTurn = false;

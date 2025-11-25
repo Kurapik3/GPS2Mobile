@@ -230,6 +230,7 @@ public class UnitSpawner : MonoBehaviour
         UnitData data = unitDatabase.GetAllUnits()[csvIndex];
         unit.Initialize(data, spawnTile);
 
+        spawnTile.currentUnit = unit;
         spawnTile.SetOccupiedByUnit(true);
 
         Debug.Log($"Spawned {unit.unitName} at ({spawnTile.q}, {spawnTile.r})");
@@ -237,72 +238,89 @@ public class UnitSpawner : MonoBehaviour
     }
 
 
-    //public void SpawnUnit(GameObject unitPrefab, int csvIndex)
-    //{
-    //    if (unitPrefab == null)
-    //    {
-    //        Debug.LogError("Unit prefab is missing!");
-    //        return;
-    //    }
+    public void SpawnUnit(GameObject unitPrefab, int csvIndex, Vector2Int? spawnCoords = null)
+    {
+        if (unitPrefab == null)
+        {
+            Debug.LogError("Unit prefab is missing!");
+            return;
+        }
 
-    //    if (csvIndex < 0 || csvIndex >= unitDatabase.GetAllUnits().Count)
-    //    {
-    //        Debug.LogError($"Invalid CSV index {csvIndex}");
-    //        return;
-    //    }
+        if (csvIndex < 0 || csvIndex >= unitDatabase.GetAllUnits().Count)
+        {
+            Debug.LogError($"Invalid CSV index {csvIndex}");
+            return;
+        }
 
-    //    // Get starting tile
-    //    HexTile startingTile = MapManager.Instance.GetTile(spawnCoord);
+        // Determine spawn tile
+        HexTile startingTile = null;
 
-    //    // Check if the tile is free
-    //    if (startingTile == null || startingTile.IsOccupiedByUnit)
-    //    {
-    //        bool found = false;
-    //        foreach (var tile in startingTile.neighbours)
-    //        {
-    //            if (tile != null && tile.IsWalkableForAI())
-    //            {
-    //                startingTile = tile;
-    //                found = true;
-    //                break;
-    //            }
-    //        }
+        // Use saved coordinates if provided
+        if (spawnCoords.HasValue)
+        {
+            startingTile = MapManager.Instance.GetTile(spawnCoords.Value);
+            if (startingTile == null)
+            {
+                Debug.LogWarning($"Saved tile {spawnCoords.Value} not found, will try neighbors or fallback point.");
+            }
+        }
 
-    //        if (!found)
-    //        {
-    //            Debug.LogWarning("No available tile found near spawn coordinates!");
-    //            if (fallbackSpawnPoint == null)
-    //            {
-    //                Debug.LogError("No fallback spawn point assigned!");
-    //                return;
-    //            }
+        // If tile is null or occupied, try neighbors
+        if (startingTile == null || startingTile.IsOccupiedByUnit)
+        {
+            bool found = false;
 
-    //            // Spawn at fallback
-    //            GameObject fallbackUnit = Instantiate(unitPrefab, fallbackSpawnPoint.position, Quaternion.identity);
-    //            Debug.Log($"Spawned {unitPrefab.name} at fallback point {fallbackSpawnPoint.position}");
-    //            return;
-    //        }
-    //    }
+            if (startingTile != null)
+            {
+                foreach (var tile in startingTile.neighbours)
+                {
+                    if (tile != null && tile.IsWalkableForAI() && !tile.IsOccupiedByUnit)
+                    {
+                        startingTile = tile;
+                        found = true;
+                        break;
+                    }
+                }
+            }
 
-    //    Vector3 spawnPos = startingTile.transform.position;
-    //    spawnPos.y += 2f; // optional small height offset
-    //    GameObject newUnit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
+            if (!found)
+            {
+                if (fallbackSpawnPoint == null)
+                {
+                    Debug.LogError("No available tile and no fallback spawn point assigned!");
+                    return;
+                }
+                startingTile = null; // will spawn at fallback point
+            }
+        }
 
-    //    Debug.Log($"Spawned {unitPrefab.name} on tile ({startingTile.q}, {startingTile.r})");
+        // Calculate spawn position
+        Vector3 spawnPos = startingTile != null ? startingTile.transform.position : fallbackSpawnPoint.position;
+        if (startingTile != null) spawnPos.y += 0.5f; // optional offset
 
-    //        UnitData data = unitDatabase.GetAllUnits()[csvIndex];
-    //    UnitBase unitBase = newUnit.GetComponent<UnitBase>();
-    //    if (unitBase != null)
-    //    {
-    //        unitBase.Initialize(data, startingTile);
-    //        startingTile.SetOccupiedByUnit(true);
-    //        Debug.Log($"Initialized {unitBase.unitName} from CSV row {csvIndex + 2}");
-    //    }   
-    //    else
-    //    {
-    //        Debug.LogWarning("Spawned unit has no UnitBase component.");
-    //    }
-    //}
+        // Instantiate the unit
+        GameObject newUnit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
+        UnitBase unitBase = newUnit.GetComponent<UnitBase>();
+
+        if (unitBase != null)
+        {
+            UnitData data = unitDatabase.GetAllUnits()[csvIndex];
+            unitBase.Initialize(data, startingTile);
+
+            if (startingTile != null)
+                startingTile.SetOccupiedByUnit(true);
+
+            // Register the unit in UnitManager
+            UnitManager.Instance?.RegisterUnit(unitBase);
+
+            Debug.Log($"Spawned {unitBase.unitName} at {(startingTile != null ? $"tile ({startingTile.q}, {startingTile.r})" : "fallback point")}");
+        }
+        else
+        {
+            Debug.LogWarning("Spawned unit has no UnitBase component.");
+        }
+    }
+
 
 
     public GameObject GetUnitPrefabByName(string name)

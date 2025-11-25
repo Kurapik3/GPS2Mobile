@@ -64,6 +64,7 @@ public class EnemyUnit : MonoBehaviour
     private void Die()
     {
         Debug.Log($"[EnemyUnit] {unitType} destroyed!");
+        ManagerAudio.instance.PlaySFX("UnitDie");
         EnemyUnitManager.Instance?.KillUnit(unitId);
     }
 

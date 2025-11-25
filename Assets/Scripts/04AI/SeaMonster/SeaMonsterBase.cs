@@ -9,16 +9,17 @@ using static SeaMonsterEvents;
 public abstract class SeaMonsterBase : MonoBehaviour
 {
     [Header("Stats")]
-    [SerializeField] protected string monsterName;
-    [SerializeField] protected int attack;
-    [SerializeField] protected int health;
-    [SerializeField] protected int killPoints;
-    [SerializeField] protected int killAP;
-    [SerializeField] protected int movementRange;
-    [SerializeField] protected int attackRange;
+    [SerializeField] public string monsterName;
+    [SerializeField] public int attack;
+    [SerializeField] public int health;
+    [SerializeField] public int killPoints;
+    [SerializeField] public int killAP;
+    [SerializeField] public int movementRange;
+    [SerializeField] public int attackRange;
 
     public string MonsterName => monsterName;
     public int MovementRange => movementRange;
+    public int Health => health;
 
     [Header("Visual")]
     [SerializeField] public float heightOffset = 2f;
@@ -108,28 +109,6 @@ public abstract class SeaMonsterBase : MonoBehaviour
             EventBus.Publish(new TurtleWallBlockEvent(this, newPos));
 
         Debug.Log($"[{monsterName}] Moved from {oldPos} to {newPos}");
-        StartCoroutine(SmoothMove(newTile));
-    }
-
-    private IEnumerator SmoothMove(HexTile newTile)
-    {
-        Vector3 start = MapManager.Instance.HexToWorld(currentTile.HexCoords);
-        start.y += heightOffset;
-        Vector3 end = MapManager.Instance.HexToWorld(newTile.HexCoords);
-        end.y += heightOffset;
-
-        float t = 0f;
-        float duration = 1f / AIController.AISpeedMultiplier; ;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime / duration;
-            Vector3 nextPos = Vector3.Lerp(start, end, t);
-            transform.position = nextPos;
-            yield return null;
-        }
-
-        transform.position = end;
     }
 
     public virtual void TakeDamage(int dmg)

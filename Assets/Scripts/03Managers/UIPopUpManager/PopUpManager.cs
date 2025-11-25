@@ -1,7 +1,6 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static TMPro.Examples.TMP_ExampleScript_01;
 
 [System.Serializable]
 public class ObjectData
@@ -15,7 +14,15 @@ public class ObjectData
 public enum ObjectType
 {
     Fish,
-    Debris
+    Debris,
+    Ruins,
+    Clam, 
+    Groove, 
+    WaterTile,
+    Kraken, 
+    Enemy, 
+    EnemyBase, 
+    Turtle
 }
 
 public class PopUpManager : MonoBehaviour
@@ -25,6 +32,26 @@ public class PopUpManager : MonoBehaviour
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI descriptionText;
 
+    [Header ("Creature UI (Tamed)")]
+    public TextMeshProUGUI statsText;
+    public Image creatureIconImage;
+    public TextMeshProUGUI creatureTitleText;
+    public TextMeshProUGUI creatureDescriptionText;
+    public Button tamedCreatureBackButton;
+    [SerializeField] private GameObject creatureStatsPopup;
+
+    public TextMeshProUGUI hpText;
+    public TextMeshProUGUI attackText;
+    public TextMeshProUGUI movementText;
+    public TextMeshProUGUI rangeText;
+
+    [Header("Creature UI (NOT Tamed)")]
+    public TextMeshProUGUI notTameCreatureTitleText;   
+    public TextMeshProUGUI notTameCreatureDescriptionText;   
+    public Button notTameCreaturebackButton;
+    public Button notTameCreatureTechTreeButton;
+    [SerializeField] private GameObject creatureInfoPopup;
+
     [Header("Object-Specific Buttons")]
     public GameObject fishButtons;
     public GameObject debrisButton;
@@ -33,11 +60,14 @@ public class PopUpManager : MonoBehaviour
     [SerializeField] public Button extractFishButton;
     [SerializeField] public Button extractDebrisButton;
     [SerializeField] public Button techTreeButton; 
-    [SerializeField] public Button debristechTreeButton; 
+    [SerializeField] public Button debristechTreeButton;
+    [SerializeField] public Button infoButton;
+    [SerializeField] public Button ruinsBackButton;
 
     [Header("Stats Panel")]
     [SerializeField] private GameObject fishStatsPanel;
     [SerializeField] private GameObject debrisStatsPanel;
+    [SerializeField] private GameObject ruinsInfoPopup;
 
     [SerializeField] private InGameSceneManager inGameSceneManager;
 
@@ -45,6 +75,7 @@ public class PopUpManager : MonoBehaviour
 
     private ObjectData currentData;
     private bool isPopupVisible = false;
+    private ObjectType currentObjectType = ObjectType.WaterTile;
 
     private void Start()
     {
@@ -55,7 +86,6 @@ public class PopUpManager : MonoBehaviour
             player.OnAPChanged += OnAPChanged;
         }
 
-        HidePopup();
 
         debrisStatsPanel.SetActive(false);
         fishStatsPanel.SetActive(false);
@@ -71,6 +101,20 @@ public class PopUpManager : MonoBehaviour
 
         if (debristechTreeButton != null)
             debristechTreeButton.onClick.AddListener(OnTechTreeButtonPressed);
+
+        if (infoButton != null)
+            infoButton.onClick.AddListener(OnInfoButtonPressed);
+
+        if (notTameCreaturebackButton != null)
+            notTameCreaturebackButton.onClick.AddListener(HideAllInfoPopup);
+
+        if (notTameCreatureTechTreeButton != null)
+            notTameCreatureTechTreeButton.onClick.AddListener(OnTechTreeButtonPressed);
+
+        if (tamedCreatureBackButton != null)
+            tamedCreatureBackButton.onClick.AddListener(HideAllInfoPopup);
+
+        HidePopup();
     }
 
     private void OnDestroy()
@@ -108,6 +152,14 @@ public class PopUpManager : MonoBehaviour
             case ObjectType.Debris:
                 if (debrisButton != null) debrisButton.SetActive(true);
                 break;
+            case ObjectType.Ruins:
+            case ObjectType.Kraken:
+            case ObjectType.Turtle:
+                if (infoButton != null)
+                {
+                    infoButton.gameObject.SetActive(true);
+                }
+                break;
         }
         UpdateButtonVisibility();
         gameObject.SetActive(true);
@@ -125,18 +177,136 @@ public class PopUpManager : MonoBehaviour
     {
         if (fishButtons != null) fishButtons.SetActive(false);
         if (debrisButton != null) debrisButton.SetActive(false);
+        if (infoButton != null) infoButton.gameObject.SetActive(false);
+
+        HideAllInfoPopup();
+
         if (techTreeButton != null) techTreeButton.gameObject.SetActive(false);
         if (debristechTreeButton != null) debristechTreeButton.gameObject.SetActive(false);
+        if (extractFishButton != null) extractFishButton.gameObject.SetActive(false);
+        if (extractDebrisButton != null) extractDebrisButton.gameObject.SetActive(false);
+    }
+
+    public void HideAllInfoPopup()
+    {
+        if (fishStatsPanel != null) fishStatsPanel.SetActive(false);
+        if (debrisStatsPanel != null) debrisStatsPanel.SetActive(false);
+        if (ruinsInfoPopup != null) ruinsInfoPopup.SetActive(false);
+        if (creatureStatsPopup != null) creatureStatsPopup.SetActive(false);
+        if (creatureInfoPopup != null) creatureInfoPopup.SetActive(false);
+    }
+
+    public void OnInfoButtonPressed()
+    {
+        if (currentData == null) return;
+
+        HideAllInfoPopup();
+
+        switch (currentData.objectType)
+        {
+            case ObjectType.Ruins:
+                ShowRuinsInfoPanel();
+                break;
+            case ObjectType.Kraken:
+            case ObjectType.Turtle:
+                if (TechTree.Instance?.IsTaming == true)
+                {
+                    creatureIconImage.sprite = currentData.icon;
+                    creatureTitleText.text = currentData.objectName;
+
+                    int hp = 20;
+                    int attack = 100;
+                    int movement = 1;
+                    int range = 1;
+
+                    hpText.text = $"{hp} HP;";
+                    attackText.text = $"{attack} ATTACK";
+                    movementText.text =  $"{movement} TILE";
+                    rangeText.text =  $"{range} RANGE";
+
+                    creatureStatsPopup?.SetActive(true);
+                }
+                else
+                {
+                    notTameCreatureTitleText.text = currentData.objectName;
+                    notTameCreatureDescriptionText.text = currentData.description;
+                    creatureIconImage.sprite = currentData.icon;
+
+                    creatureInfoPopup?.SetActive(true);
+                }
+                    ShowCreatureInfoOrLockedPanel();
+                break;
+        }
+    }
+
+    private void ShowRuinsInfoPanel()
+    {
+        // Optional: you could show description again, but it's already in main popup
+        // For now, just show an acknowledgment panel
+        if (ruinsInfoPopup != null)
+            ruinsInfoPopup.SetActive(true);
+        // If you want dynamic text:
+        // ruinsInfoText.text = currentData.description;
+    }
+
+    private void ShowCreatureInfoOrLockedPanel()
+    {
+        TechTree techTree = TechTree.Instance;
+        bool isTamingUnlocked = techTree != null && techTree.IsTaming;
+
+        if (!isTamingUnlocked)
+        {
+            // Show locked panel
+            if (notTameCreatureTitleText != null)
+                notTameCreatureTitleText.text = currentData.objectName;
+            if (notTameCreatureDescriptionText != null)
+                notTameCreatureDescriptionText.text =
+                    $"This majestic creature remains wild. Unlock the \"Taming\" technology to interact with it.";
+            if (creatureIconImage != null)
+                creatureIconImage.sprite = currentData.icon;
+
+            if (creatureInfoPopup != null)
+                creatureInfoPopup.SetActive(true);
+        }
+        else
+        {
+            ShowCreatureStatsPanel();
+        }
+    }
+
+    private void ShowCreatureStatsPanel()
+    {
+        // Populate generic info
+        if (creatureTitleText != null)
+            creatureTitleText.text = currentData.objectName;
+        if (creatureDescriptionText != null)
+            creatureDescriptionText.text = currentData.description;
+        if (creatureIconImage != null)
+            creatureIconImage.sprite = currentData.icon;
+
+        string stats = "HP: ???\n ATK: ???\n Move: ???";
+
+        // If you later link to actual monster:
+        // SeaMonsterBase monster = GetMonsterFromCurrentSelection();
+        // if (monster != null) { ... format stats ... }
+
+        if (statsText != null)
+            statsText.text = stats;
+
+        if (creatureStatsPopup != null)
+            creatureStatsPopup.SetActive(true);
     }
 
     public void OpenFishStats()
     {
+        HideAllInfoPopup();
         fishStatsPanel.SetActive(true);
         UpdateButtonVisibility();
     }
 
     public void OpenDebrisStats()
     {
+        HideAllInfoPopup();
         debrisStatsPanel.SetActive(true);
         UpdateButtonVisibility();
     }
@@ -152,31 +322,6 @@ public class PopUpManager : MonoBehaviour
 
     private void UpdateButtonVisibility()
     {
-        //if (currentData == null) return;
-
-        //TechTree techTree = FindAnyObjectByType<TechTree>();
-        //if (techTree == null) return;
-
-        //bool isUnlocked = false;
-        //bool showTechTreeButton = false;
-
-        //switch (currentData.objectType)
-        //{
-        //    case ObjectType.Fish:
-        //        isUnlocked = techTree.IsFishing;
-        //        showTechTreeButton = !isUnlocked;
-        //        break;
-        //    case ObjectType.Debris:
-        //        isUnlocked = techTree.IsMetalScraps;
-        //        showTechTreeButton = !isUnlocked;
-        //        break;
-        //}
-
-        //// Show/hide appropriate buttons
-        //if (extractFishButton != null) extractFishButton.gameObject.SetActive(!showTechTreeButton && currentData.objectType == ObjectType.Fish);
-        //if (extractDebrisButton != null) extractDebrisButton.gameObject.SetActive(!showTechTreeButton && currentData.objectType == ObjectType.Debris);
-        //if (techTreeButton != null) techTreeButton.gameObject.SetActive(showTechTreeButton);
-
         if (currentData == null) return;
 
         TechTree techTree = FindAnyObjectByType<TechTree>();

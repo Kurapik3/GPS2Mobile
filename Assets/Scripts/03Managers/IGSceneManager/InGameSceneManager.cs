@@ -24,6 +24,8 @@ public class InGameSceneManager : MonoBehaviour
     [SerializeField] private Vector2 centrePos = new Vector2(0, 0);
     [SerializeField] private Vector2 offScreenPos = new Vector2(0, -1000);
 
+    private ConfirmPopup confirmPopup;
+
     private void Start()
     {
         ManagerAudio.instance.PlayMusic("BGM");

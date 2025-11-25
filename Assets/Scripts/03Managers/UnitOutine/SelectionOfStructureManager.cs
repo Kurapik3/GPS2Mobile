@@ -6,8 +6,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
-using TouchPhase = UnityEngine.InputSystem.TouchPhase;
-
+using UnityEngine.UI;
+using TMPro;
 
 public class SelectionOfStructureManager : MonoBehaviour
 {
@@ -15,6 +15,7 @@ public class SelectionOfStructureManager : MonoBehaviour
 
     public List<GameObject> allStructureList = new List<GameObject>();
     public List<GameObject> structureSelected = new List<GameObject>();
+
 
     [Header("Input Settings")]
     [SerializeField] private LayerMask structure;
@@ -24,6 +25,11 @@ public class SelectionOfStructureManager : MonoBehaviour
     [Header("UI Animation")]
     [SerializeField] private RectTransform structureInfoPanelMove;
     [SerializeField] private RectTransform structureStatusWindowMove;
+    [SerializeField] private RectTransform builderSpawnConfirmationWindowMove;
+    [SerializeField] private RectTransform scoutSpawnConfirmationWindowMove;
+    [SerializeField] private RectTransform bomberSpawnConfirmationWindowMove;
+    [SerializeField] private RectTransform tankerSpawnConfirmationWindowMove;
+    [SerializeField] private RectTransform shooterSpawnConfirmationWindowMove;
     [SerializeField] private Ease easing;
     [SerializeField] private float moveDuration = 1f;
 
@@ -37,7 +43,7 @@ public class SelectionOfStructureManager : MonoBehaviour
     [SerializeField] private CanvasGroup panel;
 
     [Header("Selection Indicator")]
-    [SerializeField] private string selectionIndicatorTag = "SelectionIndicator"; // Tag for the indicator child
+    [SerializeField] private string selectionIndicatorTag = "SelectionIndicator"; 
 
     private Camera cam;
     private bool isStatusClosed = false;
@@ -82,6 +88,11 @@ public class SelectionOfStructureManager : MonoBehaviour
         // Set initial positions off-screen
         structureInfoPanelMove.anchoredPosition = offScreenPos;
         structureStatusWindowMove.anchoredPosition = offScreenPos;
+        builderSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
+        scoutSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
+        bomberSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
+        tankerSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
+        shooterSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
 
         Application.targetFrameRate = 60;
     }
@@ -251,6 +262,8 @@ public class SelectionOfStructureManager : MonoBehaviour
         panel.blocksRaycasts = false;
     }
 
+
+
     private void OnDestroy()
     {
         // Cleanup
@@ -291,6 +304,89 @@ public class SelectionOfStructureManager : MonoBehaviour
 
         TreeBase tb = selectedObj.GetComponent<TreeBase>();
         return tb; // returns null if not a TreeBase
+    }
+    private void OpenBuilderConfirmationPopupMovement()
+    {
+        builderSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void OpenScoutConfirmationPopupMovement()
+    {
+        scoutSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void OpenBomberConfirmationPopupMovement()
+    {
+        bomberSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void OpenTankerConfirmationPopupMovement()
+    {
+        tankerSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void OpenShooterConfirmationPopupMovement()
+    {
+        shooterSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+
+    private void CloseBuilderConfirmationPopupMovement()
+    {
+        builderSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void CloseScoutConfirmationPopupMovement()
+    {
+        scoutSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void CloseBomberConfirmationPopupMovement()
+    {
+        bomberSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void CloseTankerConfirmationPopupMovement()
+    {
+        tankerSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void CloseShooterConfirmationPopupMovement()
+    {
+        shooterSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+
+    public void OpenBuilderConfirmationPopup()
+    {
+        OpenBuilderConfirmationPopupMovement();
+    }
+    public void OpenScoutConfirmationPopup()
+    {
+        OpenScoutConfirmationPopupMovement();
+    }
+    public void OpenShooterConfirmationPopup()
+    {
+        OpenShooterConfirmationPopupMovement();
+    }
+    public void OpenBomberConfirmationPopup()
+    {
+        OpenBomberConfirmationPopupMovement();
+    }
+    public void OpenTankerConfirmationPopup()
+    {
+        OpenTankerConfirmationPopupMovement();
+    }
+
+    public void CloseBuilderConfirmationPopup()
+    {
+        CloseBuilderConfirmationPopupMovement();
+    }
+    public void CloseScoutConfirmationPopup()
+    {
+        CloseScoutConfirmationPopupMovement();
+    }
+    public void CloseBomberConfirmationPopup()
+    {
+        CloseBomberConfirmationPopupMovement();
+    }
+    public void CloseTankerConfirmationPopup()
+    {
+        CloseTankerConfirmationPopupMovement();
+    }
+    public void CloseShooterConfirmationPopup()
+    {
+        CloseShooterConfirmationPopupMovement();
     }
 
 }

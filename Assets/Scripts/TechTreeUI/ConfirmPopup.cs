@@ -1,198 +1,3 @@
-////using TMPro;
-////using UnityEngine;
-////using UnityEngine.UI;
-
-////public class ConfirmPopup : MonoBehaviour
-////{
-////    public TextMeshProUGUI titleText;
-////    public TextMeshProUGUI descriptionText;
-////    public Button researchButton;
-
-////    private TechNode selectedNode;
-////    private PlayerTracker player;
-
-
-////    private void Awake()
-////    {
-////        player = FindAnyObjectByType<PlayerTracker>();
-
-////        if (researchButton == null)
-////        {
-////            Debug.LogError("[ConfirmPopup] Research button not assigned!");
-////        }
-////        else
-////        {
-////            // Clear previous listeners to prevent duplicate calls
-////            researchButton.onClick.RemoveAllListeners();
-////            researchButton.onClick.AddListener(OnResearch);
-////        }
-
-////        gameObject.SetActive(false);
-////    }
-
-////    public void Setup(TechNode node)
-////    {
-////        //if (node == null)
-////        //{
-////        //    Debug.LogError("[ConfirmPopup] Setup() called with null node!");
-////        //    return;
-////        //}
-
-////        //selectedNode = node;
-////        //titleText.text = $"{node.techName} ({node.costAP} AP)";
-////        //descriptionText.text = "This Tech will enable the following:";
-
-////        //bool canAfford = player.getAp() >= node.costAP;
-////        //researchButton.interactable = canAfford;
-
-////        //var colors = researchButton.colors;
-////        //colors.normalColor = canAfford ? Color.white : Color.gray;
-////        //researchButton.colors = colors;
-
-////        if (node == null)
-////        {
-////            Debug.LogError("[ConfirmPopup] Setup() called with null node!");
-////            return;
-////        }
-
-////        // Remove listeners before adding to prevent duplicates
-////        researchButton.onClick.RemoveAllListeners();
-////        researchButton.onClick.AddListener(OnResearch);
-
-////        selectedNode = node;
-////        titleText.text = $"{node.techName} ({node.costAP} AP)";
-////        descriptionText.text = "This Tech will enable the following:";
-
-////        bool canAfford = player.getAp() >= node.costAP;
-////        researchButton.interactable = canAfford;
-
-////        var colors = researchButton.colors;
-////        colors.normalColor = canAfford ? Color.white : Color.gray;
-////        researchButton.colors = colors;
-////    }
-
-////    public void OnResearch()
-////    {
-////        if (selectedNode == null)
-////        {
-////            Debug.LogError("[ConfirmPopup] Cannot research — no tech node selected! (Did Setup() run?)");
-////            return;
-////        }
-
-////        if (player == null)
-////        {
-////            Debug.LogError("[ConfirmPopup] No PlayerTracker found!");
-////            return;
-////        }
-
-////        if (player.getAp() >= selectedNode.costAP)
-////        {
-////            player.useAP(selectedNode.costAP);
-////            selectedNode.Unlock();
-////            Debug.Log("Research " + selectedNode.techName);
-////        }
-////        else
-////        {
-////            Debug.Log("Not Enough AP");
-////        }
-
-////        gameObject.SetActive(false);
-////    }
-
-////    public void OnBack()
-////    {
-////        gameObject.SetActive(false);
-////    }
-
-////}
-
-//using TMPro;
-//using UnityEngine;
-//using UnityEngine.UI;
-
-//public class ConfirmPopup : MonoBehaviour
-//{
-//    public TextMeshProUGUI titleText;
-//    public TextMeshProUGUI descriptionText;
-//    public Button researchButton;
-
-//    private TechNode selectedNode;
-//    private PlayerTracker player;
-
-//    private void Awake()
-//    {
-//        player = FindAnyObjectByType<PlayerTracker>();
-
-//        if (researchButton == null)
-//        {
-//            Debug.LogError("[ConfirmPopup] Research button not assigned!");
-//        }
-//        else
-//        {
-//            researchButton.onClick.RemoveAllListeners();
-//            researchButton.onClick.AddListener(OnResearch);
-//        }
-
-//        gameObject.SetActive(false);
-//    }
-
-//    public void Setup(TechNode node)
-//    {
-//        if (node == null)
-//        {
-//            Debug.LogError("[ConfirmPopup] Setup() called with null node!");
-//            return;
-//        }
-
-//        // Clear any existing listeners to prevent duplicates
-//        researchButton.onClick.RemoveAllListeners();
-//        researchButton.onClick.AddListener(OnResearch);
-
-//        selectedNode = node;
-//        titleText.text = $"{node.techName} ({node.costAP} AP)";
-//        descriptionText.text = "This Tech will enable the following:";
-
-//        bool canAfford = player.getAp() >= node.costAP;
-//        researchButton.interactable = canAfford;
-
-//        var colors = researchButton.colors;
-//        colors.normalColor = canAfford ? Color.white : Color.gray;
-//        researchButton.colors = colors;
-//    }
-
-//    public void OnResearch()
-//    {
-//        if (selectedNode == null)
-//        {
-//            Debug.LogError("[ConfirmPopup] Cannot research — no tech node selected! (Did Setup() run?)");
-//            return;
-//        }
-
-//        if (player == null)
-//        {
-//            Debug.LogError("[ConfirmPopup] No PlayerTracker found!");
-//            return;
-//        }
-
-//        if (player.getAp() >= selectedNode.costAP)
-//        {
-//            player.useAP(selectedNode.costAP);
-//            selectedNode.Unlock();
-//            Debug.Log($"Research completed: {selectedNode.techName}");
-//        }
-//        else
-//        {
-//            Debug.Log("Not Enough AP");
-//        }
-
-//        gameObject.SetActive(false);
-//    }
-
-//    public void OnBack()
-//    {
-//        gameObject.SetActive(false);
-//    }
-//}
 
 using TMPro;
 using UnityEngine;
@@ -203,6 +8,8 @@ public class ConfirmPopup : MonoBehaviour
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI descriptionText;
     public Button researchButton;
+    public Button infoButton;
+    public Image iconImage;
 
     private TechNode selectedNode;
     private PlayerTracker player;
@@ -219,6 +26,12 @@ public class ConfirmPopup : MonoBehaviour
         {
             researchButton.onClick.RemoveAllListeners();
             researchButton.onClick.AddListener(OnResearch);
+        }
+
+        if (infoButton != null) 
+        {
+            infoButton.onClick.RemoveAllListeners();
+            infoButton.onClick.AddListener(OnInfo);
         }
 
         gameObject.SetActive(false);
@@ -245,6 +58,34 @@ public class ConfirmPopup : MonoBehaviour
         var colors = researchButton.colors;
         colors.normalColor = canAfford ? Color.white : Color.gray;
         researchButton.colors = colors;
+
+        int currentAP = player?.getAp() ?? 0;
+        if (currentAP >= node.costAP)
+        {
+            descriptionText.text = "This Tech will enable the following:";
+            researchButton.interactable = true;
+            var buttonText = researchButton.GetComponentInChildren<TextMeshProUGUI>();
+            researchButton.GetComponentInChildren<TextMeshProUGUI>().text = "Research";
+        }
+        else
+        {
+            descriptionText.text = $"You do not have enough AP to unlock the following tech: {node.techName}";
+            researchButton.interactable = false;
+            var buttonText = researchButton.GetComponentInChildren<TextMeshProUGUI>();
+            researchButton.GetComponentInChildren<TextMeshProUGUI>().text = "Insufficient AP";
+        }
+
+
+        if (iconImage != null && node.icon != null)
+        {
+            iconImage.gameObject.SetActive(true);
+            iconImage.sprite = node.icon;
+        }
+        else if (iconImage != null)
+        {
+            iconImage.gameObject.SetActive(false); // Hide if no icon
+        }
+
     }
 
     public void OnResearch()
@@ -261,6 +102,12 @@ public class ConfirmPopup : MonoBehaviour
             return;
         }
 
+        if (player.getAp() < selectedNode.costAP)
+        {
+            Debug.Log("Not enough AP to research!");
+            return;
+        }
+
         // Use TechTree to handle the unlock logic
         bool success = TechTree.Instance.UnlockTech(selectedNode.techName, selectedNode.costAP);
 
@@ -268,6 +115,12 @@ public class ConfirmPopup : MonoBehaviour
         {
             // Let the node know it's unlocked to update visuals
             selectedNode.Unlock();
+
+            var extractionButtons = FindObjectsOfType<ExtractionButtonStatus>();
+            foreach (var btn in extractionButtons)
+            {
+                btn.ForceRefresh();
+            }
         }
 
         gameObject.SetActive(false);
@@ -277,4 +130,16 @@ public class ConfirmPopup : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
+
+    public void OnInfo()
+    {
+        if (selectedNode != null && TechTreeUI.instance != null)
+        {
+            TechTreeUI.instance.OpenInfoPopUp(selectedNode);
+        }
+        // Optional: Hide ConfirmPopup while info is open
+        gameObject.SetActive(false);
+    }
+
+
 }

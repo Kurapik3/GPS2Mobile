@@ -61,7 +61,7 @@ public class EnemyBase : MonoBehaviour
         else
             Debug.LogError("[EnemyBase] EnemyBaseManager not found in scene!");
 
-        if (EnemyTurfManager.Instance != null)
+        if (EnemyTurfManager.Instance != null && currentTile != null)
             EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius, this);
 
 
@@ -74,7 +74,7 @@ public class EnemyBase : MonoBehaviour
         if (EnemyBaseManager.Instance != null)
             EnemyBaseManager.Instance.UnregisterBase(this);
 
-        if (EnemyTurfManager.Instance != null)
+        if (EnemyTurfManager.Instance != null && currentTile != null)
             EnemyTurfManager.Instance.UnregisterBaseArea(currentTile.HexCoords, currentTurfRadius);
     }
 

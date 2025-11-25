@@ -112,7 +112,7 @@ public class TurnManager : MonoBehaviour
         if (currentTurn > maxTurns)
         {
             Debug.Log("[TurnManager] Max turns reached! Calling EndGame or CheckEnding.");
-            //EndGame();
+            EndGame();
             GameManager.Instance?.CheckEnding();
             return;
         }
@@ -197,8 +197,7 @@ public class TurnManager : MonoBehaviour
         // Optional: Disable other UI elements like End Turn button
         if (endTurnButton != null)
             endTurnButton.interactable = false;
-
-        // Optional: Perform other end-game cleanup here
+        
     }
 
 }
