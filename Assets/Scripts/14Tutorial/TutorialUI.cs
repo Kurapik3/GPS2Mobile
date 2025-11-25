@@ -53,7 +53,7 @@ public class TutorialUI : MonoBehaviour
                 break;
             case TutorialStage.WowGrove:
                 icon.sprite = WowGrove;
-                Text.text = " Wow, a grove! Send Builder to build base. ";
+                Text.text = "Wow, a grove! Send Builder to build base. ";
                 break;
         }
     }
