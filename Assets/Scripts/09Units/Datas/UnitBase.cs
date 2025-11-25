@@ -239,6 +239,10 @@ public abstract class UnitBase : MonoBehaviour
         else if (target.currentSeaMonster != null)
         {
             target.currentSeaMonster.TakeDamage(attack);
+            if(TechTree.Instance.IsHunterMask)
+            {
+                target.currentSeaMonster.TakeDamage(5);
+            }
             //Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
             HasAttackThisTurn = false;
         }
@@ -299,7 +303,8 @@ public abstract class UnitBase : MonoBehaviour
         {
             HideRangeIndicators();
         }
-        
+
+        EventBus.Publish(new SeaMonsterEvents.UnitSelectedEvent(this, selected));
     }
     private void UpdateSelectionVisual()
     {

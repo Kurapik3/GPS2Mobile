@@ -51,7 +51,7 @@ public class AggressiveState : MonoBehaviour
         {
             eum.LockState(id);
 
-            if (eum.IsBuilderUnit(id))
+            if (eum.IsUnitType(id, "Builder"))
             {
                 Debug.Log($"[AggressiveAI] Unit {id} is Builder, do nothing.");
                 continue;
@@ -172,6 +172,8 @@ public class AggressiveState : MonoBehaviour
             //Player units
             if (tile.currentUnit != null)
             {
+                if (TechTree.instance.IsCamouflage && tile.currentUnit.unitName == "Scout")
+                    continue;
                 unitTargets.Add(tile.currentUnit.gameObject);
                 Debug.Log($"[AggressiveAI] Found PlayerUnit target at {hex}");
             }
@@ -199,7 +201,7 @@ public class AggressiveState : MonoBehaviour
             return false;
 
         var sea = target.GetComponent<SeaMonsterBase>();
-        if (sea != null && sea.Health <= 0) return false;
+        if (sea != null && sea.health <= 0) return false;
 
         return true;
     }

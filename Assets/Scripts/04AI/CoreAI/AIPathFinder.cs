@@ -143,7 +143,7 @@ public static class AIPathFinder
         if (monster.currentTile == null)
             return null;
 
-        var reachable = GetReachableHexes(monster.currentTile.HexCoords, monster.MovementRange);
+        var reachable = GetReachableHexes(monster.currentTile.HexCoords, monster.movementRange);
         if (reachable == null || reachable.Count == 0)
             return null;
 

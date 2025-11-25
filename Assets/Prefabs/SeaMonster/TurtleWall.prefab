@@ -55,7 +55,8 @@ MonoBehaviour:
   heightOffset: 2
   currentTile: {fileID: 0}
   CurrentTurn: 0
-  MonsterId: 0
+  untamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: 29673dfd5bae14a48bbbf4df52020536, type: 3}
+  tamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: a949b268732d84540a64bb647e3796f1, type: 3}
 --- !u!1001 &5000279707430172299
 PrefabInstance:
   m_ObjectHideFlags: 0
