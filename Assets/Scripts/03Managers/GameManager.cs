@@ -505,7 +505,7 @@ public class GameManager : MonoBehaviour
                         continue;
                     }
                     int countBefore = UnitManager.Instance.GetAllUnits().Count;
-                    //unitSpawner.SpawnUnit(prefab, csvIndex);
+                    unitSpawner.SpawnUnit(prefab, csvIndex, new Vector2Int(u.q, u.r));
 
                     var allUnits = UnitManager.Instance.GetAllUnits();
                     if (allUnits.Count <= countBefore)
