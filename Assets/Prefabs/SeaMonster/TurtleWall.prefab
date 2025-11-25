@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7424896864993732560}
   - component: {fileID: 960826563766814643}
+  - component: {fileID: 3091430344748947287}
   m_Layer: 18
   m_Name: TurtleWall
   m_TagString: TurtleWall
@@ -57,6 +58,29 @@ MonoBehaviour:
   CurrentTurn: 0
   untamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: 29673dfd5bae14a48bbbf4df52020536, type: 3}
   tamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: a949b268732d84540a64bb647e3796f1, type: 3}
+--- !u!136 &3091430344748947287
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2545025057684576442}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &5000279707430172299
 PrefabInstance:
   m_ObjectHideFlags: 0

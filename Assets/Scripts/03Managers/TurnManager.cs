@@ -108,13 +108,27 @@ public class TurnManager : MonoBehaviour
         Debug.Log("--- Sea Monster Turn ---");
 
         OnSeaMonsterTurnStart?.Invoke();
-
+        
         if (endTurnButton != null)
         {
             endTurnButton.interactable = false;
         }
 
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterTurnStartedEvent(currentTurn));
+        if(currentTurn == 9)
+        {
+            EventBus.Publish(new SeaMonsterEvents.SeaMonsterTurnStartedEvent(currentTurn));
+        }
+        else
+        {
+            //Only trigger untamed sea monster actions
+            foreach (var monster in SeaMonsterManager.Instance.ActiveMonsters)
+            {
+                if (monster.State == SeaMonsterState.Untamed)
+                {
+                    EventBus.Publish(new SeaMonsterEvents.SeaMonsterTurnStartedEvent(currentTurn));
+                }
+            }
+        }            
     }
 
     private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
@@ -123,11 +137,23 @@ public class TurnManager : MonoBehaviour
 
         EnemyUnitManager.Instance.ClearJustSpawnedUnits();
 
-        GameManager.Instance.CheckEnding();
-        EventBus.Publish(new ActionMadeEvent());
-        Debug.Log($"[TurnManager] Called GameManager.Instance?.CheckEnding();");
+        if(currentTurn >= 9)
+        {
+            StartSeaMonsterTurn();
+        }
+        else
+        {
+            currentTurn++;
+            isProcessingTurn = false;
+            foreach (var building in allBuildings) // gain AP
+                building.OnTurnStart();
 
-        StartSeaMonsterTurn();
+            GameManager.Instance.CheckEnding();
+            EventBus.Publish(new ActionMadeEvent());
+            Debug.Log($"[TurnManager] Called GameManager.Instance?.CheckEnding();");
+
+            StartPlayerTurn();
+        }
     }
 
     private void OnSeaMonsterTurnEnd(SeaMonsterEvents.SeaMonsterTurnEndEvent evt)

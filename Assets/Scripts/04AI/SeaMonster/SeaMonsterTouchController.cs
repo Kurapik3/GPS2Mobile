@@ -30,14 +30,14 @@ public class SeaMonsterTouchController : MonoBehaviour
         {
             // Detect sea monster
             SeaMonsterBase monster = hit.collider.GetComponentInParent<SeaMonsterBase>();
-            if (monster != null)
+            if (monster != null && monster.State == SeaMonsterState.Tamed)
             {
                 SelectMonster(monster);
                 return;
             }
 
             // Detect tile
-            if (selectedMonster != null && hit.collider.GetComponentInParent<HexTile>() is HexTile tile)
+            if (selectedMonster != null && selectedMonster.State == SeaMonsterState.Tamed && hit.collider.GetComponentInParent<HexTile>() is HexTile tile)
             {
                 selectedMonster.OnPlayerClickTile(tile);
                 return;
