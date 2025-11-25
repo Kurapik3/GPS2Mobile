@@ -1,10 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using DG.Tweening.Core.Easing;
-using Unity.VisualScripting;
 using UnityEngine;
-using static EnemyAIEvents;
 
 public abstract class UnitBase : MonoBehaviour
 {
@@ -362,7 +359,7 @@ public abstract class UnitBase : MonoBehaviour
         }
         StartCoroutine(MoveUnitPath(targetTile));
         //transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
-
+        ManagerAudio.instance.PlaySFX("UnitMove");
         //Update new tile
         currentTile = targetTile;
         currentTile.SetOccupiedByUnit(true); //Occupied new tile

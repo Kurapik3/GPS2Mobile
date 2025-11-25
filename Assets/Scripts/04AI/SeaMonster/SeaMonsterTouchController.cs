@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
@@ -8,7 +7,6 @@ public class SeaMonsterTouchController : MonoBehaviour
 {
     [SerializeField] private Camera cam;
     private SeaMonsterBase selectedMonster;
-    private List<HexTile> highlightedTiles = new List<HexTile>();
 
     private void Awake()
     {

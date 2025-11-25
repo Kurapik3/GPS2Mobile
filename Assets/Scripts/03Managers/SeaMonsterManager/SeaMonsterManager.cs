@@ -85,7 +85,7 @@ public class SeaMonsterManager : MonoBehaviour
     private IEnumerator SpawnSequence(int turn)
     {
         //SeaMonster warning (turn 10 only)
-        if (turn == 10)
+        if (turn == 9)
         {
             EventBus.Publish(new KrakenPreSpawnWarningEvent(turn));
             ManagerAudio.instance.PlaySFX("SeaMonsterSpawn");
