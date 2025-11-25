@@ -93,7 +93,7 @@ public class TreeBaseHPDisplay : MonoBehaviour
     public void OnLevelChanged()
     {
         Debug.Log("[TreeBaseHPDisplay] OnLevelChanged called");
-        /*UpdateHPDisplay();*/
+        UpdateHPDisplay();
         UpdateProgress();
     }
 
