@@ -2007,7 +2007,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 516931146761577387}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -2905,7 +2905,7 @@ RectTransform:
   m_Father: {fileID: 2814329109715779533}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -6338,6 +6338,7 @@ MonoBehaviour:
   costAP: 12
   prerequisites:
   - {fileID: 6956592089209192619}
+  icon: {fileID: 0}
   background: {fileID: 3756479418859514325}
   nameText: {fileID: 464852573807710566}
   costText: {fileID: 2173489608359594109}
@@ -6348,6 +6349,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &8584714462975108641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8574,10 +8576,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1115311429390406518}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -370, y: -450}
+  m_SizeDelta: {x: 240, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3613000858811486799
 CanvasRenderer:
@@ -9551,7 +9553,7 @@ RectTransform:
   m_Father: {fileID: 8409864887907349010}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -10090,6 +10092,7 @@ MonoBehaviour:
   techName: Home Defense
   costAP: 8
   prerequisites: []
+  icon: {fileID: 0}
   background: {fileID: 2472136986081453357}
   nameText: {fileID: 1671279462799575861}
   costText: {fileID: 91810792320240875}
@@ -10100,6 +10103,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &1178375638223828301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10189,7 +10193,7 @@ RectTransform:
   m_Father: {fileID: 5390897342583592487}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -11482,7 +11486,7 @@ RectTransform:
   m_Father: {fileID: 1815488177692722461}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.9465909, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
@@ -11865,6 +11869,7 @@ MonoBehaviour:
   techName: Mob Research
   costAP: 8
   prerequisites: []
+  icon: {fileID: 0}
   background: {fileID: 79692799107083863}
   nameText: {fileID: 2268188121304135997}
   costText: {fileID: 4766546681955492221}
@@ -11875,6 +11880,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &528308071320385103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12027,6 +12033,7 @@ MonoBehaviour:
   costAP: 8
   prerequisites:
   - {fileID: 2174864390786259797}
+  icon: {fileID: 0}
   background: {fileID: 6693147844270908488}
   nameText: {fileID: 6739068977815535440}
   costText: {fileID: 809036821371147188}
@@ -12037,6 +12044,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &3320434550255087119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13382,6 +13390,7 @@ MonoBehaviour:
   costAP: 18
   prerequisites:
   - {fileID: 1563206638781244643}
+  icon: {fileID: 0}
   background: {fileID: 5175924007675920523}
   nameText: {fileID: 5194074658546212462}
   costText: {fileID: 5002394215553343921}
@@ -13392,6 +13401,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &3835373888091244239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14388,7 +14398,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6772726693493201096
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14918,7 +14928,7 @@ RectTransform:
   m_Father: {fileID: 9175267150742348597}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.9465909, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -15415,7 +15425,6 @@ GameObject:
   - component: {fileID: 4732329901776659889}
   - component: {fileID: 3351096174997926496}
   - component: {fileID: 8900773197699052092}
-  - component: {fileID: 499550644212287717}
   m_Layer: 5
   m_Name: InfoPanel
   m_TagString: Untagged
@@ -15483,20 +15492,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &499550644212287717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3946128004611453318}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24c880ff61b92bd42bdacdd976d21b0c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  titleText: {fileID: 1372676365043235244}
-  descriptionText: {fileID: 7761777066936437346}
 --- !u!1 &3979417592355352702
 GameObject:
   m_ObjectHideFlags: 0
@@ -16153,8 +16148,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 602641686638314856}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -17106,7 +17101,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1115311429390406518
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17120,8 +17115,8 @@ RectTransform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1356013161893209310}
-  - {fileID: 2945789966286793341}
   - {fileID: 2466569173606455798}
+  - {fileID: 2945789966286793341}
   - {fileID: 1737205410351337724}
   - {fileID: 1810688473383178212}
   m_Father: {fileID: 6159222027115102284}
@@ -17184,6 +17179,8 @@ MonoBehaviour:
   titleText: {fileID: 6954655996672966354}
   descriptionText: {fileID: 71557593812443840}
   researchButton: {fileID: 2341909515223041284}
+  infoButton: {fileID: 0}
+  iconImage: {fileID: 0}
 --- !u!1 &4477392281682394660
 GameObject:
   m_ObjectHideFlags: 0
@@ -21996,6 +21993,7 @@ MonoBehaviour:
   prerequisites:
   - {fileID: 3330641573959927970}
   - {fileID: 1563206638781244643}
+  icon: {fileID: 0}
   background: {fileID: 6331052268428686065}
   nameText: {fileID: 6042635745831088301}
   costText: {fileID: 3702140846752110983}
@@ -22007,6 +22005,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &7315615320106805220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22872,6 +22871,7 @@ MonoBehaviour:
   techName: Scouting
   costAP: 5
   prerequisites: []
+  icon: {fileID: 0}
   background: {fileID: 2661620152207816933}
   nameText: {fileID: 6075815687851098243}
   costText: {fileID: 5750311346068925098}
@@ -22882,6 +22882,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &3024223355527213012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24043,6 +24044,7 @@ MonoBehaviour:
   techName: Fishing
   costAP: 4
   prerequisites: []
+  icon: {fileID: 0}
   background: {fileID: 9191313800163602184}
   nameText: {fileID: 3857716797362658866}
   costText: {fileID: 2870650396402473530}
@@ -24053,6 +24055,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!1 &6328537438750183065
 GameObject:
   m_ObjectHideFlags: 0
@@ -24210,6 +24213,7 @@ MonoBehaviour:
   costAP: 30
   prerequisites:
   - {fileID: 3708707111169771164}
+  icon: {fileID: 0}
   background: {fileID: 6715873650135782563}
   nameText: {fileID: 7135306395882822754}
   costText: {fileID: 4991099527165198823}
@@ -24220,6 +24224,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &55050482775704168
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24928,8 +24933,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5591185375657650125}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -25284,6 +25289,7 @@ MonoBehaviour:
   costAP: 13
   prerequisites:
   - {fileID: 3330641573959927970}
+  icon: {fileID: 0}
   background: {fileID: 798576068944951884}
   nameText: {fileID: 2011092465696381305}
   costText: {fileID: 1810952283591416727}
@@ -25294,6 +25300,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &8195749378026141635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26267,8 +26274,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1050613391190018765}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -29041,7 +29048,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6535757318262081877
 RectTransform:
   m_ObjectHideFlags: 0
@@ -29212,6 +29219,7 @@ MonoBehaviour:
   costAP: 16
   prerequisites:
   - {fileID: 4018292797029114087}
+  icon: {fileID: 0}
   background: {fileID: 1971936053069913163}
   nameText: {fileID: 7531350655778711130}
   costText: {fileID: 7333159970780647580}
@@ -29222,6 +29230,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &8907844704602040428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32917,6 +32926,8 @@ MonoBehaviour:
   nodeParent: {fileID: 0}
   confirmPopup: {fileID: 4476072439311568438}
   infoPopup: {fileID: 3946128004611453318}
+  techInfoPopup: {fileID: 0}
+  unitInfoPopup: {fileID: 0}
 --- !u!1 &8601944965904031180
 GameObject:
   m_ObjectHideFlags: 0
@@ -34405,6 +34416,7 @@ MonoBehaviour:
   costAP: 16
   prerequisites:
   - {fileID: 856937111782818582}
+  icon: {fileID: 0}
   background: {fileID: 6088903108514864597}
   nameText: {fileID: 7533974080349818116}
   costText: {fileID: 682965291313169130}
@@ -34415,6 +34427,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &7069489814805513316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34903,6 +34916,7 @@ MonoBehaviour:
   costAP: 5
   prerequisites:
   - {fileID: 7234634854746028154}
+  icon: {fileID: 0}
   background: {fileID: 805766748691513567}
   nameText: {fileID: 2103929025622716167}
   costText: {fileID: 9094476391425445955}
@@ -34913,6 +34927,7 @@ MonoBehaviour:
   lockedSprite: {fileID: 21300000, guid: 4a7176e285323914a9a0bfc916aa2891, type: 3}
   unlockedSprite: {fileID: 21300000, guid: 10a1a2b8ba1cf864cbc194d2ff036095, type: 3}
   availableSprite: {fileID: 21300000, guid: 9fa22dc5bce989d4c9820a0e6916bae0, type: 3}
+  notEnoughSprite: {fileID: 0}
 --- !u!114 &712262760870272110
 MonoBehaviour:
   m_ObjectHideFlags: 0

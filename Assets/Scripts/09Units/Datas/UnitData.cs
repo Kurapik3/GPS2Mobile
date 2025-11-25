@@ -9,9 +9,10 @@ public class UnitData
     public int attack { get; private set; }
     public bool isCombat { get; private set; }
     public string ability { get; private set; }
+    public string description { get; private set; }
 
 
-    public UnitData(string Name,int Cost, int Range, int Movement, int Hp, int Atk, bool IsCombat, string Ability)
+    public UnitData(string Name,int Cost, int Range, int Movement, int Hp, int Atk, bool IsCombat, string Ability, string Description = "")
     {
         unitName = Name;
         cost = Cost;
@@ -21,6 +22,7 @@ public class UnitData
         attack = Atk;
         isCombat = IsCombat;
         ability = Ability;
+        description = Description;
     }
 
 
