@@ -268,7 +268,7 @@ public abstract class UnitBase : MonoBehaviour
     protected virtual void Die()
     {
         Debug.Log($"{unitName} has died!");
-
+        ManagerAudio.instance.PlaySFX("UnitDie");
         //Release current tile
         if (currentTile != null)
         {

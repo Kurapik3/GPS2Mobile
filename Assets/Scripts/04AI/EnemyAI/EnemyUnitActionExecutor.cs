@@ -63,7 +63,12 @@ public class EnemyActionExecutor : MonoBehaviour
 
             GameObject unitGO = Instantiate(prefab, world, Quaternion.identity);
             unitGO.name = $"Enemy_{evt.UnitType}_{unitManager.NextUnitId}";
-            ManagerAudio.instance.PlaySFX("UnitSpawn");
+
+            int unitId = unitManager.NextUnitId - 1;
+            if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(unitId))
+            {
+                ManagerAudio.instance.PlaySFX("UnitSpawn");
+            }
             unitManager.RegisterUnit(unitGO, evt.BaseId, evt.UnitType, spawnHex);
         }
         finally
@@ -119,6 +124,11 @@ public class EnemyActionExecutor : MonoBehaviour
         {
             Debug.LogWarning($"[EnemyActionExecutor] Move Abort! Unit {unitId} can't move to {toHex}, which is not standable.");
             yield break;
+        }
+
+        if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(unitId))
+        {
+            ManagerAudio.instance.PlaySFX("UnitMove");
         }
 
         //Register new tile immediately
@@ -405,7 +415,10 @@ public class EnemyActionExecutor : MonoBehaviour
         Vector3 spawnPos = MapManager.Instance.HexToWorld(evt.GrovePosition);
         spawnPos.y += 2f;
         GameObject newEnemyBaseObj = Instantiate(EnemyBaseManager.Instance.basePrefab, spawnPos, Quaternion.identity);
-        ManagerAudio.instance.PlaySFX("BuilderBuilding");
+        if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(evt.UnitId))
+        {
+            ManagerAudio.instance.PlaySFX("BuilderBuilding");
+        }
 
         HexTile spawnTile = MapManager.Instance.GetTileAtHexPosition(evt.GrovePosition);
         spawnTile.SetContentsVisible(false);
