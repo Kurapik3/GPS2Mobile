@@ -5,7 +5,9 @@ using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private MapGenerator mapGenerator;
@@ -433,10 +435,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("Failure Ending - Defeat");
     }
 
-#if UNITY_EDITOR
-    [ContextMenu("Clear Saved Data")]
-        void EditorClearSave() => ClearSave();
-#endif
+
 
     private void OnMapReady(MapGenerator gen)
     {
@@ -596,5 +595,28 @@ public class GameManager : MonoBehaviour
     }
     //GameManager.Instance?.SaveGame(); <- use for settings to main menu button
     //also add EventBus.Publish(new ActionMadeEvent()); to after player movement, player attack, after tech tree researched, after tree base upgrade, after extract tiles, after tame sea creature
+#if UNITY_EDITOR
+    [ContextMenu("Clear Saved Data")]
+    void EditorClearSave() => ClearSave();
 
+#endif
 }
+
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(GameManager))]
+public class GameManagerInspector : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        GameManager editor = (GameManager)target;
+        GUILayout.Space(10);
+        if (GUILayout.Button("Clear Saved Data"))
+        {
+            editor.ClearSave();
+        }
+    }
+}
+#endif

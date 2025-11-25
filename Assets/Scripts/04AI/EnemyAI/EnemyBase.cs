@@ -199,5 +199,8 @@ public class EnemyBase : MonoBehaviour
         //Enable current level model
         int idx = Mathf.Clamp(level - 1, 0, levelModels.Length - 1);
         levelModels[idx].SetActive(true);
+
+        if (currentTile != null && currentTile.IsFogged)
+            currentTile.SetContentsVisible(false);
     }
 }
