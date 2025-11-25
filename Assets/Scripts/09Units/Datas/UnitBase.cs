@@ -185,7 +185,7 @@ public abstract class UnitBase : MonoBehaviour
         GameObject targetGO = GetTargetGameObject(target);
         if (targetGO != null)
         {
-            Knockback(targetGO, (targetGO.transform.position - transform.position).normalized, () =>
+            Knockback(targetGO, this.transform.forward.normalized, () =>
             {
                 ApplyDamage(target, attack, splashRadius); //Play animation first, then apply damage
             });
