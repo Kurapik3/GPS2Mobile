@@ -23,16 +23,20 @@ public class TurfManager : MonoBehaviour
     public void AddTurfArea(HexTile centerTile, int radius)
     {
         var tiles = MapManager.Instance.GetNeighborsWithinRadius(centerTile.q, centerTile.r, radius);
+        tiles.Add(centerTile); // also add the center tile
 
         foreach (var t in tiles)
         {
-            turfTiles.Add(t);
-            t.SetTurf(true);  // mark the tile as part of turf
+            if (!MapManager.Instance.IsTileClaimed(t.HexCoords))
+            {
+                turfTiles.Add(t);
+                t.SetTurf(true);  // mark the tile as part of turf
+            }
+            else
+            {
+                Debug.Log($"Tile ({t.q},{t.r}) skipped, already claimed.");
+            }
         }
-
-        // also add the center tile
-        turfTiles.Add(centerTile);
-        centerTile.SetTurf(true);
 
         OnTurfChanged?.Invoke();
         Debug.Log($"Turf claimed at center ({centerTile.q},{centerTile.r}) with radius {radius}");

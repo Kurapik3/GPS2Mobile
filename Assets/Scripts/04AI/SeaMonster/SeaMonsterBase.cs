@@ -19,6 +19,7 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     public string MonsterName => monsterName;
     public int MovementRange => movementRange;
+    public int Health => health;
 
     [Header("Visual")]
     [SerializeField] public float heightOffset = 2f;

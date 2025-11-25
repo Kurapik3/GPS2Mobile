@@ -101,7 +101,7 @@ public class AggressiveState : MonoBehaviour
                 Debug.Log($"[AggressiveAI] Unit {id} will attack PLAYER UNIT: {target.name} at {target.transform.position}");
             }
 
-            if (target != null)
+            if (target != null && IsTargetValid(target))
             {
                 EventBus.Publish(new EnemyAttackRequestEvent(id, target));
                 eum.MarkUnitAsActed(id);
@@ -145,7 +145,7 @@ public class AggressiveState : MonoBehaviour
         onCompleted?.Invoke();
     }
 
-    #region Target Gathering
+    #region Target
     private void GetTargetsInRange(Vector2Int from, int range, out List<GameObject> baseTargets, out List<GameObject> seaTargets, out List<GameObject> unitTargets)
     {
         baseTargets = new();
@@ -184,7 +184,25 @@ public class AggressiveState : MonoBehaviour
             }
         }
     }
-    #endregion
+
+    private bool IsTargetValid(GameObject target)
+    {
+        if (target == null) 
+            return false;
+
+        var unit = target.GetComponent<UnitBase>();
+        if (unit != null && unit.hp <= 0) 
+            return false;
+
+        var tree = target.GetComponent<TreeBase>();
+        if (tree != null && tree.health <= 0) 
+            return false;
+
+        var sea = target.GetComponent<SeaMonsterBase>();
+        if (sea != null && sea.Health <= 0) return false;
+
+        return true;
+    }
 
     private Vector2Int ChooseClosestPlayerBase(Vector2Int from)
     {
@@ -221,4 +239,5 @@ public class AggressiveState : MonoBehaviour
         Debug.Log($"[AggressiveAI] Closest player base at {closestBase.currentTile.HexCoords}, distance: {minDist}");
         return closestBase.currentTile.HexCoords;
     }
+    #endregion
 }

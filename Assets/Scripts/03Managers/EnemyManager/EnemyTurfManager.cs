@@ -18,7 +18,7 @@ public class EnemyTurfManager : MonoBehaviour
         var tiles = MapManager.Instance.GetNeighborsWithinRadius(currentTile.x, currentTile.y, radius);
         foreach (var tile in tiles)
         {
-            if (!turfTileMap.ContainsKey(tile.HexCoords)) //Only register when the tile is empty to prevent turf overlapping
+            if (!MapManager.Instance.IsTileClaimed(tile.HexCoords)) //Only register when the tile is empty to prevent turf overlapping
                 turfTileMap[tile.HexCoords] = baseRef;
         }
 
@@ -47,20 +47,4 @@ public class EnemyTurfManager : MonoBehaviour
     {
         return turfTileMap.Keys;
     }
-
-
-#if UNITY_EDITOR
-    private void OnDrawGizmos()
-    {
-        if (turfTileMap == null || turfTileMap.Count == 0)
-            return;
-
-        Gizmos.color = Color.red * 0.5f;
-        foreach (var coord in turfTileMap.Keys)
-        {
-            Vector3 worldPos = MapManager.Instance.HexToWorld(coord);
-            Gizmos.DrawSphere(worldPos, 0.3f);
-        }
-    }
-#endif
 }

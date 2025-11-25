@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using static EnemyAIEvents;
 
@@ -9,6 +10,8 @@ using static EnemyAIEvents;
 /// </summary>
 public class EnemyActionExecutor : MonoBehaviour
 {
+    [SerializeField] private GameObject projectilePrefab;
+
     private EnemyUnitManager unitManager => EnemyUnitManager.Instance;
 
     private void OnEnable()
@@ -60,7 +63,12 @@ public class EnemyActionExecutor : MonoBehaviour
 
             GameObject unitGO = Instantiate(prefab, world, Quaternion.identity);
             unitGO.name = $"Enemy_{evt.UnitType}_{unitManager.NextUnitId}";
-            ManagerAudio.instance.PlaySFX("UnitSpawn");
+
+            int unitId = unitManager.NextUnitId - 1;
+            if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(unitId))
+            {
+                ManagerAudio.instance.PlaySFX("UnitSpawn");
+            }
             unitManager.RegisterUnit(unitGO, evt.BaseId, evt.UnitType, spawnHex);
         }
         finally
@@ -108,18 +116,23 @@ public class EnemyActionExecutor : MonoBehaviour
         unitManager.StartCoroutine(MoveUnitPath(evt.UnitId, trimmedPath, from, finalHex));
     }
 
-    private IEnumerator MoveUnitPath(int unitId, List<Vector2Int> path, Vector2Int fromHex, Vector2Int finalHex)
+    private IEnumerator MoveUnitPath(int unitId, List<Vector2Int> path, Vector2Int fromHex, Vector2Int toHex)
     {
         GameObject go = unitManager.UnitObjects[unitId];
 
-        if (!MapManager.Instance.CanUnitStandHere(finalHex))
+        if (!MapManager.Instance.CanUnitStandHere(toHex))
         {
-            Debug.LogWarning($"[EnemyActionExecutor] Move Abort! Unit {unitId} can't move to {finalHex}, which is not standable.");
+            Debug.LogWarning($"[EnemyActionExecutor] Move Abort! Unit {unitId} can't move to {toHex}, which is not standable.");
             yield break;
         }
 
+        if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(unitId))
+        {
+            ManagerAudio.instance.PlaySFX("UnitMove");
+        }
+
         //Register new tile immediately
-        MapManager.Instance.SetUnitOccupied(finalHex, true);
+        MapManager.Instance.SetUnitOccupied(toHex, true);
 
         //Release old tile
         MapManager.Instance.SetUnitOccupied(fromHex, false);
@@ -133,15 +146,15 @@ public class EnemyActionExecutor : MonoBehaviour
         }
 
         //Update Position
-        unitManager.UnitPositions[unitId] = finalHex;
+        unitManager.UnitPositions[unitId] = toHex;
         EnemyUnit unit = go.GetComponent<EnemyUnit>();
         if (unit != null)
         {
-            HexTile finalTile = MapManager.Instance.GetTile(finalHex);
+            HexTile finalTile = MapManager.Instance.GetTile(toHex);
             unit.UpdatePosition(finalTile);
         }
 
-        EventBus.Publish(new EnemyMovedEvent(unitId, fromHex, finalHex));
+        EventBus.Publish(new EnemyMovedEvent(unitId, fromHex, toHex));
     }
 
     private IEnumerator SmoothMove(GameObject unitGO, Vector2Int startHex, Vector2Int endHex)
@@ -200,77 +213,170 @@ public class EnemyActionExecutor : MonoBehaviour
         Debug.Log($"[EnemyActionExecutor] Attacker {evt.AttackerId} attacking target {evt.Target.name}");
 
         var attackerGO = unitManager.UnitObjects[evt.AttackerId];
-        if (attackerGO != null)
-        {
-            var ar = attackerGO.GetComponentInChildren<Renderer>();
-            if (ar != null)
-            {
-                Color aOriginal = ar.material.color;
-                ar.material.color = Color.yellow;
-                StartCoroutine(RestoreColor(ar, aOriginal, 0.2f));
-            }
-        }
+        if (attackerGO == null)
+            return;
+
+        bool isMelee = EnemyUnitManager.Instance.GetUnitType(evt.AttackerId) == "Tanker";
 
         int damage = unitManager.GetPlayerUnitAttackPower(evt.AttackerId);
 
-        var unit = evt.Target.GetComponent<UnitBase>();
+        if (isMelee)
+            StartCoroutine(MeleeAttackAnimation(attackerGO, evt.Target, damage, evt.AttackerId));
+        else
+            StartCoroutine(RangedAttackAnimation(attackerGO, evt.Target, damage, evt.AttackerId));
+    }
+
+    private IEnumerator MeleeAttackAnimation(GameObject attacker, GameObject target, int damage, int attackerId)
+    {
+        EnemyUnit attackerUnit = attacker.GetComponent<EnemyUnit>();
+        Vector2Int attackerHex = attackerUnit.currentTile.HexCoords;
+        Vector2Int targetHex = MapManager.Instance.WorldToHex(target.transform.position);
+
+        Vector3 startPos = MapManager.Instance.HexToWorld(attackerHex);
+        startPos.y += attackerUnit.baseHeightOffset;
+
+        Vector3 targetPos = MapManager.Instance.HexToWorld(targetHex);
+        targetPos.y = startPos.y;
+
+        float dashDuration = 0.2f;
+
+        //Dash to target position
+        yield return LerpPosition(attacker.transform, startPos, targetPos, dashDuration);
+
+        //Hit Target
+        Knockback(target, attacker.transform.forward, () =>
+        {
+            ApplyDamage(target, damage, attackerId);
+        });
+
+        //Back to original hex 
+        yield return LerpPosition(attacker.transform, targetPos, startPos, dashDuration);
+
+
+        EventBus.Publish(new EnemyAttackedEvent(attackerId, target));
+    }
+
+    private IEnumerator RangedAttackAnimation(GameObject attacker, GameObject target, int damage, int attackerId)
+    {
+        EnemyUnit attackerUnit = attacker.GetComponent<EnemyUnit>();
+        Vector2Int attackerHex = attackerUnit.currentTile.HexCoords;
+        Vector2Int targetHex = MapManager.Instance.WorldToHex(target.transform.position);
+
+        Vector3 start = MapManager.Instance.HexToWorld(attackerHex);
+        start.y += attackerUnit.baseHeightOffset + 1.5f;
+
+        Vector3 end = MapManager.Instance.HexToWorld(targetHex);
+        end.y += 1f;
+
+        GameObject projectile = Instantiate(projectilePrefab, start, Quaternion.identity);
+
+        float duration = 1f;
+        float time = 0f;
+
+        while (time < 1f)
+        {
+            time += Time.deltaTime / duration;
+
+            //Midpoint of the arc
+            Vector3 mid = (start + end) / 2 + Vector3.up * 2.5f;
+
+            Vector3 m1 = Vector3.Lerp(start, mid, time);
+            Vector3 m2 = Vector3.Lerp(mid, end, time);
+            projectile.transform.position = Vector3.Lerp(m1, m2, time);
+
+            yield return null;
+        }
+
+        Destroy(projectile);
+
+        Knockback(target, attacker.transform.forward, ()=>
+        {
+            ApplyDamage(target, damage, attackerId);
+        });
+
+        EventBus.Publish(new EnemyAttackedEvent(attackerId, target));
+    }
+
+    private IEnumerator LerpPosition(Transform t, Vector3 from, Vector3 to, float duration)
+    {
+        float time = 0f;
+        Vector3 direction = to - from;
+        direction.y = 0;
+        if (direction != Vector3.zero)
+        {
+            float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg; //Facing target direction
+            t.rotation = Quaternion.Euler(0f, angle, 0f);
+        }
+
+        while (time < 1f)
+        {
+            time += Time.deltaTime / duration;
+            t.position = Vector3.Lerp(from, to, time);
+            yield return null;
+        }
+    }
+
+    public void Knockback(GameObject target, Vector3 direction, System.Action onComplete = null)
+    {
+        if (target == null)
+            return;
+
+        Vector3 hitPos = target.transform.position + direction.normalized * 0.3f;
+
+        target.transform
+        .DOMove(hitPos, 0.1f)
+        .SetLoops(2, LoopType.Yoyo)
+        .SetEase(Ease.OutQuad)
+        .OnComplete(() =>
+        {
+            onComplete?.Invoke(); //Wait until animation completed then apply damage
+        });
+    }
+
+    private void ApplyDamage(GameObject target,int damage, int attackerId)
+    {
+        var unit = target.GetComponent<UnitBase>();
         if (unit != null)
         {
             unit.TakeDamage(damage);
-            if(EnemyUnitManager.Instance.GetUnitType(evt.AttackerId) == "Shooter")
+            if (EnemyUnitManager.Instance.GetUnitType(attackerId) == "Shooter")
             {
                 ManagerAudio.instance.PlaySFX("ShooterShooting");
             }
-            else if(EnemyUnitManager.Instance.GetUnitType(evt.AttackerId) == "Bomber")
+            else if (EnemyUnitManager.Instance.GetUnitType(attackerId) == "Bomber")
             {
                 ManagerAudio.instance.PlaySFX("BomberBombing");
             }
 
             if (unit.unitName == "Tanker")
             {
+                var attackerGO = EnemyUnitManager.Instance.UnitObjects[attackerId];
                 attackerGO.GetComponent<EnemyUnit>().TakeDamage(damage);
             }
             Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to PlayerUnit {unit.name}, HP now {unit.hp}");
-            EventBus.Publish(new EnemyAttackedEvent(evt.AttackerId, unit.gameObject));
+            EventBus.Publish(new EnemyAttackedEvent(attackerId, unit.gameObject));
             return;
         }
 
-        var tb = evt.Target.GetComponent<TreeBase>();
+        var tb = target.GetComponent<TreeBase>();
         if (tb != null)
         {
             tb.TakeDamage(damage);
             Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to TreeBase {tb.name}");
-            EventBus.Publish(new EnemyAttackedEvent(evt.AttackerId, tb.gameObject));
+            EventBus.Publish(new EnemyAttackedEvent(attackerId, tb.gameObject));
             return;
         }
 
-        var sm = evt.Target.GetComponent<SeaMonsterBase>();
+        var sm = target.GetComponent<SeaMonsterBase>();
         if (sm != null)
         {
             sm.TakeDamage(damage);
             Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to SeaMonster {sm.name}");
-            EventBus.Publish(new EnemyAttackedEvent(evt.AttackerId, sm.gameObject));
+            EventBus.Publish(new EnemyAttackedEvent(attackerId, sm.gameObject));
             return;
         }
 
-        //Temp, for testing
-        Renderer r = evt.Target.GetComponentInChildren<Renderer>();
-        if (r != null)
-        {
-            Color original = r.material.color;
-            r.material.color = Color.red;
-            StartCoroutine(RestoreColor(r, original, 0.2f));
-        }
-
-        Debug.LogWarning($"[EnemyActionExecutor] Target {evt.Target} not found.");
-    }
-
-    //Temp, for testing
-    private IEnumerator RestoreColor(Renderer r, Color original, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (r != null)
-            r.material.color = original;
+        Debug.LogWarning($"[EnemyActionExecutor] Target {target} not found.");
     }
     #endregion
 
@@ -309,7 +415,10 @@ public class EnemyActionExecutor : MonoBehaviour
         Vector3 spawnPos = MapManager.Instance.HexToWorld(evt.GrovePosition);
         spawnPos.y += 2f;
         GameObject newEnemyBaseObj = Instantiate(EnemyBaseManager.Instance.basePrefab, spawnPos, Quaternion.identity);
-        ManagerAudio.instance.PlaySFX("BuilderBuilding");
+        if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(evt.UnitId))
+        {
+            ManagerAudio.instance.PlaySFX("BuilderBuilding");
+        }
 
         HexTile spawnTile = MapManager.Instance.GetTileAtHexPosition(evt.GrovePosition);
         spawnTile.SetContentsVisible(false);
