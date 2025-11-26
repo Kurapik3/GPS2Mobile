@@ -1,7 +1,13 @@
-using UnityEngine;
-using System.IO;
 using System;
+using System.Collections;
+using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private MapGenerator mapGenerator;
@@ -10,10 +16,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TurnManager turnManager;
     [SerializeField] private UnitSpawner unitSpawner;
 
-    private PlayerTracker player;
-    private EnemyTracker enemy;
     private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
     public static GameManager Instance { get; private set; }
+    private GameSaveData cachedLoadData;
+    private bool waitingForMapReady = false;
 
     private TribeStatsUI tribeStats;
 
@@ -27,23 +33,15 @@ public class GameManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
-    void Start()
-    {
-        player = PlayerTracker.Instance;
-        enemy = EnemyTracker.Instance;
-        // Try to load saved game (runtime data)
-        if (File.Exists(savePath))
-        {
-            Debug.Log("Loading runtime save...");
-            LoadGame();
-        }
-        else
-        {
-            StartNewGame();
-        }
-    }
+    //void Start()
+    //{
+    //    player = PlayerTracker.Instance;
+    //    enemy = EnemyTracker.Instance;
+    //}
     private void OnEnable()
     {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        MapGenerator.OnMapReady += OnMapReady;
         EventBus.Subscribe<SaveGameEvent>(OnSaveGame);
         EventBus.Subscribe<LoadGameEvent>(OnLoadGame);
         EventBus.Subscribe<ActionMadeEvent>(OnAutoSave);
@@ -52,19 +50,105 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        MapGenerator.OnMapReady -= OnMapReady;
         EventBus.Unsubscribe<SaveGameEvent>(OnSaveGame);
         EventBus.Unsubscribe<LoadGameEvent>(OnLoadGame);
         EventBus.Unsubscribe<ActionMadeEvent>(OnAutoSave);
-        EventBus.Subscribe<AllEnemyBasesDestroyed>(OnAllEnemyBaseDestroyed);
+        EventBus.Unsubscribe<AllEnemyBasesDestroyed>(OnAllEnemyBaseDestroyed);
     }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        mapGenerator = FindFirstObjectByType<MapGenerator>();
+        dynamicTileGen = FindFirstObjectByType<DynamicTileGenerator>();
+        fogSystem = FindFirstObjectByType<FogSystem>();
+        turnManager = FindFirstObjectByType<TurnManager>();
+        unitSpawner = FindFirstObjectByType<UnitSpawner>();
+        // Refresh reference because scene reload destroys old objects
+        mapGenerator = FindFirstObjectByType<MapGenerator>();
+        if (mapGenerator == null)
+        {
+            Debug.LogWarning("[GameManager] No MapGenerator found in scene.");
+            return;
+        }
+        if (EnemyUnitManager.Instance != null)
+        {
+            EnemyUnitManager.Instance.RefreshReferences();
+        }
+        if (File.Exists(savePath))
+        {
+            // Read save file into cache (do not apply yet)
+            try
+            {
+                var json = File.ReadAllText(savePath);
+                cachedLoadData = JsonConvert.DeserializeObject<GameSaveData>(json);
+                waitingForMapReady = true;
+
+                var runtimeMap = ScriptableObject.CreateInstance<MapData>();
+                runtimeMap.tiles = cachedLoadData.mapTiles.Select(t => t.Clone()).ToList();
+                mapGenerator.SetMapData(runtimeMap);
+                mapGenerator.GenerateFromData();
+                return;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[GameManager] Save corrupted: {ex}");
+            }
+        }
+        var defaultMap = Resources.Load<MapData>("DefaultBaseMap");
+        if (defaultMap == null)
+        {
+            Debug.LogError("DefaultBaseMap.asset is missing from Resources folder!");
+            return;
+        }
+
+        mapGenerator.SetMapData(defaultMap);
+        mapGenerator.GenerateFromData();
+
+        // Initialize fresh game systems
+        dynamicTileGen.GenerateDynamicElements();
+        fogSystem.InitializeFog();
+        EventBus.Publish(new AllEnemyBasesDestroyed(false));
+        Debug.Log($"UnitManager found: {FindFirstObjectByType<UnitManager>() != null}");
+        //else
+        //{
+        //    // No runtime save: start a fresh game. Use editor-saved base map if available, else default
+        //    MapData loadedData = MapSaveLoad.Load("MySavedMap");
+        //    if (loadedData == null)
+        //        loadedData = Resources.Load<MapData>("DefaultBaseMap");
+
+        //    if (loadedData == null)
+        //    {
+        //        Debug.LogError("[GameManager] No base map found to start a new game.");
+        //        return;
+        //    }
+
+        //    mapGenerator.SetMapData(loadedData);
+        //    mapGenerator.GenerateFromData();
+
+        //    // initialize runtime systems for a fresh start
+        //    dynamicTileGen.GenerateDynamicElements();
+        //    fogSystem.InitializeFog();
+        //    EventBus.Publish(new AllEnemyBasesDestroyed(false));
+
+        //    Debug.Log("[GameManager] Started new game (no runtime save).");
+        //}
+    }
+
     private void OnSaveGame(SaveGameEvent evt) => SaveGame();
-    private void OnLoadGame(LoadGameEvent evt) => LoadGame();
+    private void OnLoadGame(LoadGameEvent evt) => ForceLoadNow();
     private void OnAutoSave(ActionMadeEvent evt) => SaveGame(); 
 
     private void StartNewGame()
     {
-        MapData loadedData = Resources.Load<MapData>("DefaultBaseMap");
+        //MapData loadedData = Resources.Load<MapData>("DefaultBaseMap");
         //MapData loadedData = MapSaveLoad.Load("MySavedMap");
+        MapData loadedData = MapSaveLoad.Load("MySavedMap");
+
+        if (loadedData == null)
+        {
+            loadedData = Resources.Load<MapData>("DefaultBaseMap");
+        }
         if (loadedData == null)
         {
             Debug.LogError("No base map found!");
@@ -95,56 +179,93 @@ public class GameManager : MonoBehaviour
 
     public void SaveGame()
     {
-        GameSaveData data = new();
-
-        // Save revealed fog tiles
-        data.revealedTiles.Clear();
-        foreach (var tile in fogSystem.revealedTiles)
+        try
         {
-            data.revealedTiles.Add(new GameSaveData.FogTileData { q = tile.x, r = tile.y });
-        }
-
-        // Save dynamic tiles
-        dynamicTileGen.SaveDynamicObjects(data);
-
-        //save other states here
-
-         // Player + enemy units
-        foreach (var unit in UnitManager.Instance.GetAllUnits())
-        {
-            data.playerUnits.Add(new GameSaveData.UnitData
+            GameSaveData data = new();
+            if (mapGenerator?.MapData?.tiles != null)
             {
-                unitName = unit.unitName,
-                q = unit.currentTile.q,
-                r = unit.currentTile.r,
-                hp = unit.hp,
-                movement = unit.movement,
-                range = unit.range,
-                isCombat = unit.isCombat
-            });
-        }
-
-        foreach (var unit in EnemyUnitManager.Instance.GetAllUnits())
-        {
-            data.enemyUnits.Add(new GameSaveData.UnitData
+                data.mapTiles = mapGenerator.MapData.tiles.Select(t => t.Clone()).ToList();
+            }
+            // Save revealed fog tiles
+            //data.revealedTiles.Clear();
+            foreach (var tile in fogSystem.revealedTiles)
             {
-                unitName = unit.unitName,
-                q = unit.currentTile.HexCoords.x,
-                r = unit.currentTile.HexCoords.y,
-                hp = unit.hp
-            });
+                data.revealedTiles.Add(new GameSaveData.FogTileData { q = tile.x, r = tile.y });
+            }
+
+            // Save dynamic tiles
+            dynamicTileGen.SaveDynamicObjects(data);
+
+            //save other states here
+
+            // Player + enemy units
+            foreach (var unit in UnitManager.Instance.GetAllUnits())
+            {
+                data.playerUnits.Add(new GameSaveData.UnitData
+                {
+                    unitName = unit.unitName,
+                    q = unit.currentTile.q,
+                    r = unit.currentTile.r,
+                    hp = unit.hp,
+                    movement = unit.movement,
+                    range = unit.range,
+                    isCombat = unit.isCombat
+                });
+            }
+
+            foreach (var unit in EnemyUnitManager.Instance.GetAllUnits())
+            {
+                data.enemyUnits.Add(new GameSaveData.UnitData
+                {
+                    unitName = unit.unitName,
+                    q = unit.currentTile.HexCoords.x,
+                    r = unit.currentTile.HexCoords.y,
+                    hp = unit.hp
+                });
+            }
+
+            data.currentTurn = turnManager.CurrentTurn;
+            data.playerScore = PlayerTracker.Instance?.getScore() ?? 0;
+            data.playerAP = PlayerTracker.Instance?.getAp() ?? 0;
+            data.enemyScore = EnemyTracker.Instance?.GetScore() ?? 0;
+
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            File.WriteAllText(savePath, json);
+            Debug.Log($"Game saved to {savePath}");
         }
-
-        data.currentTurn = turnManager.CurrentTurn;
-        data.playerScore = PlayerTracker.Instance.getScore();
-        data.playerAP = PlayerTracker.Instance.getAp();
-        data.enemyScore = enemy.GetScore();
-
-        string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-        File.WriteAllText(savePath, json);
-        Debug.Log($"Game saved to {savePath}");
+        catch (Exception ex)
+        {
+            Debug.LogError($"[GameManager] Save failed: {ex}");
+        }
     }
+    // --- Loading flow control ---
+    // Called from EventBus if player triggers a load mid-game
+    // We will decode file and set cachedLoadData, then regenerate the map to trigger OnMapReady.
+    private void ForceLoadNow()
+    {
+        if (!File.Exists(savePath))
+        {
+            Debug.LogWarning("[GameManager] No save file found to load.");
+            return;
+        }
+        try
+        {
+            cachedLoadData = JsonConvert.DeserializeObject<GameSaveData>(File.ReadAllText(savePath));
+            waitingForMapReady = true;
 
+            MapData placeholderMap = ScriptableObject.CreateInstance<MapData>();
+            placeholderMap.tiles = cachedLoadData.mapTiles.Select(t => t.Clone()).ToList();
+            mapGenerator.SetMapData(placeholderMap);
+            mapGenerator.GenerateFromData();
+            Debug.Log("[GameManager] ForceLoadNow: regeneration started, waiting for MapReady.");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[GameManager] ForceLoadNow failed: {ex}");
+            cachedLoadData = null;
+            waitingForMapReady = false;
+        }
+    }
     public void LoadGame()
     {
         if (!File.Exists(savePath))
@@ -152,78 +273,92 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("No save file found!");
             return;
         }
+        cachedLoadData = JsonConvert.DeserializeObject<GameSaveData>(File.ReadAllText(savePath));
 
-        string json = File.ReadAllText(savePath);
-        GameSaveData data = JsonConvert.DeserializeObject<GameSaveData>(json);
+        // Map will load dynamic elements only AFTER map is ready
+        waitingForMapReady = true;
+        //string json = File.ReadAllText(savePath);
+        //GameSaveData data = JsonConvert.DeserializeObject<GameSaveData>(json);
 
-        if (mapGenerator.MapData == null)
-        {
-            var loadedData = Resources.Load<MapData>("DefaultBaseMap");
-            mapGenerator.SetMapData(loadedData);
-            mapGenerator.GenerateFromData();
-        }
+        //if (mapGenerator.MapData == null)
+        //{
+        //    var baseMap = Resources.Load<MapData>("DefaultBaseMap");
+        //    mapGenerator.SetMapData(baseMap);
+        //    mapGenerator.GenerateFromData();
+        //}
 
-        // Reveal fog tiles
-        foreach (var tileData in data.revealedTiles)
-        {
-            fogSystem.RevealTilesAround(new Vector2Int(tileData.q, tileData.r), 0);
-        }
+        //// Reveal fog tiles
+        //fogSystem.InitializeFog();
+        //foreach (var tileData in data.revealedTiles)
+        //{
+        //    fogSystem.RevealTilesAround(new Vector2Int(tileData.q, tileData.r), 0);
+        //}
 
-        // Load units
-        UnitManager.Instance.ClearAllUnits();
-        foreach (var u in data.playerUnits)
-        {
-            GameObject prefab = null;
+        //// Load units
+        //UnitManager.Instance.ClearAllUnits();
+        //foreach (var u in data.playerUnits)
+        //{
+        //    GameObject prefab = null;
 
-            // Match the prefab based on unitName
-            if (u.unitName == "Builder")
-                prefab = unitSpawner.BuilderPrefab;
-            else if (u.unitName == "Scout")
-                prefab = unitSpawner.ScoutPrefab;
-            // add more if you have other unit types
+        //    // Match the prefab based on unitName
+        //    if (u.unitName == "Builder")
+        //    {
+        //        prefab = unitSpawner.BuilderPrefab;
+        //    }
+        //    else if (u.unitName == "Scout")
+        //    {
+        //        prefab = unitSpawner.ScoutPrefab;
+        //    }
+        //    // add more if you have other unit types
 
-            if (prefab == null)
-            {
-                Debug.LogWarning($"Prefab for {u.unitName} not found, skipping.");
-                continue;
-            }
+        //    if (prefab == null)
+        //    {
+        //        Debug.LogWarning($"Prefab for {u.unitName} not found, skipping.");
+        //        continue;
+        //    }
 
-            // Find CSV index for this unit
-            int csvIndex = unitSpawner.unitDatabase.GetAllUnits().FindIndex(d => d.unitName == u.unitName);
-            if (csvIndex < 0)
-            {
-                Debug.LogWarning($"Unit {u.unitName} not found in database, skipping.");
-                continue;
-            }
+        //    // Find CSV index for this unit
+        //    int csvIndex = unitSpawner.unitDatabase.GetAllUnits().FindIndex(d => d.unitName == u.unitName);
+        //    if (csvIndex < 0)
+        //    {
+        //        Debug.LogWarning($"Unit {u.unitName} not found in database, skipping.");
+        //        continue;
+        //    }
 
-            // Use the existing CreateUnit method — do not edit it
-            unitSpawner.CreateUnit(prefab, csvIndex);
-        }
+        //    unitSpawner.CreateUnit(prefab, csvIndex);
+        //    var spawnedUnit = UnitManager.Instance.GetAllUnits().Last();
 
-            EnemyUnitManager.Instance.ClearAll();
-        foreach (var u in data.enemyUnits)
-        {
-            var prefab = EnemyUnitManager.Instance.unitPrefabs
-                .Find(p => p.name == u.unitName);
-            if (prefab != null)
-                EnemyUnitManager.Instance.RegisterUnit(
-                    Instantiate(prefab),
-                    0,
-                    u.unitName,
-                    new Vector2Int(u.q, u.r)
-                );
-        }
+        //    spawnedUnit.SetPositionToTile(u.q, u.r);
+        //}
 
-        turnManager.CurrentTurn = data.currentTurn;
-        PlayerTracker.Instance.currentScore = data.playerScore;
-        PlayerTracker.Instance.currentAP = data.playerAP;
-        enemy.currentScore = data.enemyScore;
+        //EnemyUnitManager.Instance.ClearAll();
+        //foreach (var u in data.enemyUnits)
+        //{
+        //    var prefab = EnemyUnitManager.Instance.unitPrefabs
+        //        .Find(p => p.name == u.unitName);
+        //    if (prefab != null)
+        //        EnemyUnitManager.Instance.RegisterUnit(
+        //            Instantiate(prefab),
+        //            0,
+        //            u.unitName,
+        //            new Vector2Int(u.q, u.r)
+        //        );
+        //}
 
-        // Load dynamic objects
-        dynamicTileGen.LoadDynamicObjects(data);
-        EnemyUnitManager.Instance.UpdateEnemyVisibility();
-        Debug.Log("Game loaded!");
+        //turnManager.CurrentTurn = data.currentTurn;
+        //player.currentScore = data.playerScore;
+        //player.currentAP = data.playerAP;
+        //enemy.currentScore = data.enemyScore;
+
+        //// Load dynamic objects
+        //// dynamicTileGen.LoadDynamicObjects(data);
+        //cachedLoadData = data;            
+        //waitForMapReady= true;
+
+        //EnemyUnitManager.Instance.UpdateEnemyVisibility();
+        //Debug.Log("Game loaded!");
     }
+
     bool allEnemyBasesDestroyed = false;
     private void OnAllEnemyBaseDestroyed(AllEnemyBasesDestroyed destroyed)
     {
@@ -242,14 +377,13 @@ public class GameManager : MonoBehaviour
 
     public void CheckEnding()
     {
+        int playerScore = PlayerTracker.Instance?.getScore() ?? 0;
+        int enemyScore = EnemyTracker.Instance?.GetScore() ?? 0;
         Debug.Log($"[GameManager] Checking ending condition at Turn {turnManager.CurrentTurn}");
-
-        int playerScore = player.getScore();
-        int enemyScore = enemy.GetScore(); 
 
         //int playerBaseCount =  //for ltr when player base count is implemented
 
-        if(allEnemyBasesDestroyed)
+        if (allEnemyBasesDestroyed)
         {
             GenocideEnding();
             tribeStats?.ShowAsEndGameResult(isVictory: true);
@@ -301,8 +435,188 @@ public class GameManager : MonoBehaviour
         Debug.Log("Failure Ending - Defeat");
     }
 
+
+
+    private void OnMapReady(MapGenerator gen)
+    {
+        if (!waitingForMapReady || cachedLoadData == null)
+        {
+            return;
+        }
+        StartCoroutine(RestoreGameStateAfterDelay());
+    }
+
+    private IEnumerator RestoreGameStateAfterDelay()
+    {
+        yield return null;
+        try
+        {
+            //Restore fog
+            if (fogSystem != null)
+            {
+                //fogSystem.InitializeFog(); // hide all fog
+                //fogSystem.revealedTiles = cachedLoadData.revealedTiles
+                //.Select(t => new Vector2Int(t.q, t.r))
+                //.ToList();
+                //foreach (var tileData in cachedLoadData.revealedTiles)
+                //{
+                //    Vector2Int coord = new Vector2Int(tileData.q, tileData.r);
+                //    if (MapManager.Instance.TryGetTile(coord, out HexTile tile))
+                //    {
+                //        tile.RemoveFog();
+                //    }
+                //}
+                fogSystem.InitializeFog();
+                foreach (var tileData in cachedLoadData.revealedTiles)
+                {
+                    fogSystem.RevealTilesAround(new Vector2Int(tileData.q, tileData.r), 0);
+                }
+            }
+
+            // Clear existing units
+            if (UnitManager.Instance != null)
+            {
+                UnitManager.Instance.ClearAllUnits();
+                Debug.Log("SuccessfullyCleared All previous player units");
+            }
+            if (EnemyUnitManager.Instance != null)
+            {
+                EnemyUnitManager.Instance.ClearAll();
+                Debug.Log("SuccessfullyCleared All previous enemy units");
+            }
+
+            // Spawn player units and move them to saved tiles
+            if (unitSpawner != null && UnitManager.Instance != null)
+            {
+                foreach (var u in cachedLoadData.playerUnits)
+                {
+                    GameObject prefab = unitSpawner.GetUnitPrefabByName(u.unitName);
+                    if (prefab == null)
+                    {
+                        Debug.LogWarning($"[GameManager] Prefab for {u.unitName} not found (player). Skipping.");
+                        continue;
+                    }
+
+                    int csvIndex = unitSpawner.unitDatabase?.GetAllUnits().FindIndex(d => d.unitName == u.unitName) ?? -1;
+                    if (csvIndex < 0)
+                    {
+                        Debug.LogWarning($"[GameManager] Unit {u.unitName} not found in database, skipping.");
+                        continue;
+                    }
+                    int countBefore = UnitManager.Instance.GetAllUnits().Count;
+                    unitSpawner.SpawnUnit(prefab, csvIndex, new Vector2Int(u.q, u.r));
+
+                    var allUnits = UnitManager.Instance.GetAllUnits();
+                    if (allUnits.Count <= countBefore)
+                    {
+                        Debug.LogWarning($"Unit {u.unitName} not registered in UnitManager.");
+                        continue;
+                    }
+                    var spawned = allUnits[allUnits.Count - 1];
+                    // restore hp/movement/range if you have setters, else those values are loaded when unit is created from CSV
+                    spawned.SetPositionToTile(u.q, u.r);
+                    spawned.hp = u.hp;
+                    spawned.movement = u.movement;
+                    spawned.range = u.range;
+                    spawned.isCombat = u.isCombat;
+                }
+            }
+
+
+            // Spawn enemy units
+            if (EnemyUnitManager.Instance != null)
+            {
+                foreach (var u in cachedLoadData.enemyUnits)
+                {
+                    var prefab = EnemyUnitManager.Instance.unitPrefabs.Find(p => p.name == u.unitName);
+                    if (prefab != null)
+                    {
+                        EnemyUnitManager.Instance.RegisterUnit(
+                            Instantiate(prefab),
+                            0,
+                            u.unitName,
+                            new Vector2Int(u.q, u.r)
+                        );
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[GameManager] Prefab for {u.unitName} not found (enemy).");
+                    }
+                }
+            }
+
+            // Restore turn / scores / AP
+            if (turnManager != null)
+            {
+                turnManager.CurrentTurn = cachedLoadData.currentTurn;
+            }
+            if (PlayerTracker.Instance != null)
+            {
+                PlayerTracker.Instance.currentScore = cachedLoadData.playerScore;
+                PlayerTracker.Instance.currentAP = cachedLoadData.playerAP;
+            }
+            if (EnemyTracker.Instance != null)
+            {
+                EnemyTracker.Instance.currentScore = cachedLoadData.enemyScore;
+            }
+
+            // Load dynamic objects AFTER tiles exist
+            if (dynamicTileGen != null)
+            {
+                dynamicTileGen.LoadDynamicObjects(cachedLoadData);
+            }
+
+            // Refresh enemy visibility
+            StartCoroutine(DelayedUpdateEnemyVisibility());
+
+            Debug.Log("[GameManager] Runtime save restored successfully.");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[GameManager] Error during map reconstruction: {ex}");
+        }
+        finally
+        {
+            cachedLoadData = null;
+            waitingForMapReady = false;
+        }
+    }
+    private void OnApplicationQuit()
+    {
+        SaveGame();
+    }
+    private IEnumerator DelayedUpdateEnemyVisibility()
+    {
+        yield return null;
+        if (EnemyUnitManager.Instance != null)
+        {
+            EnemyUnitManager.Instance.UpdateEnemyVisibility();
+        }
+    }
+    //GameManager.Instance?.SaveGame(); <- use for settings to main menu button
+    //also add EventBus.Publish(new ActionMadeEvent()); to after player movement, player attack, after tech tree researched, after tree base upgrade, after extract tiles, after tame sea creature
 #if UNITY_EDITOR
     [ContextMenu("Clear Saved Data")]
-        void EditorClearSave() => ClearSave();
-    #endif
+    void EditorClearSave() => ClearSave();
+
+#endif
 }
+
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(GameManager))]
+public class GameManagerInspector : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        GameManager editor = (GameManager)target;
+        GUILayout.Space(10);
+        if (GUILayout.Button("Clear Saved Data"))
+        {
+            editor.ClearSave();
+        }
+    }
+}
+#endif

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 [Serializable]
 public class GameSaveData
 {
+    public List<HexTileData> mapTiles = new();
     public List<FogTileData> revealedTiles = new();
     public List<DynamicObjectData> dynamicObjects = new();
     public List<UnitData> playerUnits = new();

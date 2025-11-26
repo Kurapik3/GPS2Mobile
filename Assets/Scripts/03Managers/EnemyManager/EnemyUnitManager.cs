@@ -195,9 +195,9 @@ public class EnemyUnitManager : MonoBehaviour
         return 0;
     }
 
-    public bool IsBuilderUnit(int id)
+    public bool IsUnitType(int id, string type)
     {
-        if (GetUnitType(id) == "Builder")
+        if (GetUnitType(id) == type)
             return true;
         return false;
     }
@@ -246,6 +246,7 @@ public class EnemyUnitManager : MonoBehaviour
 
     private void SetLayerRecursively(GameObject obj, int layer)
     {
+        if (obj == null) return;
         obj.layer = layer;
         foreach (Transform child in obj.transform)
         {
@@ -278,5 +279,26 @@ public class EnemyUnitManager : MonoBehaviour
         unitPositions.Clear();
         unitTypes.Clear();
         nextUnitId = 1;
+    }
+
+    public void RefreshReferences()
+    {
+        if (fogSystem == null)
+        {
+            fogSystem = FindFirstObjectByType<FogSystem>();
+            if (fogSystem == null)
+            {
+                Debug.LogWarning("[EnemyUnitManager] FogSystem not found in scene!");
+            }
+        }
+
+        if(unitDatabase == null)
+        {
+            unitDatabase = FindFirstObjectByType<UnitDatabase>();
+            if(unitDatabase == null)
+            {
+                Debug.LogWarning("[EnemyUnitManager] UnitDatabase not found in scene!");
+            }
+        }
     }
 }

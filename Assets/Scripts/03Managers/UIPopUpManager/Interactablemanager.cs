@@ -18,7 +18,7 @@ public class Interactablemanager : MonoBehaviour
     private Vector2 touchStartPos;
     private float touchStartTime;
     private GameObject currentSelectedObject;
-
+    private bool handledByThisManager = false;
     private void OnEnable()
     {
         EnhancedTouchSupport.Enable();
@@ -70,6 +70,12 @@ public class Interactablemanager : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
         {
+            handledByThisManager = true;
+            HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+            if (tile != null)
+            {
+                tile.OnTileClicked();
+            }
             // Try to get InteractableObject component
             InteractableObject interactable = hit.collider.GetComponent<InteractableObject>();
 
@@ -81,9 +87,15 @@ public class Interactablemanager : MonoBehaviour
         }
         else
         {
+            if (!handledByThisManager) return;
+            handledByThisManager = false;
             // Tapped empty space - deselect and close popup
             DeselectObject();
             popupPanel.HidePopup();
+            if (TileSelector.CurrentTile != null)
+            {
+                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+            }
         }
     }
 
@@ -100,6 +112,19 @@ public class Interactablemanager : MonoBehaviour
 
     private void SelectObject(InteractableObject obj)
     {
+        //// Deselect previous object if any
+        //if (currentSelectedObject != null)
+        //{
+        //    InteractableObject prevInteractable = currentSelectedObject.GetComponent<InteractableObject>();
+        //    if (prevInteractable != null)
+        //    {
+        //        prevInteractable.OnDeselected();
+        //    }
+        //}
+
+        //currentSelectedObject = obj.gameObject;
+        //obj.OnSelected();
+
         // Deselect previous object if any
         if (currentSelectedObject != null)
         {
@@ -112,6 +137,16 @@ public class Interactablemanager : MonoBehaviour
 
         currentSelectedObject = obj.gameObject;
         obj.OnSelected();
+
+        // Add the object to the appropriate selection manager based on type
+        if (obj.objectData.objectType == ObjectType.Fish)
+        {
+            FishSelection.instance?.AddFishToSelection(obj.gameObject);
+        }
+        else if (obj.objectData.objectType == ObjectType.Debris)
+        {
+            DebirisSelect.instance?.AddDebrisToSelection(obj.gameObject);
+        }
     }
 
     private void DeselectObject()

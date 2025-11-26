@@ -6,15 +6,16 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
-using TouchPhase = UnityEngine.InputSystem.TouchPhase;
-
-
+using UnityEngine.UI;
+using TMPro;
+using static TileSelector;
 public class SelectionOfStructureManager : MonoBehaviour
 {
     public static SelectionOfStructureManager instance;
 
     public List<GameObject> allStructureList = new List<GameObject>();
     public List<GameObject> structureSelected = new List<GameObject>();
+
 
     [Header("Input Settings")]
     [SerializeField] private LayerMask structure;
@@ -24,6 +25,11 @@ public class SelectionOfStructureManager : MonoBehaviour
     [Header("UI Animation")]
     [SerializeField] private RectTransform structureInfoPanelMove;
     [SerializeField] private RectTransform structureStatusWindowMove;
+    [SerializeField] private RectTransform builderSpawnConfirmationWindowMove;
+    [SerializeField] private RectTransform scoutSpawnConfirmationWindowMove;
+    [SerializeField] private RectTransform bomberSpawnConfirmationWindowMove;
+    [SerializeField] private RectTransform tankerSpawnConfirmationWindowMove;
+    [SerializeField] private RectTransform shooterSpawnConfirmationWindowMove;
     [SerializeField] private Ease easing;
     [SerializeField] private float moveDuration = 1f;
 
@@ -37,11 +43,12 @@ public class SelectionOfStructureManager : MonoBehaviour
     [SerializeField] private CanvasGroup panel;
 
     [Header("Selection Indicator")]
-    [SerializeField] private string selectionIndicatorTag = "SelectionIndicator"; // Tag for the indicator child
+    [SerializeField] private string selectionIndicatorTag = "SelectionIndicator"; 
 
     private Camera cam;
     private bool isStatusClosed = false;
     private bool isSFXPlayed = true;
+    private bool handledByThisManager = false;
     public static bool IsUIBlockingInput { get; set; } = false;
 
     // Touch tracking
@@ -82,6 +89,11 @@ public class SelectionOfStructureManager : MonoBehaviour
         // Set initial positions off-screen
         structureInfoPanelMove.anchoredPosition = offScreenPos;
         structureStatusWindowMove.anchoredPosition = offScreenPos;
+        builderSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
+        scoutSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
+        bomberSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
+        tankerSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
+        shooterSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
 
         Application.targetFrameRate = 60;
     }
@@ -116,6 +128,12 @@ public class SelectionOfStructureManager : MonoBehaviour
         Ray ray = cam.ScreenPointToRay(touchPosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, structure))
         {
+            handledByThisManager = true;
+            HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+            if (tile != null)
+            {
+                tile.OnTileClicked();
+            }
             SelectByClicking(hit.collider.gameObject);
             StructureInfoPanelMove();
 
@@ -127,9 +145,15 @@ public class SelectionOfStructureManager : MonoBehaviour
         }
         else
         {
+            if (!handledByThisManager) return;
+            handledByThisManager = false;
             isSFXPlayed = true;
             DeselectAll();
             CloseStructureInfoPanel();
+            if (TileSelector.CurrentTile != null)
+            {
+                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+            }
         }
     }
 
@@ -152,7 +176,7 @@ public class SelectionOfStructureManager : MonoBehaviour
         {
             if (structure != null) 
             {
-                TriggerSelectionIndicator(structure, false);
+                //TriggerSelectionIndicator(structure, false);
             }
         }
         structureSelected.Clear();
@@ -162,50 +186,50 @@ public class SelectionOfStructureManager : MonoBehaviour
     {
         DeselectAll();
         structureSelected.Add(structure);
-        TriggerSelectionIndicator(structure, true);
+        //TriggerSelectionIndicator(structure, true);
     }
 
-    private void TriggerSelectionIndicator(GameObject structure, bool isVisible)
-    {
-        //if (structure != null && structure.transform.childCount > 0)
-        //{
-        //    structure.transform.GetChild(0).gameObject.SetActive(isVisible);
-        //}
+    //private void TriggerSelectionIndicator(GameObject structure, bool isVisible)
+    //{
+    //    //if (structure != null && structure.transform.childCount > 0)
+    //    //{
+    //    //    structure.transform.GetChild(0).gameObject.SetActive(isVisible);
+    //    //}
 
-        if (structure == null) return;
+    //    if (structure == null) return;
 
-        // Method 1: Find by tag (RECOMMENDED)
-        Transform indicator = structure.transform.Find("SelectionIndicator");
-        if (indicator != null)
-        {
-            indicator.gameObject.SetActive(isVisible);
-            return;
-        }
+    //    // Method 1: Find by tag (RECOMMENDED)
+    //    Transform indicator = structure.transform.Find("SelectionIndicator");
+    //    if (indicator != null)
+    //    {
+    //        indicator.gameObject.SetActive(isVisible);
+    //        return;
+    //    }
 
-        // Method 2: Find by tag if named differently
-        foreach (Transform child in structure.transform)
-        {
-            if (child.CompareTag(selectionIndicatorTag))
-            {
-                child.gameObject.SetActive(isVisible);
-                return;
-            }
-        }
+    //    // Method 2: Find by tag if named differently
+    //    foreach (Transform child in structure.transform)
+    //    {
+    //        if (child.CompareTag(selectionIndicatorTag))
+    //        {
+    //            child.gameObject.SetActive(isVisible);
+    //            return;
+    //        }
+    //    }
 
-        // Method 3: Fallback - look for specific indicator names
-        string[] indicatorNames = { "SelectionIndicator", "Indicator", "Selection", "Ring" };
-        foreach (string name in indicatorNames)
-        {
-            Transform found = structure.transform.Find(name);
-            if (found != null)
-            {
-                found.gameObject.SetActive(isVisible);
-                return;
-            }
-        }
+    //    // Method 3: Fallback - look for specific indicator names
+    //    string[] indicatorNames = { "SelectionIndicator", "Indicator", "Selection", "Ring" };
+    //    foreach (string name in indicatorNames)
+    //    {
+    //        Transform found = structure.transform.Find(name);
+    //        if (found != null)
+    //        {
+    //            found.gameObject.SetActive(isVisible);
+    //            return;
+    //        }
+    //    }
 
-        Debug.LogWarning($"No selection indicator found on {structure.name}. Add a child named 'SelectionIndicator' or tag it with '{selectionIndicatorTag}'");
-    }
+    //    Debug.LogWarning($"No selection indicator found on {structure.name}. Add a child named 'SelectionIndicator' or tag it with '{selectionIndicatorTag}'");
+    //}
 
     private void StructureInfoPanelMove()
     {
@@ -245,6 +269,8 @@ public class SelectionOfStructureManager : MonoBehaviour
         panel.blocksRaycasts = false;
     }
 
+
+
     private void OnDestroy()
     {
         // Cleanup
@@ -257,12 +283,12 @@ public class SelectionOfStructureManager : MonoBehaviour
         if (structureSelected.Contains(structure))
         {
             structureSelected.Remove(structure);
-            TriggerSelectionIndicator(structure, false);
+            //TriggerSelectionIndicator(structure, false);
         }
         else
         {
             structureSelected.Add(structure);
-            TriggerSelectionIndicator(structure, true);
+            //TriggerSelectionIndicator(structure, true);
         }
     }
 
@@ -272,4 +298,102 @@ public class SelectionOfStructureManager : MonoBehaviour
             return structureSelected[0];
         return null;
     }
+
+    public TreeBase GetSelectedTreeBase()
+    {
+        if (structureSelected.Count == 0)
+            return null;
+
+        // Try to get TreeBase component from the first selected structure
+        GameObject selectedObj = structureSelected[0];
+        if (selectedObj == null)
+            return null;
+
+        TreeBase tb = selectedObj.GetComponent<TreeBase>();
+        return tb; // returns null if not a TreeBase
+    }
+    private void OpenBuilderConfirmationPopupMovement()
+    {
+        builderSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void OpenScoutConfirmationPopupMovement()
+    {
+        scoutSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void OpenBomberConfirmationPopupMovement()
+    {
+        bomberSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void OpenTankerConfirmationPopupMovement()
+    {
+        tankerSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void OpenShooterConfirmationPopupMovement()
+    {
+        shooterSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
+    }
+
+    private void CloseBuilderConfirmationPopupMovement()
+    {
+        builderSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void CloseScoutConfirmationPopupMovement()
+    {
+        scoutSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void CloseBomberConfirmationPopupMovement()
+    {
+        bomberSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void CloseTankerConfirmationPopupMovement()
+    {
+        tankerSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+    private void CloseShooterConfirmationPopupMovement()
+    {
+        shooterSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
+    }
+
+    public void OpenBuilderConfirmationPopup()
+    {
+        OpenBuilderConfirmationPopupMovement();
+    }
+    public void OpenScoutConfirmationPopup()
+    {
+        OpenScoutConfirmationPopupMovement();
+    }
+    public void OpenShooterConfirmationPopup()
+    {
+        OpenShooterConfirmationPopupMovement();
+    }
+    public void OpenBomberConfirmationPopup()
+    {
+        OpenBomberConfirmationPopupMovement();
+    }
+    public void OpenTankerConfirmationPopup()
+    {
+        OpenTankerConfirmationPopupMovement();
+    }
+
+    public void CloseBuilderConfirmationPopup()
+    {
+        CloseBuilderConfirmationPopupMovement();
+    }
+    public void CloseScoutConfirmationPopup()
+    {
+        CloseScoutConfirmationPopupMovement();
+    }
+    public void CloseBomberConfirmationPopup()
+    {
+        CloseBomberConfirmationPopupMovement();
+    }
+    public void CloseTankerConfirmationPopup()
+    {
+        CloseTankerConfirmationPopupMovement();
+    }
+    public void CloseShooterConfirmationPopup()
+    {
+        CloseShooterConfirmationPopupMovement();
+    }
+
 }

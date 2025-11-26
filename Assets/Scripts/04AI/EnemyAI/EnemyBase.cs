@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using NUnit.Framework.Internal;
+using Unity.VisualScripting;
+using UnityEngine;
 
 /// <summary>
 /// Represents an AI-controlled enemy base on the map.
@@ -61,7 +63,7 @@ public class EnemyBase : MonoBehaviour
         else
             Debug.LogError("[EnemyBase] EnemyBaseManager not found in scene!");
 
-        if (EnemyTurfManager.Instance != null)
+        if (EnemyTurfManager.Instance != null && currentTile != null)
             EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius, this);
 
 
@@ -74,7 +76,7 @@ public class EnemyBase : MonoBehaviour
         if (EnemyBaseManager.Instance != null)
             EnemyBaseManager.Instance.UnregisterBase(this);
 
-        if (EnemyTurfManager.Instance != null)
+        if (EnemyTurfManager.Instance != null && currentTile != null)
             EnemyTurfManager.Instance.UnregisterBaseArea(currentTile.HexCoords, currentTurfRadius);
     }
 
@@ -199,5 +201,9 @@ public class EnemyBase : MonoBehaviour
         //Enable current level model
         int idx = Mathf.Clamp(level - 1, 0, levelModels.Length - 1);
         levelModels[idx].SetActive(true);
+
+        //If tile is fogged, force - hide the upgraded model
+        if (currentTile != null && currentTile.IsFogged)
+            currentTile.SetContentsVisible(false);
     }
 }

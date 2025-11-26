@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class TreeBase : BuildingBase
 {
@@ -8,13 +9,13 @@ public class TreeBase : BuildingBase
     [SerializeField] private int apBonusPerUpgrade = 1;
     [SerializeField] private int healthBonusPerUpgrade = 5;
     [SerializeField] public int level = 1;
-    [SerializeField] private int currentPop = 0;
-    [SerializeField] public int maxUpgrades = 3;
+    [SerializeField] public int currentPop = 0;
+    [SerializeField] public int maxUpgrades = 4;
 
     [Header("Population needed per upgrade")]
-    [SerializeField] private int popForLvl2 = 2;
-    [SerializeField] private int popForLvl3 = 3;
-    [SerializeField] private int popForLvlMore = 4;
+    [SerializeField] public int popForLvl2 = 2;
+    [SerializeField] public int popForLvl3 = 3;
+    [SerializeField] public int popForLvlMore = 4;
 
     [Header("Tree Base Prefabs")]
     [SerializeField] private GameObject Level2Base;
@@ -30,6 +31,7 @@ public class TreeBase : BuildingBase
     private void Start()
     {
         TreeBaseId = GetInstanceID();
+        Debug.Log($"[TreeBase] Initialized with ID: {TreeBaseId}");
 
         if (currentTile == null && MapManager.Instance != null)
         {
@@ -44,6 +46,7 @@ public class TreeBase : BuildingBase
             Debug.Log($"{buildingName} placed at Hex ({currentTile.q},{currentTile.r}) with turf radius {turfRadius}");
         }
     }
+
 
     public override void Initialize(BuildingData data, HexTile tile)
     {
@@ -84,6 +87,23 @@ public class TreeBase : BuildingBase
     public void GainPop(int amount)
     {
         currentPop += amount;
+        Debug.Log($"Gained {amount} population. Total: {currentPop}");
+
+        if (CanUpgrade())
+        {
+            ApplyUpgradeBase(); // This will increment level and reset pop
+        }
+
+        TreeBaseHPDisplay hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
+        if (hpDisplay != null)
+        {
+            Debug.Log("[TreeBase] Found TreeBaseHPDisplay, calling OnPopulationChanged");
+            hpDisplay.OnPopulationChanged();
+        }
+        else
+        {
+            Debug.LogError("[TreeBase] TreeBaseHPDisplay NOT FOUND!");
+        }
     }
 
     public bool CanUpgrade()
@@ -100,6 +120,8 @@ public class TreeBase : BuildingBase
             2 => popForLvl3,
             _ => popForLvlMore
         };
+
+        Debug.Log($"[CanUpgrade] Level={level}, currentPop={currentPop}, requiredPop={requiredPop}");
 
         if (currentPop < requiredPop)
         {
@@ -130,11 +152,13 @@ public class TreeBase : BuildingBase
         if (hpDisplay != null)
         {
             hpDisplay.ShowUpgradePopup();
+            hpDisplay.OnLevelChanged();
         }
         // -------------------
 
         Debug.Log($"Tree Base upgraded to Level {level}");
         Debug.Log($"Tree Base upgraded to Level {level} (+{healthBonusPerUpgrade} HP)");
+        Debug.Log($"[TreeBase] Upgraded to Level {level}, currentPop = {currentPop}");
     }
 
     public void ChooseScore()
@@ -188,7 +212,7 @@ public class TreeBase : BuildingBase
 
         if (hpDisplay != null)
         {
-            hpDisplay.OnHealthChanged();
+            hpDisplay.UpdateHPDisplay();
         }
 
         if (health <= 0)

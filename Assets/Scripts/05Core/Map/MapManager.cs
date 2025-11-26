@@ -123,6 +123,12 @@ public class MapManager : MonoBehaviour
 
     public int GetHexDistance(Vector2Int a, Vector2Int b) => Mathf.Max(Mathf.Abs(a.x - b.x), Mathf.Abs(a.y - b.y));
 
+    public bool IsTileClaimed(Vector2Int coord)
+    {
+        HexTile tile = GetTile(coord);
+        return (tile != null && TurfManager.Instance.IsInsideTurf(tile)) || EnemyTurfManager.Instance.IsInTurf(coord);
+    }
+
     public void SetUnitOccupied(Vector2Int coord, bool occupied)
     {
         if (_tiles.TryGetValue(coord, out var tile))

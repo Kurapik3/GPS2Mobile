@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 using UnityEngine;
+using QuickOutlinePlugin;
 [ExecuteInEditMode]
 public class HexTile : MonoBehaviour
 {
@@ -28,18 +29,14 @@ public class HexTile : MonoBehaviour
 
     public GameObject dynamicInstance;
     public bool HasDynamic => dynamicInstance != null;
-    //Computed properties
-    //public Vector2Int OffsetCoord => new Vector2Int(q + (r + (r % 2)) / 2, r);
-    //public Vector3Int CubeCoord => new Vector3Int(q, -q - r, r);
 
-    [HideInInspector] public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
+    public UnitBase currentUnit; // add the by william, use in Building base to see if any unit is on hextile
     [HideInInspector] public bool isPlayerTurf = false; // william
     [SerializeField] public BuildingBase currentBuilding; // by william|
 
     [Header("Structure Data")]
     public int structureIndex = -1; // -1 = no structure
     public string StructureName;
-    //private StructureTile structureTile;
     public bool HasStructure => structureIndex >= 0 || !string.IsNullOrEmpty(StructureName);
 
     private bool isDirty;
@@ -106,11 +103,6 @@ public class HexTile : MonoBehaviour
         currentBuilding = null;
     }
 
-    //public void RollTileType()
-    //{
-    //    tileType = (TileType)Random.Range(0, System.Enum.GetValues(typeof(TileType)).Length);
-    //    isDirty = true;
-    //}
     public void AddTile()
     {
         if (settings == null)
@@ -123,12 +115,9 @@ public class HexTile : MonoBehaviour
             return;
         }
         // Instantiate as child so it stays local
-        //tile = Application.isPlaying?Instantiate(prefab, transform):(GameObject)PrefabUtility.InstantiatePrefab(prefab, transform);
         tile = Instantiate(prefab, transform);
         tile.name = "Mesh";
         tile.transform.localPosition = Vector3.zero;
-        //tile.transform.localRotation = Quaternion.identity;
-        //tile.transform.localScale = Vector3.one;
 
         if (tile.TryGetComponent(out MeshFilter mf) && !tile.GetComponent<MeshCollider>())
         {
@@ -148,6 +137,7 @@ public class HexTile : MonoBehaviour
             }
         }
     }
+    
     public void AddFog(GameObject fogPrefab, float yOffset = 0f)
     {
         if (fogInstance != null || fogPrefab == null)
@@ -228,36 +218,6 @@ public class HexTile : MonoBehaviour
     }
 #endif
 
-    //private Material originalMaterial;
-    //private static Material highlightMaterial;
-    //public void Highlight(bool on)
-    //{
-    //    Renderer renderer = GetComponentInChildren<Renderer>();
-    //    if (renderer == null)
-    //    {
-    //        return;
-    //    }
-    //    if (highlightMaterial == null)
-    //    {
-    //        //yellow highlight
-    //        highlightMaterial = new Material(Shader.Find("Standard"))
-    //        {
-    //            color = new Color(1, 1, 0, 0.3f) // Yellow, semi-transparent
-    //        };
-    //    }
-
-    //    if (on)
-    //    {
-    //        if (originalMaterial == null)
-    //            originalMaterial = renderer.material;
-    //        renderer.material = highlightMaterial;
-    //    }
-    //    else
-    //    {
-    //        if (originalMaterial != null)
-    //            renderer.material = originalMaterial;
-    //    }
-    //}
 #if UNITY_EDITOR
     private void HandleStructureComponent()
     {
@@ -292,16 +252,6 @@ public class HexTile : MonoBehaviour
         EditorUtility.SetDirty(this);
     }
 #endif
-    // Runtime structure placement (used by MapGenerator.LoadMapData)
-    //public void ApplyStructureByName(string name)
-    //{
-    //    StructureName = name;
-    //    var structure = GetComponent<StructureTile>();
-    //    if (structure != null)
-    //    {
-    //        structure.ApplyStructureRuntime();
-    //    }
-    //}
 
     public void ApplyStructureByName(string name)
     {
@@ -379,10 +329,13 @@ public class HexTile : MonoBehaviour
             visible = true;
         }
         //For dynamic tile
-        if (dynamicInstance != null)
-        {
-            ToggleRenderersAndColliders(dynamicInstance, visible);
-        }
+        HideObjectsWithTagRecursive(transform, "Debris", visible);
+        HideObjectsWithTagRecursive(transform, "Fish", visible);
+        HideObjectsWithTagRecursive(transform, "Cache", visible);
+        // For Grove
+        HideObjectsWithTagRecursive(transform, "Grove", visible);
+        // for Turf
+        HideObjectsWithTagRecursive(transform, "TurfVisual", visible);
         //For structures using layer
         int structureLayer = LayerMask.NameToLayer("structure");
         foreach (Transform child in transform)
@@ -436,4 +389,63 @@ public class HexTile : MonoBehaviour
     {
         isPlayerTurf = value;   
     }
+
+    public void EnsureOutline(GameObject structure)
+    {
+        if (structure == null) return;
+
+        Outline outline = structure.GetComponent<Outline>();
+        if (outline == null)
+        {
+            outline = structure.AddComponent<Outline>();
+            outline.OutlineMode = Outline.Mode.OutlineAll;
+            outline.OutlineColor = Color.cyan; // You can customize
+            outline.OutlineWidth = 5f;
+        }
+
+        outline.enabled = false; 
+    }
+
+    public void OnTileClicked()
+    {
+        //Select tile
+        TileSelector.SelectTile(this);
+
+        //Highlight structure
+        if (currentBuilding != null)
+        {
+            Outline outline = currentBuilding.GetComponent<Outline>();
+            if (outline != null)
+            {
+                outline.enabled = true;
+            }
+        }
+        //Disable prev outline
+        if (TileSelector.PreviousOutline != null)
+        {
+            TileSelector.PreviousOutline.enabled = false;
+        }
+
+        TileSelector.PreviousOutline = currentBuilding?.GetComponent<Outline>();
+        EventBus.Publish(new TileSelectedEvent(this));
+    }
+    public void OnTileDeselected()
+    {
+        //Remove tile highlight
+        TileSelector.Hide();
+
+        // Disable structure outline
+        if (currentBuilding != null)
+        {
+            Outline outline = currentBuilding.GetComponent<Outline>();
+            if (outline != null)
+            {
+                outline.enabled = false;
+            }
+        }
+
+        // Clear previous outline tracker
+        TileSelector.PreviousOutline = null;
+    }
+
 }

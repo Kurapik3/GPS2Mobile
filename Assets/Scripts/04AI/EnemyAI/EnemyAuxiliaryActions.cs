@@ -17,6 +17,7 @@ public class EnemyAuxiliaryActions : MonoBehaviour
 
     private bool actionCompleted = false;
     private bool actionSuccess = false;
+    private int unlockTechCount = 0;
 
     private void OnEnable()
     {
@@ -70,7 +71,7 @@ public class EnemyAuxiliaryActions : MonoBehaviour
 
         foreach (int id in eum.GetOwnedUnitIds())
         {
-            if (eum.IsBuilderUnit(id) || eum.HasUnitActedThisTurn(id))
+            if (eum.IsUnitType(id, "Builder") || eum.HasUnitActedThisTurn(id))
                 continue;
 
             HexTile tile = MapManager.Instance.GetTile(eum.GetUnitPosition(id));
@@ -114,10 +115,10 @@ public class EnemyAuxiliaryActions : MonoBehaviour
                 //Weighted random: 70% develop tile, 30% unlock tech
                 float roll = UnityEngine.Random.value;
 
-                if (roll < 0.7f && eum.CanUnitMove(unitId))
-                    yield return ExecuteDevelopTileAction(unitId);
-                else
+                if (roll < 0.3f && unlockTechCount < 13)
                     yield return ExecuteUnlockTechAction();
+                else if (roll < 0.7f && eum.CanUnitMove(unitId))
+                    yield return ExecuteDevelopTileAction(unitId);
             }
 
             actionsDone++;
@@ -187,8 +188,9 @@ public class EnemyAuxiliaryActions : MonoBehaviour
 
     private IEnumerator ExecuteUnlockTechAction()
     {
+        unlockTechCount ++;
         actionCompleted = false;
-
+        
         Debug.Log("[EnemyAuxiliaryActions] Request unlock tech");
         EventBus.Publish(new EnemyAuxiliaryActionRequestEvent(6, -1, Vector2Int.zero));
 

@@ -1,6 +1,12 @@
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using static SeaMonsterEvents;
+
+public enum SeaMonsterState
+{
+    Untamed,
+    Tamed
+}
 
 /// <summary>
 /// Base class for all Sea Monsters (Kraken, TurtleWall)
@@ -9,16 +15,13 @@ using static SeaMonsterEvents;
 public abstract class SeaMonsterBase : MonoBehaviour
 {
     [Header("Stats")]
-    [SerializeField] protected string monsterName;
-    [SerializeField] protected int attack;
-    [SerializeField] protected int health;
-    [SerializeField] protected int killPoints;
-    [SerializeField] protected int killAP;
-    [SerializeField] protected int movementRange;
-    [SerializeField] protected int attackRange;
-
-    public string MonsterName => monsterName;
-    public int MovementRange => movementRange;
+    [SerializeField] public string monsterName;
+    [SerializeField] public int attack;
+    [SerializeField] public int health;
+    [SerializeField] public int killPoints;
+    [SerializeField] public int killAP;
+    [SerializeField] public int movementRange;
+    [SerializeField] public int attackRange;
 
     [Header("Visual")]
     [SerializeField] public float heightOffset = 2f;
@@ -27,11 +30,20 @@ public abstract class SeaMonsterBase : MonoBehaviour
     public int CurrentTurn;
 
     //Unified ID for all sea monsters
-    [HideInInspector] public int MonsterId;
+    public int MonsterId { get; private set; }
     private static int nextMonsterId = 1;
+    public SeaMonsterState State { get; private set; } = SeaMonsterState.Untamed;
+    private bool isSelected = false;
 
     protected bool hasActedThisTurn = false;
+    protected bool hasMovedThisTurn = false;
+    protected bool hasAttackedThisTurn = false;
     protected bool isBlocking = false;
+
+    [Header("TechTreeCreatureResearch")]
+    [SerializeField] private GameObject untamedRangeIndicatorPrefab;
+    [SerializeField] private GameObject tamedRangeIndicatorPrefab;
+    private List<GameObject> activeIndicators = new List<GameObject>();
 
     protected virtual void Awake()
     {
@@ -65,13 +77,28 @@ public abstract class SeaMonsterBase : MonoBehaviour
         Debug.Log($"[{monsterName}] Spawned at {spawnTile.HexCoords}");
     }
 
-    private void OnTurnStarted(SeaMonsterEvents.SeaMonsterTurnStartedEvent evt)
+    private void OnTurnStarted(SeaMonsterTurnStartedEvent evt)
     {
         CurrentTurn = evt.Turn;
         hasActedThisTurn = false;
-        PerformTurnAction();
+        hasMovedThisTurn = false;
+        hasAttackedThisTurn = false;
+        if (State == SeaMonsterState.Untamed)
+        {
+            PerformTurnAction(); //AI action
+        }
     }
 
+    public void ResetTurnActions()
+    {
+        hasMovedThisTurn = false;
+        hasAttackedThisTurn = false;
+        hasActedThisTurn = false;
+        Debug.Log($"[{monsterName}] Turn actions reset for player control");
+
+    }
+
+    #region Untamed(AI)
     public virtual void PerformTurnAction() { }
 
     protected virtual void MoveTo(HexTile newTile)
@@ -103,33 +130,100 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
         EventBus.Publish(new SeaMonsterMoveEvent(this, oldPos, newPos));
 
+        hasActedThisTurn = true;
+        hasMovedThisTurn = true;
+
         //If blocking, trigger reapply event (used by TurtleWall)
         if (isBlocking)
             EventBus.Publish(new TurtleWallBlockEvent(this, newPos));
 
         Debug.Log($"[{monsterName}] Moved from {oldPos} to {newPos}");
-        StartCoroutine(SmoothMove(newTile));
     }
+    #endregion
 
-    private IEnumerator SmoothMove(HexTile newTile)
+    #region Tamed
+    public virtual void OnPlayerClickTile(HexTile tile) 
     {
-        Vector3 start = MapManager.Instance.HexToWorld(currentTile.HexCoords);
-        start.y += heightOffset;
-        Vector3 end = MapManager.Instance.HexToWorld(newTile.HexCoords);
-        end.y += heightOffset;
+        if (State != SeaMonsterState.Tamed)
+            return;
 
-        float t = 0f;
-        float duration = 1f / AIController.AISpeedMultiplier; ;
-
-        while (t < 1f)
+        if (tile == currentTile)
         {
-            t += Time.deltaTime / duration;
-            Vector3 nextPos = Vector3.Lerp(start, end, t);
-            transform.position = nextPos;
-            yield return null;
+            SetSelected(!isSelected);
+            return;
         }
 
-        transform.position = end;
+        if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
+        {
+            if (!hasAttackedThisTurn)
+            {
+                PerformAttackOnTile(tile);
+            }
+            SetSelected(false);
+            return;
+        }
+
+        if (isSelected && GetAvailableTiles().Contains(tile))
+        {
+            if (!hasMovedThisTurn)
+            {
+                TryMove(tile);
+            }
+            SetSelected(false);
+            return;
+        }
+    }
+
+    public void SetSelected(bool selected)
+    {
+        isSelected = selected;
+        if (isSelected)
+            ShowSMRangeIndicators();
+        else
+            HideSMRangeIndicators();
+    }
+
+    public void TryMove(HexTile targetTile)
+    {
+        if (targetTile == null) 
+            return;
+
+        if(hasActedThisTurn || hasMovedThisTurn)
+            return; 
+
+        var availableTiles = GetAvailableTiles();
+        if (!availableTiles.Contains(targetTile))
+        {
+            Debug.LogWarning($"[{monsterName}] Cannot move to {targetTile.HexCoords} — not in available tiles.");
+            return;
+        }
+
+        MoveTo(targetTile);
+    }
+
+    #endregion
+
+    public List<HexTile> GetAvailableTiles()
+    {
+        if (currentTile == null) 
+            return new List<HexTile>();
+
+        List<HexTile> result = new List<HexTile>();
+        var neighbors = MapManager.Instance.GetNeighborsWithinRadius(currentTile.HexCoords.x, currentTile.HexCoords.y, movementRange);
+
+        foreach (var tile in neighbors)
+        {
+            if (tile == null)
+                continue;
+
+            if (MapManager.Instance.IsWalkable(tile.HexCoords) && !MapManager.Instance.IsTileOccupied(tile.HexCoords)
+                && tile.currentBuilding == null && tile.currentEnemyBase == null && tile.currentSeaMonster == null)
+            {
+                result.Add(tile);
+            }
+        }
+
+        return result;
     }
 
     public virtual void TakeDamage(int dmg)
@@ -154,5 +248,108 @@ public abstract class SeaMonsterBase : MonoBehaviour
         Debug.Log($"[{monsterName}] died at {pos}");
 
         Destroy(gameObject);
+    }
+
+    public void Tame()
+    {
+        State = SeaMonsterState.Tamed;
+        hasMovedThisTurn = false;
+        hasAttackedThisTurn = false;
+        hasActedThisTurn = false;
+
+        Debug.Log($"[{monsterName}] (ID:{MonsterId}) has been TAMED! State is now: {State}");
+    }
+
+    public void Untame()
+    {
+        State = SeaMonsterState.Untamed;
+        Debug.Log($"[{monsterName}] is now UNTAMED");
+    }
+
+    public abstract HexTile GetNextMoveTile();
+
+    public void ShowSMRangeIndicators()
+    {
+        if (!TechTree.Instance.IsCreaturesResearch)
+            return;
+
+        HideSMRangeIndicators();
+
+        if (untamedRangeIndicatorPrefab == null || currentTile == null || tamedRangeIndicatorPrefab == null)
+            return;
+
+        if (hasActedThisTurn)
+            return;
+
+        if (State == SeaMonsterState.Untamed)
+        {
+            HexTile nextMoveTile = GetNextMoveTile();
+
+            if (nextMoveTile != null)
+            {
+                SpawnIndicatorAt(nextMoveTile, untamedRangeIndicatorPrefab);
+            }
+        }
+        else if(State == SeaMonsterState.Tamed)
+        {
+            if (!hasMovedThisTurn)
+            {
+                List<HexTile> tilesInRange = GetAvailableTiles();
+                foreach (var tile in tilesInRange)
+                {
+                    SpawnIndicatorAt(tile, tamedRangeIndicatorPrefab); //blue
+                }
+            }
+
+            if (!hasAttackedThisTurn)
+            {
+                List<HexTile> neighbors = MapManager.Instance.GetNeighborsWithinRadius(currentTile.HexCoords.x, currentTile.HexCoords.y, attackRange);
+                foreach (var tile in neighbors)
+                {
+                    if (tile == null)
+                        continue;
+
+                    if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
+                    {
+                        SpawnIndicatorAt(tile, untamedRangeIndicatorPrefab); //red
+                    }
+                }
+            }
+        }            
+    }
+
+    private void SpawnIndicatorAt(HexTile tile, GameObject indicatorPrefab)
+    {
+        Vector3 spawnPos = new Vector3(tile.transform.position.x, 2.0f, tile.transform.position.z);
+        GameObject indicator = Instantiate(indicatorPrefab, spawnPos, Quaternion.Euler(90f, 0f, 0f));
+        indicator.name = $"SeaMonster_RangeIndicator({tile.q},{tile.r})";
+        activeIndicators.Add(indicator);
+    }
+
+    public void HideSMRangeIndicators()
+    {
+        foreach (var ind in activeIndicators)
+            if (ind != null) Destroy(ind);
+        activeIndicators.Clear();
+    }
+
+    public void PerformAttackOnTile(HexTile tile)
+    {
+        if (hasAttackedThisTurn)
+            return;
+
+        if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
+        {
+            int damage = attack;
+            if (tile.currentEnemyUnit != null) 
+                tile.currentEnemyUnit.TakeDamage(damage);
+            else if (tile.currentEnemyBase != null) 
+                tile.currentEnemyBase.TakeDamage(damage);
+            else if (tile.currentSeaMonster != null) 
+                tile.currentSeaMonster.TakeDamage(damage);
+        }
+
+        hasActedThisTurn = true;
+        hasAttackedThisTurn = true;
     }
 }

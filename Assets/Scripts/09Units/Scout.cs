@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 public class Scout : UnitBase
 {
@@ -29,6 +30,13 @@ public class Scout : UnitBase
 
         base.TryMove(targetTile);
         movesLeftThisTurn--; 
+        if(movesLeftThisTurn > 0)
+        {
+            hasMovedThisTurn = false;
+        }
     }
-
+    protected override IEnumerator PerformAttack(HexTile target)
+    {
+        yield return PlayAttackAnimation(target, true);
+    }
 }

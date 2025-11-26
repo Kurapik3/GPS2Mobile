@@ -88,6 +88,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a2348e9103c55d249b56a3a11ea55f30, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 251765321046245209}
     - targetCorrespondingSourceObject: {fileID: -1880437411723790067, guid: a2348e9103c55d249b56a3a11ea55f30, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3507008868515339138}
@@ -119,3 +122,27 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 2158394749951493365, guid: 7527ffbd0e913fb41a74c691b8c7265e, type: 3}
+--- !u!1 &5400567675023211575 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a2348e9103c55d249b56a3a11ea55f30, type: 3}
+  m_PrefabInstance: {fileID: 5058600653882524006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &251765321046245209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5400567675023211575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f41bae1489e6f1408d6a90906900498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectData:
+    objectName: Water, Ocean
+    description: Units are able to move on this tile
+    icon: {fileID: 21300000, guid: 96b3c7e60d3335a478a9e46146490b69, type: 3}
+    objectType: 5
+    apCost: 0
+  selectionIndicator: {fileID: 0}

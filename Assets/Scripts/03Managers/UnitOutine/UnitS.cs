@@ -10,6 +10,7 @@ using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.UI;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 using TouchPhase = UnityEngine.InputSystem.TouchPhase;
+using QuickOutlinePlugin;
 
 public class UnitS : MonoBehaviour
 {
@@ -283,7 +284,7 @@ public class UnitS : MonoBehaviour
     private bool isStatusClosed = false;
     private bool isSFXPlayed = true;
     public static bool IsUIBlockingInput { get; set; } = false;
-
+    private bool handledByThisManager = false;
     // Touch tracking
     private Vector2 touchStartPos;
     private float touchStartTime;
@@ -354,8 +355,16 @@ public class UnitS : MonoBehaviour
         Ray ray = cam.ScreenPointToRay(touchPosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, clickable))
         {
+            handledByThisManager = true;
             SelectByClicking(hit.collider.gameObject);
             UnitInfoPanelMove();
+
+            UnitBase unitBase = hit.collider.GetComponentInParent<UnitBase>();
+            if (unitBase != null && unitBase.currentTile != null)
+            {
+                HexTile tile = unitBase.currentTile;
+                tile.OnTileClicked();
+            }
 
             if (isSFXPlayed)
             {
@@ -365,9 +374,15 @@ public class UnitS : MonoBehaviour
         }
         else
         {
+            if (!handledByThisManager) return;
+            handledByThisManager = false;
             isSFXPlayed = true;
             DeselectAll();
             CloseUnitInfoPanel();
+            if(TileSelector.CurrentTile != null)
+            {
+                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+            }
         }
     }
 
@@ -398,6 +413,11 @@ public class UnitS : MonoBehaviour
 
     private void SelectByClicking(GameObject unit)
     {
+        foreach (var u in unitsSelected)
+        {
+            QuickOutlinePlugin.Outline oldOutline = u.GetComponentInParent<QuickOutlinePlugin.Outline>();
+            if (oldOutline != null) oldOutline.enabled = false;
+        }
         DeselectAll();
         unitsSelected.Add(unit);
         TriggerSelectionIndicator(unit, true);
