@@ -1473,7 +1473,7 @@ MonoBehaviour:
   worldCanvas: {fileID: 195136199033831799}
   baseIconImage: {fileID: 3952006254135085665}
   hpText: {fileID: 3123385815013843093}
-  levelProgress: {fileID: 0}
+  levelProgress: {fileID: 2778131892068179363}
   upgradePopup: {fileID: 0}
   treeBaseIcon: {fileID: 21300000, guid: ca26c326ad460b34781c28cf8c362f14, type: 3}
   displayOffset: {x: 0, y: 2, z: 0}

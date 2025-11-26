@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 9222742391696497563}
   - component: {fileID: 4439866791185208099}
   - component: {fileID: 7156800315396222806}
+  - component: {fileID: 5107396073430038497}
   m_Layer: 19
   m_Name: Kraken
   m_TagString: Kraken
@@ -70,12 +71,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectData:
-    objectName: 
-    description: 
+    objectName: Kraken!!!
+    description: Defeat the Krtaken to earn valuable rewards!
     icon: {fileID: 0}
-    objectType: 0
-    apCost: 2
+    objectType: 6
+    apCost: 0
   selectionIndicator: {fileID: 0}
+--- !u!65 &5107396073430038497
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607040072654141610}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 30, y: 100, z: 30}
+  m_Center: {x: 0, y: 50, z: 0}
 --- !u!1001 &2040518967866993172
 PrefabInstance:
   m_ObjectHideFlags: 0

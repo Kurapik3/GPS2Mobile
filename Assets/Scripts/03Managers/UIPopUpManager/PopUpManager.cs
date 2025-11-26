@@ -2,29 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[System.Serializable]
-public class ObjectData
-{
-    public string objectName;
-    public string description;
-    public Sprite icon;
-    public ObjectType objectType;
-    public int apCost = 2;
-}
-public enum ObjectType
-{
-    Fish,
-    Debris,
-    Ruins,
-    Clam, 
-    Groove, 
-    WaterTile,
-    Kraken, 
-    Enemy, 
-    EnemyBase, 
-    Turtle
-}
-
 public class PopUpManager : MonoBehaviour
 {
     [Header("UI References")]
@@ -33,7 +10,6 @@ public class PopUpManager : MonoBehaviour
     public TextMeshProUGUI descriptionText;
 
     [Header ("Creature UI (Tamed)")]
-    public TextMeshProUGUI statsText;
     public Image creatureIconImage;
     public TextMeshProUGUI creatureTitleText;
     public TextMeshProUGUI creatureDescriptionText;
@@ -234,7 +210,6 @@ public class PopUpManager : MonoBehaviour
 
                     creatureInfoPopup?.SetActive(true);
                 }
-                    ShowCreatureInfoOrLockedPanel();
                 break;
         }
     }
@@ -249,53 +224,53 @@ public class PopUpManager : MonoBehaviour
         // ruinsInfoText.text = currentData.description;
     }
 
-    private void ShowCreatureInfoOrLockedPanel()
-    {
-        TechTree techTree = TechTree.Instance;
-        bool isTamingUnlocked = techTree != null && techTree.IsTaming;
+    //private void ShowCreatureInfoOrLockedPanel()
+    //{
+    //    TechTree techTree = TechTree.Instance;
+    //    bool isTamingUnlocked = techTree != null && techTree.IsTaming;
 
-        if (!isTamingUnlocked)
-        {
-            // Show locked panel
-            if (notTameCreatureTitleText != null)
-                notTameCreatureTitleText.text = currentData.objectName;
-            if (notTameCreatureDescriptionText != null)
-                notTameCreatureDescriptionText.text =
-                    $"This majestic creature remains wild. Unlock the \"Taming\" technology to interact with it.";
-            if (creatureIconImage != null)
-                creatureIconImage.sprite = currentData.icon;
+    //    if (!isTamingUnlocked)
+    //    {
+    //        // Show locked panel
+    //        if (notTameCreatureTitleText != null)
+    //            notTameCreatureTitleText.text = currentData.objectName;
+    //        if (notTameCreatureDescriptionText != null)
+    //            notTameCreatureDescriptionText.text =
+    //                $"This majestic creature remains wild. Unlock the \"Taming\" technology to interact with it.";
+    //        if (creatureIconImage != null)
+    //            creatureIconImage.sprite = currentData.icon;
 
-            if (creatureInfoPopup != null)
-                creatureInfoPopup.SetActive(true);
-        }
-        else
-        {
-            ShowCreatureStatsPanel();
-        }
-    }
+    //        if (creatureInfoPopup != null)
+    //            creatureInfoPopup.SetActive(true);
+    //    }
+    //    else
+    //    {
+    //        //ShowCreatureStatsPanel();
+    //    }
+    //}
 
-    private void ShowCreatureStatsPanel()
-    {
-        // Populate generic info
-        if (creatureTitleText != null)
-            creatureTitleText.text = currentData.objectName;
-        if (creatureDescriptionText != null)
-            creatureDescriptionText.text = currentData.description;
-        if (creatureIconImage != null)
-            creatureIconImage.sprite = currentData.icon;
+    //private void ShowCreatureStatsPanel()
+    //{
+    //    // Populate generic info
+    //    if (creatureTitleText != null)
+    //        creatureTitleText.text = currentData.objectName;
+    //    if (creatureDescriptionText != null)
+    //        creatureDescriptionText.text = currentData.description;
+    //    if (creatureIconImage != null)
+    //        creatureIconImage.sprite = currentData.icon;
 
-        string stats = "HP: ???\n ATK: ???\n Move: ???";
+    //    string stats = "HP: ???\n ATK: ???\n Move: ???";
 
-        // If you later link to actual monster:
-        // SeaMonsterBase monster = GetMonsterFromCurrentSelection();
-        // if (monster != null) { ... format stats ... }
+    //    // If you later link to actual monster:
+    //    // SeaMonsterBase monster = GetMonsterFromCurrentSelection();
+    //    // if (monster != null) { ... format stats ... }
 
-        if (statsText != null)
-            statsText.text = stats;
+    //    if (statsText != null)
+    //        statsText.text = stats;
 
-        if (creatureStatsPopup != null)
-            creatureStatsPopup.SetActive(true);
-    }
+    //    if (creatureStatsPopup != null)
+    //        creatureStatsPopup.SetActive(true);
+    //}
 
     public void OpenFishStats()
     {
@@ -318,6 +293,11 @@ public class PopUpManager : MonoBehaviour
     public void CloseDebrisStats()
     {
         debrisStatsPanel.SetActive(false);
+    }
+
+    public void CloseRuinsInfoPopup()
+    {
+        ruinsInfoPopup.SetActive(false);
     }
 
     private void UpdateButtonVisibility()

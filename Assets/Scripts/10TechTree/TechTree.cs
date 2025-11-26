@@ -27,6 +27,8 @@ public class TechTree : MonoBehaviour
     [SerializeField] public bool IsHunterMask = false;
     [SerializeField] public bool IsTaming = false;
 
+    public event System.Action OnTechResearched;
+
     public static TechTree instance { get; private set; } // Keep the lowercase version too
 
     private void Awake()
@@ -139,6 +141,7 @@ public class TechTree : MonoBehaviour
             Debug.Log("Fishing unlocked!");
             player.useAP(cost);
             IsFishing = true;
+            OnTechResearched?.Invoke();
         }
         else
         {
@@ -152,6 +155,7 @@ public class TechTree : MonoBehaviour
         {
             player.useAP(cost);
             IsMetalScraps = true;
+            OnTechResearched?.Invoke();
         }
         else
         {

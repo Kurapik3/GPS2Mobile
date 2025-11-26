@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class TechTreeUI : MonoBehaviour
@@ -25,10 +26,17 @@ public class TechTreeUI : MonoBehaviour
 
         if (confirmPopup != null) confirmPopup.SetActive(false);
         if (infoPopup != null) infoPopup.SetActive(false);
+
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+        }
     }
 
     public void OpenConfirmPopup(TechNode node)
     {
+        CloseAllPopups();
+
         if (confirmPopup == null)
         {
             Debug.LogError("[TechTreeUI] ConfirmPopup not assigned in Inspector!");
@@ -47,6 +55,9 @@ public class TechTreeUI : MonoBehaviour
 
     public void OpenInfoPopUp(TechNode node)
     {
+        Debug.Log($"[TechTreeUI] Opening info popup for: {node.techName}");
+        CloseAllPopups();
+
         if (node == null) return;
 
         bool isUnitTech = IsUnitTech(node.techName);
@@ -65,6 +76,7 @@ public class TechTreeUI : MonoBehaviour
                 return;
             }
             unitInfoPopup.SetActive(true);
+            unitInfoPopup.GetComponent<UnitInfoPopup>().Setup(node);
             popup.Setup(node);
         }
         else
@@ -81,8 +93,16 @@ public class TechTreeUI : MonoBehaviour
                 return;
             }
             techInfoPopup.SetActive(true);
+            techInfoPopup.GetComponent<TechInfoPopup>().Setup(node);
             popup.Setup(node);
         }
+    }
+
+    private void CloseAllPopups()
+    {
+        if (confirmPopup != null) confirmPopup.SetActive(false);
+        if (unitInfoPopup != null) unitInfoPopup.SetActive(false);
+        if (techInfoPopup != null) techInfoPopup.SetActive(false);
     }
 
     private bool IsUnitTech(string techName)

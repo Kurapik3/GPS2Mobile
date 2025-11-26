@@ -91,7 +91,7 @@ MonoBehaviour:
     objectName: Groves
     description: Move a Unit here to build a base
     icon: {fileID: 0}
-    objectType: 0
+    objectType: 4
     apCost: 0
   selectionIndicator: {fileID: 0}
 --- !u!1001 &4467731891331341134
