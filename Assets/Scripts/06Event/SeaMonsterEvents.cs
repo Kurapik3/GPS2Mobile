@@ -130,6 +130,7 @@ public static class SeaMonsterEvents
     }
     #endregion
 
+    #region TechTree
     public struct UnitSelectedEvent
     {
         public UnitBase Unit { get; }
@@ -141,4 +142,7 @@ public static class SeaMonsterEvents
             IsSelected = isSelected;
         }
     }
+
+    public struct TamingUnlockedEvent { }
+    #endregion
 }

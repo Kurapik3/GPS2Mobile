@@ -64,6 +64,14 @@ public class TechTree : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (IsTaming)
+        {
+            EventBus.Publish(new SeaMonsterEvents.TamingUnlockedEvent());
+        }
+    }
+
     // Main unlock method that checks both prerequisites and AP
     public bool UnlockTech(string techName, int cost)
     {
@@ -300,10 +308,7 @@ public class TechTree : MonoBehaviour
             player.useAP(cost);
             IsTaming = true;
 
-            foreach (var monster in SeaMonsterManager.Instance.ActiveMonsters)
-            {
-                monster.Tame();
-            }
+            EventBus.Publish(new SeaMonsterEvents.TamingUnlockedEvent());
         }
         else
         {

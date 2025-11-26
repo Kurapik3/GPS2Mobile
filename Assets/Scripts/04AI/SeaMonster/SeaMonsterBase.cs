@@ -36,6 +36,8 @@ public abstract class SeaMonsterBase : MonoBehaviour
     private bool isSelected = false;
 
     protected bool hasActedThisTurn = false;
+    protected bool hasMovedThisTurn = false;
+    protected bool hasAttackedThisTurn = false;
     protected bool isBlocking = false;
 
     [Header("TechTreeCreatureResearch")]
@@ -75,14 +77,25 @@ public abstract class SeaMonsterBase : MonoBehaviour
         Debug.Log($"[{monsterName}] Spawned at {spawnTile.HexCoords}");
     }
 
-    private void OnTurnStarted(SeaMonsterEvents.SeaMonsterTurnStartedEvent evt)
+    private void OnTurnStarted(SeaMonsterTurnStartedEvent evt)
     {
         CurrentTurn = evt.Turn;
         hasActedThisTurn = false;
+        hasMovedThisTurn = false;
+        hasAttackedThisTurn = false;
         if (State == SeaMonsterState.Untamed)
         {
             PerformTurnAction(); //AI action
         }
+    }
+
+    public void ResetTurnActions()
+    {
+        hasMovedThisTurn = false;
+        hasAttackedThisTurn = false;
+        hasActedThisTurn = false;
+        Debug.Log($"[{monsterName}] Turn actions reset for player control");
+
     }
 
     #region Untamed(AI)
@@ -117,6 +130,9 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
         EventBus.Publish(new SeaMonsterMoveEvent(this, oldPos, newPos));
 
+        hasActedThisTurn = true;
+        hasMovedThisTurn = true;
+
         //If blocking, trigger reapply event (used by TurtleWall)
         if (isBlocking)
             EventBus.Publish(new TurtleWallBlockEvent(this, newPos));
@@ -131,20 +147,30 @@ public abstract class SeaMonsterBase : MonoBehaviour
         if (State != SeaMonsterState.Tamed)
             return;
 
-        //If player click on the current tile that has sea monster
-        if (tile == currentTile) 
+        if (tile == currentTile)
         {
             SetSelected(!isSelected);
+            return;
         }
-        else if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
+
+        if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
         {
-            PerformAttackOnTile(tile);
+            if (!hasAttackedThisTurn)
+            {
+                PerformAttackOnTile(tile);
+            }
             SetSelected(false);
+            return;
         }
-        else if (isSelected && GetAvailableTiles().Contains(tile))
+
+        if (isSelected && GetAvailableTiles().Contains(tile))
         {
-            TryMove(tile);
+            if (!hasMovedThisTurn)
+            {
+                TryMove(tile);
+            }
             SetSelected(false);
+            return;
         }
     }
 
@@ -162,6 +188,9 @@ public abstract class SeaMonsterBase : MonoBehaviour
         if (targetTile == null) 
             return;
 
+        if(hasActedThisTurn || hasMovedThisTurn)
+            return; 
+
         var availableTiles = GetAvailableTiles();
         if (!availableTiles.Contains(targetTile))
         {
@@ -176,7 +205,8 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     public List<HexTile> GetAvailableTiles()
     {
-        if (currentTile == null) return new List<HexTile>();
+        if (currentTile == null) 
+            return new List<HexTile>();
 
         List<HexTile> result = new List<HexTile>();
         var neighbors = MapManager.Instance.GetNeighborsWithinRadius(currentTile.HexCoords.x, currentTile.HexCoords.y, movementRange);
@@ -222,16 +252,18 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     public void Tame()
     {
-        if (State == SeaMonsterState.Untamed)
-        {
-            State = SeaMonsterState.Tamed;
-            Debug.Log($"{name} has been tamed!");
-        }
+        State = SeaMonsterState.Tamed;
+        hasMovedThisTurn = false;
+        hasAttackedThisTurn = false;
+        hasActedThisTurn = false;
+
+        Debug.Log($"[{monsterName}] (ID:{MonsterId}) has been TAMED! State is now: {State}");
     }
 
     public void Untame()
     {
         State = SeaMonsterState.Untamed;
+        Debug.Log($"[{monsterName}] is now UNTAMED");
     }
 
     public abstract HexTile GetNextMoveTile();
@@ -246,7 +278,10 @@ public abstract class SeaMonsterBase : MonoBehaviour
         if (untamedRangeIndicatorPrefab == null || currentTile == null || tamedRangeIndicatorPrefab == null)
             return;
 
-        if(State == SeaMonsterState.Untamed)
+        if (hasActedThisTurn)
+            return;
+
+        if (State == SeaMonsterState.Untamed)
         {
             HexTile nextMoveTile = GetNextMoveTile();
 
@@ -257,11 +292,28 @@ public abstract class SeaMonsterBase : MonoBehaviour
         }
         else if(State == SeaMonsterState.Tamed)
         {
-            List<HexTile> tilesInRange = MapManager.Instance.GetNeighborsWithinRadius(currentTile.HexCoords.x, currentTile.HexCoords.y, movementRange);
-
-            foreach (var tile in tilesInRange)
+            if (!hasMovedThisTurn)
             {
-               SpawnIndicatorAt(tile, tamedRangeIndicatorPrefab);
+                List<HexTile> tilesInRange = GetAvailableTiles();
+                foreach (var tile in tilesInRange)
+                {
+                    SpawnIndicatorAt(tile, tamedRangeIndicatorPrefab); //blue
+                }
+            }
+
+            if (!hasAttackedThisTurn)
+            {
+                List<HexTile> neighbors = MapManager.Instance.GetNeighborsWithinRadius(currentTile.HexCoords.x, currentTile.HexCoords.y, attackRange);
+                foreach (var tile in neighbors)
+                {
+                    if (tile == null)
+                        continue;
+
+                    if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
+                    {
+                        SpawnIndicatorAt(tile, untamedRangeIndicatorPrefab); //red
+                    }
+                }
             }
         }            
     }
@@ -283,6 +335,9 @@ public abstract class SeaMonsterBase : MonoBehaviour
 
     public void PerformAttackOnTile(HexTile tile)
     {
+        if (hasAttackedThisTurn)
+            return;
+
         if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
         {
             int damage = attack;
@@ -293,5 +348,8 @@ public abstract class SeaMonsterBase : MonoBehaviour
             else if (tile.currentSeaMonster != null) 
                 tile.currentSeaMonster.TakeDamage(damage);
         }
+
+        hasActedThisTurn = true;
+        hasAttackedThisTurn = true;
     }
 }

@@ -16,33 +16,57 @@ public class SeaMonsterTouchController : MonoBehaviour
 
     private void Update()
     {
-        if (Touch.activeTouches.Count == 0) 
+        if (Touch.activeTouches.Count == 0)
             return;
 
         var touch = Touch.activeTouches[0];
-        if (touch.phase != UnityEngine.InputSystem.TouchPhase.Ended) 
+        Debug.Log($"[Touch] Phase = {touch.phase}, Position = {touch.screenPosition}");
+
+        if (touch.phase != UnityEngine.InputSystem.TouchPhase.Ended)
             return;
 
         Ray ray = cam.ScreenPointToRay(touch.screenPosition);
+
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             // Detect sea monster
             SeaMonsterBase monster = hit.collider.GetComponentInParent<SeaMonsterBase>();
-            if (monster != null && monster.State == SeaMonsterState.Tamed)
+            if (monster != null)
             {
-                SelectMonster(monster);
-                return;
+                if (monster.State == SeaMonsterState.Tamed)
+                {
+                    SelectMonster(monster);
+                    return;
+                }
+                else
+                {
+                    Debug.Log("[Touch] Monster is UNTAMED, cannot select.");
+                }
             }
 
             // Detect tile
-            if (selectedMonster != null && selectedMonster.State == SeaMonsterState.Tamed && hit.collider.GetComponentInParent<HexTile>() is HexTile tile)
+            HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+            if (tile != null)
             {
-                selectedMonster.OnPlayerClickTile(tile);
-                return;
+
+                if (selectedMonster != null && selectedMonster.State == SeaMonsterState.Tamed)
+                {
+                    selectedMonster.OnPlayerClickTile(tile);
+                    DeselectMonster();
+                    return;
+                }
+                else
+                {
+                    Debug.Log("[Touch] Tile clicked but no tamed monster is selected.");
+                }
             }
 
-            // Deselect if tapped elsewhere
+            Debug.Log("[Touch] Clicked something else, DeselectMonster()");
             DeselectMonster();
+        }
+        else
+        {
+            Debug.Log("[Touch] Raycast hit NOTHING.");
         }
     }
 
