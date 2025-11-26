@@ -59,6 +59,7 @@ MonoBehaviour:
   CurrentTurn: 0
   untamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: 29673dfd5bae14a48bbbf4df52020536, type: 3}
   tamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: a949b268732d84540a64bb647e3796f1, type: 3}
+  blockIndicatorPrefab: {fileID: 7388899633677801674, guid: a8ab3ef6c68c05345b16424261315922, type: 3}
 --- !u!136 &3091430344748947287
 CapsuleCollider:
   m_ObjectHideFlags: 0

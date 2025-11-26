@@ -96,6 +96,7 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: d67f65565ad96b74a85a11d1e91b548f, type: 3}
     objectType: 3
     apCost: 0
+    showProximityBubble: 1
   selectionIndicator: {fileID: 0}
 --- !u!114 &4997039619970197785
 MonoBehaviour:

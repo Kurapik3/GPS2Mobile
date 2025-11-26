@@ -68,11 +68,11 @@ public class UnitInteractionBubble : MonoBehaviour
         return null;
     }
 
-    bool ShouldShowBubble(InteractableObject obj)
-    {
-        // Optional: add conditions like "only if unit has enough AP", etc.
-        return obj != null && obj.objectData?.showProximityBubble == true;
-    }
+    //bool ShouldShowBubble(InteractableObject obj)
+    //{
+    //    // Optional: add conditions like "only if unit has enough AP", etc.
+    //    return obj != null && obj.objectData?.showProximityBubble == true;
+    //}
 
     void CreateBubble()
     {

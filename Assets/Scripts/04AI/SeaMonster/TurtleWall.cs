@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using static SeaMonsterEvents;
 
 /// <summary>
@@ -8,6 +9,9 @@ public class TurtleWall : SeaMonsterBase
 {
     private Vector2Int? blockedBackTile = null;
     private HexTile cachedNextMove = null;
+
+    [SerializeField] private GameObject blockIndicatorPrefab;
+    private List<(Vector2Int tileCoord, GameObject indicator)> blockedIndicators = new List<(Vector2Int, GameObject)>();
 
     protected override void Awake()
     {
@@ -30,10 +34,11 @@ public class TurtleWall : SeaMonsterBase
         EventBus.Publish(new TurtleWallBlockEvent(this, spawnTile.HexCoords));
 
         //Block back tile
-        Vector2Int backCoord = spawnTile.HexCoords + GetBackDirection();
+        Vector2Int backCoord = spawnTile.HexCoords + GetBackDirection(spawnTile);
         if (MapManager.Instance.IsWalkable(backCoord)) //Only block if it's a valid walkable tile
         {
             EventBus.Publish(new TurtleWallBlockEvent(this, backCoord));
+            ShowBlockIndicator(backCoord);
             blockedBackTile = backCoord;
             Debug.Log($"[TurtleWall] Also blocking back tile at {backCoord}");
         }
@@ -91,8 +96,13 @@ public class TurtleWall : SeaMonsterBase
         if (currentTile != null)
         {
             EventBus.Publish(new TurtleWallUnblockEvent(this, currentTile.HexCoords));
+            RemoveBlockIndicator(currentTile.HexCoords);
+
             if (blockedBackTile.HasValue)
+            {
                 EventBus.Publish(new TurtleWallUnblockEvent(this, blockedBackTile.Value));
+                RemoveBlockIndicator(blockedBackTile.Value);
+            }
         }
 
         //Move
@@ -100,10 +110,13 @@ public class TurtleWall : SeaMonsterBase
 
         //Block at the new position
         EventBus.Publish(new TurtleWallBlockEvent(this, target.HexCoords));
-        Vector2Int newBack = target.HexCoords + GetBackDirection();
+        ShowBlockIndicator(target.HexCoords);
+
+        Vector2Int newBack = target.HexCoords + GetBackDirection(target);
         if (MapManager.Instance.IsWalkable(newBack))
         {
             EventBus.Publish(new TurtleWallBlockEvent(this, newBack));
+            ShowBlockIndicator(newBack);
             blockedBackTile = newBack;
         }
         else
@@ -118,6 +131,7 @@ public class TurtleWall : SeaMonsterBase
         if (isBlocking && currentTile != null)
         {
             EventBus.Publish(new TurtleWallUnblockEvent(this, currentTile.HexCoords));
+            RemoveBlockIndicator(currentTile.HexCoords);
             isBlocking = false;
         }
 
@@ -125,14 +139,42 @@ public class TurtleWall : SeaMonsterBase
         if (blockedBackTile.HasValue)
         {
             EventBus.Publish(new TurtleWallUnblockEvent(this, blockedBackTile.Value));
+            RemoveBlockIndicator(blockedBackTile.Value);
             blockedBackTile = null;
         }
 
         base.Die();
     }
 
-    private Vector2Int GetBackDirection()
+    private Vector2Int GetBackDirection(HexTile targetTile)
     {
-        return new Vector2Int(0, 1);
+        if (targetTile == null || currentTile == null)
+            return new Vector2Int(0, 1); // Default
+
+        return currentTile.HexCoords - targetTile.HexCoords;
+    }
+
+    private void ShowBlockIndicator(Vector2Int tileCoord)
+    {
+        if (blockedIndicators.Exists(x => x.tileCoord == tileCoord))
+            return;
+
+        HexTile tile = MapManager.Instance.GetTileAtHexPosition(tileCoord);
+        if (tile != null && blockIndicatorPrefab != null)
+        {
+            Vector3 spawnPos = new Vector3(tile.transform.position.x, 2.0f, tile.transform.position.z);
+            GameObject indicator = Instantiate(blockIndicatorPrefab, spawnPos, Quaternion.Euler(90f, 0f, 0f));
+            indicator.transform.SetParent(tile.transform);
+            blockedIndicators.Add((tileCoord, indicator));
+        }
+    }
+
+    private void RemoveBlockIndicator(Vector2Int tileCoord)
+    {
+        var item = blockedIndicators.Find(x => x.tileCoord == tileCoord);
+        if (item.indicator != null)
+            Destroy(item.indicator);
+
+        blockedIndicators.Remove(item);
     }
 }
