@@ -328,10 +328,14 @@ public class HexTile : MonoBehaviour
         {
             visible = true;
         }
-        ////For dynamic tile
+        //For dynamic tile
         HideObjectsWithTagRecursive(transform, "Debris", visible);
         HideObjectsWithTagRecursive(transform, "Fish", visible);
         HideObjectsWithTagRecursive(transform, "Cache", visible);
+        // For Grove
+        HideObjectsWithTagRecursive(transform, "Grove", visible);
+        // for Turf
+        HideObjectsWithTagRecursive(transform, "TurfVisual", visible);
         //For structures using layer
         int structureLayer = LayerMask.NameToLayer("structure");
         foreach (Transform child in transform)

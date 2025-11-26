@@ -8,7 +8,7 @@ using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 using UnityEngine.UI;
 using TMPro;
-
+using static TileSelector;
 public class SelectionOfStructureManager : MonoBehaviour
 {
     public static SelectionOfStructureManager instance;
@@ -130,7 +130,8 @@ public class SelectionOfStructureManager : MonoBehaviour
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
             if (tile != null)
             {
-                tile.OnTileClicked();           
+                tile.OnTileClicked();
+                TileSelector.SelectTile(tile);
             }
             SelectByClicking(hit.collider.gameObject);
             StructureInfoPanelMove();
@@ -146,7 +147,11 @@ public class SelectionOfStructureManager : MonoBehaviour
             isSFXPlayed = true;
             DeselectAll();
             CloseStructureInfoPanel();
-            TileSelector.Hide();
+            if (TileSelector.CurrentTile != null)
+            {
+                TileSelector.CurrentTile.OnTileDeselected();
+                TileSelector.CurrentTile = null;
+            }
         }
     }
 

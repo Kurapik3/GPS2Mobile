@@ -15,6 +15,7 @@ TagManager:
   - Cache
   - Fish
   - Debris
+  - TurfVisual
   layers:
   - Default
   - TransparentFX

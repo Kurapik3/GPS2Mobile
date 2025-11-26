@@ -10,6 +10,7 @@ using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.UI;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 using TouchPhase = UnityEngine.InputSystem.TouchPhase;
+using QuickOutlinePlugin;
 
 public class UnitS : MonoBehaviour
 {
@@ -357,6 +358,18 @@ public class UnitS : MonoBehaviour
             SelectByClicking(hit.collider.gameObject);
             UnitInfoPanelMove();
 
+            //QuickOutlinePlugin.Outline qo = hit.collider.GetComponentInParent<QuickOutlinePlugin.Outline>();
+            //if (qo != null) qo.enabled = true;
+
+            UnitBase unitBase = hit.collider.GetComponentInParent<UnitBase>();
+            if (unitBase != null && unitBase.currentTile != null)
+            {
+                HexTile tileUnderUnit = unitBase.currentTile;
+
+                tileUnderUnit.OnTileClicked();
+                TileSelector.SelectTile(tileUnderUnit);
+            }
+
             if (isSFXPlayed)
             {
                 ManagerAudio.instance.PlaySFX("UnitSelected");
@@ -368,6 +381,11 @@ public class UnitS : MonoBehaviour
             isSFXPlayed = true;
             DeselectAll();
             CloseUnitInfoPanel();
+            if (TileSelector.CurrentTile != null)
+            {
+                TileSelector.CurrentTile.OnTileDeselected();
+                TileSelector.CurrentTile = null;
+            }
         }
     }
 
@@ -398,6 +416,11 @@ public class UnitS : MonoBehaviour
 
     private void SelectByClicking(GameObject unit)
     {
+        foreach (var u in unitsSelected)
+        {
+            QuickOutlinePlugin.Outline oldOutline = u.GetComponentInParent<QuickOutlinePlugin.Outline>();
+            if (oldOutline != null) oldOutline.enabled = false;
+        }
         DeselectAll();
         unitsSelected.Add(unit);
         TriggerSelectionIndicator(unit, true);

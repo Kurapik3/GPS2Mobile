@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 9158243054360054010}
   - component: {fileID: 4434947014847639716}
   - component: {fileID: 8169470041135423783}
+  - component: {fileID: 3555925549582433021}
   m_Layer: 12
   m_Name: DebrisTile
   m_TagString: Debris
@@ -91,6 +92,24 @@ MonoBehaviour:
     objectType: 1
     apCost: 2
   selectionIndicator: {fileID: 0}
+--- !u!114 &3555925549582433021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7248350702419272795}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 0.7169812, g: 0.9852243, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1001 &3702751860958853266
 PrefabInstance:
   m_ObjectHideFlags: 0
