@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 5108962347387144279}
   - component: {fileID: 3149152723104593649}
   - component: {fileID: 5429273878819412962}
+  - component: {fileID: 4997039619970197785}
   m_Layer: 16
   m_Name: Cache
-  m_TagString: Untagged
+  m_TagString: Cache
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -96,6 +97,24 @@ MonoBehaviour:
     objectType: 3
     apCost: 0
   selectionIndicator: {fileID: 0}
+--- !u!114 &4997039619970197785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9126118525235510570}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 0.7169812, g: 0.9852243, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1001 &6421281360133819267
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -152,9 +171,25 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: f0ef48292820e0e43b9a441f8089a481, type: 2}
+    - target: {fileID: -7547988612322845313, guid: ce7a996318909504ab6a8ddde3c25033, type: 3}
+      propertyPath: m_TagString
+      value: Cache
+      objectReference: {fileID: 0}
+    - target: {fileID: -5547542145952523856, guid: ce7a996318909504ab6a8ddde3c25033, type: 3}
+      propertyPath: m_TagString
+      value: Cache
+      objectReference: {fileID: 0}
+    - target: {fileID: -2097218277451053535, guid: ce7a996318909504ab6a8ddde3c25033, type: 3}
+      propertyPath: m_TagString
+      value: Cache
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: ce7a996318909504ab6a8ddde3c25033, type: 3}
       propertyPath: m_Name
       value: Cache_Final
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ce7a996318909504ab6a8ddde3c25033, type: 3}
+      propertyPath: m_TagString
+      value: Cache
       objectReference: {fileID: 0}
     - target: {fileID: 5513386478252090863, guid: ce7a996318909504ab6a8ddde3c25033, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'

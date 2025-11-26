@@ -127,6 +127,11 @@ public class SelectionOfStructureManager : MonoBehaviour
         Ray ray = cam.ScreenPointToRay(touchPosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, structure))
         {
+            HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+            if (tile != null)
+            {
+                tile.OnTileClicked();           
+            }
             SelectByClicking(hit.collider.gameObject);
             StructureInfoPanelMove();
 
@@ -141,6 +146,7 @@ public class SelectionOfStructureManager : MonoBehaviour
             isSFXPlayed = true;
             DeselectAll();
             CloseStructureInfoPanel();
+            TileSelector.Hide();
         }
     }
 

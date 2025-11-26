@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: -2637995968705180388}
   - component: {fileID: 5777958373759003943}
   - component: {fileID: 8781912082093426176}
+  - component: {fileID: 2068525557630969467}
   m_Layer: 15
   m_Name: Grove
   m_TagString: Grove
@@ -94,6 +95,24 @@ MonoBehaviour:
     objectType: 4
     apCost: 0
   selectionIndicator: {fileID: 0}
+--- !u!114 &2068525557630969467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8712921903553767909}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 0.7169812, g: 0.9852243, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1001 &4467731891331341134
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -169,6 +188,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 8275e56ce82d1a645b5235dbc96cd0d6, type: 3}
       propertyPath: m_Layer
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8275e56ce82d1a645b5235dbc96cd0d6, type: 3}
+      propertyPath: m_TagString
+      value: Grove
       objectReference: {fileID: 0}
     - target: {fileID: 2300593632408891413, guid: 8275e56ce82d1a645b5235dbc96cd0d6, type: 3}
       propertyPath: m_Layer

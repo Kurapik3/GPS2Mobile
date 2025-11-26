@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 522979743144677408}
   - component: {fileID: 3120603178145332983}
   - component: {fileID: -7308055601346254332}
+  - component: {fileID: 6890975739280033410}
   m_Layer: 9
   m_Name: ShooterUnit
   m_TagString: PlayerUnit
@@ -86,6 +87,24 @@ MonoBehaviour:
   HasAttackThisTurn: 0
   fogRevealRadius: 1
   projectilePrefab: {fileID: 1194255820716703395, guid: 96aeb0b574238af4fafd5a0671291a59, type: 3}
+--- !u!114 &6890975739280033410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8461432957275538050}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 0.7169812, g: 0.9852243, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1001 &3291135501323706147
 PrefabInstance:
   m_ObjectHideFlags: 0

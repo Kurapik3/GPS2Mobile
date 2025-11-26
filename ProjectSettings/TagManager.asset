@@ -12,6 +12,10 @@ TagManager:
   - Kraken
   - TurtleWall
   - Ruin
+  - Cache
+  - Fish
+  - Debris
+  - TurfVisual
   layers:
   - Default
   - TransparentFX

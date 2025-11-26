@@ -7,6 +7,7 @@ using static SeaMonsterEvents;
 public class TurtleWall : SeaMonsterBase
 {
     private Vector2Int? blockedBackTile = null;
+    private HexTile cachedNextMove = null;
 
     protected override void Awake()
     {
@@ -40,16 +41,41 @@ public class TurtleWall : SeaMonsterBase
         Debug.Log($"[TurtleWall] Spawned at {spawnTile.HexCoords}. Blocking self + back.");
     }
 
+    public override HexTile GetNextMoveTile()
+    {
+        if (State == SeaMonsterState.Tamed)
+            return null;
+
+        if (cachedNextMove != null)
+            return cachedNextMove;
+
+        cachedNextMove = AIPathFinder.GetRandomReachableTileForSeaMonster(this);
+        return cachedNextMove;
+    }
+
+    public override void OnPlayerClickTile(HexTile tile)
+    {
+        if (GetAvailableTiles().Contains(tile))
+            TryMove(tile);
+        else
+            Debug.Log("TurtleWall can't attack!");
+    }
+
     public override void PerformTurnAction()
     {
         if (hasActedThisTurn || currentTile == null)
             return;
 
-        HexTile target = AIPathFinder.GetRandomReachableTileForSeaMonster(this); 
+        if (State == SeaMonsterState.Tamed)
+            return;
+
+        HexTile target = GetNextMoveTile(); 
         if (target != null && target != currentTile)
         {
             MoveTo(target);
             Debug.Log($"[TurtleWall] Moves to {target.HexCoords}");
+
+            cachedNextMove = null;
         }
         else
         {

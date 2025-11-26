@@ -52,7 +52,7 @@ public class DormantState : MonoBehaviour
         {
             eum.LockState(id);
 
-            if (eum.IsBuilderUnit(id))
+            if (eum.IsUnitType(id, "Builder"))
             {
                 Debug.Log($"[DormantAI] Unit {id} is Builder, do nothing.");
                 continue;

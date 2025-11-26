@@ -1,10 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using DG.Tweening.Core.Easing;
-using Unity.VisualScripting;
 using UnityEngine;
-using static EnemyAIEvents;
 
 public abstract class UnitBase : MonoBehaviour
 {
@@ -239,6 +236,10 @@ public abstract class UnitBase : MonoBehaviour
         else if (target.currentSeaMonster != null)
         {
             target.currentSeaMonster.TakeDamage(attack);
+            if(TechTree.Instance.IsHunterMask)
+            {
+                target.currentSeaMonster.TakeDamage(5);
+            }
             //Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
             HasAttackThisTurn = false;
         }
@@ -299,7 +300,8 @@ public abstract class UnitBase : MonoBehaviour
         {
             HideRangeIndicators();
         }
-        
+
+        EventBus.Publish(new SeaMonsterEvents.UnitSelectedEvent(this, selected));
     }
     private void UpdateSelectionVisual()
     {
@@ -357,7 +359,7 @@ public abstract class UnitBase : MonoBehaviour
         }
         StartCoroutine(MoveUnitPath(targetTile));
         //transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
-
+        ManagerAudio.instance.PlaySFX("UnitMove");
         //Update new tile
         currentTile = targetTile;
         currentTile.SetOccupiedByUnit(true); //Occupied new tile

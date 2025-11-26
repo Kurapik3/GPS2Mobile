@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 9222742391696497563}
   - component: {fileID: 4439866791185208099}
   - component: {fileID: 7156800315396222806}
-  - component: {fileID: 5107396073430038497}
+  - component: {fileID: 8670466283174984014}
+  - component: {fileID: 8940188892231968068}
   m_Layer: 19
   m_Name: Kraken
   m_TagString: Kraken
@@ -57,7 +58,8 @@ MonoBehaviour:
   heightOffset: 1.5
   currentTile: {fileID: 0}
   CurrentTurn: 0
-  MonsterId: 0
+  untamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: 29673dfd5bae14a48bbbf4df52020536, type: 3}
+  tamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: a949b268732d84540a64bb647e3796f1, type: 3}
 --- !u!114 &7156800315396222806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,14 +73,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectData:
-    objectName: Kraken!!!
-    description: Defeat the Krtaken to earn valuable rewards!
+    objectName: 
+    description: 
     icon: {fileID: 0}
-    objectType: 6
-    apCost: 0
+    objectType: 0
+    apCost: 2
   selectionIndicator: {fileID: 0}
---- !u!65 &5107396073430038497
-BoxCollider:
+--- !u!136 &8670466283174984014
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -95,9 +97,29 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 30, y: 100, z: 30}
-  m_Center: {x: 0, y: 50, z: 0}
+  serializedVersion: 2
+  m_Radius: 1
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8940188892231968068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607040072654141610}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 0.7169812, g: 0.9852243, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1001 &2040518967866993172
 PrefabInstance:
   m_ObjectHideFlags: 0
