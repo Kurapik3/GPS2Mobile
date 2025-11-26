@@ -18,8 +18,7 @@ public class TreeBase : BuildingBase
     [SerializeField] public int popForLvlMore = 4;
 
     [Header("Tree Base Prefabs")]
-    [SerializeField] private GameObject Level2Base;
-    [SerializeField] private GameObject Level3Base;
+    public GameObject[] levelModels;
 
     private EnemyHPDisplay hpDisplay;
 
@@ -56,6 +55,7 @@ public class TreeBase : BuildingBase
         apPerTurn = 2;
         health = baseHealth;
         TreeBaseId = GetInstanceID();
+        UpdateModel();
 
         // Claim turf on initialization
         TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
@@ -147,17 +147,15 @@ public class TreeBase : BuildingBase
         baseHealth += healthBonusPerUpgrade;
         health = baseHealth;
 
-        // ---- KENNETH'S ----
+        UpdateModel();   
+
         TreeBaseHPDisplay hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
         if (hpDisplay != null)
         {
             hpDisplay.ShowUpgradePopup();
             hpDisplay.OnLevelChanged();
         }
-        // -------------------
 
-        Debug.Log($"Tree Base upgraded to Level {level}");
-        Debug.Log($"Tree Base upgraded to Level {level} (+{healthBonusPerUpgrade} HP)");
         Debug.Log($"[TreeBase] Upgraded to Level {level}, currentPop = {currentPop}");
     }
 
@@ -223,4 +221,26 @@ public class TreeBase : BuildingBase
     {
         return level;
     }
+
+    public void UpdateModel()
+    {
+        if (levelModels == null || levelModels.Length == 0)
+        {
+            Debug.LogError("[TreeBase] No level models assigned!");
+            return;
+        }
+
+        // Disable ALL models first
+        foreach (var model in levelModels)
+            model.SetActive(false);
+
+        // Calculate which model to show (level 1 -> index 0)
+        int idx = Mathf.Clamp(level - 1, 0, levelModels.Length - 1);
+
+        // Activate correct model
+        levelModels[idx].SetActive(true);
+
+        Debug.Log($"[TreeBase] Updated model to Level {level}");
+    }
+
 }

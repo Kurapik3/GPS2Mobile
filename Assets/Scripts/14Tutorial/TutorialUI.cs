@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 public class TutorialUI : MonoBehaviour
@@ -6,7 +7,7 @@ public class TutorialUI : MonoBehaviour
 
     [Header("UI Elements")]
     [SerializeField] private Image icon;
-    [SerializeField] private Text Text;
+    [SerializeField] private TextMeshProUGUI Text;
 
     [Header("Icons")]
     [SerializeField] private Sprite TechTree;

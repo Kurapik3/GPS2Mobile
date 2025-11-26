@@ -82,6 +82,10 @@ public abstract class UnitBase : MonoBehaviour
 
     public virtual void Attack(HexTile target)
     {
+        if (HasAttackThisTurn)
+        {
+            return;
+        }
         if (currentTile == null || target == null)
         {
             Debug.LogWarning("Either attacker or target is not on a tile!");
@@ -228,19 +232,19 @@ public abstract class UnitBase : MonoBehaviour
             {
                 this.TakeDamage(damage);
             }
-            HasAttackThisTurn = false;
+            HasAttackThisTurn = true;
         }
         else if (target.currentEnemyBase != null)
         {
             target.currentEnemyBase.TakeDamage(attack);
             //Debug.Log($"{unitName} attacked {target.currentEnemyBase} for {attack} damage!");
-            HasAttackThisTurn = false;
+            HasAttackThisTurn = true;
         }
         else if (target.currentSeaMonster != null)
         {
             target.currentSeaMonster.TakeDamage(attack);
             //Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
-            HasAttackThisTurn = false;
+            HasAttackThisTurn = true;
         }
     }
 
@@ -294,10 +298,22 @@ public abstract class UnitBase : MonoBehaviour
         if (isSelected && !hasMovedThisTurn)
         {
             ShowRangeIndicators();
+            if (!HasAttackThisTurn)
+            {
+                ShowAttackIndicators();
+            }
+            else HideAttackIndicators();
+
         }
         else
         {
             HideRangeIndicators();
+            HideAttackIndicators();
+            if (!HasAttackThisTurn)
+            {
+                ShowAttackIndicators();
+            }
+            else HideAttackIndicators();
         }
         
     }
