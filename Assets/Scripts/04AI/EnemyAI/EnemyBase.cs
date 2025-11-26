@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using NUnit.Framework.Internal;
+using Unity.VisualScripting;
+using UnityEngine;
 
 /// <summary>
 /// Represents an AI-controlled enemy base on the map.
@@ -200,6 +202,7 @@ public class EnemyBase : MonoBehaviour
         int idx = Mathf.Clamp(level - 1, 0, levelModels.Length - 1);
         levelModels[idx].SetActive(true);
 
+        //If tile is fogged, force - hide the upgraded model
         if (currentTile != null && currentTile.IsFogged)
             currentTile.SetContentsVisible(false);
     }

@@ -49,14 +49,19 @@ public class SeaMonsterManager : MonoBehaviour
         EventBus.Subscribe<KrakenAttacksMonsterEvent>(OnKrakenAttackMonster);
         EventBus.Subscribe<TurtleWallBlockEvent>(OnTurtleWallBlock);
         EventBus.Subscribe<TurtleWallUnblockEvent>(OnTurtleWallUnblock);
+        EventBus.Subscribe<UnitSelectedEvent>(OnUnitSelected);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<SeaMonsterTurnStartedEvent>(OnTurnStarted);
         EventBus.Unsubscribe<SeaMonsterKilledEvent>(OnSeaMonsterKilled);
+        EventBus.Unsubscribe<SeaMonsterMoveEvent>(OnMonsterMoved);
+        EventBus.Unsubscribe<KrakenAttacksUnitEvent>(OnKrakenAttackUnit);
+        EventBus.Unsubscribe<KrakenAttacksMonsterEvent>(OnKrakenAttackMonster);
         EventBus.Unsubscribe<TurtleWallBlockEvent>(OnTurtleWallBlock);
         EventBus.Unsubscribe<TurtleWallUnblockEvent>(OnTurtleWallUnblock);
+        EventBus.Unsubscribe<UnitSelectedEvent>(OnUnitSelected);
     }
 
     private void Start()
@@ -69,16 +74,18 @@ public class SeaMonsterManager : MonoBehaviour
         int turn = evt.Turn;
 
         //Start at turn 10, then every 4 turns
-        if (turn == 10 || (turn > 10 && (turn - 10) % 4 == 0))
+        if (turn == 9 || (turn > 10 && (turn - 10) % 4 == 0))
         {
             StartCoroutine(SpawnSequence(turn));
         }
+
+        EventBus.Publish(new SeaMonsterTurnEndEvent(turn));
     }
 
     private IEnumerator SpawnSequence(int turn)
     {
         //SeaMonster warning (turn 10 only)
-        if (turn == 10)
+        if (turn == 9)
         {
             EventBus.Publish(new KrakenPreSpawnWarningEvent(turn));
             ManagerAudio.instance.PlaySFX("SeaMonsterSpawn");
@@ -112,6 +119,11 @@ public class SeaMonsterManager : MonoBehaviour
 
         Vector2Int pos = monster.currentTile != null ? monster.currentTile.HexCoords : Vector2Int.zero;
         monsterPositions[monster.MonsterId] = pos;
+
+        if (TechTree.Instance.IsTaming)
+        {
+            monster.Tame();
+        }
 
         UpdateSeaMonsterVisibility();
     }
@@ -304,7 +316,42 @@ public class SeaMonsterManager : MonoBehaviour
         }
     }
 
-#region Render
+    #region RangeIndicator
+    private void OnUnitSelected(UnitSelectedEvent evt)
+    {
+        if (evt.IsSelected)
+        {
+            ShowAllSeaMonsterRanges();
+        }
+        else
+        {
+            HideAllSeaMonsterRanges();
+        }
+    }
+
+    private void ShowAllSeaMonsterRanges()
+    {
+        foreach (var monster in activeMonsters)
+        {
+            if (monster != null)
+            {
+                monster.ShowSMRangeIndicators();
+            }
+        }
+    }
+
+    private void HideAllSeaMonsterRanges()
+    {
+        foreach (var monster in activeMonsters)
+        {
+            if (monster != null)
+            {
+                monster.HideSMRangeIndicators();
+            }
+        }
+    }
+    #endregion
+    #region Render
     private bool IsUnderTheFog(int id)
     {
         if (fogSystem == null)

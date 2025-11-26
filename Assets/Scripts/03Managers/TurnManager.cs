@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,6 +30,7 @@ public class TurnManager : MonoBehaviour
     public delegate void TurnEvent();
     public static event TurnEvent OnPlayerTurnStart;
     public static event TurnEvent OnEnemyTurnStart;
+    public static event TurnEvent OnSeaMonsterTurnStart;
 
      public TreeBase treeBase;
 
@@ -37,11 +39,13 @@ public class TurnManager : MonoBehaviour
     private void OnEnable()
     {
         EventBus.Subscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
+        EventBus.Subscribe<SeaMonsterEvents.SeaMonsterTurnEndEvent>(OnSeaMonsterTurnEnd);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
+        EventBus.Unsubscribe<SeaMonsterEvents.SeaMonsterTurnEndEvent>(OnSeaMonsterTurnEnd);
     }
 
     private void Start()
@@ -60,8 +64,6 @@ public class TurnManager : MonoBehaviour
 
     private void StartPlayerTurn()
     {
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterTurnStartedEvent(currentTurn));
-
         isPlayerTurn = true;
         Debug.Log($"--- Player Turn {currentTurn} ---");
 
@@ -100,13 +102,95 @@ public class TurnManager : MonoBehaviour
         //Invoke(nameof(EndEnemyTurn), 2f);
     }
 
+    private void StartSeaMonsterTurn()
+    {
+        isPlayerTurn = false;
+        Debug.Log("--- Sea Monster Turn ---");
+
+        OnSeaMonsterTurnStart?.Invoke();
+        
+        if (endTurnButton != null)
+        {
+            endTurnButton.interactable = false;
+        }
+
+        EventBus.Publish(new SeaMonsterEvents.SeaMonsterTurnStartedEvent(currentTurn));
+
+        //No AI, spawn will still run above
+        if (currentTurn < 9)
+        {
+            Debug.Log("[TurnManager] Before turn 9: Only spawn check, no AI.");
+            SkipSeaMonsterTurn();
+            return; // Wait for SeaMonsterTurnEndEvent
+        }
+
+        //Check if any untamed sea monster exists
+        bool hasUntamed = false;
+
+        foreach (var monster in SeaMonsterManager.Instance.ActiveMonsters)
+        {
+            if (monster.State == SeaMonsterState.Untamed)
+            {
+                hasUntamed = true;
+                break;
+            }
+        }
+
+        if (hasUntamed)
+        {
+            Debug.Log("[TurnManager] Untamed monsters found. Running AI.");
+            return;
+        }
+
+        Debug.Log("[TurnManager] All sea monsters are tamed. Skipping.");
+        SkipSeaMonsterTurn();
+}
+
     private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
     {
         Debug.Log($"--- Enemy Turn {evt.Turn} End ---");
 
         EnemyUnitManager.Instance.ClearJustSpawnedUnits();
+
+        if(currentTurn >= 9)
+        {
+            StartSeaMonsterTurn();
+            return;
+        }
+
+        SkipSeaMonsterTurn();
+    }
+
+    private void SkipSeaMonsterTurn()
+    {
+        Debug.Log("[TurnManager] Skipping Sea Monster Turn.");
+
         currentTurn++;
-        Debug.Log($"[TurnManager] OnEnemyTurnEnd - CurrentTurn incremented to: {currentTurn}");
+        isProcessingTurn = false;
+
+        if (currentTurn > maxTurns)
+        {
+            EndGame();
+            GameManager.Instance?.CheckEnding();
+            return;
+        }
+
+        // buildings gain AP
+        foreach (var building in allBuildings)
+            building.OnTurnStart();
+
+        GameManager.Instance.CheckEnding();
+        EventBus.Publish(new ActionMadeEvent());
+
+        StartPlayerTurn();
+    }
+
+    private void OnSeaMonsterTurnEnd(SeaMonsterEvents.SeaMonsterTurnEndEvent evt)
+    {
+        Debug.Log($"--- Sea Monster Turn {evt.Turn} End ---");
+
+        currentTurn++;
+        Debug.Log($"[TurnManager] OnSeaMonsterTurnEnd - CurrentTurn incremented to: {currentTurn}");
 
         isProcessingTurn = false;
         if (currentTurn > maxTurns)

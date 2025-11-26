@@ -129,4 +129,16 @@ public static class SeaMonsterEvents
         }
     }
     #endregion
+
+    public struct UnitSelectedEvent
+    {
+        public UnitBase Unit { get; }
+        public bool IsSelected { get; }
+
+        public UnitSelectedEvent(UnitBase unit, bool isSelected)
+        {
+            Unit = unit;
+            IsSelected = isSelected;
+        }
+    }
 }

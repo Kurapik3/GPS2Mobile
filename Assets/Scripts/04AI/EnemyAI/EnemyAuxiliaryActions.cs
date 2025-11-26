@@ -71,7 +71,7 @@ public class EnemyAuxiliaryActions : MonoBehaviour
 
         foreach (int id in eum.GetOwnedUnitIds())
         {
-            if (eum.IsBuilderUnit(id) || eum.HasUnitActedThisTurn(id))
+            if (eum.IsUnitType(id, "Builder") || eum.HasUnitActedThisTurn(id))
                 continue;
 
             HexTile tile = MapManager.Instance.GetTile(eum.GetUnitPosition(id));

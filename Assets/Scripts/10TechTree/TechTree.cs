@@ -295,6 +295,11 @@ public class TechTree : MonoBehaviour
         {
             player.useAP(cost);
             IsTaming = true;
+
+            foreach (var monster in SeaMonsterManager.Instance.ActiveMonsters)
+            {
+                monster.Tame();
+            }
         }
         else
         {
