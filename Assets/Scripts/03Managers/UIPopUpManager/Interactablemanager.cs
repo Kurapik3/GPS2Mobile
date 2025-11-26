@@ -70,6 +70,12 @@ public class Interactablemanager : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
         {
+            HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+            if (tile != null)
+            {
+                tile.OnTileClicked();
+                TileSelector.SelectTile(tile);
+            }
             // Try to get InteractableObject component
             InteractableObject interactable = hit.collider.GetComponent<InteractableObject>();
 
@@ -84,6 +90,11 @@ public class Interactablemanager : MonoBehaviour
             // Tapped empty space - deselect and close popup
             DeselectObject();
             popupPanel.HidePopup();
+            if (TileSelector.CurrentTile != null)
+            {
+                TileSelector.CurrentTile.OnTileDeselected();
+                TileSelector.CurrentTile = null;
+            }
         }
     }
 

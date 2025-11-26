@@ -3,10 +3,12 @@ using UnityEngine;
 public class TileSelector : MonoBehaviour
 {
     private static TileSelector instance;
+    public static HexTile CurrentTile { get; set; }
     public static QuickOutlinePlugin.Outline PreviousOutline;
     public static void SelectTile(HexTile tile)
     {
-        if(instance == null)
+        CurrentTile = tile;
+        if (instance == null)
         {
             instance = Instantiate(Resources.Load<TileSelector>("TileSelector"));
         }
@@ -19,6 +21,7 @@ public class TileSelector : MonoBehaviour
         {
             instance.gameObject.SetActive(false);
         }
+        CurrentTile = null;
     }
 }
 
