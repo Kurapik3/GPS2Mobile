@@ -94,6 +94,7 @@ MonoBehaviour:
     icon: {fileID: 0}
     objectType: 4
     apCost: 0
+    showProximityBubble: 1
   selectionIndicator: {fileID: 0}
 --- !u!114 &2068525557630969467
 MonoBehaviour:

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3665979250095645175}
   - component: {fileID: -3442360951602841205}
   - component: {fileID: 3459444414990257487}
+  - component: {fileID: 6391791961481116822}
   m_Layer: 9
   m_Name: Builder
   m_TagString: PlayerUnit
@@ -106,6 +107,21 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &6391791961481116822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6796326094198637268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d40e4c3bd84e4cd45beb8a690431030c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionRadius: 1.5
+  bubblePrefab: {fileID: 2528207136115242375, guid: 45fd961490cf94a42bd7236540f600c9, type: 3}
+  uiCanvas: {fileID: 0}
 --- !u!1001 &6369499927479378180
 PrefabInstance:
   m_ObjectHideFlags: 0
