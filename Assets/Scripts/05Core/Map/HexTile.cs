@@ -312,7 +312,7 @@ public class HexTile : MonoBehaviour
 
     public bool IsWalkableForAI()
     {
-        return IsWalkable && !IsOccupiedByUnit;
+        return IsWalkable && !IsOccupiedByUnit && !isBlockedByTurtleWall;
     }
 
     public void SetBlockedByTurtleWall(bool blocked)

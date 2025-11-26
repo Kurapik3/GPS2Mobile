@@ -64,8 +64,8 @@ MonoBehaviour:
   hasMovedThisTurn: 0
   HasAttackThisTurn: 0
   fogRevealRadius: 1
-  projectilePrefab: {fileID: 1194255820716703395, guid: 96aeb0b574238af4fafd5a0671291a59, type: 3}
-  treeBasePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 410257745871976168, guid: 96aeb0b574238af4fafd5a0671291a59, type: 3}
+  treeBasePrefab: {fileID: 4654263620392045335, guid: 3cd0f7d313f40bb48b0fff31a6e7ca68, type: 3}
 --- !u!136 &-3442360951602841205
 CapsuleCollider:
   m_ObjectHideFlags: 0

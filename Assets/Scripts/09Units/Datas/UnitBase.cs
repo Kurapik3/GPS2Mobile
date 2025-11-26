@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class UnitBase : MonoBehaviour
@@ -124,22 +125,30 @@ public abstract class UnitBase : MonoBehaviour
             //Ranged: projectile arc
             Vector3 projStart = startPos + Vector3.up * 1.5f;
             Vector3 projEnd = endPos;
-            GameObject proj = Instantiate(projectilePrefab, projStart, Quaternion.identity);
+            GameObject projectile = Instantiate(projectilePrefab, projStart, Quaternion.identity);
 
-            float t = 0f;
+            float time = 0f;
             float duration = 1f;
-            Vector3 mid = (projStart + projEnd) / 2 + Vector3.up * 2.5f;
 
-            while (t < 1f)
+            while (time < 1f)
             {
-                t += Time.deltaTime / duration;
-                Vector3 m1 = Vector3.Lerp(projStart, mid, t);
-                Vector3 m2 = Vector3.Lerp(mid, projEnd, t);
-                proj.transform.position = Vector3.Lerp(m1, m2, t);
+                time += Time.deltaTime / duration;
+
+                //Midpoint of the arc
+                Vector3 mid = (projStart + projEnd) / 2 + Vector3.up * 2.5f;
+
+                Vector3 m1 = Vector3.Lerp(projStart, mid, time);
+                Vector3 m2 = Vector3.Lerp(mid, projEnd, time);
+                Vector3 pos = Vector3.Lerp(m1, m2, time);
+
+                projectile.transform.position = pos;
+                projectile.transform.LookAt(projEnd);
+                projectile.transform.Rotate(90f, 0f, 0f);
+
                 yield return null;
             }
 
-            Destroy(proj);
+            Destroy(projectile);
             HitTarget(target, splashRadius);
         }
     }
@@ -314,7 +323,7 @@ public abstract class UnitBase : MonoBehaviour
         List<HexTile> tiles = new List<HexTile>();
         foreach (var tile in MapManager.Instance.GetTiles())
         {
-            if (HexDistance(currentTile.q, currentTile.r, tile.q, tile.r) <= movement && tile.IsWalkableForAI())
+            if (HexDistance(currentTile.q, currentTile.r, tile.q, tile.r) <= movement && tile.IsWalkableForAI() && !tile.IsFogged)
             {
                 tiles.Add(tile);
             }
@@ -376,6 +385,9 @@ public abstract class UnitBase : MonoBehaviour
         List<Vector2Int> path = AIPathFinder.GetPath(currentTile.HexCoords, targetTile.HexCoords);
         if (path == null || path.Count == 0)
             yield break;
+
+        if (path[0] != currentTile.HexCoords)
+            path.Insert(0, currentTile.HexCoords);
 
         for (int i = 1; i < path.Count; i++)
         {

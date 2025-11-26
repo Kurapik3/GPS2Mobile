@@ -52,28 +52,13 @@ public class DormantState : MonoBehaviour
         {
             eum.LockState(id);
 
-            if (eum.IsUnitType(id, "Builder"))
-            {
-                Debug.Log($"[DormantAI] Unit {id} is Builder, do nothing.");
+            if (eum.IsUnitType(id, "Builder") || eum.HasUnitActedThisTurn(id) || !eum.CanUnitMove(id))
                 continue;
-            }
-
-            if (eum.HasUnitActedThisTurn(id))
-            {
-                Debug.Log($"[DormantAI] Unit {id} just acted an action, skip movement.");
-                continue;
-            }
 
             //Skip visible (aggressive)
             if (eum.IsUnitVisibleToPlayer(id))
             {
                 eum.TrySetState(id, EnemyUnitManager.AIState.Aggressive);
-                continue;
-            }
-
-            if (!eum.CanUnitMove(id))
-            {
-                Debug.Log($"[DormantAI] Unit {id} just spawned, skip movement.");
                 continue;
             }
 

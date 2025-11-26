@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
@@ -20,13 +19,10 @@ public class SeaMonsterTouchController : MonoBehaviour
             return;
 
         var touch = Touch.activeTouches[0];
-        Debug.Log($"[Touch] Phase = {touch.phase}, Position = {touch.screenPosition}");
-
         if (touch.phase != UnityEngine.InputSystem.TouchPhase.Ended)
             return;
 
         Ray ray = cam.ScreenPointToRay(touch.screenPosition);
-
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             // Detect sea monster
@@ -55,18 +51,8 @@ public class SeaMonsterTouchController : MonoBehaviour
                     DeselectMonster();
                     return;
                 }
-                else
-                {
-                    Debug.Log("[Touch] Tile clicked but no tamed monster is selected.");
-                }
             }
-
-            Debug.Log("[Touch] Clicked something else, DeselectMonster()");
             DeselectMonster();
-        }
-        else
-        {
-            Debug.Log("[Touch] Raycast hit NOTHING.");
         }
     }
 

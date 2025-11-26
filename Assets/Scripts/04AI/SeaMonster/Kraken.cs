@@ -8,7 +8,7 @@ public class Kraken : SeaMonsterBase
     private bool isTargeting = false;
     private GameObject currentTarget;
     private HexTile cachedNextMove = null;
-
+    [SerializeField] private Animator anim;
     protected override void Awake()
     {
         base.Awake();

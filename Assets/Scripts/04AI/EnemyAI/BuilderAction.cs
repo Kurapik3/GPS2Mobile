@@ -66,7 +66,6 @@ public class BuilderAction : MonoBehaviour
                 GroveBase grove = currentTile.currentBuilding?.GetComponent<GroveBase>();
                 if (grove != null)
                 {
-                    Debug.Log($"[BuilderAI] Builder {unitId} is on Grove at start of turn, building Enemy Base this turn.");
                     EventBus.Publish(new BuilderDevelopGroveEvent(unitId, currentPos));
                     yield return new WaitForSeconds(0.3f);
                     continue;
@@ -83,20 +82,13 @@ public class BuilderAction : MonoBehaviour
 
             //If already at grove, wait for next turn to build base
             if (currentPos == target)
-            {
-                Debug.Log($"[BuilderAI] Builder {unitId} is standing on Grove, ready to build next turn.");
                 continue;
-            }
-
+            
             Vector2Int? destination = AIPathFinder.FindNearestReachable(currentPos, target, EnemyUnitManager.Instance.GetUnitMoveRange(unitId));
             if (destination == null || destination.Value == currentPos)
-            {
-                Debug.Log($"[BuilderAI] Builder {unitId} cannot find reachable path towards {target}, skipping.");
                 continue;
-            }
 
             EventBus.Publish(new EnemyMoveRequestEvent(unitId, destination.Value));
-            Debug.Log($"[BuilderAI] Builder {unitId} moves from {currentPos} to {destination.Value}");
         }
 
         onCompleted?.Invoke();
@@ -105,13 +97,9 @@ public class BuilderAction : MonoBehaviour
     private Vector2Int FindClosestGrove(Vector2Int from)
     {
         GroveBase[] groves = FindObjectsByType<GroveBase>(FindObjectsSortMode.None);
-        Debug.Log($"[BuilderAI] Found {groves.Length} GroveBase objects in scene");
 
         if (groves.Length == 0)
-        {
-            Debug.LogWarning("[BuilderAI] NO GROVES FOUND! Builder will not move.");
             return from;
-        }
 
         if(groves.Length > 0)
         {
@@ -148,10 +136,7 @@ public class BuilderAction : MonoBehaviour
         }
 
         if (walkableTiles.Count == 0)
-        {
-            Debug.LogWarning("[BuilderAI] No walkable tiles found! Builder will stay in place.");
             return from;
-        }
 
         HexTile randomTile = walkableTiles[UnityEngine.Random.Range(0, walkableTiles.Count)];
         return randomTile.HexCoords;
