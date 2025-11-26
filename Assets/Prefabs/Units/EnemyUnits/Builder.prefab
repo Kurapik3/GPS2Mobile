@@ -478,6 +478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8153475861678720898}
   - component: {fileID: 26843893990979240}
+  - component: {fileID: 392907204040432584}
   m_Layer: 0
   m_Name: Builder
   m_TagString: EnemyUnit
@@ -519,6 +520,24 @@ MonoBehaviour:
   currentHP: 0
   currentTile: {fileID: 0}
   baseHeightOffset: 2
+--- !u!114 &392907204040432584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6321253195173881537}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 0.7176471, b: 0.73885447, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &8093946904432003261
 GameObject:
   m_ObjectHideFlags: 0
