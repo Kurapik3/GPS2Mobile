@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8169470041135423783}
   m_Layer: 12
   m_Name: DebrisTile
-  m_TagString: Untagged
+  m_TagString: Debris
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
