@@ -18,7 +18,7 @@ public class Interactablemanager : MonoBehaviour
     private Vector2 touchStartPos;
     private float touchStartTime;
     private GameObject currentSelectedObject;
-
+    private bool handledByThisManager = false;
     private void OnEnable()
     {
         EnhancedTouchSupport.Enable();
@@ -70,11 +70,11 @@ public class Interactablemanager : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
         {
+            handledByThisManager = true;
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
             if (tile != null)
             {
                 tile.OnTileClicked();
-                TileSelector.SelectTile(tile);
             }
             // Try to get InteractableObject component
             InteractableObject interactable = hit.collider.GetComponent<InteractableObject>();
@@ -87,13 +87,14 @@ public class Interactablemanager : MonoBehaviour
         }
         else
         {
+            if (!handledByThisManager) return;
+            handledByThisManager = false;
             // Tapped empty space - deselect and close popup
             DeselectObject();
             popupPanel.HidePopup();
             if (TileSelector.CurrentTile != null)
             {
-                TileSelector.CurrentTile.OnTileDeselected();
-                TileSelector.CurrentTile = null;
+                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
             }
         }
     }

@@ -427,6 +427,7 @@ public class HexTile : MonoBehaviour
         }
 
         TileSelector.PreviousOutline = currentBuilding?.GetComponent<Outline>();
+        EventBus.Publish(new TileSelectedEvent(this));
     }
     public void OnTileDeselected()
     {
