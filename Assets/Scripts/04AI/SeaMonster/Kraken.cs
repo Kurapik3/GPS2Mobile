@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using static SeaMonsterEvents;
+using static UnityEngine.GraphicsBuffer;
 
 public class Kraken : SeaMonsterBase
 {
@@ -58,6 +61,9 @@ public class Kraken : SeaMonsterBase
             return cachedNextMove;
 
         cachedNextMove = AIPathFinder.GetRandomReachableTileForSeaMonster(this);
+        if (cachedNextMove.IsBlockedByTurtleWall)
+            return null;
+
         return cachedNextMove;
     }
 
@@ -67,11 +73,16 @@ public class Kraken : SeaMonsterBase
 
         hasActedThisTurn = true; //Mark early to avoid duplicate triggers
 
-        //If already targeting, attack it
-        if (isTargeting && currentTarget != null)
+        // Check if there are any targets in range first
+        List<GameObject> targetsInRange = GetTargetsInRange();
+        targetsInRange = GetTargetsInRange();
+        if (targetsInRange.Count > 0)
         {
+            currentTarget = targetsInRange[Random.Range(0, targetsInRange.Count)];
+            isTargeting = true;
             yield return AttackTarget();
-            yield break;
+            EventBus.Publish(new KrakenTargetsUnitEvent(this, currentTarget)); //For UI to indicate sea monster target
+            yield return new WaitForSeconds(0.5f);
         }
 
         //If no target, move to random reachable tile
@@ -80,19 +91,16 @@ public class Kraken : SeaMonsterBase
         {
             MoveTo(moveTile);
             Debug.Log($"[Kraken] Moves to {moveTile.HexCoords}");
-            cachedNextMove = null;
             yield return new WaitForSeconds(0.5f);
         }
 
-        //After moving, check if there are any targets in range
-        List<GameObject> targetsInRange = GetTargetsInRange();
+        //After moving, check again if there are any targets in range
         if (targetsInRange.Count > 0)
         {
             //Randomly choose target
             currentTarget = targetsInRange[Random.Range(0, targetsInRange.Count)];
             isTargeting = true;
-
-            Debug.Log($"[Kraken] Chooses {currentTarget.name} as target!");
+            yield return AttackTarget();
             EventBus.Publish(new KrakenTargetsUnitEvent(this, currentTarget)); //For UI to indicate sea monster target
             yield return new WaitForSeconds(0.5f);
         }
@@ -101,6 +109,7 @@ public class Kraken : SeaMonsterBase
             Debug.Log("[Kraken] No targets found after moving.");
         }
 
+        cachedNextMove = null;
         Debug.Log("<color=blue>===== [Kraken]  Turn ends. =====</color>");
         yield break;
     }

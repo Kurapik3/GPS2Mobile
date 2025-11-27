@@ -39,7 +39,7 @@ public class TurtleWall : SeaMonsterBase
         Vector2Int backCoord = spawnTile.HexCoords - lastMoveDirection;
         if (MapManager.Instance.IsWalkable(backCoord)) //Only block if it's a valid walkable tile
         {
-            BlockTile(backCoord);
+            BlockTile(backCoord, true);
             blockedBackTile = backCoord;
             Debug.Log($"[TurtleWall] Also blocking back tile at {backCoord}");
         }
@@ -78,8 +78,6 @@ public class TurtleWall : SeaMonsterBase
             MoveTo(target);
             cachedNextMove = null;
         }
-
-        hasActedThisTurn = true;
     }
 
     protected override void MoveTo(HexTile target)
@@ -96,6 +94,8 @@ public class TurtleWall : SeaMonsterBase
 
         //Move
         base.MoveTo(target);
+        hasMovedThisTurn = true;
+        hasActedThisTurn = true;
 
         //Block at the new position
         BlockTile(target.HexCoords);
@@ -104,7 +104,7 @@ public class TurtleWall : SeaMonsterBase
         Vector2Int newBack = target.HexCoords - NormalizeHexDirection(lastMoveDirection);
         if (MapManager.Instance.IsWalkable(newBack))
         {
-            BlockTile(newBack);
+            BlockTile(newBack, true);
             blockedBackTile = newBack;
         }
         else
@@ -129,10 +129,13 @@ public class TurtleWall : SeaMonsterBase
         base.Die();
     }
 
-    private void BlockTile(Vector2Int coord)
+    private void BlockTile(Vector2Int coord, bool isBackTile = false)
     {
         EventBus.Publish(new TurtleWallBlockEvent(this, coord));
-        ShowBlockIndicator(coord);
+        if(isBackTile)
+        {
+            ShowBlockIndicator(coord);
+        }
 
         HexTile tile = MapManager.Instance.GetTileAtHexPosition(coord);
         if (tile != null) 

@@ -304,13 +304,12 @@ public abstract class UnitBase : MonoBehaviour
         if (isSelected && !hasMovedThisTurn)
         {
             ShowRangeIndicators();
+            EventBus.Publish(new SeaMonsterEvents.UnitSelectedEvent(this, selected));
         }
         else
         {
             HideRangeIndicators();
         }
-
-        EventBus.Publish(new SeaMonsterEvents.UnitSelectedEvent(this, selected));
     }
     private void UpdateSelectionVisual()
     {
@@ -337,6 +336,12 @@ public abstract class UnitBase : MonoBehaviour
             return;
 
         int distance = HexDistance(currentTile.q, currentTile.r, targetTile.q, targetTile.r);
+        bool ignoreTurtleWall = TechTree.Instance.IsMutualism;
+
+        if (targetTile.currentSeaMonster != null && targetTile.currentSeaMonster.monsterName == "Turtle Wall")
+        {
+            MapManager.Instance.SetUnitOccupied(targetTile.HexCoords, false);
+        }
 
         if (distance > movement)
         {
@@ -346,17 +351,22 @@ public abstract class UnitBase : MonoBehaviour
 
         if (targetTile.IsOccupiedByUnit)
         {
-            Debug.Log($"{unitName} can't move there — tile is blocked or occupied!");
+            Debug.Log($"{unitName} can't move there. Target tile is blocked or occupied!");
+            return;
+        }
+        if (!ignoreTurtleWall && targetTile.IsBlockedByTurtleWall)
+        {
+            Debug.LogWarning($"{unitName} cannot stop on TurtleWall tile.");
             return;
         }
         if (!hasMovedThisTurn)
         {
-            Move(targetTile);
+            Move(targetTile, ignoreTurtleWall);
         }
         else return;
     }
 
-    public virtual void Move(HexTile targetTile)
+    public virtual void Move(HexTile targetTile, bool ignoreTurtleWall = false)
     {
         if (targetTile == null) return;
 
@@ -366,7 +376,7 @@ public abstract class UnitBase : MonoBehaviour
             currentTile.SetOccupiedByUnit(false);
             currentTile.currentUnit = null;
         }
-        StartCoroutine(MoveUnitPath(targetTile));
+        StartCoroutine(MoveUnitPath(targetTile, ignoreTurtleWall));
         //transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
         ManagerAudio.instance.PlaySFX("UnitMove");
         //Update new tile
@@ -380,7 +390,7 @@ public abstract class UnitBase : MonoBehaviour
         EventBus.Publish(new ActionMadeEvent());
     }
 
-    private IEnumerator MoveUnitPath(HexTile targetTile)
+    private IEnumerator MoveUnitPath(HexTile targetTile, bool ignoreTurtleWall)
     {
         List<Vector2Int> path = AIPathFinder.GetPath(currentTile.HexCoords, targetTile.HexCoords);
         if (path == null || path.Count == 0)
@@ -393,6 +403,19 @@ public abstract class UnitBase : MonoBehaviour
         {
             Vector2Int prevHex = path[i - 1];
             Vector2Int currHex = path[i];
+
+            HexTile tile = MapManager.Instance.GetTileAtHexPosition(currHex);
+            if (tile == null)
+                yield break;
+
+            // If the last tile (target destination) is blocked by turtle wall
+            // Skip movement even if have Mutualism tech unlocked
+            if (i == path.Count - 1 && tile.IsBlockedByTurtleWall && !ignoreTurtleWall)
+            {
+                Debug.Log($"{unitName} cannot stop on TurtleWall tile at {currHex}");
+                yield break;
+            }
+
             yield return SmoothMove(prevHex, currHex);
         }
     }
@@ -548,6 +571,8 @@ public abstract class UnitBase : MonoBehaviour
 
             foreach (var neighborCoord in neighbors)
             {
+                bool ignoreTurtleWall = TechTree.Instance.IsMutualism;
+
                 // Skip if already visited with shorter distance
                 if (reachableTiles.ContainsKey(neighborCoord) && reachableTiles[neighborCoord] <= currentDistance + 1)
                     continue;
@@ -558,6 +583,10 @@ public abstract class UnitBase : MonoBehaviour
 
                 // Skip blocked or occupied tiles (they block path but we don't mark them as reachable)
                 if (neighborTile.HasStructure || neighborTile.IsOccupiedByUnit)
+                    continue;
+
+                // Before unlock mutualism tech, skip tile that is blocked by turtle wall
+                if (!ignoreTurtleWall && neighborTile.IsBlockedByTurtleWall)
                     continue;
 
                 // Mark as reachable and add to queue for further exploration

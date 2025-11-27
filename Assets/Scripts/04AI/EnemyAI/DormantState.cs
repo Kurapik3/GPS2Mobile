@@ -65,7 +65,14 @@ public class DormantState : MonoBehaviour
             Vector2Int current = eum.GetUnitPosition(id);
             List<Vector2Int> candidates = AIPathFinder.GetReachableHexes(current, eum.GetUnitMoveRange(id));
             //Filter walkable
-            candidates.RemoveAll(hex => !MapManager.Instance.CanUnitStandHere(hex));
+            candidates.RemoveAll(hex =>
+            {
+                HexTile tile = MapManager.Instance.GetTileAtHexPosition(hex);
+                if (tile == null) 
+                    return true; //Remove if null
+
+                return !MapManager.Instance.CanUnitStandHere(hex) || tile.IsBlockedByTurtleWall;
+            });
 
             if (candidates.Count == 0) 
                 continue;

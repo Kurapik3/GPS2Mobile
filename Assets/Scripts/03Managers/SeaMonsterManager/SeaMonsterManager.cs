@@ -160,6 +160,8 @@ public class SeaMonsterManager : MonoBehaviour
             {
                 ManagerAudio.instance.PlaySFX("KrakenSpawn");
             }
+
+            monster.hasActedThisTurn = true;
         }
     }
 
