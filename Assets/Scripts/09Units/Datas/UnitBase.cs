@@ -32,6 +32,7 @@ public abstract class UnitBase : MonoBehaviour
     public HexTile currentTile;
     private Renderer rend;
 
+
     public bool hasMovedThisTurn = false;
     public bool HasAttackThisTurn  = false;
 
@@ -448,7 +449,7 @@ public abstract class UnitBase : MonoBehaviour
         }
     }
 
-    public void ResetMove()
+    public virtual void ResetMove()
     {
         hasMovedThisTurn = false;
         HasAttackThisTurn = false;
