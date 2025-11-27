@@ -16,6 +16,7 @@ TagManager:
   - Fish
   - Debris
   - TurfVisual
+  - BaseUpgradePopup
   layers:
   - Default
   - TransparentFX
