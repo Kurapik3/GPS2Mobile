@@ -341,19 +341,17 @@ public class PopUpManager : MonoBehaviour
         }
         else
         {
-            // Tech is unlocked - show extract button
             if (currentData.objectType == ObjectType.Fish && extractFishButton != null)
             {
                 extractFishButton.gameObject.SetActive(true);
-                extractFishButton.interactable = hasEnoughAP; // Enable/disable based on AP
+                extractFishButton.interactable = hasEnoughAP; 
             }
             if (currentData.objectType == ObjectType.Debris && extractDebrisButton != null)
             {
                 extractDebrisButton.gameObject.SetActive(true);
-                extractDebrisButton.interactable = hasEnoughAP; // Enable/disable based on AP
+                extractDebrisButton.interactable = hasEnoughAP;
             }
 
-            // Hide tech tree buttons
             if (techTreeButton != null) techTreeButton.gameObject.SetActive(false);
             if (debristechTreeButton != null) debristechTreeButton.gameObject.SetActive(false);
         }
