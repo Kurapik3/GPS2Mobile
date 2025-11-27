@@ -48,10 +48,11 @@ public class SeaMonsterTouchController : MonoBehaviour
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
             if (tile != null)
             {
-
+                EventBus.Publish(new TileSelectedEvent(tile));
                 if (selectedMonster != null && selectedMonster.State == SeaMonsterState.Tamed)
                 {
                     selectedMonster.OnPlayerClickTile(tile);
+                    EventBus.Publish(new TileDeselectedEvent(tile));
                     DeselectMonster();
                     return;
                 }
@@ -62,11 +63,19 @@ public class SeaMonsterTouchController : MonoBehaviour
             }
 
             Debug.Log("[Touch] Clicked something else, DeselectMonster()");
+            if (TileSelector.CurrentTile != null)
+            {
+                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+            }
             DeselectMonster();
         }
         else
         {
             Debug.Log("[Touch] Raycast hit NOTHING.");
+            if (TileSelector.CurrentTile != null)
+            {
+                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+            }
         }
     }
 
@@ -75,6 +84,10 @@ public class SeaMonsterTouchController : MonoBehaviour
         DeselectMonster();
         selectedMonster = monster;
         selectedMonster.SetSelected(true);
+        if (TileSelector.CurrentTile != null)
+        {
+            EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+        }
     }
 
     private void DeselectMonster()
