@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using static EnemyAIEvents;
 using static SeaMonsterEvents;
@@ -21,11 +22,13 @@ public class SeaMonsterManager : MonoBehaviour
     [SerializeField] private float shakeIntensity = 0.6f;
     [SerializeField] private float shakeDuration = 0.5f;
 
-    private readonly List<SeaMonsterBase> activeMonsters = new();
+    [SerializeField] private List<SeaMonsterBase> activeMonsters = new();
     public IReadOnlyList<SeaMonsterBase> ActiveMonsters => activeMonsters;
 
     private readonly Dictionary<int, Vector2Int> monsterPositions = new();
     public IReadOnlyDictionary<int, Vector2Int> MonsterPositions => monsterPositions;
+
+    private bool isProcessingAITurn = false;
 
     private void Awake()
     {
@@ -36,8 +39,6 @@ public class SeaMonsterManager : MonoBehaviour
 
         if (Camera.main != null)
             mainCameraTransform = Camera.main.transform;
-        else
-            Debug.LogWarning("No main camera found!");
     }
 
     private void OnEnable()
@@ -49,14 +50,21 @@ public class SeaMonsterManager : MonoBehaviour
         EventBus.Subscribe<KrakenAttacksMonsterEvent>(OnKrakenAttackMonster);
         EventBus.Subscribe<TurtleWallBlockEvent>(OnTurtleWallBlock);
         EventBus.Subscribe<TurtleWallUnblockEvent>(OnTurtleWallUnblock);
+        EventBus.Subscribe<UnitSelectedEvent>(OnUnitSelected);
+        EventBus.Subscribe<TamingUnlockedEvent>(OnTamingUnlocked);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<SeaMonsterTurnStartedEvent>(OnTurnStarted);
         EventBus.Unsubscribe<SeaMonsterKilledEvent>(OnSeaMonsterKilled);
+        EventBus.Unsubscribe<SeaMonsterMoveEvent>(OnMonsterMoved);
+        EventBus.Unsubscribe<KrakenAttacksUnitEvent>(OnKrakenAttackUnit);
+        EventBus.Unsubscribe<KrakenAttacksMonsterEvent>(OnKrakenAttackMonster);
         EventBus.Unsubscribe<TurtleWallBlockEvent>(OnTurtleWallBlock);
         EventBus.Unsubscribe<TurtleWallUnblockEvent>(OnTurtleWallUnblock);
+        EventBus.Unsubscribe<UnitSelectedEvent>(OnUnitSelected);
+        EventBus.Unsubscribe<TamingUnlockedEvent>(OnTamingUnlocked);
     }
 
     private void Start()
@@ -66,13 +74,65 @@ public class SeaMonsterManager : MonoBehaviour
 
     private void OnTurnStarted(SeaMonsterTurnStartedEvent evt)
     {
-        int turn = evt.Turn;
+        if (isProcessingAITurn)
+            return;
+
+        StartCoroutine(ProcessSeaMonsterTurn(evt.Turn));
+    }
+
+    private IEnumerator ProcessSeaMonsterTurn(int turn)
+    {
+        isProcessingAITurn = true;
 
         //Start at turn 10, then every 4 turns
         if (turn == 10 || (turn > 10 && (turn - 10) % 4 == 0))
         {
-            StartCoroutine(SpawnSequence(turn));
+            yield return StartCoroutine(SpawnSequence(turn));
         }
+
+        if (turn < 10)
+        {
+            Debug.Log("[SeaMonsterManager] Turn < 10: No Sea Monster phase.");
+            EndSeaMonsterTurn(turn);
+            yield break;
+        }
+
+        //Execute AI for all untamed monsters
+        bool hasUntamed = false;
+        List<SeaMonsterBase> untamedMonsters = new List<SeaMonsterBase>();
+
+        foreach (var monster in activeMonsters)
+        {
+            if (monster != null && monster.State == SeaMonsterState.Untamed)
+            {
+                untamedMonsters.Add(monster);
+                hasUntamed = true;
+            }
+        }
+
+        if (hasUntamed)
+        {
+            Debug.Log($"[SeaMonsterManager] Found {untamedMonsters.Count} untamed monsters. Running AI.");
+
+            foreach (var monster in untamedMonsters)
+            {
+                if (monster != null && monster.State == SeaMonsterState.Untamed)
+                {
+                    monster.PerformTurnAction();
+                    yield return new WaitForSeconds(0.5f);
+                }
+            }
+        }
+
+        //End turn
+        EndSeaMonsterTurn(turn);
+    }
+
+    private void EndSeaMonsterTurn(int turn)
+    {
+        Debug.Log($"[SeaMonsterManager] Ending Sea Monster Turn {turn}");
+        isProcessingAITurn = false;
+        EventBus.Publish(new SeaMonsterTurnEndEvent(turn));
     }
 
     private IEnumerator SpawnSequence(int turn)
@@ -100,6 +160,8 @@ public class SeaMonsterManager : MonoBehaviour
             {
                 ManagerAudio.instance.PlaySFX("KrakenSpawn");
             }
+
+            monster.hasActedThisTurn = true;
         }
     }
 
@@ -112,6 +174,15 @@ public class SeaMonsterManager : MonoBehaviour
 
         Vector2Int pos = monster.currentTile != null ? monster.currentTile.HexCoords : Vector2Int.zero;
         monsterPositions[monster.MonsterId] = pos;
+
+        if (TechTree.Instance.IsTaming)
+        {
+            monster.Tame();
+        }
+        else
+        {
+            monster.Untame();
+        }
 
         UpdateSeaMonsterVisibility();
     }
@@ -154,16 +225,6 @@ public class SeaMonsterManager : MonoBehaviour
             activeMonsters.Remove(evt.Monster);
 
         monsterPositions.Remove(evt.Monster.MonsterId);
-    }
-
-    public List<SeaMonsterBase> GetAllMonsters()
-    {
-        return new List<SeaMonsterBase>(activeMonsters);
-    }
-
-    public SeaMonsterBase GetMonsterById(int monsterId)
-    {
-        return activeMonsters.Find(m => m.MonsterId == monsterId);
     }
 
     #region Move
@@ -229,53 +290,12 @@ public class SeaMonsterManager : MonoBehaviour
         if (evt.Target == null)
             return;
 
-        if (evt.Attacker != null)
-        {
-            var render = evt.Attacker.GetComponentInChildren<Renderer>();
-            if (render != null)
-            {
-                Color aOriginal = render.material.color;
-                render.material.color = Color.yellow;
-                StartCoroutine(RestoreColor(render, aOriginal, 0.2f));
-            }
-        }
 
-        //If target is player unit
-        if (evt.Target.TryGetComponent<UnitBase>(out UnitBase playerUnit))
+        ManagerAudio.instance.PlaySFX("KrakenAttack");
+        Knockback(evt.Target, evt.Attacker.transform.forward, () =>
         {
-            ManagerAudio.instance.PlaySFX("KrakenAttack");
-            playerUnit.TakeDamage(evt.Damage);
-            if(playerUnit.unitName == "Tanker")
-            {
-                evt.Attacker.TakeDamage(evt.Damage);
-            }
-            Debug.Log($"Kraken attacked player {playerUnit.unitName} unit for {evt.Damage} damage!");
-            return;
-        }
-
-        if (evt.Target.TryGetComponent<EnemyUnit>(out EnemyUnit enemyUnit))
-        {
-            ManagerAudio.instance.PlaySFX("KrakenAttack");
-            enemyUnit.TakeDamage(evt.Damage);
-            Debug.Log($"Kraken attacked enemy {enemyUnit.unitType} unit for {evt.Damage} damage!");
-        }
-
-        //Temp, for testing
-        Renderer r = evt.Target.GetComponentInChildren<Renderer>();
-        if (r != null)
-        {
-            Color original = r.material.color;
-            r.material.color = Color.red;
-            StartCoroutine(RestoreColor(r, original, 0.2f));
-        }
-    }
-
-    //Temp, for testing
-    private IEnumerator RestoreColor(Renderer r, Color original, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (r != null)
-            r.material.color = original;
+            ApplyDamage(evt.Target, evt.Attacker, evt.Damage);
+        });
     }
 
     private void OnKrakenAttackMonster(KrakenAttacksMonsterEvent evt)
@@ -284,9 +304,66 @@ public class SeaMonsterManager : MonoBehaviour
             return;
 
         ManagerAudio.instance.PlaySFX("KrakenAttack");
-        evt.Target.TakeDamage(evt.Damage);
+        Knockback(evt.Target.gameObject, evt.Attacker.transform.forward, () =>
+        {
+            ApplyDamage(evt.Target.gameObject, evt.Attacker, evt.Damage);
+        });
     }
 
+    public void Knockback(GameObject target, Vector3 direction, System.Action onComplete = null)
+    {
+        if (target == null)
+            return;
+
+        Vector3 hitPos = target.transform.position + direction.normalized * 0.3f;
+
+        target.transform
+        .DOMove(hitPos, 0.1f)
+        .SetLoops(2, LoopType.Yoyo)
+        .SetEase(Ease.OutQuad)
+        .OnComplete(() =>
+        {
+            onComplete?.Invoke(); //Wait until animation completed then apply damage
+        });
+    }
+
+    private void ApplyDamage(GameObject target, SeaMonsterBase attacker, int damage)
+    {
+        if (target.TryGetComponent<UnitBase>(out var playerUnit))
+        {
+            playerUnit.TakeDamage(damage);
+
+            if (playerUnit.unitName == "Tanker")
+            {
+                attacker.TakeDamage(damage);
+            }
+
+            Debug.Log($"[SeaMonsterManager] Dealt {damage} damage to PlayerUnit {playerUnit.name}, HP now {playerUnit.hp}");
+            return;
+        }
+
+        if (target.TryGetComponent<EnemyUnit>(out var enemyUnit))
+        {
+            enemyUnit.TakeDamage(damage);
+
+            if (enemyUnit.unitType == "Tanker")
+            {
+                attacker.TakeDamage(damage);
+            }
+
+            Debug.Log($"[SeaMonsterManager] Dealt {damage} damage to TreeBase {enemyUnit.name}");
+            return;
+        }
+
+        if (target.TryGetComponent<SeaMonsterBase>(out var sm))
+        {
+            sm.TakeDamage(damage);
+            Debug.Log($"[SeaMonsterManager] Dealt {damage} damage to SeaMonster {sm.name}");
+            return;
+        }
+
+        Debug.LogWarning($"[SeaMonsterManager] Target {target} not found.");
+    }
 
     private void OnTurtleWallBlock(TurtleWallBlockEvent evt)
     {
@@ -304,7 +381,42 @@ public class SeaMonsterManager : MonoBehaviour
         }
     }
 
-#region Render
+    #region RangeIndicator
+    private void OnUnitSelected(UnitSelectedEvent evt)
+    {
+        if (evt.IsSelected)
+        {
+            ShowAllSeaMonsterRanges();
+        }
+        else
+        {
+            HideAllSeaMonsterRanges();
+        }
+    }
+
+    private void ShowAllSeaMonsterRanges()
+    {
+        foreach (var monster in activeMonsters)
+        {
+            if (monster != null)
+            {
+                monster.ShowSMRangeIndicators();
+            }
+        }
+    }
+
+    private void HideAllSeaMonsterRanges()
+    {
+        foreach (var monster in activeMonsters)
+        {
+            if (monster != null)
+            {
+                monster.HideSMRangeIndicators();
+            }
+        }
+    }
+    #endregion
+    #region Render
     private bool IsUnderTheFog(int id)
     {
         if (fogSystem == null)
@@ -333,5 +445,14 @@ public class SeaMonsterManager : MonoBehaviour
             SetLayerRecursively(child.gameObject, layer);
         }
     }
-#endregion
+    #endregion
+
+    private void OnTamingUnlocked(TamingUnlockedEvent evt)
+    {
+        foreach (var sm in activeMonsters)
+        {
+            if (sm != null)
+                sm.Tame();
+        }
+    }
 }

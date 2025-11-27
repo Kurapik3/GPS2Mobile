@@ -1,13 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using static SeaMonsterEvents;
+using static UnityEngine.GraphicsBuffer;
 
 public class Kraken : SeaMonsterBase
 {
     private bool isTargeting = false;
     private GameObject currentTarget;
-
+    private HexTile cachedNextMove = null;
+    [SerializeField] private Animator anim;
     protected override void Awake()
     {
         base.Awake();
@@ -22,12 +26,45 @@ public class Kraken : SeaMonsterBase
         isBlocking = false;
     }
 
+    public override void OnPlayerClickTile(HexTile tile)
+    {
+        if (tile.currentEnemyUnit != null || tile.currentEnemyBase != null || tile.currentSeaMonster != null)
+        {
+            PerformAttackOnTile(tile);
+        }
+        else if (GetAvailableTiles().Contains(tile))
+        {
+            TryMove(tile);
+        }
+    }
+
     public override void PerformTurnAction()
     {
         if (hasActedThisTurn || currentTile == null)
             return;
 
+        if (State == SeaMonsterState.Tamed)
+            return;
+
         StartCoroutine(TurnRoutine());
+    }
+
+    public override HexTile GetNextMoveTile()
+    {
+        if (isTargeting && currentTarget != null)
+            return null;
+
+        if (State == SeaMonsterState.Tamed)
+            return null;
+
+        if (cachedNextMove != null)
+            return cachedNextMove;
+
+        cachedNextMove = AIPathFinder.GetRandomReachableTileForSeaMonster(this);
+        if (cachedNextMove.IsBlockedByTurtleWall)
+            return null;
+
+        return cachedNextMove;
     }
 
     private IEnumerator TurnRoutine()
@@ -36,15 +73,20 @@ public class Kraken : SeaMonsterBase
 
         hasActedThisTurn = true; //Mark early to avoid duplicate triggers
 
-        //If already targeting, attack it
-        if (isTargeting && currentTarget != null)
+        // Check if there are any targets in range first
+        List<GameObject> targetsInRange = GetTargetsInRange();
+        targetsInRange = GetTargetsInRange();
+        if (targetsInRange.Count > 0)
         {
+            currentTarget = targetsInRange[Random.Range(0, targetsInRange.Count)];
+            isTargeting = true;
             yield return AttackTarget();
-            yield break;
+            EventBus.Publish(new KrakenTargetsUnitEvent(this, currentTarget)); //For UI to indicate sea monster target
+            yield return new WaitForSeconds(0.5f);
         }
 
         //If no target, move to random reachable tile
-        HexTile moveTile = AIPathFinder.GetRandomReachableTileForSeaMonster(this);
+        HexTile moveTile = GetNextMoveTile();
         if (moveTile != null && moveTile != currentTile)
         {
             MoveTo(moveTile);
@@ -52,15 +94,13 @@ public class Kraken : SeaMonsterBase
             yield return new WaitForSeconds(0.5f);
         }
 
-        //After moving, check if there are any targets in range
-        List<GameObject> targetsInRange = GetTargetsInRange();
+        //After moving, check again if there are any targets in range
         if (targetsInRange.Count > 0)
         {
             //Randomly choose target
             currentTarget = targetsInRange[Random.Range(0, targetsInRange.Count)];
             isTargeting = true;
-
-            Debug.Log($"[Kraken] Chooses {currentTarget.name} as target!");
+            yield return AttackTarget();
             EventBus.Publish(new KrakenTargetsUnitEvent(this, currentTarget)); //For UI to indicate sea monster target
             yield return new WaitForSeconds(0.5f);
         }
@@ -69,6 +109,7 @@ public class Kraken : SeaMonsterBase
             Debug.Log("[Kraken] No targets found after moving.");
         }
 
+        cachedNextMove = null;
         Debug.Log("<color=blue>===== [Kraken]  Turn ends. =====</color>");
         yield break;
     }
@@ -127,10 +168,10 @@ public class Kraken : SeaMonsterBase
 
 
         //Clear target after attacking
+        cachedNextMove = null;
         isTargeting = false;
         currentTarget = null;
     }
-
 
     private List<GameObject> GetTargetsInRange()
     {
@@ -141,7 +182,11 @@ public class Kraken : SeaMonsterBase
         {
             //Player Unit
             if (tile.currentUnit != null)
+            {
+                if (TechTree.instance.IsCamouflage && tile.currentUnit.unitName == "Scout")
+                    continue;
                 result.Add(tile.currentUnit.gameObject);
+            }
 
             //Enemy Unit
             if (tile.currentEnemyUnit != null)

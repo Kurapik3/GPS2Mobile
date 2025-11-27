@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class TribeStatsUI : MonoBehaviour
 {
@@ -153,9 +154,7 @@ public class TribeStatsUI : MonoBehaviour
     private void OnHomeClicked()
     {
         Debug.Log("Home button clicked. Implement logic to return to main menu or restart.");
-        // Example: SceneManager.LoadScene("MainMenu");
-        // Or simply hide the panel if it's just an overlay:
-        // Hide();
+        SceneManager.LoadScene("MainMenu");
     }
 
     // Helper struct to hold score data for sorting

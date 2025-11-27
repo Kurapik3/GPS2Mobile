@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public static class AIPathFinder
 {
@@ -102,7 +100,6 @@ public static class AIPathFinder
             for (int dy = Mathf.Max(-moveRange, -dx - moveRange); dy <= Mathf.Min(moveRange, -dx + moveRange); dy++)
             {
                 Vector2Int hex = new(startHex.x + dx, startHex.y + dy);
-
                 bool isTarget = target.HasValue && hex == target.Value;
 
                 if (!MapManager.Instance.IsWalkable(hex) && !isTarget)
@@ -143,7 +140,7 @@ public static class AIPathFinder
         if (monster.currentTile == null)
             return null;
 
-        var reachable = GetReachableHexes(monster.currentTile.HexCoords, monster.MovementRange);
+        var reachable = GetReachableHexes(monster.currentTile.HexCoords, monster.movementRange);
         if (reachable == null || reachable.Count == 0)
             return null;
 
@@ -169,7 +166,7 @@ public static class AIPathFinder
 
         if (smartMoves.Count == 0)
         {
-            if (candidates.Contains(from) && MapManager.Instance.CanUnitStandHere(from))
+            if (candidates.Contains(from) && MapManager.Instance.CanUnitStandHere(from) && !MapManager.Instance.GetTileAtHexPosition(target).IsBlockedByTurtleWall)
                 smartMoves.Add(from);
             else if (candidates.Count > 0)
                 smartMoves = candidates;

@@ -27,6 +27,8 @@ public class TechTree : MonoBehaviour
     [SerializeField] public bool IsHunterMask = false;
     [SerializeField] public bool IsTaming = false;
 
+    public event System.Action OnTechResearched;
+
     public static TechTree instance { get; private set; } // Keep the lowercase version too
 
     private void Awake()
@@ -49,16 +51,24 @@ public class TechTree : MonoBehaviour
             case "metal scrap": return IsFishing && !IsMetalScraps;
             case "armor": return IsMetalScraps && !IsArmor;
             case "scouting": return !IsScouting;
-            case "camouflage": return IsScouting && !IsCamouflage;
-            case "clearsight": return IsCamouflage && !IsClearSight;
+            case "camoflage": return IsScouting && !IsCamouflage;
+            case "clear sight": return IsCamouflage && !IsClearSight;
             case "home defense": return !IsHomeDef;
-            case "shooter": return IsHomeDef && !IsShooter;
+            case "shooter unit": return IsHomeDef && !IsShooter;
             case "naval warfare": return IsShooter && !IsNavalWarfare;
             case "mob research": return !IsCreaturesResearch;
-            case "mutualism": return IsCreaturesResearch && !IsMutualism;
-            case "hunter's mark": return IsMutualism && !IsHunterMask;
+            case "mutualism": return IsCreaturesResearch && IsScouting && !IsMutualism;
+            case "hunter's mark": return IsCreaturesResearch && !IsHunterMask;
             case "taming": return IsHunterMask && !IsTaming;
             default: return false;
+        }
+    }
+
+    private void Start()
+    {
+        if (IsTaming)
+        {
+            EventBus.Publish(new SeaMonsterEvents.TamingUnlockedEvent());
         }
     }
 
@@ -98,16 +108,16 @@ public class TechTree : MonoBehaviour
             case "scouting":
                 Scouting(cost);
                 return true;
-            case "camouflage":
+            case "camoflage":
                 Camouflage(cost);
                 return true;
-            case "clearsight":
+            case "clear sight":
                 ClearSight(cost);
                 return true;
             case "home defense":
                 HomeDefense(cost);
                 return true;
-            case "shooterunit":
+            case "shooter unit":
                 Shooter(cost);
                 return true;
             case "naval warfare":
@@ -139,6 +149,7 @@ public class TechTree : MonoBehaviour
             Debug.Log("Fishing unlocked!");
             player.useAP(cost);
             IsFishing = true;
+            OnTechResearched?.Invoke();
         }
         else
         {
@@ -152,6 +163,7 @@ public class TechTree : MonoBehaviour
         {
             player.useAP(cost);
             IsMetalScraps = true;
+            OnTechResearched?.Invoke();
         }
         else
         {
@@ -295,6 +307,8 @@ public class TechTree : MonoBehaviour
         {
             player.useAP(cost);
             IsTaming = true;
+
+            EventBus.Publish(new SeaMonsterEvents.TamingUnlockedEvent());
         }
         else
         {

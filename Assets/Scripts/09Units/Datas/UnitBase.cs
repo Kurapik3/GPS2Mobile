@@ -1,10 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using DG.Tweening.Core.Easing;
 using Unity.VisualScripting;
 using UnityEngine;
-using static EnemyAIEvents;
 
 public abstract class UnitBase : MonoBehaviour
 {
@@ -82,10 +80,6 @@ public abstract class UnitBase : MonoBehaviour
 
     public virtual void Attack(HexTile target)
     {
-        if (HasAttackThisTurn)
-        {
-            return;
-        }
         if (currentTile == null || target == null)
         {
             Debug.LogWarning("Either attacker or target is not on a tile!");
@@ -131,22 +125,30 @@ public abstract class UnitBase : MonoBehaviour
             //Ranged: projectile arc
             Vector3 projStart = startPos + Vector3.up * 1.5f;
             Vector3 projEnd = endPos;
-            GameObject proj = Instantiate(projectilePrefab, projStart, Quaternion.identity);
+            GameObject projectile = Instantiate(projectilePrefab, projStart, Quaternion.identity);
 
-            float t = 0f;
+            float time = 0f;
             float duration = 1f;
-            Vector3 mid = (projStart + projEnd) / 2 + Vector3.up * 2.5f;
 
-            while (t < 1f)
+            while (time < 1f)
             {
-                t += Time.deltaTime / duration;
-                Vector3 m1 = Vector3.Lerp(projStart, mid, t);
-                Vector3 m2 = Vector3.Lerp(mid, projEnd, t);
-                proj.transform.position = Vector3.Lerp(m1, m2, t);
+                time += Time.deltaTime / duration;
+
+                //Midpoint of the arc
+                Vector3 mid = (projStart + projEnd) / 2 + Vector3.up * 2.5f;
+
+                Vector3 m1 = Vector3.Lerp(projStart, mid, time);
+                Vector3 m2 = Vector3.Lerp(mid, projEnd, time);
+                Vector3 pos = Vector3.Lerp(m1, m2, time);
+
+                projectile.transform.position = pos;
+                projectile.transform.LookAt(projEnd);
+                projectile.transform.Rotate(90f, 0f, 0f);
+
                 yield return null;
             }
 
-            Destroy(proj);
+            Destroy(projectile);
             HitTarget(target, splashRadius);
         }
     }
@@ -232,19 +234,23 @@ public abstract class UnitBase : MonoBehaviour
             {
                 this.TakeDamage(damage);
             }
-            HasAttackThisTurn = true;
+            HasAttackThisTurn = false;
         }
         else if (target.currentEnemyBase != null)
         {
             target.currentEnemyBase.TakeDamage(attack);
             //Debug.Log($"{unitName} attacked {target.currentEnemyBase} for {attack} damage!");
-            HasAttackThisTurn = true;
+            HasAttackThisTurn = false;
         }
         else if (target.currentSeaMonster != null)
         {
             target.currentSeaMonster.TakeDamage(attack);
+            if(TechTree.Instance.IsHunterMask)
+            {
+                target.currentSeaMonster.TakeDamage(5);
+            }
             //Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
-            HasAttackThisTurn = true;
+            HasAttackThisTurn = false;
         }
     }
 
@@ -298,24 +304,12 @@ public abstract class UnitBase : MonoBehaviour
         if (isSelected && !hasMovedThisTurn)
         {
             ShowRangeIndicators();
-            if (!HasAttackThisTurn)
-            {
-                ShowAttackIndicators();
-            }
-            else HideAttackIndicators();
-
+            EventBus.Publish(new SeaMonsterEvents.UnitSelectedEvent(this, selected));
         }
         else
         {
             HideRangeIndicators();
-            HideAttackIndicators();
-            if (!HasAttackThisTurn)
-            {
-                ShowAttackIndicators();
-            }
-            else HideAttackIndicators();
         }
-        
     }
     private void UpdateSelectionVisual()
     {
@@ -328,7 +322,7 @@ public abstract class UnitBase : MonoBehaviour
         List<HexTile> tiles = new List<HexTile>();
         foreach (var tile in MapManager.Instance.GetTiles())
         {
-            if (HexDistance(currentTile.q, currentTile.r, tile.q, tile.r) <= movement && tile.IsWalkableForAI())
+            if (HexDistance(currentTile.q, currentTile.r, tile.q, tile.r) <= movement && tile.IsWalkableForAI() && !tile.IsFogged)
             {
                 tiles.Add(tile);
             }
@@ -342,6 +336,12 @@ public abstract class UnitBase : MonoBehaviour
             return;
 
         int distance = HexDistance(currentTile.q, currentTile.r, targetTile.q, targetTile.r);
+        bool ignoreTurtleWall = TechTree.Instance.IsMutualism;
+
+        if (targetTile.currentSeaMonster != null && targetTile.currentSeaMonster.monsterName == "Turtle Wall")
+        {
+            MapManager.Instance.SetUnitOccupied(targetTile.HexCoords, false);
+        }
 
         if (distance > movement)
         {
@@ -351,17 +351,22 @@ public abstract class UnitBase : MonoBehaviour
 
         if (targetTile.IsOccupiedByUnit)
         {
-            Debug.Log($"{unitName} can't move there — tile is blocked or occupied!");
+            Debug.Log($"{unitName} can't move there. Target tile is blocked or occupied!");
+            return;
+        }
+        if (!ignoreTurtleWall && targetTile.IsBlockedByTurtleWall)
+        {
+            Debug.LogWarning($"{unitName} cannot stop on TurtleWall tile.");
             return;
         }
         if (!hasMovedThisTurn)
         {
-            Move(targetTile);
+            Move(targetTile, ignoreTurtleWall);
         }
         else return;
     }
 
-    public virtual void Move(HexTile targetTile)
+    public virtual void Move(HexTile targetTile, bool ignoreTurtleWall = false)
     {
         if (targetTile == null) return;
 
@@ -371,9 +376,9 @@ public abstract class UnitBase : MonoBehaviour
             currentTile.SetOccupiedByUnit(false);
             currentTile.currentUnit = null;
         }
-        StartCoroutine(MoveUnitPath(targetTile));
+        StartCoroutine(MoveUnitPath(targetTile, ignoreTurtleWall));
         //transform.position = targetTile.transform.position + Vector3.up * 2f; // optional y offset
-
+        ManagerAudio.instance.PlaySFX("UnitMove");
         //Update new tile
         currentTile = targetTile;
         currentTile.SetOccupiedByUnit(true); //Occupied new tile
@@ -385,16 +390,32 @@ public abstract class UnitBase : MonoBehaviour
         EventBus.Publish(new ActionMadeEvent());
     }
 
-    private IEnumerator MoveUnitPath(HexTile targetTile)
+    private IEnumerator MoveUnitPath(HexTile targetTile, bool ignoreTurtleWall)
     {
         List<Vector2Int> path = AIPathFinder.GetPath(currentTile.HexCoords, targetTile.HexCoords);
         if (path == null || path.Count == 0)
             yield break;
 
+        if (path[0] != currentTile.HexCoords)
+            path.Insert(0, currentTile.HexCoords);
+
         for (int i = 1; i < path.Count; i++)
         {
             Vector2Int prevHex = path[i - 1];
             Vector2Int currHex = path[i];
+
+            HexTile tile = MapManager.Instance.GetTileAtHexPosition(currHex);
+            if (tile == null)
+                yield break;
+
+            // If the last tile (target destination) is blocked by turtle wall
+            // Skip movement even if have Mutualism tech unlocked
+            if (i == path.Count - 1 && tile.IsBlockedByTurtleWall && !ignoreTurtleWall)
+            {
+                Debug.Log($"{unitName} cannot stop on TurtleWall tile at {currHex}");
+                yield break;
+            }
+
             yield return SmoothMove(prevHex, currHex);
         }
     }
@@ -550,6 +571,8 @@ public abstract class UnitBase : MonoBehaviour
 
             foreach (var neighborCoord in neighbors)
             {
+                bool ignoreTurtleWall = TechTree.Instance.IsMutualism;
+
                 // Skip if already visited with shorter distance
                 if (reachableTiles.ContainsKey(neighborCoord) && reachableTiles[neighborCoord] <= currentDistance + 1)
                     continue;
@@ -560,6 +583,10 @@ public abstract class UnitBase : MonoBehaviour
 
                 // Skip blocked or occupied tiles (they block path but we don't mark them as reachable)
                 if (neighborTile.HasStructure || neighborTile.IsOccupiedByUnit)
+                    continue;
+
+                // Before unlock mutualism tech, skip tile that is blocked by turtle wall
+                if (!ignoreTurtleWall && neighborTile.IsBlockedByTurtleWall)
                     continue;
 
                 // Mark as reachable and add to queue for further exploration

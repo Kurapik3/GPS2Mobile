@@ -195,9 +195,9 @@ public class EnemyUnitManager : MonoBehaviour
         return 0;
     }
 
-    public bool IsBuilderUnit(int id)
+    public bool IsUnitType(int id, string type)
     {
-        if (GetUnitType(id) == "Builder")
+        if (GetUnitType(id) == type)
             return true;
         return false;
     }
@@ -240,7 +240,7 @@ public class EnemyUnitManager : MonoBehaviour
             int id = kv.Key;
             GameObject enemy = kv.Value;
             bool visible = IsUnitVisibleToPlayer(id);
-            SetLayerRecursively(enemy, visible ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("EnemyHidden"));
+            SetLayerRecursively(enemy, visible ? LayerMask.NameToLayer("Enemy") : LayerMask.NameToLayer("EnemyHidden"));
         }
     }
 

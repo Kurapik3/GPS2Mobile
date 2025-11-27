@@ -210,7 +210,7 @@ public class TreeBase : BuildingBase
 
         if (hpDisplay != null)
         {
-            hpDisplay.OnHealthChanged();
+            hpDisplay.UpdateHPDisplay();
         }
 
         if (health <= 0)

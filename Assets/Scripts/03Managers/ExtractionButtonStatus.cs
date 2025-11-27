@@ -36,6 +36,27 @@ public class ExtractionButtonStatus : MonoBehaviour
         UpdateStatus();
     }
 
+    private void OnEnable()
+    {
+        player = PlayerTracker.Instance;
+        techTree = TechTree.Instance;
+
+        if (player != null)
+            player.OnAPChanged += UpdateStatus;
+        if (techTree != null)
+            techTree.OnTechResearched += UpdateStatus;
+
+        UpdateStatus(); // Initial refresh
+    }
+
+    private void OnDisable()
+    {
+        if (player != null)
+            player.OnAPChanged -= UpdateStatus;
+        if (techTree != null)
+            techTree.OnTechResearched -= UpdateStatus;
+    }
+
     public void UpdateStatus()
     {
         if (player == null || techTree == null || popUpManager == null)

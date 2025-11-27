@@ -8,7 +8,7 @@ using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 using UnityEngine.UI;
 using TMPro;
-
+using static TileSelector;
 public class SelectionOfStructureManager : MonoBehaviour
 {
     public static SelectionOfStructureManager instance;
@@ -48,6 +48,7 @@ public class SelectionOfStructureManager : MonoBehaviour
     private Camera cam;
     private bool isStatusClosed = false;
     private bool isSFXPlayed = true;
+    private bool handledByThisManager = false;
     public static bool IsUIBlockingInput { get; set; } = false;
 
     // Touch tracking
@@ -127,6 +128,23 @@ public class SelectionOfStructureManager : MonoBehaviour
         Ray ray = cam.ScreenPointToRay(touchPosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, structure))
         {
+            handledByThisManager = true;
+            HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+            if (tile != null)
+            {
+                if (tile.currentUnit != null)
+                {
+                    if (!tile.currentUnit.hasMovedThisTurn)
+                    {
+                        Debug.Log("Unit on tile still has movement left — block structure popup");
+                        return;
+                    }
+                }
+                if (tile.HasStructure)
+                {
+                    tile.OnTileClicked();
+                }
+            }
             SelectByClicking(hit.collider.gameObject);
             StructureInfoPanelMove();
 
@@ -138,9 +156,16 @@ public class SelectionOfStructureManager : MonoBehaviour
         }
         else
         {
+            if (!handledByThisManager) return;
+            handledByThisManager = false;
             isSFXPlayed = true;
             DeselectAll();
             CloseStructureInfoPanel();
+            if (TileSelector.CurrentTile != null)
+            {
+                //EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+                TileSelector.Hide();
+            }
         }
     }
 

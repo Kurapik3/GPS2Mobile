@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,6 +30,7 @@ public class TurnManager : MonoBehaviour
     public delegate void TurnEvent();
     public static event TurnEvent OnPlayerTurnStart;
     public static event TurnEvent OnEnemyTurnStart;
+    public static event TurnEvent OnSeaMonsterTurnStart;
 
      public TreeBase treeBase;
 
@@ -37,11 +39,13 @@ public class TurnManager : MonoBehaviour
     private void OnEnable()
     {
         EventBus.Subscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
+        EventBus.Subscribe<SeaMonsterEvents.SeaMonsterTurnEndEvent>(OnSeaMonsterTurnEnd);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<EnemyAIEvents.EnemyTurnEndEvent>(OnEnemyTurnEnd);
+        EventBus.Unsubscribe<SeaMonsterEvents.SeaMonsterTurnEndEvent>(OnSeaMonsterTurnEnd);
     }
 
     private void Start()
@@ -60,8 +64,6 @@ public class TurnManager : MonoBehaviour
 
     private void StartPlayerTurn()
     {
-        EventBus.Publish(new SeaMonsterEvents.SeaMonsterTurnStartedEvent(currentTurn));
-
         isPlayerTurn = true;
         Debug.Log($"--- Player Turn {currentTurn} ---");
 
@@ -70,6 +72,8 @@ public class TurnManager : MonoBehaviour
             unit.ResetMove();
         }
 
+        //Reset all tamed sea monsters for player control
+        ResetTamedSeaMonsters();
 
         EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));
         treeBase.OnTurnStart();
@@ -79,6 +83,21 @@ public class TurnManager : MonoBehaviour
         if (endTurnButton != null)
         {
             endTurnButton.interactable = true;
+        }
+    }
+
+    private void ResetTamedSeaMonsters()
+    {
+        if (SeaMonsterManager.Instance == null) return;
+
+        foreach (var monster in SeaMonsterManager.Instance.ActiveMonsters)
+        {
+            if (monster.State == SeaMonsterState.Tamed)
+            {
+                // Reset movement and attack flags for tamed monsters
+                monster.ResetTurnActions();
+                Debug.Log($"[TurnManager] Reset tamed sea monster: {monster.name}");
+            }
         }
     }
 
@@ -100,19 +119,45 @@ public class TurnManager : MonoBehaviour
         //Invoke(nameof(EndEnemyTurn), 2f);
     }
 
+    private void StartSeaMonsterTurn()
+    {
+        isPlayerTurn = false;
+        Debug.Log("--- Sea Monster Turn ---");
+
+        OnSeaMonsterTurnStart?.Invoke();
+        
+        if (endTurnButton != null)
+        {
+            endTurnButton.interactable = false;
+        }
+
+        EventBus.Publish(new SeaMonsterEvents.SeaMonsterTurnStartedEvent(currentTurn));
+}
+
     private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
     {
         Debug.Log($"--- Enemy Turn {evt.Turn} End ---");
 
         EnemyUnitManager.Instance.ClearJustSpawnedUnits();
+
+        StartSeaMonsterTurn();
+    }
+
+    private void OnSeaMonsterTurnEnd(SeaMonsterEvents.SeaMonsterTurnEndEvent evt)
+    {
+        Debug.Log($"--- Sea Monster Turn {evt.Turn} End ---");
+        Debug.Log($"[TurnManager] BEFORE increment: {currentTurn}");
+
         currentTurn++;
-        Debug.Log($"[TurnManager] OnEnemyTurnEnd - CurrentTurn incremented to: {currentTurn}");
+
+        Debug.Log($"[TurnManager] AFTER increment: {currentTurn}");
+        Debug.Log($"[TurnManager] OnSeaMonsterTurnEnd - CurrentTurn incremented to: {currentTurn}");
 
         isProcessingTurn = false;
         if (currentTurn > maxTurns)
         {
             Debug.Log("[TurnManager] Max turns reached! Calling EndGame or CheckEnding.");
-            //EndGame();
+            EndGame();
             GameManager.Instance?.CheckEnding();
             return;
         }
@@ -197,8 +242,7 @@ public class TurnManager : MonoBehaviour
         // Optional: Disable other UI elements like End Turn button
         if (endTurnButton != null)
             endTurnButton.interactable = false;
-
-        // Optional: Perform other end-game cleanup here
+        
     }
 
 }

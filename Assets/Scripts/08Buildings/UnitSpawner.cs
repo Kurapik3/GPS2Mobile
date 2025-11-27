@@ -218,7 +218,7 @@ public class UnitSpawner : MonoBehaviour
 
         GameObject newUnit = Instantiate(unitPrefab, pos, Quaternion.identity);
         newUnit.layer = LayerMask.NameToLayer("Unit");
-
+        ManagerAudio.instance.PlaySFX("UnitSpawn");
         UnitBase unit = newUnit.GetComponent<UnitBase>();
 
         if (unit == null)

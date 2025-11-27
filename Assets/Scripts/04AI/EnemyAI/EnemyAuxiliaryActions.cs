@@ -71,11 +71,11 @@ public class EnemyAuxiliaryActions : MonoBehaviour
 
         foreach (int id in eum.GetOwnedUnitIds())
         {
-            if (eum.IsBuilderUnit(id) || eum.HasUnitActedThisTurn(id))
+            if (eum.IsUnitType(id, "Builder") || eum.HasUnitActedThisTurn(id))
                 continue;
 
             HexTile tile = MapManager.Instance.GetTile(eum.GetUnitPosition(id));
-            bool hasResource = tile != null && (tile.fishTile != null || tile.debrisTile != null);
+            bool hasResource = EnemyTurfManager.Instance.IsInTurf(tile.HexCoords) && tile != null && (tile.fishTile != null || tile.debrisTile != null);
 
             if (hasResource)
                 priorityUnits.Add(id); //Priority units: already on development tile, choose develop action first
@@ -139,7 +139,7 @@ public class EnemyAuxiliaryActions : MonoBehaviour
         HexTile currentTile = MapManager.Instance.GetTile(currentPos);
 
         //If unit is on the target tile
-        if (currentTile != null && (currentTile.fishTile != null || currentTile.debrisTile != null))
+        if (currentTile != null && EnemyTurfManager.Instance.IsInTurf(currentPos) && (currentTile.fishTile != null || currentTile.debrisTile != null))
         {
             yield return RequestDevelopTile(unitId, currentPos);
             eum.MarkUnitAsActed(unitId);
@@ -218,7 +218,7 @@ public class EnemyAuxiliaryActions : MonoBehaviour
             if (!hasResource)
                 continue;
 
-            if (EnemyTurfManager.Instance.IsInTurf(tile.HexCoords))
+            if (!EnemyTurfManager.Instance.IsInTurf(tile.HexCoords))
                 continue;
 
             int dist = AIPathFinder.GetHexDistance(from, tile.HexCoords);

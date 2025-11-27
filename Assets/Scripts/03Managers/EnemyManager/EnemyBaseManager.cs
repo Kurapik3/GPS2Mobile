@@ -173,14 +173,4 @@ public class EnemyBaseManager : MonoBehaviour
             return;
         bases[evt.BaseId].OnUnitSpawned();
     }
-
-    public int GetBaseIdByObject(EnemyBase targetBase)
-    {
-        foreach (var kvp in bases)
-        {
-            if (kvp.Value == targetBase)
-                return kvp.Key;
-        }
-        return -1; //Not found any base
-    }
 }

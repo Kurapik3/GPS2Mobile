@@ -52,17 +52,8 @@ public class DormantState : MonoBehaviour
         {
             eum.LockState(id);
 
-            if (eum.IsBuilderUnit(id))
-            {
-                Debug.Log($"[DormantAI] Unit {id} is Builder, do nothing.");
+            if (eum.IsUnitType(id, "Builder") || eum.HasUnitActedThisTurn(id) || !eum.CanUnitMove(id))
                 continue;
-            }
-
-            if (eum.HasUnitActedThisTurn(id))
-            {
-                Debug.Log($"[DormantAI] Unit {id} just acted an action, skip movement.");
-                continue;
-            }
 
             //Skip visible (aggressive)
             if (eum.IsUnitVisibleToPlayer(id))
@@ -71,16 +62,17 @@ public class DormantState : MonoBehaviour
                 continue;
             }
 
-            if (!eum.CanUnitMove(id))
-            {
-                Debug.Log($"[DormantAI] Unit {id} just spawned, skip movement.");
-                continue;
-            }
-
             Vector2Int current = eum.GetUnitPosition(id);
             List<Vector2Int> candidates = AIPathFinder.GetReachableHexes(current, eum.GetUnitMoveRange(id));
             //Filter walkable
-            candidates.RemoveAll(hex => !MapManager.Instance.CanUnitStandHere(hex));
+            candidates.RemoveAll(hex =>
+            {
+                HexTile tile = MapManager.Instance.GetTileAtHexPosition(hex);
+                if (tile == null) 
+                    return true; //Remove if null
+
+                return !MapManager.Instance.CanUnitStandHere(hex) || tile.IsBlockedByTurtleWall;
+            });
 
             if (candidates.Count == 0) 
                 continue;
