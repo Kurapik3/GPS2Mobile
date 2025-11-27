@@ -56,7 +56,7 @@ MonoBehaviour:
   apPerTurn: 0
   buildingId: 0
   currentTile: {fileID: 0}
-  GrovePrefab: {fileID: 0}
+  GrovePrefab: {fileID: 8712921903553767909}
 --- !u!65 &5777958373759003943
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -346,6 +346,34 @@ PrefabInstance:
     - target: {fileID: 6736917123739768392, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: -2637995968705180388}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Develop
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GroveBase, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 8247211327332392703, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
       propertyPath: m_Name

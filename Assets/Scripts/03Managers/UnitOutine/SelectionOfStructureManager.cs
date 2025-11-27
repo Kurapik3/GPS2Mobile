@@ -132,7 +132,18 @@ public class SelectionOfStructureManager : MonoBehaviour
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
             if (tile != null)
             {
-                tile.OnTileClicked();
+                if (tile.currentUnit != null)
+                {
+                    if (!tile.currentUnit.hasMovedThisTurn)
+                    {
+                        Debug.Log("Unit on tile still has movement left — block structure popup");
+                        return;
+                    }
+                }
+                if (tile.HasStructure)
+                {
+                    tile.OnTileClicked();
+                }
             }
             SelectByClicking(hit.collider.gameObject);
             StructureInfoPanelMove();

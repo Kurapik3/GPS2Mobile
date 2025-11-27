@@ -87,11 +87,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectData:
     objectName: Debris
-    description: Extract Debris to upgrade your city VBlash
+    description: Extract Debris to upgrade your city
     icon: {fileID: 21300000, guid: ae0e89eba3792be48ac7f0e4dd218da6, type: 3}
     objectType: 1
     apCost: 2
-    showProximityBubble: 0
   selectionIndicator: {fileID: 0}
 --- !u!114 &3555925549582433021
 MonoBehaviour:
