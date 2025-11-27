@@ -143,15 +143,37 @@ public class GroveNClamButton : MonoBehaviour
             return;
         }
 
+        cache.Develop(unitOnTile);
+        
+    }
+
+    public void OnHarvestGrove()
+    {
+        if (cachedTile == null) return;
+
+        GroveBase grove = cachedTile.currentBuilding as GroveBase;
+        if (grove == null)
+        {
+            Debug.LogWarning("No GroveBase on this tile!");
+            return;
+        }
+
+        UnitBase unitOnTile = cachedTile.currentUnit;
+        if (unitOnTile == null)
+        {
+            Debug.LogWarning("No unit on this tile to develop the Grove!");
+            return;
+        }
+
+        // Only Builder can develop Grove
+        if (!grove.CanBeDevelopedBy(unitOnTile))
+        {
+            Debug.LogWarning($"{unitOnTile.unitName} cannot develop this Grove!");
+            return;
+        }
         BuilderUnit builder = unitOnTile as BuilderUnit;
-        if (builder != null)
-        {
-            cache.Develop(builder); 
-        }
-        else
-        {
-            Debug.LogWarning("The unit on this tile is not a Builder!");
-        }
+        grove.Develop(builder); // Develop Grove back into TreeBase
+        Debug.Log($"Grove developed back into TreeBase at ({cachedTile.q},{cachedTile.r})!");
     }
 }
 

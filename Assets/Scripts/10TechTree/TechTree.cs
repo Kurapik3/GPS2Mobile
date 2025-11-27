@@ -59,7 +59,7 @@ public class TechTree : MonoBehaviour
             case "mob research": return !IsCreaturesResearch;
             case "mutualism": return IsCreaturesResearch && IsScouting && !IsMutualism;
             case "hunter's mark": return IsCreaturesResearch && !IsHunterMask;
-            case "taming": return IsHunterMask && !IsTaming;
+            case "taming": return IsMutualism && !IsTaming;
             default: return false;
         }
     }
@@ -290,7 +290,7 @@ public class TechTree : MonoBehaviour
 
     private void HunterMask(int cost)
     {
-        if (IsMutualism && !IsHunterMask && player.getAp() >= cost)
+        if (IsCreaturesResearch && !IsHunterMask && player.getAp() >= cost)
         {
             player.useAP(cost);
             IsHunterMask = true;
@@ -303,7 +303,7 @@ public class TechTree : MonoBehaviour
 
     private void Taming(int cost)
     {
-        if (IsHunterMask && !IsTaming && player.getAp() >= cost)
+        if (IsMutualism && !IsTaming && player.getAp() >= cost)
         {
             player.useAP(cost);
             IsTaming = true;

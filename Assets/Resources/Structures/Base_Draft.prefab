@@ -963,6 +963,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ff490ff8aa9e6a947a146efe3d29b482, type: 3}
   m_PrefabInstance: {fileID: 312137809344525262}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &618548403499945631 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ff490ff8aa9e6a947a146efe3d29b482, type: 3}
+  m_PrefabInstance: {fileID: 312137809344525262}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6340502816347922779
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1172,8 +1177,10 @@ MonoBehaviour:
   popForLvl2: 2
   popForLvl3: 3
   popForLvlMore: 4
-  Level2Base: {fileID: 0}
-  Level3Base: {fileID: 0}
+  levelModels:
+  - {fileID: 7999187981777717195}
+  - {fileID: 8959925223525992999}
+  - {fileID: 618548403499945631}
   turfRadius: 2
 --- !u!114 &4212086869934161068
 MonoBehaviour:
@@ -4541,6 +4548,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 659d6cfec698ed048b9de9a401abde82, type: 3}
   m_PrefabInstance: {fileID: 7188794795775654554}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &7999187981777717195 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 659d6cfec698ed048b9de9a401abde82, type: 3}
+  m_PrefabInstance: {fileID: 7188794795775654554}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7473060892574303403
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4893,5 +4905,10 @@ PrefabInstance:
 --- !u!4 &8580443781455941789 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 29e1e1bf14ef63741a503f35d2f1f435, type: 3}
+  m_PrefabInstance: {fileID: 8113627619537811318}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8959925223525992999 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 29e1e1bf14ef63741a503f35d2f1f435, type: 3}
   m_PrefabInstance: {fileID: 8113627619537811318}
   m_PrefabAsset: {fileID: 0}

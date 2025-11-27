@@ -409,4 +409,10 @@ public class HexTile : MonoBehaviour
         return null;
     }
 
+    public void ClearBuilding()
+    {
+        currentBuilding = null;
+    }
+
+
 }

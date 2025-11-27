@@ -1,23 +1,22 @@
 using System.Collections;
 using UnityEngine;
+
 public class Scout : UnitBase
 {
     private int movesLeftThisTurn;
+    private const int maxMovesPerTurn = 2;
+
     protected override void Start()
     {
         base.Start();
-        Debug.Log($"{unitName} is a Builder unit ready to build! \nHP:{hp}, Attack:{attack}, Movement:{movement}");
-        ResetMoves();
+        Debug.Log($"{unitName} is a Scout unit ready to move! HP:{hp}, Attack:{attack}, Movement:{movement}");
+        ResetMove();
     }
-
-    public void OnTurnStart()
+    public override void ResetMove()
     {
-        ResetMoves();
-    }
-
-    private void ResetMoves()
-    {
-        movesLeftThisTurn = 2; // Scout can move twice per turn
+        movesLeftThisTurn = maxMovesPerTurn;
+        hasMovedThisTurn = false;
+        HasAttackThisTurn = false;
     }
 
     public override void TryMove(HexTile targetTile)
@@ -29,10 +28,14 @@ public class Scout : UnitBase
         }
 
         base.TryMove(targetTile);
-        movesLeftThisTurn--; 
-        if(movesLeftThisTurn > 0)
+
+        movesLeftThisTurn--;
+        hasMovedThisTurn = movesLeftThisTurn <= 0;
+
+        // Refresh indicators if moves remain
+        if (movesLeftThisTurn > 0)
         {
-            hasMovedThisTurn = false;
+            ShowRangeIndicators();
         }
     }
     protected override IEnumerator PerformAttack(HexTile target)
