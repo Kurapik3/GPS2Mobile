@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using static EnemyAIEvents;
+using static UnityEditor.PlayerSettings;
 
 /// <summary>
 /// Handles executing enemy actions: spawn, move, attack.
@@ -45,18 +46,12 @@ public class EnemyActionExecutor : MonoBehaviour
             //Find prefab by unit name
             GameObject prefab = unitManager.unitPrefabs.Find(p => p.name == evt.UnitType);
             if (prefab == null)
-            {
-                Debug.LogWarning($"[EnemyActionExecutor] Prefab '{evt.UnitType}' not found.");
                 return;
-            }
 
             //Get spawn hex from base
             Vector2Int spawnHex = GetBaseSpawnHex(evt.BaseId);
             if (spawnHex == Vector2Int.zero)
-            {
-                Debug.LogWarning($"[EnemyActionExecutor] Base #{evt.BaseId} has invalid spawn location.");
                 return;
-            }
 
             Vector3 world = MapManager.Instance.HexToWorld(spawnHex);
             world.y += 2.5f;
@@ -65,10 +60,10 @@ public class EnemyActionExecutor : MonoBehaviour
             unitGO.name = $"Enemy_{evt.UnitType}_{unitManager.NextUnitId}";
 
             int unitId = unitManager.NextUnitId - 1;
+
             if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(unitId))
-            {
                 ManagerAudio.instance.PlaySFX("UnitSpawn");
-            }
+
             unitManager.RegisterUnit(unitGO, evt.BaseId, evt.UnitType, spawnHex);
         }
         finally
@@ -102,10 +97,7 @@ public class EnemyActionExecutor : MonoBehaviour
         //Use A* Path
         List<Vector2Int> path = AIPathFinder.GetPath(from, to);
         if (path == null || path.Count == 0)
-        {
-            Debug.LogWarning($"[EnemyActionExecutor] No path for unit {evt.UnitId} from {from} to {to}");
             return;
-        }
 
         int moveRange = unitManager.GetUnitMoveRange(evt.UnitId);
         List<Vector2Int> trimmedPath = path.GetRange(0, Mathf.Min(moveRange + 1, path.Count));
@@ -121,15 +113,10 @@ public class EnemyActionExecutor : MonoBehaviour
         GameObject go = unitManager.UnitObjects[unitId];
 
         if (!MapManager.Instance.CanUnitStandHere(toHex))
-        {
-            Debug.LogWarning($"[EnemyActionExecutor] Move Abort! Unit {unitId} can't move to {toHex}, which is not standable.");
             yield break;
-        }
 
         if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(unitId))
-        {
             ManagerAudio.instance.PlaySFX("UnitMove");
-        }
 
         //Register new tile immediately
         MapManager.Instance.SetUnitOccupied(toHex, true);
@@ -205,13 +192,8 @@ public class EnemyActionExecutor : MonoBehaviour
     private void OnAttackRequest(EnemyAttackRequestEvent evt)
     {
         if (evt.Target == null)
-        {
-            Debug.LogWarning($"[EnemyActionExecutor] Target GameObject missing for attacker {evt.AttackerId}!");
             return;
-        }
-
-        Debug.Log($"[EnemyActionExecutor] Attacker {evt.AttackerId} attacking target {evt.Target.name}");
-
+        
         var attackerGO = unitManager.UnitObjects[evt.AttackerId];
         if (attackerGO == null)
             return;
@@ -282,7 +264,11 @@ public class EnemyActionExecutor : MonoBehaviour
 
             Vector3 m1 = Vector3.Lerp(start, mid, time);
             Vector3 m2 = Vector3.Lerp(mid, end, time);
-            projectile.transform.position = Vector3.Lerp(m1, m2, time);
+            Vector3 pos = Vector3.Lerp(m1, m2, time);
+
+            projectile.transform.position = pos;
+            projectile.transform.LookAt(end);
+            projectile.transform.Rotate(90f, 0f, 0f);
 
             yield return null;
         }
@@ -340,19 +326,17 @@ public class EnemyActionExecutor : MonoBehaviour
         {
             unit.TakeDamage(damage);
             if (EnemyUnitManager.Instance.GetUnitType(attackerId) == "Shooter")
-            {
                 ManagerAudio.instance.PlaySFX("ShooterShooting");
-            }
-            else if (EnemyUnitManager.Instance.GetUnitType(attackerId) == "Bomber")
-            {
+
+            if (EnemyUnitManager.Instance.GetUnitType(attackerId) == "Bomber")
                 ManagerAudio.instance.PlaySFX("BomberBombing");
-            }
 
             if (unit.unitName == "Tanker")
             {
                 var attackerGO = EnemyUnitManager.Instance.UnitObjects[attackerId];
                 attackerGO.GetComponent<EnemyUnit>().TakeDamage(damage);
             }
+
             Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to PlayerUnit {unit.name}, HP now {unit.hp}");
             EventBus.Publish(new EnemyAttackedEvent(attackerId, unit.gameObject));
             return;
@@ -386,18 +370,12 @@ public class EnemyActionExecutor : MonoBehaviour
         //Get Tile Position
         HexTile tile = MapManager.Instance.GetTile(evt.GrovePosition);
         if (tile == null || tile.currentBuilding == null)
-        {
-            Debug.LogWarning($"[EnemyActionExecutor] Target tile {evt.GrovePosition} invalid for building.");
             return;
-        }
-
+        
         GroveBase grove = tile.currentBuilding.GetComponent<GroveBase>();
         if (grove == null)
-        {
-            Debug.LogWarning($"[EnemyActionExecutor] No GroveBase at {evt.GrovePosition}");
             return;
-        }
-
+        
         //Store grove level
         int baseLevel = grove.GetFormerLevel();
 
@@ -407,18 +385,14 @@ public class EnemyActionExecutor : MonoBehaviour
 
         //Instantiate Enemy Base at the same tile
         if (EnemyBaseManager.Instance == null || EnemyBaseManager.Instance.basePrefab == null)
-        {
-            Debug.LogWarning("[EnemyActionExecutor] EnemyBase prefab missing!");
             return;
-        }
 
         Vector3 spawnPos = MapManager.Instance.HexToWorld(evt.GrovePosition);
         spawnPos.y += 2f;
         GameObject newEnemyBaseObj = Instantiate(EnemyBaseManager.Instance.basePrefab, spawnPos, Quaternion.identity);
+
         if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(evt.UnitId))
-        {
             ManagerAudio.instance.PlaySFX("BuilderBuilding");
-        }
 
         HexTile spawnTile = MapManager.Instance.GetTileAtHexPosition(evt.GrovePosition);
         spawnTile.SetContentsVisible(false);
@@ -433,8 +407,6 @@ public class EnemyActionExecutor : MonoBehaviour
 
         //Successfully build a base, add score to enemy
         EnemyTracker.Instance.AddScore(1000);
-
-        Debug.Log($"[EnemyActionExecutor] Builder {evt.UnitId} developed Grove into Enemy Base at {evt.GrovePosition}");
     }
     #endregion
 

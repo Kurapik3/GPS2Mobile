@@ -25,7 +25,6 @@ public class AggressiveState : MonoBehaviour
 
     private void OnAggressivePhase(ExecuteAggressivePhaseEvent evt)
     {
-        Debug.Log($"[OnAggressivePhase Starting aggressive phase for turn {evt.Turn}.");
         StartCoroutine(RunAggressivePhase(evt.Turn, evt.OnCompleted));
     }
 
@@ -51,27 +50,12 @@ public class AggressiveState : MonoBehaviour
         {
             eum.LockState(id);
 
-            if (eum.IsUnitType(id, "Builder"))
-            {
-                Debug.Log($"[AggressiveAI] Unit {id} is Builder, do nothing.");
+            if (eum.IsUnitType(id, "Builder") || eum.HasUnitActedThisTurn(id) || !eum.CanUnitAttack(id))
                 continue;
-            }
-
-            if (eum.HasUnitActedThisTurn(id))
-            {
-                Debug.Log($"[AggressiveAI] Unit {id} just acted an action, do nothing.");
-                continue;
-            }
 
             if (!eum.IsUnitVisibleToPlayer(id))
             {
                 eum.TrySetState(id, EnemyUnitManager.AIState.Dormant);
-                continue;
-            }
-
-            if (!eum.CanUnitAttack(id))
-            {
-                Debug.Log($"[AggressiveAI] Unit {id} just spawned, skip movement.");
                 continue;
             }
 
@@ -111,31 +95,20 @@ public class AggressiveState : MonoBehaviour
 
             //If no targets, move 1 tile toward locked or new base
             Vector2Int targetBasePos = ChooseClosestPlayerBase(currentPos);
-            Debug.Log($"[AggressiveAI] Unit {id} target base position: {targetBasePos}");
 
             //Only move if not already on target
             if (targetBasePos != currentPos)
             {
                 int moveRange = eum.GetUnitMoveRange(id);
-                Debug.Log($"[AggressiveAI] Unit {id} move range: {moveRange}");
 
                 Vector2Int? nextMove = AIPathFinder.TryMove(currentPos, targetBasePos, moveRange);
 
                 if (nextMove.HasValue)
                 {
-                    Debug.Log($"[AggressiveAI] Unit {id} MOVING from {currentPos} to {nextMove.Value}");
-                    EventBus.Publish(new EnemyMoveRequestEvent(id, nextMove.Value));
-                }
-                else
-                {
-                    Debug.Log($"[AggressiveAI] Unit {id} CANNOT MOVE - TryMove returned NULL");
+                    if(!MapManager.Instance.GetTileAtHexPosition(nextMove.Value).IsBlockedByTurtleWall)
+                        EventBus.Publish(new EnemyMoveRequestEvent(id, nextMove.Value));
                 }
             }
-            else
-            {
-                Debug.Log($"[AggressiveAI] Unit {id} already at target base position, no movement needed.");
-            }
-
 
             eum.MarkUnitAsActed(id);
             yield return new WaitForSeconds(stepDelay / AIController.AISpeedMultiplier);
@@ -164,10 +137,7 @@ public class AggressiveState : MonoBehaviour
 
             //Tree Base
             if (tile.HasTreeBase && tile.currentBuilding != null)
-            {
                 baseTargets.Add(tile.currentBuilding.gameObject);
-                Debug.Log($"[AggressiveAI] Found PLAYER Base target at {hex}");
-            }
 
             //Player units
             if (tile.currentUnit != null)
@@ -175,15 +145,11 @@ public class AggressiveState : MonoBehaviour
                 if (TechTree.instance.IsCamouflage && tile.currentUnit.unitName == "Scout")
                     continue;
                 unitTargets.Add(tile.currentUnit.gameObject);
-                Debug.Log($"[AggressiveAI] Found PlayerUnit target at {hex}");
             }
 
             //Sea monsters
             if (tile.currentSeaMonster != null)
-            {
                 seaTargets.Add(tile.currentSeaMonster.gameObject);
-                Debug.Log($"[AggressiveAI] Found SeaMonster target at {hex}");
-            }
         }
     }
 
@@ -233,12 +199,8 @@ public class AggressiveState : MonoBehaviour
         }
 
         if (closestBase == null || closestBase.currentTile == null)
-        {
-            Debug.LogWarning("[AggressiveAI] NO PLAYER BASES FOUND! Aggressive unit will not move toward base.");
             return from;
-        }
 
-        Debug.Log($"[AggressiveAI] Closest player base at {closestBase.currentTile.HexCoords}, distance: {minDist}");
         return closestBase.currentTile.HexCoords;
     }
     #endregion

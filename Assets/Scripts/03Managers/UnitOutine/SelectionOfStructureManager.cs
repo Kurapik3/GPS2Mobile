@@ -48,6 +48,7 @@ public class SelectionOfStructureManager : MonoBehaviour
     private Camera cam;
     private bool isStatusClosed = false;
     private bool isSFXPlayed = true;
+    private bool handledByThisManager = false;
     public static bool IsUIBlockingInput { get; set; } = false;
 
     // Touch tracking
@@ -127,11 +128,11 @@ public class SelectionOfStructureManager : MonoBehaviour
         Ray ray = cam.ScreenPointToRay(touchPosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, structure))
         {
+            handledByThisManager = true;
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
             if (tile != null)
             {
                 tile.OnTileClicked();
-                TileSelector.SelectTile(tile);
             }
             SelectByClicking(hit.collider.gameObject);
             StructureInfoPanelMove();
@@ -144,13 +145,15 @@ public class SelectionOfStructureManager : MonoBehaviour
         }
         else
         {
+            if (!handledByThisManager) return;
+            handledByThisManager = false;
             isSFXPlayed = true;
             DeselectAll();
             CloseStructureInfoPanel();
             if (TileSelector.CurrentTile != null)
             {
-                TileSelector.CurrentTile.OnTileDeselected();
-                TileSelector.CurrentTile = null;
+                //EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+                TileSelector.Hide();
             }
         }
     }

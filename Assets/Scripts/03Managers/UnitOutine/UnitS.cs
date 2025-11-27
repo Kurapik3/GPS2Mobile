@@ -284,7 +284,7 @@ public class UnitS : MonoBehaviour
     private bool isStatusClosed = false;
     private bool isSFXPlayed = true;
     public static bool IsUIBlockingInput { get; set; } = false;
-
+    private bool handledByThisManager = false;
     // Touch tracking
     private Vector2 touchStartPos;
     private float touchStartTime;
@@ -355,19 +355,14 @@ public class UnitS : MonoBehaviour
         Ray ray = cam.ScreenPointToRay(touchPosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, clickable))
         {
+            handledByThisManager = true;
             SelectByClicking(hit.collider.gameObject);
             UnitInfoPanelMove();
-
-            //QuickOutlinePlugin.Outline qo = hit.collider.GetComponentInParent<QuickOutlinePlugin.Outline>();
-            //if (qo != null) qo.enabled = true;
 
             UnitBase unitBase = hit.collider.GetComponentInParent<UnitBase>();
             if (unitBase != null && unitBase.currentTile != null)
             {
-                HexTile tileUnderUnit = unitBase.currentTile;
-
-                tileUnderUnit.OnTileClicked();
-                TileSelector.SelectTile(tileUnderUnit);
+                unitBase.currentTile.OnTileClicked();
             }
 
             if (isSFXPlayed)
@@ -378,13 +373,14 @@ public class UnitS : MonoBehaviour
         }
         else
         {
+            if (!handledByThisManager) return;
+            handledByThisManager = false;
             isSFXPlayed = true;
             DeselectAll();
             CloseUnitInfoPanel();
-            if (TileSelector.CurrentTile != null)
+            if(TileSelector.CurrentTile != null)
             {
-                TileSelector.CurrentTile.OnTileDeselected();
-                TileSelector.CurrentTile = null;
+                TileSelector.Hide();
             }
         }
     }

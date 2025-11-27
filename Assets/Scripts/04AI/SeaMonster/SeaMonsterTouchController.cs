@@ -8,10 +8,6 @@ public class SeaMonsterTouchController : MonoBehaviour
     [SerializeField] private Camera cam;
     private SeaMonsterBase selectedMonster;
 
-    // Kenneth's
-    [SerializeField] private PopUpManager popupManager;
-    //----------
-
     private void Awake()
     {
         if (cam == null) cam = Camera.main;
@@ -24,8 +20,6 @@ public class SeaMonsterTouchController : MonoBehaviour
             return;
 
         var touch = Touch.activeTouches[0];
-        Debug.Log($"[Touch] Phase = {touch.phase}, Position = {touch.screenPosition}");
-
         if (touch.phase != UnityEngine.InputSystem.TouchPhase.Ended)
             return;
 
@@ -39,45 +33,56 @@ public class SeaMonsterTouchController : MonoBehaviour
             {
                 if (monster.State == SeaMonsterState.Tamed)
                 {
-                    //ShowCreaturePopup(monster);
                     SelectMonster(monster);
                     return;
-
                 }
                 else
                 {
                     Debug.Log("[Touch] Monster is UNTAMED, cannot select.");
+                    return;
                 }
             }
 
             // Detect tile
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
-            if (tile != null /* Kenneth's ->*/ && selectedMonster != null && selectedMonster.State == SeaMonsterState.Tamed)
+            if (tile != null)
             {
-
+                EventBus.Publish(new TileSelectedEvent(tile));
                 if (selectedMonster != null && selectedMonster.State == SeaMonsterState.Tamed)
                 {
                     selectedMonster.OnPlayerClickTile(tile);
                     DeselectMonster();
-                    //popupManager?.HidePopup();
                     return;
                 }
-                else
-                {
-                    Debug.Log("[Touch] Tile clicked but no tamed monster is selected.");
-                }
+                //else
+                //{
+                //    Debug.Log("[Touch] Tile clicked but no tamed monster is selected.");
+                //}
+                return;
             }
-
-            Debug.Log("[Touch] Clicked something else, DeselectMonster()");
+            return;
+            //Debug.Log("[Touch] Clicked something else, DeselectMonster()");
+            //if (TileSelector.CurrentTile != null)
+            //{
+            //    EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+            //}
             DeselectMonster();
-            //popupManager?.HidePopup();
         }
-        else
-        {
-            Debug.Log("[Touch] Raycast hit NOTHING.");
+        //else
+        //{
+        //    Debug.Log("[Touch] Raycast hit NOTHING.");
+        //    if (TileSelector.CurrentTile != null)
+        //    {
+        //        EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+        //    }
+        //}
 
-            //popupManager?.HidePopup();
+        if (TileSelector.CurrentTile != null)
+        {
+            EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
         }
+
+        DeselectMonster();
     }
 
     private void SelectMonster(SeaMonsterBase monster)
@@ -85,6 +90,10 @@ public class SeaMonsterTouchController : MonoBehaviour
         DeselectMonster();
         selectedMonster = monster;
         selectedMonster.SetSelected(true);
+        if (TileSelector.CurrentTile != null)
+        {
+            EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+        }
     }
 
     private void DeselectMonster()
@@ -93,20 +102,4 @@ public class SeaMonsterTouchController : MonoBehaviour
             selectedMonster.SetSelected(false);
         selectedMonster = null;
     }
-
-    // Kenneth's
-    //private void ShowCreaturePopup(SeaMonsterBase monster)
-    //{
-    //    InteractableObject interactable = monster.GetComponent<InteractableObject>();
-    //    if (interactable?.objectData != null)
-    //    {
-    //        popupManager?.ShowPopup(interactable.objectData);
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError($"No InteractableObject on {monster.name}");
-    //    }
-    //}
 }
-    //----------
-

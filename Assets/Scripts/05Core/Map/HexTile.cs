@@ -284,18 +284,6 @@ public class HexTile : MonoBehaviour
     }
 
     public bool IsWalkable => true;
-    //public bool IsWalkable
-    //{
-    //    get
-    //    {
-    //        //putt condition here
-    //        //if(tile has an unwalkable object)
-    //        //return false
-
-    //        //otherwise it is true
-    //        return true;
-    //    }
-    //}
 
     private bool unitOccupied = false;
     public bool IsOccupiedByUnit => unitOccupied;
@@ -410,41 +398,15 @@ public class HexTile : MonoBehaviour
     {
         //Select tile
         TileSelector.SelectTile(this);
-
-        //Highlight structure
-        if (currentBuilding != null)
-        {
-            Outline outline = currentBuilding.GetComponent<Outline>();
-            if (outline != null)
-            {
-                outline.enabled = true;
-            }
-        }
-        //Disable prev outline
-        if (TileSelector.PreviousOutline != null)
-        {
-            TileSelector.PreviousOutline.enabled = false;
-        }
-
-        TileSelector.PreviousOutline = currentBuilding?.GetComponent<Outline>();
     }
-    public void OnTileDeselected()
+    public GameObject GetOutlineTarget()
     {
-        //Remove tile highlight
-        TileSelector.Hide();
-
-        // Disable structure outline
-        if (currentBuilding != null)
-        {
-            Outline outline = currentBuilding.GetComponent<Outline>();
-            if (outline != null)
-            {
-                outline.enabled = false;
-            }
-        }
-
-        // Clear previous outline tracker
-        TileSelector.PreviousOutline = null;
+        if (currentBuilding != null) return currentBuilding.gameObject;
+        //if (currentUnit != null) return currentUnit.gameObject;
+        if (dynamicInstance != null) return dynamicInstance;
+        if (currentEnemyBase != null) return currentEnemyBase.gameObject;
+        //if (currentEnemyUnit != null) return currentEnemyUnit.gameObject;
+        return null;
     }
 
 }
