@@ -94,7 +94,7 @@ public class Interactablemanager : MonoBehaviour
             popupPanel.HidePopup();
             if (TileSelector.CurrentTile != null)
             {
-                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+                TileSelector.Hide();
             }
         }
     }

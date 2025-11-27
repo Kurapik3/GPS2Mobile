@@ -35,19 +35,35 @@ public class TileSelector : MonoBehaviour
         {
             return;
         }
+        if (CurrentTile != null && CurrentTile != evt.Tile)
+        {
+            Hide();
+        }
         CurrentTile = evt.Tile;
         gameObject.SetActive(true);
         transform.position = evt.Tile.transform.position + Vector3.up * 2.01f;
+        if (CurrentTile.currentBuilding != null)
+        {
+            QuickOutlinePlugin.Outline outline = CurrentTile.currentBuilding.GetComponent<QuickOutlinePlugin.Outline>();
+            if (outline != null)
+            {
+                outline.enabled = true;
+                PreviousOutline = outline;
+            }
+        }
         Debug.Log("TileSelector RECEIVED event for tile: " + evt.Tile.name);
     }
 
     private void OnTileDeselected(TileDeselectedEvent evt)
     {
-        if (CurrentTile == evt.Tile)
+        if (CurrentTile != evt.Tile) return;
+        if (PreviousOutline != null)
         {
-            CurrentTile = null;
-            gameObject.SetActive(false);
+            PreviousOutline.enabled = false;
+            PreviousOutline = null;
         }
+        CurrentTile = null;
+        gameObject.SetActive(false);
     }
     public static void SelectTile(HexTile tile)
     {
