@@ -129,11 +129,29 @@ public class GroveNClamButton : MonoBehaviour
     {
         Debug.Log($"Harvesting from {name} at ({cachedTile.q}, {cachedTile.r})");
 
-        // TODO: Add your harvesting logic here
-        // e.g., remove resource, give resources to player, play sound, etc.
+        if (cachedTile == null) return;
+        CacheBase cache = cachedTile.currentBuilding as CacheBase;
+        if (cache == null)
+        {
+            Debug.LogWarning("No CacheBase on this tile!");
+            return;
+        }
+        UnitBase unitOnTile = cachedTile.currentUnit;
+        if (unitOnTile == null)
+        {
+            Debug.LogWarning("No unit on this tile to develop the cache!");
+            return;
+        }
 
-        // Example: Destroy this resource after harvest
-        Destroy(gameObject);
+        BuilderUnit builder = unitOnTile as BuilderUnit;
+        if (builder != null)
+        {
+            cache.Develop(builder); 
+        }
+        else
+        {
+            Debug.LogWarning("The unit on this tile is not a Builder!");
+        }
     }
 }
 

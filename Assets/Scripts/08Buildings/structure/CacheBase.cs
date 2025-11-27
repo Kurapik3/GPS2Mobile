@@ -10,7 +10,7 @@ public class CacheBase : BuildingBase
     public override void Initialize(BuildingData data, HexTile tile)
     {
         base.Initialize(data, tile);
-        player = GetComponentInParent<PlayerTracker>();
+        //player = GetComponentInParent<PlayerTracker>();
         isDeveloped = false;
         Debug.Log($"Initialized Cache at ({tile.q}, {tile.r}) — waiting to be developed.");
     }
@@ -32,7 +32,7 @@ public class CacheBase : BuildingBase
         isDeveloped = true;
 
         // Reward player with AP
-        player.addAP(apRewardOnDevelop);
+        PlayerTracker.Instance.addAP(apRewardOnDevelop);
         Debug.Log($"{developer.unitName} developed {buildingName} and gained {apRewardOnDevelop} AP!");
 
         // Remove cache from tile and destroy it

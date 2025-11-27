@@ -74,6 +74,14 @@ public class Interactablemanager : MonoBehaviour
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
             if (tile != null)
             {
+                if (tile.currentUnit != null)
+                {
+                    if (!tile.currentUnit.hasMovedThisTurn)
+                    {
+                        Debug.Log("Unit on tile still has movement left — block development popup");
+                        return;
+                    }
+                }
                 tile.OnTileClicked();
             }
             // Try to get InteractableObject component
