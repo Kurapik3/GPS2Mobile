@@ -129,7 +129,7 @@ public class BuilderAction : MonoBehaviour
         List<HexTile> walkableTiles = new List<HexTile>();
         foreach (var tile in MapManager.Instance.GetAllTiles().Values)
         {
-            if (tile.IsWalkableForAI())
+            if (tile.IsWalkableForAI() && !tile.IsBlockedByTurtleWall)
             {
                 walkableTiles.Add(tile);
             }

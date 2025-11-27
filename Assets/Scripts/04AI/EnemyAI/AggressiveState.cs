@@ -104,7 +104,10 @@ public class AggressiveState : MonoBehaviour
                 Vector2Int? nextMove = AIPathFinder.TryMove(currentPos, targetBasePos, moveRange);
 
                 if (nextMove.HasValue)
-                    EventBus.Publish(new EnemyMoveRequestEvent(id, nextMove.Value));
+                {
+                    if(!MapManager.Instance.GetTileAtHexPosition(nextMove.Value).IsBlockedByTurtleWall)
+                        EventBus.Publish(new EnemyMoveRequestEvent(id, nextMove.Value));
+                }
             }
 
             eum.MarkUnitAsActed(id);

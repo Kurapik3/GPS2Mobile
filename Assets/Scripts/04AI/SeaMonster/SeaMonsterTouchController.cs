@@ -20,8 +20,6 @@ public class SeaMonsterTouchController : MonoBehaviour
             return;
 
         var touch = Touch.activeTouches[0];
-        Debug.Log($"[Touch] Phase = {touch.phase}, Position = {touch.screenPosition}");
-
         if (touch.phase != UnityEngine.InputSystem.TouchPhase.Ended)
             return;
 

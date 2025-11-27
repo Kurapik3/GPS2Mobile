@@ -35,9 +35,9 @@ public abstract class SeaMonsterBase : MonoBehaviour
     public SeaMonsterState State { get; private set; } = SeaMonsterState.Untamed;
     private bool isSelected = false;
 
-    protected bool hasActedThisTurn = false;
-    protected bool hasMovedThisTurn = false;
-    protected bool hasAttackedThisTurn = false;
+    public bool hasActedThisTurn = false;
+    public bool hasMovedThisTurn = false;
+    public bool hasAttackedThisTurn = false;
     protected bool isBlocking = false;
 
     [Header("TechTreeCreatureResearch")]
@@ -276,9 +276,6 @@ public abstract class SeaMonsterBase : MonoBehaviour
         HideSMRangeIndicators();
 
         if (untamedRangeIndicatorPrefab == null || currentTile == null || tamedRangeIndicatorPrefab == null)
-            return;
-
-        if (hasActedThisTurn)
             return;
 
         if (State == SeaMonsterState.Untamed)
