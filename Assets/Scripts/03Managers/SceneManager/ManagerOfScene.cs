@@ -24,7 +24,10 @@ public class ManagerOfScene : MonoBehaviour
 
     [SerializeField] private CanvasGroup settingButton;
     [SerializeField] private CanvasGroup creditsButton;
-    
+
+    [SerializeField] private GameObject newPlayerPanel;
+    [SerializeField] private GameObject existingPlayerPanel;
+
 
     private Vector2 centrePos;
     private Vector2 offScreenPos;
@@ -38,6 +41,8 @@ public class ManagerOfScene : MonoBehaviour
         offScreenPos = new Vector2(0, -Screen.height);
         creditsAnimatedPanel.anchoredPosition = offScreenPos;
         settingsAnimatedPanel.anchoredPosition = offScreenPos;
+
+        HandleMenuBasedOnSave();
     }
 
     //public void LoadNextScene(string sceneName)
@@ -59,6 +64,22 @@ public class ManagerOfScene : MonoBehaviour
         ManagerAudio.instance.StopMusic();
 
     }
+    public void ResumeGame()
+    {
+        EventBus.Publish(new LoadGameEvent());
+        SceneManager.LoadScene("PrototypeScene");
+        ManagerAudio.instance.PlaySFX("ButtonPressed");
+        ManagerAudio.instance.StopMusic();
+    }
+
+    public void NewGame()
+    {
+        GameManager.Instance.ClearSave();
+        SceneManager.LoadScene("PrototypeScene");
+        ManagerAudio.instance.PlaySFX("ButtonPressed");
+        ManagerAudio.instance.StopMusic();
+    }
+
 
     public void Credits()
     {
@@ -97,4 +118,18 @@ public class ManagerOfScene : MonoBehaviour
     {
         settingsAnimatedPanel.DOAnchorPos(centrePos, moveDuration).SetEase(Ease.OutBack);
     }
+    private void HandleMenuBasedOnSave()
+    {
+        if (GameManager.Instance == null)
+        {
+            newPlayerPanel.SetActive(true);
+            existingPlayerPanel.SetActive(false);
+            return;
+        }
+        bool saveExists = GameManager.SaveExists();
+
+        newPlayerPanel.SetActive(!saveExists);
+        existingPlayerPanel.SetActive(saveExists);
+    }
+
 }

@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private UnitSpawner unitSpawner;
 
     private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
+    public string SavePath => savePath;
     public static GameManager Instance { get; private set; }
     private GameSaveData cachedLoadData;
     private bool waitingForMapReady = false;
@@ -57,6 +58,11 @@ public class GameManager : MonoBehaviour
         EventBus.Unsubscribe<ActionMadeEvent>(OnAutoSave);
         EventBus.Unsubscribe<AllEnemyBasesDestroyed>(OnAllEnemyBaseDestroyed);
     }
+    public static bool SaveExists()
+    {
+        return System.IO.File.Exists(Instance?.SavePath);
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         mapGenerator = FindFirstObjectByType<MapGenerator>();
@@ -591,6 +597,10 @@ public class GameManager : MonoBehaviour
         if (EnemyUnitManager.Instance != null)
         {
             EnemyUnitManager.Instance.UpdateEnemyVisibility();
+        }
+        if(EnemyBaseManager .Instance != null)
+        {
+            EnemyBaseManager.Instance.UpdateEnemyBaseVisibility();
         }
     }
     //GameManager.Instance?.SaveGame(); <- use for settings to main menu button
