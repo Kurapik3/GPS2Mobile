@@ -22,6 +22,12 @@ public class TurfManager : MonoBehaviour
 
     public void AddTurfArea(HexTile centerTile, int radius)
     {
+        if (centerTile == null)
+        {
+            Debug.LogError("AddTurfArea: centerTile is null!");
+            return;
+        }
+
         var tiles = MapManager.Instance.GetNeighborsWithinRadius(centerTile.q, centerTile.r, radius);
         tiles.Add(centerTile); // also add the center tile
 

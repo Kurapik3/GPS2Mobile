@@ -216,6 +216,12 @@ public class TechTree : MonoBehaviour
         {
             player.useAP(cost);
             IsClearSight = true;
+            foreach (var unit in UnitManager.Instance.GetAllUnits())
+            {
+                unit.fogRevealRadius = 2;
+                //if (unit.currentTile != null)
+                //    unit.RevealNearbyFog(unit.currentTile);
+            }
         }
         else
         {
@@ -229,6 +235,19 @@ public class TechTree : MonoBehaviour
         {
             player.useAP(cost);
             IsHomeDef = true;
+
+            foreach (var treeBase in FindObjectsOfType<TreeBase>())
+            {
+                treeBase.ApplyHomeDefenseBonus();
+            }
+            //foreach (var unit in UnitManager.Instance.GetAllUnits())
+            //{
+            //    if (unit.currentTile != null && unit.currentTile.HasTurf)
+            //    {
+            //        unit.IsInTurf = true; // Units take 1 less damage in turf
+            //    }
+            //}
+
         }
         else
         {

@@ -70,6 +70,7 @@ public class TurnManager : MonoBehaviour
         foreach (var unit in UnitManager.Instance?.GetAllUnits() ?? new List<UnitBase>())
         {
             unit.ResetMove();
+            
         }
 
         //Reset all tamed sea monsters for player control

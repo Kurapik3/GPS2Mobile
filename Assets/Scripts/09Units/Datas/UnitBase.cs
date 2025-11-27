@@ -37,7 +37,7 @@ public abstract class UnitBase : MonoBehaviour
     public bool HasAttackThisTurn  = false;
 
     [Header("Fog of War Settings")]
-    [SerializeField] private int fogRevealRadius = 1;
+    [SerializeField] public int fogRevealRadius = 1;
 
     // ---- KENNETH'S ----
     private UnitHPDisplay hpDisplay;
