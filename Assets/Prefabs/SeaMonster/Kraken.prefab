@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4439866791185208099}
   - component: {fileID: 7156800315396222806}
   - component: {fileID: 8670466283174984014}
+  - component: {fileID: 6366233205172400924}
   m_Layer: 19
   m_Name: Kraken
   m_TagString: Kraken
@@ -77,6 +78,7 @@ MonoBehaviour:
     icon: {fileID: 0}
     objectType: 0
     apCost: 2
+    showProximityBubble: 0
   selectionIndicator: {fileID: 0}
 --- !u!136 &8670466283174984014
 CapsuleCollider:
@@ -88,7 +90,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 524288
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -101,6 +103,26 @@ CapsuleCollider:
   m_Height: 60
   m_Direction: 1
   m_Center: {x: 0, y: 20, z: 0}
+--- !u!114 &6366233205172400924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607040072654141610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f41bae1489e6f1408d6a90906900498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectData:
+    objectName: Kraken
+    description: Example
+    icon: {fileID: 0}
+    objectType: 6
+    apCost: 0
+    showProximityBubble: 0
+  selectionIndicator: {fileID: 0}
 --- !u!1001 &2040518967866993172
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 960826563766814643}
   - component: {fileID: 3091430344748947287}
   - component: {fileID: 6003045915058173378}
+  - component: {fileID: 7111579438673809840}
   m_Layer: 18
   m_Name: TurtleWall
   m_TagString: TurtleWall
@@ -69,7 +70,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 262144
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -100,6 +101,26 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &7111579438673809840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2545025057684576442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f41bae1489e6f1408d6a90906900498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectData:
+    objectName: Turle
+    description: A gentle creature that blocks movement and sight
+    icon: {fileID: 21300000, guid: a9670a2921b6e8448b06c9259282d10c, type: 3}
+    objectType: 9
+    apCost: 0
+    showProximityBubble: 0
+  selectionIndicator: {fileID: 0}
 --- !u!1001 &5000279707430172299
 PrefabInstance:
   m_ObjectHideFlags: 0

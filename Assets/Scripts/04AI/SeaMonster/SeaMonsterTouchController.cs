@@ -8,6 +8,10 @@ public class SeaMonsterTouchController : MonoBehaviour
     [SerializeField] private Camera cam;
     private SeaMonsterBase selectedMonster;
 
+    // Kenneth's
+    [SerializeField] private PopUpManager popupManager;
+    //----------
+
     private void Awake()
     {
         if (cam == null) cam = Camera.main;
@@ -35,8 +39,10 @@ public class SeaMonsterTouchController : MonoBehaviour
             {
                 if (monster.State == SeaMonsterState.Tamed)
                 {
+                    //ShowCreaturePopup(monster);
                     SelectMonster(monster);
                     return;
+
                 }
                 else
                 {
@@ -46,13 +52,14 @@ public class SeaMonsterTouchController : MonoBehaviour
 
             // Detect tile
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
-            if (tile != null)
+            if (tile != null /* Kenneth's ->*/ && selectedMonster != null && selectedMonster.State == SeaMonsterState.Tamed)
             {
 
                 if (selectedMonster != null && selectedMonster.State == SeaMonsterState.Tamed)
                 {
                     selectedMonster.OnPlayerClickTile(tile);
                     DeselectMonster();
+                    //popupManager?.HidePopup();
                     return;
                 }
                 else
@@ -63,10 +70,13 @@ public class SeaMonsterTouchController : MonoBehaviour
 
             Debug.Log("[Touch] Clicked something else, DeselectMonster()");
             DeselectMonster();
+            //popupManager?.HidePopup();
         }
         else
         {
             Debug.Log("[Touch] Raycast hit NOTHING.");
+
+            //popupManager?.HidePopup();
         }
     }
 
@@ -83,4 +93,20 @@ public class SeaMonsterTouchController : MonoBehaviour
             selectedMonster.SetSelected(false);
         selectedMonster = null;
     }
+
+    // Kenneth's
+    //private void ShowCreaturePopup(SeaMonsterBase monster)
+    //{
+    //    InteractableObject interactable = monster.GetComponent<InteractableObject>();
+    //    if (interactable?.objectData != null)
+    //    {
+    //        popupManager?.ShowPopup(interactable.objectData);
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError($"No InteractableObject on {monster.name}");
+    //    }
+    //}
 }
+    //----------
+
