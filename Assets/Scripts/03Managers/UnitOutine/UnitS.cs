@@ -362,8 +362,7 @@ public class UnitS : MonoBehaviour
             UnitBase unitBase = hit.collider.GetComponentInParent<UnitBase>();
             if (unitBase != null && unitBase.currentTile != null)
             {
-                HexTile tile = unitBase.currentTile;
-                tile.OnTileClicked();
+                unitBase.currentTile.OnTileClicked();
             }
 
             if (isSFXPlayed)
@@ -381,7 +380,7 @@ public class UnitS : MonoBehaviour
             CloseUnitInfoPanel();
             if(TileSelector.CurrentTile != null)
             {
-                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+                TileSelector.Hide();
             }
         }
     }

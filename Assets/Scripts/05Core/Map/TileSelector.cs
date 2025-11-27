@@ -42,15 +42,21 @@ public class TileSelector : MonoBehaviour
         CurrentTile = evt.Tile;
         gameObject.SetActive(true);
         transform.position = evt.Tile.transform.position + Vector3.up * 2.01f;
-        if (CurrentTile.currentBuilding != null)
+        GameObject target = CurrentTile.GetOutlineTarget();
+        if (target != null)
         {
-            QuickOutlinePlugin.Outline outline = CurrentTile.currentBuilding.GetComponent<QuickOutlinePlugin.Outline>();
-            if (outline != null)
+            QuickOutlinePlugin.Outline outline = target.GetComponent<QuickOutlinePlugin.Outline>();
+            if (outline == null)
             {
-                outline.enabled = true;
-                PreviousOutline = outline;
+                outline = target.AddComponent<QuickOutlinePlugin.Outline>();
+                outline.OutlineMode = QuickOutlinePlugin.Outline.Mode.OutlineAll;
+                outline.OutlineColor = Color.cyan;
+                outline.OutlineWidth = 5f;
             }
+            outline.enabled = true;
+            PreviousOutline = outline;
         }
+
         Debug.Log("TileSelector RECEIVED event for tile: " + evt.Tile.name);
     }
 
@@ -87,24 +93,6 @@ public class TileSelector : MonoBehaviour
             EventBus.Publish(new TileDeselectedEvent(CurrentTile));
         }
     }
-    //public static void SelectTile(HexTile tile)
-    //{
-    //    CurrentTile = tile;
-    //    if (instance == null)
-    //    {
-    //        instance = Instantiate(Resources.Load<TileSelector>("TileSelector"));
-    //    }
-    //    instance.gameObject.SetActive(true);
-    //    instance.transform.position = tile.transform.position + Vector3.up * 2.01f;
-    //}
-    //public static void Hide()
-    //{
-    //    if(instance != null)
-    //    {
-    //        instance.gameObject.SetActive(false);
-    //    }
-    //    CurrentTile = null;
-    //}
 }
 
 //TileSelector.SelectTile(clickedTile);
