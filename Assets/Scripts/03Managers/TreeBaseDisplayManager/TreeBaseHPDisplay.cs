@@ -14,7 +14,7 @@ public class TreeBaseHPDisplay : MonoBehaviour
     [SerializeField] private TreeBaseLevelProgressUI levelProgress;
 
     [Header("Popup Reference")]
-    [SerializeField] private TreeBaseUpgradeProgressUI upgradePopup;
+    [SerializeField] public TreeBaseUpgradeProgressUI upgradePopup;
 
     [Header("Icon Settings")]
     [SerializeField] private Sprite treeBaseIcon;
@@ -34,6 +34,16 @@ public class TreeBaseHPDisplay : MonoBehaviour
         {
             Debug.LogError("TreeBaseHPDisplay: Could not find TreeBase in scene!");
             return;
+        }
+
+        GameObject popupObj = GameObject.FindGameObjectWithTag("BaseUpgradePopup");
+        if (popupObj != null)
+        {
+            upgradePopup = popupObj.GetComponent<TreeBaseUpgradeProgressUI>();
+        }
+        else
+        {
+            Debug.LogWarning("TreeBaseHPDisplay: Upgrade popup not found in scene (tag 'BaseUpgradePopup' missing).");
         }
 
         baseTransform = treeBase.transform;

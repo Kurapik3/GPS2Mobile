@@ -33,6 +33,8 @@ public class UnitSpawner : MonoBehaviour
     [SerializeField] private UnitButtonStatus tankerStatus;
     [SerializeField] private UnitButtonStatus shooterStatus;
     [SerializeField] private UnitButtonStatus bomberStatus;
+
+    private SelectionOfStructureManager selectionOfStructureManager;
     // --------------------- Kenneth's --------------------------
 
     private TreeBase selectedTreeBase = null;
@@ -110,7 +112,6 @@ public class UnitSpawner : MonoBehaviour
             Debug.Log("You have not unlocked the Scout unit yet!");
             return;
         }
-
         TrySpawnUnit(ScoutPrefab, 1, 3);
     }
 
