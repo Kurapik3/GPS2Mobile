@@ -823,7 +823,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ff490ff8aa9e6a947a146efe3d29b482, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.63607824
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ff490ff8aa9e6a947a146efe3d29b482, type: 3}
       propertyPath: m_LocalRotation.x
@@ -831,7 +831,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ff490ff8aa9e6a947a146efe3d29b482, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.77162457
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ff490ff8aa9e6a947a146efe3d29b482, type: 3}
       propertyPath: m_LocalRotation.z
@@ -843,7 +843,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ff490ff8aa9e6a947a146efe3d29b482, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 101
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ff490ff8aa9e6a947a146efe3d29b482, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -1206,8 +1206,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.63, y: 4.88, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.63, y: 2.5312917, z: 1}
+  m_Center: {x: 0, y: 1.1743542, z: 0}
 --- !u!114 &3442033225705404296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4449,7 +4449,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 659d6cfec698ed048b9de9a401abde82, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.63607824
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 659d6cfec698ed048b9de9a401abde82, type: 3}
       propertyPath: m_LocalRotation.x
@@ -4457,7 +4457,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 659d6cfec698ed048b9de9a401abde82, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.77162457
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 659d6cfec698ed048b9de9a401abde82, type: 3}
       propertyPath: m_LocalRotation.z
@@ -4469,7 +4469,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 659d6cfec698ed048b9de9a401abde82, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 101
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 659d6cfec698ed048b9de9a401abde82, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -4775,7 +4775,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 29e1e1bf14ef63741a503f35d2f1f435, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.63607824
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 29e1e1bf14ef63741a503f35d2f1f435, type: 3}
       propertyPath: m_LocalRotation.x
@@ -4783,7 +4783,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 29e1e1bf14ef63741a503f35d2f1f435, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.77162457
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 29e1e1bf14ef63741a503f35d2f1f435, type: 3}
       propertyPath: m_LocalRotation.z
@@ -4795,7 +4795,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 29e1e1bf14ef63741a503f35d2f1f435, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 101
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 29e1e1bf14ef63741a503f35d2f1f435, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
