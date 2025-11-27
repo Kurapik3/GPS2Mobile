@@ -78,6 +78,7 @@ public class Interactablemanager : MonoBehaviour
           !parentWithTag.CompareTag("Kraken") &&
           !parentWithTag.CompareTag("Fish") &&
           !parentWithTag.CompareTag("Water") &&
+          !parentWithTag.CompareTag("EnemyBase") &&
           !parentWithTag.CompareTag("Grove") &&
           !parentWithTag.CompareTag("Debris"))
             {
@@ -94,8 +95,15 @@ public class Interactablemanager : MonoBehaviour
             HexTile tile = hitObject.GetComponentInParent<HexTile>();
             if (tile != null)
             {
-                
 
+                if (tile.currentUnit != null)
+                {
+                    if (!tile.currentUnit.hasMovedThisTurn)
+                    {
+                        Debug.Log("Unit on tile still has movement left — block development popup");
+                        return;
+                    }
+                }
                 tile.OnTileClicked();
                 
             }
