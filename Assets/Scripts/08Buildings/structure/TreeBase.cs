@@ -243,4 +243,17 @@ public class TreeBase : BuildingBase
         Debug.Log($"[TreeBase] Updated model to Level {level}");
     }
 
+    public void SetLevelDirect(int targetLevel)
+    {
+        level = targetLevel > 0 ? Mathf.Clamp(targetLevel, 1, maxUpgrades) : 1;
+
+        baseHealth = 20 + (healthBonusPerUpgrade * (level - 1));
+        health = baseHealth;
+
+        apPerTurn = 2 + (apBonusPerUpgrade * (level - 1));
+
+        UpdateModel();
+    }
+
+
 }
