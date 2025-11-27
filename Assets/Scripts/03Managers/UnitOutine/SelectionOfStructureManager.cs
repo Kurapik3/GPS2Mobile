@@ -152,7 +152,8 @@ public class SelectionOfStructureManager : MonoBehaviour
             CloseStructureInfoPanel();
             if (TileSelector.CurrentTile != null)
             {
-                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+                //EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+                TileSelector.Hide();
             }
         }
     }

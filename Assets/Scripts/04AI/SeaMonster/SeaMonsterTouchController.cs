@@ -41,6 +41,7 @@ public class SeaMonsterTouchController : MonoBehaviour
                 else
                 {
                     Debug.Log("[Touch] Monster is UNTAMED, cannot select.");
+                    return;
                 }
             }
 
@@ -52,31 +53,38 @@ public class SeaMonsterTouchController : MonoBehaviour
                 if (selectedMonster != null && selectedMonster.State == SeaMonsterState.Tamed)
                 {
                     selectedMonster.OnPlayerClickTile(tile);
-                    EventBus.Publish(new TileDeselectedEvent(tile));
                     DeselectMonster();
                     return;
                 }
-                else
-                {
-                    Debug.Log("[Touch] Tile clicked but no tamed monster is selected.");
-                }
+                //else
+                //{
+                //    Debug.Log("[Touch] Tile clicked but no tamed monster is selected.");
+                //}
+                return;
             }
-
-            Debug.Log("[Touch] Clicked something else, DeselectMonster()");
-            if (TileSelector.CurrentTile != null)
-            {
-                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
-            }
+            return;
+            //Debug.Log("[Touch] Clicked something else, DeselectMonster()");
+            //if (TileSelector.CurrentTile != null)
+            //{
+            //    EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+            //}
             DeselectMonster();
         }
-        else
+        //else
+        //{
+        //    Debug.Log("[Touch] Raycast hit NOTHING.");
+        //    if (TileSelector.CurrentTile != null)
+        //    {
+        //        EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
+        //    }
+        //}
+
+        if (TileSelector.CurrentTile != null)
         {
-            Debug.Log("[Touch] Raycast hit NOTHING.");
-            if (TileSelector.CurrentTile != null)
-            {
-                EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
-            }
+            EventBus.Publish(new TileDeselectedEvent(TileSelector.CurrentTile));
         }
+
+        DeselectMonster();
     }
 
     private void SelectMonster(SeaMonsterBase monster)

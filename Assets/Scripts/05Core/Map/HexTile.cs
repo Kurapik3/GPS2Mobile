@@ -410,42 +410,49 @@ public class HexTile : MonoBehaviour
     {
         //Select tile
         TileSelector.SelectTile(this);
-
+        //Outline newOutline = currentBuilding != null ? currentBuilding.GetComponent<Outline>() : null;
         //Highlight structure
-        if (currentBuilding != null)
-        {
-            Outline outline = currentBuilding.GetComponent<Outline>();
-            if (outline != null)
-            {
-                outline.enabled = true;
-            }
-        }
-        //Disable prev outline
-        if (TileSelector.PreviousOutline != null)
-        {
-            TileSelector.PreviousOutline.enabled = false;
-        }
-
-        TileSelector.PreviousOutline = currentBuilding?.GetComponent<Outline>();
-        EventBus.Publish(new TileSelectedEvent(this));
+        //if (currentBuilding != null)
+        //{
+        //    //Outline outline = currentBuilding.GetComponent<Outline>();
+        //    if (outline != null)
+        //    {
+        //        outline.enabled = true;
+        //    }
+        //}
+        //if (TileSelector.PreviousOutline == newOutline)
+        //{
+        //    return;
+        //}
+        ////Disable prev outline
+        //if (TileSelector.PreviousOutline != null)
+        //{
+        //    TileSelector.PreviousOutline.enabled = false;
+        //}
+        //if (newOutline != null)
+        //{
+        //    newOutline.enabled = true;
+        //}
+        //TileSelector.PreviousOutline = newOutline;
+        //EventBus.Publish(new TileSelectedEvent(this));
     }
-    public void OnTileDeselected()
-    {
-        //Remove tile highlight
-        TileSelector.Hide();
+    //public void OnTileDeselected()
+    //{
+    //    //Remove tile highlight
+    //    TileSelector.Hide();
 
-        // Disable structure outline
-        if (currentBuilding != null)
-        {
-            Outline outline = currentBuilding.GetComponent<Outline>();
-            if (outline != null)
-            {
-                outline.enabled = false;
-            }
-        }
+    //    // Disable structure outline
+    //    if (currentBuilding != null)
+    //    {
+    //        Outline outline = currentBuilding.GetComponent<Outline>();
+    //        if (outline != null)
+    //        {
+    //            outline.enabled = false;
+    //        }
+    //    }
 
-        // Clear previous outline tracker
-        TileSelector.PreviousOutline = null;
-    }
+    //    // Clear previous outline tracker
+    //    TileSelector.PreviousOutline = null;
+    //}
 
 }
