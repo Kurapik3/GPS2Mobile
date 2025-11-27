@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 960826563766814643}
   - component: {fileID: 3091430344748947287}
   - component: {fileID: 6003045915058173378}
+  - component: {fileID: 6489078800756368763}
   m_Layer: 18
   m_Name: TurtleWall
   m_TagString: TurtleWall
@@ -57,6 +58,9 @@ MonoBehaviour:
   heightOffset: 2
   currentTile: {fileID: 0}
   CurrentTurn: 0
+  hasActedThisTurn: 0
+  hasMovedThisTurn: 0
+  hasAttackedThisTurn: 0
   untamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: 29673dfd5bae14a48bbbf4df52020536, type: 3}
   tamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: a949b268732d84540a64bb647e3796f1, type: 3}
   blockIndicatorPrefab: {fileID: 7388899633677801674, guid: a8ab3ef6c68c05345b16424261315922, type: 3}
@@ -12196,6 +12200,25 @@ MonoBehaviour:
     - {x: -0.48049936, y: -0.55747247, z: 0.67701167}
     - {x: -0.6228163, y: -0.42995426, z: 0.6536354}
     - {x: -0.47095498, y: -0.17432784, z: 0.8647608}
+--- !u!114 &6489078800756368763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2545025057684576442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f41bae1489e6f1408d6a90906900498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectData:
+    objectName: Turtle
+    description: Testing
+    icon: {fileID: 21300000, guid: a9670a2921b6e8448b06c9259282d10c, type: 3}
+    objectType: 9
+    apCost: 0
+  selectionIndicator: {fileID: 0}
 --- !u!1001 &5000279707430172299
 PrefabInstance:
   m_ObjectHideFlags: 0
