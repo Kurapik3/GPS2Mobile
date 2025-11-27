@@ -72,7 +72,6 @@ public class FogSystem : MonoBehaviour
         RevealTilesAround(startingOrigin, visibleRadiusAtStart);
 
         EnemyUnitManager.Instance?.UpdateEnemyVisibility();
-        EnemyBaseManager.Instance?.UpdateEnemyBaseVisibility();
         SeaMonsterManager.Instance?.UpdateSeaMonsterVisibility();
     }
 
@@ -105,7 +104,6 @@ public class FogSystem : MonoBehaviour
         if (anyNewRevealed && EnemyUnitManager.Instance != null)
         {
             EnemyUnitManager.Instance?.UpdateEnemyVisibility();
-            EnemyBaseManager.Instance?.UpdateEnemyBaseVisibility();
             SeaMonsterManager.Instance?.UpdateSeaMonsterVisibility();
         }
     }

@@ -598,10 +598,6 @@ public class GameManager : MonoBehaviour
         {
             EnemyUnitManager.Instance.UpdateEnemyVisibility();
         }
-        if(EnemyBaseManager .Instance != null)
-        {
-            EnemyBaseManager.Instance.UpdateEnemyBaseVisibility();
-        }
     }
     //GameManager.Instance?.SaveGame(); <- use for settings to main menu button
     //also add EventBus.Publish(new ActionMadeEvent()); to after player movement, player attack, after tech tree researched, after tree base upgrade, after extract tiles, after tame sea creature

@@ -46,7 +46,6 @@ public class EnemyBaseManager : MonoBehaviour
         int id = nextBaseId++;
         bases[id] = enemyBase;
         Debug.Log($"[EnemyBaseManager] Registered base #{id} at {enemyBase.currentTile?.HexCoords}");
-        UpdateEnemyBaseVisibility();
         return id;
     }
 
@@ -173,25 +172,5 @@ public class EnemyBaseManager : MonoBehaviour
         if (!bases.ContainsKey(evt.BaseId)) 
             return;
         bases[evt.BaseId].OnUnitSpawned();
-    }
-
-    public void UpdateEnemyBaseVisibility()
-    {
-        foreach (var kv in bases)
-        {
-            EnemyBase enemyBase = kv.Value;
-            bool visible = !enemyBase.currentTile.IsFogged;
-            SetLayerRecursively(enemyBase, visible ? LayerMask.NameToLayer("EnemyBase") : LayerMask.NameToLayer("EnemyHidden"));
-        }
-    }
-
-    private void SetLayerRecursively(EnemyBase obj, int layer)
-    {
-        if (obj == null) return;
-        obj.gameObject.layer = layer;
-        foreach (Transform child in obj.transform)
-        {
-            SetLayerRecursively(child.GetComponentInParent<EnemyBase>(), layer);
-        }
     }
 }
