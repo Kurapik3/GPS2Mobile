@@ -156,6 +156,10 @@ public class SelectionOfStructureManager : MonoBehaviour
                 TileSelector.Hide();
             }
         }
+        if (structureSelected.Contains(hit.collider.gameObject))
+        {
+            return;
+        }
     }
 
     private bool IsPointerOverUI(Vector2 screenPosition)
@@ -257,6 +261,7 @@ public class SelectionOfStructureManager : MonoBehaviour
         isStatusClosed = false;
         infoBar.interactable = false;
         panel.blocksRaycasts = true;
+        panel.interactable = true;
         StructureStatusWindowMove();
 
     }
