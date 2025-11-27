@@ -123,8 +123,7 @@ public class GroveNClamButton : MonoBehaviour
             worldCanvas.gameObject.SetActive(shouldShow);
         }
     }
-
-    // Optional: Add click handler
+    
     public void OnHarvestClicked()
     {
         Debug.Log($"Harvesting from {name} at ({cachedTile.q}, {cachedTile.r})");

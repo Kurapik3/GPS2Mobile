@@ -67,13 +67,35 @@ public class Interactablemanager : MonoBehaviour
         }
 
         Ray ray = cam.ScreenPointToRay(touchPosition);
-
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
         {
+            GameObject hitObject = hit.collider.gameObject;
+            Transform parentWithTag = hitObject.transform;
+            while (parentWithTag != null &&
+          !parentWithTag.CompareTag("Cache") &&
+          !parentWithTag.CompareTag("Ruin") &&
+          !parentWithTag.CompareTag("TurtleWall") &&
+          !parentWithTag.CompareTag("Kraken") &&
+          !parentWithTag.CompareTag("Fish") &&
+          !parentWithTag.CompareTag("Water") &&
+          !parentWithTag.CompareTag("EnemyBase") &&
+          !parentWithTag.CompareTag("Grove") &&
+          !parentWithTag.CompareTag("Debris"))
+            {
+                parentWithTag = parentWithTag.parent;
+            }
+            if (parentWithTag == null)
+            {
+       
+                goto HandleEmptyTap;
+            }
+            hitObject = parentWithTag.gameObject;
             handledByThisManager = true;
-            HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+            
+            HexTile tile = hitObject.GetComponentInParent<HexTile>();
             if (tile != null)
             {
+
                 if (tile.currentUnit != null)
                 {
                     if (!tile.currentUnit.hasMovedThisTurn)
@@ -83,21 +105,40 @@ public class Interactablemanager : MonoBehaviour
                     }
                 }
                 tile.OnTileClicked();
+                
             }
-            // Try to get InteractableObject component
-            InteractableObject interactable = hit.collider.GetComponent<InteractableObject>();
 
+            InteractableObject interactable = hitObject.GetComponent<InteractableObject>();
             if (interactable != null)
             {
                 SelectObject(interactable);
                 popupPanel.ShowPopup(interactable.objectData);
             }
+            SeaMonsterBase monster = hitObject.GetComponentInParent<SeaMonsterBase>();
+            if (monster != null)
+            {
+                if (monster.State == SeaMonsterState.Tamed)
+                {
+                    SeaMonsterTouchController smController = FindAnyObjectByType<SeaMonsterTouchController>();
+                    smController?.TrySelectMonster(monster);
+                }
+            }
+            SeaMonsterTouchController controller = FindAnyObjectByType<SeaMonsterTouchController>();
+            if (controller != null && controller.HasSelectedMonster())
+            {
+                HexTile clickedTile = hitObject.GetComponentInParent<HexTile>();
+                if (clickedTile != null)
+                {
+                    controller.MoveSelectedMonster(clickedTile);
+                    return; // stop further processing
+                }
+            }
+            return;
         }
-        else
+        HandleEmptyTap:
         {
             if (!handledByThisManager) return;
             handledByThisManager = false;
-            // Tapped empty space - deselect and close popup
             DeselectObject();
             popupPanel.HidePopup();
             if (TileSelector.CurrentTile != null)
@@ -105,6 +146,57 @@ public class Interactablemanager : MonoBehaviour
                 TileSelector.Hide();
             }
         }
+        //if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
+        //{
+        //    handledByThisManager = true;
+        //    SeaMonsterBase monster = hit.collider.GetComponentInParent<SeaMonsterBase>();
+        //    if (monster != null)
+        //    {
+        //        if (monster.State == SeaMonsterState.Tamed)
+        //        {
+        //            SeaMonsterTouchController seaMonsterController = FindAnyObjectByType<SeaMonsterTouchController>();
+        //            seaMonsterController?.TrySelectMonster(monster);
+        //        }
+        //        else
+        //        {
+        //            SelectObject(monster.GetComponent<InteractableObject>());
+        //            return;
+        //        }
+        //    }
+        //    HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+        //    if (tile != null)
+        //    {
+        //        if (tile.currentUnit != null)
+        //        {
+        //            if (!tile.currentUnit.hasMovedThisTurn)
+        //            {
+        //                Debug.Log("Unit on tile still has movement left — block development popup");
+        //                return;
+        //            }
+        //        }
+        //        tile.OnTileClicked();
+        //    }
+        //    // Try to get InteractableObject component
+        //    InteractableObject interactable = hit.collider.GetComponent<InteractableObject>();
+
+        //    if (interactable != null)
+        //    {
+        //        SelectObject(interactable);
+        //        popupPanel.ShowPopup(interactable.objectData);
+        //    }
+        //}
+        //else
+        //{
+        //    if (!handledByThisManager) return;
+        //    handledByThisManager = false;
+        //    // Tapped empty space - deselect and close popup
+        //    DeselectObject();
+        //    popupPanel.HidePopup();
+        //    if (TileSelector.CurrentTile != null)
+        //    {
+        //        TileSelector.Hide();
+        //    }
+        //}
     }
 
     private bool IsPointerOverUI(Vector2 screenPosition)
