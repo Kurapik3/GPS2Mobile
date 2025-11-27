@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using static EnemyAIEvents;
-using static UnityEditor.PlayerSettings;
 
 /// <summary>
 /// Handles executing enemy actions: spawn, move, attack.

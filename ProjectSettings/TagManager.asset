@@ -17,6 +17,7 @@ TagManager:
   - Debris
   - TurfVisual
   - BaseUpgradePopup
+  - Water
   layers:
   - Default
   - TransparentFX
