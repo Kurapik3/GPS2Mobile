@@ -9,6 +9,8 @@ public abstract class UnitBase : MonoBehaviour
     [Header("Indicators")]
     [SerializeField] private GameObject rangeIndicatorPrefab;
     [SerializeField] private GameObject attackIndicatorPrefab;
+    [HideInInspector] public bool IsInTurf = false;
+
     private List<GameObject> activeIndicators = new List<GameObject>();
     private List<GameObject> activeAttackIndicators = new List<GameObject>();
     private List<HexTile> tilesInAttackRange = new List<HexTile>();
