@@ -9,6 +9,8 @@ public abstract class UnitBase : MonoBehaviour
     [Header("Indicators")]
     [SerializeField] private GameObject rangeIndicatorPrefab;
     [SerializeField] private GameObject attackIndicatorPrefab;
+    [HideInInspector] public bool IsInTurf = false;
+
     private List<GameObject> activeIndicators = new List<GameObject>();
     private List<GameObject> activeAttackIndicators = new List<GameObject>();
     private List<HexTile> tilesInAttackRange = new List<HexTile>();
@@ -37,7 +39,7 @@ public abstract class UnitBase : MonoBehaviour
     public bool HasAttackThisTurn  = false;
 
     [Header("Fog of War Settings")]
-    [SerializeField] private int fogRevealRadius = 1;
+    [SerializeField] public int fogRevealRadius = 1;
 
     // ---- KENNETH'S ----
     private UnitHPDisplay hpDisplay;

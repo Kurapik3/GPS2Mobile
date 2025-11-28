@@ -70,13 +70,22 @@ public class TurnManager : MonoBehaviour
         foreach (var unit in UnitManager.Instance?.GetAllUnits() ?? new List<UnitBase>())
         {
             unit.ResetMove();
+            
         }
 
         //Reset all tamed sea monsters for player control
         ResetTamedSeaMonsters();
 
         EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));
-        treeBase.OnTurnStart();
+        BuildingBase[] allBuildings = FindObjectsOfType<BuildingBase>();
+        foreach (var building in allBuildings)
+        {
+            if (building.apPerTurn > 0)
+            {
+                PlayerTracker.Instance.addAP(building.apPerTurn);
+                Debug.Log($"{building.buildingName} generated {building.apPerTurn} AP this turn.");
+            }
+        }
 
         OnPlayerTurnStart?.Invoke();
 
