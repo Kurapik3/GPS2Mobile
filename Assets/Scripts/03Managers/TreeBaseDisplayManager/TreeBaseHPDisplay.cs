@@ -125,11 +125,16 @@ public class TreeBaseHPDisplay : MonoBehaviour
         }
     }
 
-    public void ShowUpgradePopup()
+    public void ShowUpgradePopup(int upgradedLevel)
     {
+        //if (upgradePopup != null)
+        //{
+        //    upgradePopup.ShowPopup(treeBase.level + 1);
+        //}\
         if (upgradePopup != null)
         {
-            upgradePopup.ShowPopup(treeBase.level + 1);
+            upgradePopup.ShowPopup(upgradedLevel);
         }
     }
 }
+

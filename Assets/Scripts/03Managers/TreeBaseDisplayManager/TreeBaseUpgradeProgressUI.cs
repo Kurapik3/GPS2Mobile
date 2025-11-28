@@ -39,12 +39,15 @@ public class TreeBaseUpgradeProgressUI : MonoBehaviour
         descriptionText.text = $"Base has been upgraded to level {nextLevel}. Base health increased by +5. You also get to pick additional rewards.";
 
         // Disable buttons if at max level
-        if (nextLevel > treeBase.maxUpgrades)
-        {
-            scoreButton.interactable = false;
-            apButton.interactable = false;
-            turfButton.interactable = false;
-        }
+        //if (nextLevel > treeBase.maxUpgrades)
+        //{
+        //    scoreButton.interactable = false;
+        //    apButton.interactable = false;
+        //    turfButton.interactable = false;
+        //}
+        scoreButton.interactable = true;
+        apButton.interactable = true;
+        turfButton.interactable = true;
     }
 
     private void ChooseReward(string rewardType)

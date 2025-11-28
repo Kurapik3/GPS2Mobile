@@ -91,7 +91,8 @@ public class TreeBase : BuildingBase
 
         if (CanUpgrade())
         {
-            ApplyUpgradeBase(); // This will increment level and reset pop
+            ApplyUpgradeBase();
+            ShowUpgradePopup();
         }
 
         TreeBaseHPDisplay hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
@@ -147,33 +148,42 @@ public class TreeBase : BuildingBase
         baseHealth += healthBonusPerUpgrade;
         health = baseHealth;
 
-        UpdateModel();   
+        UpdateModel();
 
-        TreeBaseHPDisplay hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
-        if (hpDisplay != null)
-        {
-            hpDisplay.ShowUpgradePopup();
-            hpDisplay.OnLevelChanged();
-        }
+        //TreeBaseHPDisplay hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
+        //if (hpDisplay != null)
+        //{
+        //    hpDisplay.ShowUpgradePopup();
+        //    hpDisplay.OnLevelChanged();
+        //}
+
+        var hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
+        hpDisplay?.OnLevelChanged();
 
         Debug.Log($"[TreeBase] Upgraded to Level {level}, currentPop = {currentPop}");
     }
 
+    private void ShowUpgradePopup()
+    {
+        var hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
+        hpDisplay?.ShowUpgradePopup(level);
+    }
+
     public void ChooseScore()
     {
-        ApplyUpgradeBase();
+        //ApplyUpgradeBase();
         PlayerTracker.Instance.addScore(1000);
     }
 
     public void ChooseApPerTurn()
     {
-        ApplyUpgradeBase();
+        //ApplyUpgradeBase();
         apPerTurn += apBonusPerUpgrade;
     }
 
     public void ChooseTurfUp()
     {
-        ApplyUpgradeBase();
+        //ApplyUpgradeBase();
         turfRadius++;
         TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
     }
