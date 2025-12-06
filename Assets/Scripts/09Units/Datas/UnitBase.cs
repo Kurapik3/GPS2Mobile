@@ -47,7 +47,7 @@ public abstract class UnitBase : MonoBehaviour
     // --------------------
 
     [Header("Range Attack")]
-    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private GameObject rangeObjPrefab;
     protected virtual void Start()
     {
         rend = GetComponent<Renderer>();
@@ -93,10 +93,7 @@ public abstract class UnitBase : MonoBehaviour
 
         // Check if target is within attack range
         if (distance > range)
-        {
-            Debug.Log($"{unitName} tried to attack {target.currentEnemyUnit.unitType}, but target is out of range! (distance: {distance}, range: {range})");
             return;
-        }
 
         HideAttackIndicators();
 
@@ -125,10 +122,14 @@ public abstract class UnitBase : MonoBehaviour
         }
         else
         {
+            Vector3 direction = endPos - startPos;
+            float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
             //Ranged: projectile arc
             Vector3 projStart = startPos + Vector3.up * 1.5f;
             Vector3 projEnd = endPos;
-            GameObject projectile = Instantiate(projectilePrefab, projStart, Quaternion.identity);
+            GameObject rangeObj = Instantiate(rangeObjPrefab, projStart, Quaternion.identity);
 
             float time = 0f;
             float duration = 1f;
@@ -144,14 +145,14 @@ public abstract class UnitBase : MonoBehaviour
                 Vector3 m2 = Vector3.Lerp(mid, projEnd, time);
                 Vector3 pos = Vector3.Lerp(m1, m2, time);
 
-                projectile.transform.position = pos;
-                projectile.transform.LookAt(projEnd);
-                projectile.transform.Rotate(90f, 0f, 0f);
+                rangeObj.transform.position = pos;
+                rangeObj.transform.LookAt(projEnd);
+                rangeObj.transform.Rotate(90f, 0f, 0f);
 
                 yield return null;
             }
 
-            Destroy(projectile);
+            Destroy(rangeObj);
             HitTarget(target, splashRadius);
         }
     }
