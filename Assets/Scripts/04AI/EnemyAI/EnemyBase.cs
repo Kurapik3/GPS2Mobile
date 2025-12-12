@@ -20,6 +20,9 @@ public class EnemyBase : MonoBehaviour
     [Header("Different Models for Each Level")]
     public GameObject[] levelModels;
 
+    [Header("Grove")]
+    [SerializeField] private GameObject grovePrefab;
+
     [HideInInspector] public int baseId;
     public bool IsDestroyed => health <= 0;
 
@@ -93,20 +96,23 @@ public class EnemyBase : MonoBehaviour
     {
         Debug.Log($"[EnemyBase] {baseName} destroyed!");
         EnemyBaseManager.Instance?.OnBaseDestroyed(this);
-        if (currentTile != null)
-            SpawnGroveAt(currentTile);
-        else
-            Debug.LogWarning("[EnemyBase] Cannot spawn Groove — currentTile is null!");
-
+        
         if (currentTile != null)
             currentTile.currentEnemyBase = null;
 
         Destroy(gameObject);
+
+        if (currentTile != null)
+            SpawnGroveAt(currentTile);
+        else
+            Debug.LogWarning("[EnemyBase] Cannot spawn Groove — currentTile is null!");
     }
 
     private void SpawnGroveAt(HexTile tile)
     {
-        GameObject groveObj = Instantiate(BuildingFactory.Instance.GrovePrefab, tile.transform.position, Quaternion.identity);
+        Vector3 spawnPos = tile.transform.position;
+        spawnPos.y += 2;
+        GameObject groveObj = Instantiate(grovePrefab, spawnPos, Quaternion.identity);
         GroveBase newGroveBase = groveObj.GetComponent<GroveBase>();
 
         //Pass the current EnemyBase level to the Grove

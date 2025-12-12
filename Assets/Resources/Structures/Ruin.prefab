@@ -414,6 +414,34 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 621607965361485874}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnHarvestRuins
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GroveNClamButton, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8236608286737965507, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 8247211327332392703, guid: ac8eb6aa32b1cde4ebf3a7facb87c2ad, type: 3}
       propertyPath: m_Name
       value: CanvaseButtonBubble

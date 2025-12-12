@@ -43,29 +43,25 @@ public class Ruin : BuildingBase
             Debug.LogWarning("No unit provided to develop the ruin!");
             return;
         }
-
+        if (developer.currentTile == null || !developer.currentTile.isPlayerTurf)
+        {
+            Debug.LogWarning($"{developer.unitName} must be on turf to develop {buildingName}!");
+            return;
+        }
         // Check if unit has enough AP or resources
-        if (player.currentAP < developCost)
+        if (PlayerTracker.Instance.currentAP < developCost)
         {
             Debug.Log($"{developer.unitName} does not have enough AP to develop {buildingName}!");
             return;
         }
 
-        player.useAP(developCost);
+        PlayerTracker.Instance.useAP(developCost);
 
         // Develop the ruin
         isDeveloped = true;
         apPerTurn = apWhenDeveloped;
         buildingName = "Developed Ruin";
 
-        //  Replace model NOT SURE YET
-        //if (developedPrefab != null)
-        //{
-        //    foreach (Transform child in transform)
-        //        Destroy(child.gameObject);
-
-        //    Instantiate(developedPrefab, transform.position, Quaternion.identity, transform);
-        //}
 
         Debug.Log($"{developer.unitName} developed {buildingName}! Now produces {apPerTurn} AP/turn.");
     }

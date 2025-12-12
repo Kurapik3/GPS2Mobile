@@ -88,4 +88,9 @@ public class BuildingBase : MonoBehaviour
             Debug.LogWarning($"No ruin prefab assigned for {buildingName}!");
         }
     }
-}
+        public void ApplyHomeDefenseBonus()
+        {
+            health += 5;
+        }
+    
+    }

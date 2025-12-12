@@ -11,6 +11,7 @@ using static EnemyAIEvents;
 public class EnemyActionExecutor : MonoBehaviour
 {
     [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private GameObject canonBallPrefab;
 
     private EnemyUnitManager unitManager => EnemyUnitManager.Instance;
 
@@ -249,7 +250,11 @@ public class EnemyActionExecutor : MonoBehaviour
         Vector3 end = MapManager.Instance.HexToWorld(targetHex);
         end.y += 1f;
 
-        GameObject projectile = Instantiate(projectilePrefab, start, Quaternion.identity);
+        float angle = GetRotationAngleTo(start, end);
+        attacker.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+        bool isBomber = EnemyUnitManager.Instance.GetUnitType(attackerId) == "Bomber";
+        GameObject rangeObj = Instantiate(isBomber ? canonBallPrefab : projectilePrefab, start, Quaternion.identity);
 
         float duration = 1f;
         float time = 0f;
@@ -265,14 +270,14 @@ public class EnemyActionExecutor : MonoBehaviour
             Vector3 m2 = Vector3.Lerp(mid, end, time);
             Vector3 pos = Vector3.Lerp(m1, m2, time);
 
-            projectile.transform.position = pos;
-            projectile.transform.LookAt(end);
-            projectile.transform.Rotate(90f, 0f, 0f);
+            rangeObj.transform.position = pos;
+            rangeObj.transform.LookAt(end);
+            rangeObj.transform.Rotate(90f, 0f, 0f);
 
             yield return null;
         }
 
-        Destroy(projectile);
+        Destroy(rangeObj);
 
         Knockback(target, attacker.transform.forward, ()=>
         {

@@ -12,8 +12,6 @@ GameObject:
   - component: {fileID: 3665979250095645175}
   - component: {fileID: -3442360951602841205}
   - component: {fileID: 3459444414990257487}
-  - component: {fileID: 6391791961481116822}
-  - component: {fileID: 7726835765820455310}
   m_Layer: 9
   m_Name: Builder
   m_TagString: PlayerUnit
@@ -52,6 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rangeIndicatorPrefab: {fileID: 7388899633677801674, guid: bf923d61e9631364ea9d5aa290ec44e8, type: 3}
   attackIndicatorPrefab: {fileID: 8546601524786854988, guid: 99fa64ced90979541b12f8dff3f8093c, type: 3}
+  IsInTurf: 0
   unitId: -1
   unitName: 
   cost: 0
@@ -65,7 +64,7 @@ MonoBehaviour:
   hasMovedThisTurn: 0
   HasAttackThisTurn: 0
   fogRevealRadius: 1
-  projectilePrefab: {fileID: 410257745871976168, guid: 96aeb0b574238af4fafd5a0671291a59, type: 3}
+  rangeObjPrefab: {fileID: 410257745871976168, guid: 96aeb0b574238af4fafd5a0671291a59, type: 3}
   treeBasePrefab: {fileID: 4654263620392045335, guid: 3cd0f7d313f40bb48b0fff31a6e7ca68, type: 3}
 --- !u!136 &-3442360951602841205
 CapsuleCollider:
@@ -1054,32 +1053,6 @@ MonoBehaviour:
     - {x: 0.8404866, y: 0.30591202, z: -0.4472136}
     - {x: -0.24184503, y: 0.6644629, z: -0.7071067}
     - {x: 0.29883605, y: 0.64085644, z: -0.70710677}
---- !u!114 &6391791961481116822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6796326094198637268}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d40e4c3bd84e4cd45beb8a690431030c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bubblePrefab: {fileID: 2528207136115242375, guid: 45fd961490cf94a42bd7236540f600c9, type: 3}
-  uiCanvas: {fileID: 0}
---- !u!114 &7726835765820455310
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6796326094198637268}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47413e92554d41d4fa0933c86148ab17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &6369499927479378180
 PrefabInstance:
   m_ObjectHideFlags: 0

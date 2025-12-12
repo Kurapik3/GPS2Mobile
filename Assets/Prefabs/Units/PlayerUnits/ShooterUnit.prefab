@@ -73,6 +73,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rangeIndicatorPrefab: {fileID: 7388899633677801674, guid: bf923d61e9631364ea9d5aa290ec44e8, type: 3}
   attackIndicatorPrefab: {fileID: 8546601524786854988, guid: 99fa64ced90979541b12f8dff3f8093c, type: 3}
+  IsInTurf: 0
   unitId: -1
   unitName: 
   cost: 0
@@ -86,7 +87,7 @@ MonoBehaviour:
   hasMovedThisTurn: 0
   HasAttackThisTurn: 0
   fogRevealRadius: 1
-  projectilePrefab: {fileID: 410257745871976168, guid: 96aeb0b574238af4fafd5a0671291a59, type: 3}
+  rangeObjPrefab: {fileID: 410257745871976168, guid: 96aeb0b574238af4fafd5a0671291a59, type: 3}
 --- !u!114 &6890975739280033410
 MonoBehaviour:
   m_ObjectHideFlags: 0

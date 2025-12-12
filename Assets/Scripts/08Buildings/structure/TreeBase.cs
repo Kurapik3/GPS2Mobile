@@ -51,6 +51,11 @@ public class TreeBase : BuildingBase
     {
         base.Initialize(data, tile);
 
+        currentTile = tile;         
+        if (tile != null)
+        {
+            tile.SetBuilding(this);
+        }
         buildingName = "Tree Base";
         apPerTurn = 2;
         health = baseHealth;
@@ -190,27 +195,32 @@ public class TreeBase : BuildingBase
 
     protected override void DestroyBuilding()
     {
-        Debug.Log("Tree Base destroyed! Becomes Grove.");
+        HexTile tile = currentTile;
 
-        // Remove turf for this base
-        TurfManager.Instance.ClearTurf(); // optionally, make a per-building RemoveTurfArea
+        TurfManager.Instance.ClearTurf();
+
+        Destroy(gameObject);
+        Debug.Log("Tree Base destroyed! Becomes Grove.");
 
         if (BuildingFactory.Instance.GrovePrefab != null)
         {
-            GameObject grove = Instantiate(
+            GameObject newGroveObj = Instantiate(
                 BuildingFactory.Instance.GrovePrefab,
-                transform.position,
+                tile.transform.position,
                 Quaternion.identity
             );
 
-            // Pass previous level to Grove so it can restore on rebuild
-            GroveBase groveScript = grove.GetComponent<GroveBase>();
+            GroveBase groveScript = newGroveObj.GetComponent<GroveBase>();
             if (groveScript != null)
+            {
                 groveScript.SetFormerLevel(level, GroveBase.BaseOrigin.Player);
-        }
+            }
 
-        Destroy(gameObject);
+
+            tile.SetBuilding(groveScript);
+        }
     }
+
 
     // ---- KENNETH'S ----
     public void TakeDamage(int amount)
@@ -264,6 +274,7 @@ public class TreeBase : BuildingBase
 
         UpdateModel();
     }
+
 
 
 }

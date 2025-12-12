@@ -174,5 +174,26 @@ public class GroveNClamButton : MonoBehaviour
         grove.Develop(builder); // Develop Grove back into TreeBase
         Debug.Log($"Grove developed back into TreeBase at ({cachedTile.q},{cachedTile.r})!");
     }
+
+    public void OnHarvestRuins()
+    {
+        Debug.Log($"Harvesting from {name} at ({cachedTile.q}, {cachedTile.r})");
+
+        if (cachedTile == null) return;
+        Ruin ruins = cachedTile.currentBuilding as Ruin;
+        if (ruins == null)
+        {
+            Debug.LogWarning("No ruins on this tile!");
+            return;
+        }
+        UnitBase unitOnTile = cachedTile.currentUnit;
+        if (unitOnTile == null)
+        {
+            Debug.LogWarning("No unit on this tile to develop the cache!");
+            return;
+        }
+
+        ruins.Develop(unitOnTile);
+    }
 }
 
