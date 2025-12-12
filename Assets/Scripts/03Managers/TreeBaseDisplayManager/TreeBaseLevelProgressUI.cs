@@ -49,27 +49,13 @@ public class TreeBaseLevelProgressUI : MonoBehaviour
         level2BarSet?.SetActive(false);
         level3BarSet?.SetActive(false);
 
-        // Determine which bar set to show and how many bars to fill
-        //switch (currentLevel)
-        //{
-        //    case 1:
-        //        level1BarSet?.SetActive(true);
-        //        UpdateBarFill(level1Bars, currentPop, treeBase.popForLvl2);
-        //        break;
-        //    case 2:
-        //        level2BarSet?.SetActive(true);
-        //        UpdateBarFill(level2Bars, currentPop, treeBase.popForLvl3);
-        //        break;
-        //    case 3:
-        //        level3BarSet?.SetActive(true);
-        //        UpdateBarFill(level3Bars, currentPop, treeBase.popForLvlMore);
-        //        break;
-        //    //default:
-        //    //    // Fallback to Level 1 if level is invalid
-        //    //    level1BarSet?.SetActive(true);
-        //    //    FillBars(level1Bars, treeBase.currentPop);
-        //    //    break;
-        //}
+
+        int requiredPop = currentLevel switch
+        {
+            1 => treeBase.popForLvl2,
+            2 => treeBase.popForLvl3,
+            _ => treeBase.popForLvlMore // for level 3  need popForLvlMore to reach 4
+        };
 
         if (currentLevel == 1)
         {
@@ -84,57 +70,28 @@ public class TreeBaseLevelProgressUI : MonoBehaviour
         else if (currentLevel == 3)
         {
             level3BarSet?.SetActive(true);
-            // At level 3, still use 1:1 fill (since it's the last "discrete" level)
-            // But cap at popForLvlMore to avoid overfill
             int cappedPop = Mathf.Min(currentPop, treeBase.popForLvlMore);
             UpdateBarFill(level3Bars, cappedPop, treeBase.popForLvlMore);
         }
         else // Level 4 and beyond
         {
             level4BarSet?.SetActive(true);
-            // Use proportional fill: 5 bars represent 0 to popForLvlMore
-            UpdateBarFill(level4Bars, currentPop, treeBase.popForLvlMore);
+            UpdateBarFill(level3Bars, currentPop, treeBase.popForLvlMore);
         }
 
 
         Debug.Log($"[LevelProgress] Current Level: {treeBase.level}, Pop: {treeBase.currentPop}");
     }
 
+    private void FillBarsFull(Image[] bars)
+    {
+        if (bars == null) return;
+        foreach (var bar in bars)
+            bar.color = activeColor;
+    }
+
     private void UpdateBarFill(Image[] bars, int current, int max)
     {
-        //Debug.Log($"[UpdateBarFill] currentPop={currentPop}, bars.Length={bars?.Length ?? 0}");
-
-        //if (bars == null || bars.Length == 0)
-        //{
-        //    Debug.LogError("No bars assigned!");
-        //    return;
-        //}
-
-        //// Calculate how many full bars should be filled
-        //int fullBars = Mathf.Min(bars.Length, currentPop); // Assuming 1 pop = 1 bar fill
-        //Debug.Log($"[UpdateBarFill] Filling {fullBars} bars out of {bars.Length}");
-
-        //// Reset all bars to inactive color
-        //foreach (Image bar in bars)
-        //{
-        //    if (bar == null)
-        //    {
-        //        Debug.LogError("A bar is null!");
-        //        continue;
-        //    }
-        //    bar.color = inactiveColor;
-        //    Debug.Log($"[UpdateBarFill] Reset bar color to {inactiveColor}");
-        //}
-
-        //// Fill the appropriate number of bars
-        //for (int i = 0; i < fullBars && i < bars.Length; i++)
-        //{
-        //    if (bars[i] != null)
-        //    {
-        //        bars[i].color = activeColor;
-        //        Debug.Log($"[UpdateBarFill] Set bar {i} to {activeColor}");
-        //    }
-        //}
 
         if (bars == null || bars.Length == 0 || max <= 0)
         {
@@ -150,14 +107,5 @@ public class TreeBaseLevelProgressUI : MonoBehaviour
             bars[i].color = (i < fullBars) ? activeColor : inactiveColor;
         }
 
-    }
-
-    private void FillBars(Image[] bars, int pop)
-    {
-        if (bars == null) return;
-        for (int i = 0; i < bars.Length; i++)
-        {
-            bars[i].color = (i < pop) ? activeColor : inactiveColor;
-        }
     }
 }
