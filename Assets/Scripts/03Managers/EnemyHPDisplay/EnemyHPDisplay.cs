@@ -75,9 +75,9 @@ public class EnemyHPDisplay : MonoBehaviour
         // Match unit type to icon
         string lowerType = unitType.ToLower();
 
-        if (lowerType.Contains("enemy scout"))
+        if (lowerType.Contains("scout"))
             iconToUse = scoutIcon;
-        else if (lowerType.Contains("enemy bomber"))
+        else if (lowerType.Contains("bomber"))
             iconToUse = bomberIcon;
         else if (lowerType.Contains("builder"))
             iconToUse = builderIcon;
