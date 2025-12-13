@@ -41,7 +41,33 @@ public class TechNode : MonoBehaviour
             button.onClick.AddListener(OnClick);
         }
     }
+    private void OnEnable()
+    {
+        player = FindAnyObjectByType<PlayerTracker>();
+        if (TechTree.Instance != null)
+            TechTree.Instance.OnTechResearched += UpdateAll;
 
+        UpdateAll();
+
+        if (player != null)
+            player.OnAPChanged += UpdateVisual;
+    }
+
+    private void OnDisable()
+    {
+        if (TechTree.Instance != null)
+            TechTree.Instance.OnTechResearched -= UpdateAll;
+
+        if (player != null)
+            player.OnAPChanged -= UpdateVisual;
+    }
+
+    public void UpdateAll()
+    {
+        UpdateState();
+        UpdateVisual();
+        UpdateConnectedNodes();
+    }
 
     public void Initialize()
     {
@@ -49,6 +75,8 @@ public class TechNode : MonoBehaviour
         nameText.text = techName;
         costText.text = costAP + " AP";
 
+        if (TechTree.Instance != null)
+            TechTree.Instance.OnTechResearched += UpdateAll;
         // Set initial state based on prerequisites
         UpdateState();
         UpdateVisual();
@@ -83,6 +111,31 @@ public class TechNode : MonoBehaviour
 
     private void UpdateState()
     {
+        if (TechTree.Instance == null) return;
+
+        bool isUnlockedInTree = techName.ToLower() switch
+        {
+            "fishing" => TechTree.Instance.IsFishing,
+            "metal scrap" => TechTree.Instance.IsMetalScraps,
+            "armor" => TechTree.Instance.IsArmor,
+            "scouting" => TechTree.Instance.IsScouting,
+            "camouflage" => TechTree.Instance.IsCamouflage,
+            "clear sight" => TechTree.Instance.IsClearSight,
+            "home defense" => TechTree.Instance.IsHomeDef,
+            "shooter unit" => TechTree.Instance.IsShooter,
+            "naval warfare" => TechTree.Instance.IsNavalWarfare,
+            "mob research" => TechTree.Instance.IsCreaturesResearch,
+            "mutualism" => TechTree.Instance.IsMutualism,
+            "hunter's mark" => TechTree.Instance.IsHunterMask,
+            "taming" => TechTree.Instance.IsTaming,
+            _ => false
+        };
+
+        if (isUnlockedInTree)
+        {
+            state = TechState.Unlocked;
+            return;
+        }
         if (prerequisites == null || prerequisites.Length == 0)
         {
             // No prerequisites - can be available if not already unlocked

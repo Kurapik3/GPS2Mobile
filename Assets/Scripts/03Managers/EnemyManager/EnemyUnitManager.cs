@@ -301,4 +301,51 @@ public class EnemyUnitManager : MonoBehaviour
             }
         }
     }
+
+    public void SpawnLoadedUnit(GameObject prefab, int id, int baseId, string type, Vector2Int pos, int hp, AIState state, bool justSpawned)
+    {
+        GameObject go = Instantiate(prefab);
+        EnemyUnit unitComp = go.GetComponent<EnemyUnit>();
+
+        unitComp.Initialize(id, type, hp, MapManager.Instance.GetTile(pos));
+
+        unitObjects[id] = go;
+        unitPositions[id] = pos;
+        unitTypes[id] = type;
+        unitHousedBase[id] = baseId;
+        unitStates[id] = state;
+
+        if (justSpawned)
+            justSpawnedUnits.Add(id);
+
+        MapManager.Instance.SetUnitOccupied(pos, true);
+    }
+    public int GetBaseId(int id)
+    {
+        return unitHousedBase.ContainsKey(id) ? unitHousedBase[id] : -1;
+    }
+
+    public bool IsJustSpawned(int id)
+    {
+        return justSpawnedUnits.Contains(id);
+    }
+
+    public void FullReset()
+    {
+        unitPositions.Clear();
+        unitTypes.Clear();
+        unitObjects.Clear();
+        unitHousedBase.Clear();
+        unitStates.Clear();
+        stateLockedUnits.Clear();
+        pendingStateChange.Clear();
+        justSpawnedUnits.Clear();
+        actedThisTurn.Clear();
+    }
+
+    public void SetNextUnitId(int id)
+    {
+        nextUnitId = id;
+    }
+
 }

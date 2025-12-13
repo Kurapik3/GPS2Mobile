@@ -349,4 +349,34 @@ public abstract class SeaMonsterBase : MonoBehaviour
         hasActedThisTurn = true;
         hasAttackedThisTurn = true;
     }
+    public void SetHP(int hp)
+    {
+        health = hp;
+    }
+    public void SetMonsterId(int id)
+    {
+        MonsterId = id;
+        if (id >= nextMonsterId)
+            nextMonsterId = id + 1;
+    }
+    public void SetTile(HexTile tile)
+    {
+        if (tile == null)
+        {
+            Debug.LogError("[SeaMonsterBase] SetTile called with null tile.");
+            return;
+        }
+
+        currentTile = tile;
+
+        // Snap position to tile
+        Vector3 world = MapManager.Instance.HexToWorld(tile.HexCoords);
+        world.y += heightOffset;
+        transform.position = world;
+
+        // Register occupancy WITHOUT firing spawn events
+        MapManager.Instance.SetUnitOccupied(tile.HexCoords, true);
+        tile.currentSeaMonster = this;
+    }
+
 }
