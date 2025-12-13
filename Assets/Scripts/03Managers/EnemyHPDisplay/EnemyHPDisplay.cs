@@ -13,6 +13,8 @@ public class EnemyHPDisplay : MonoBehaviour
     [SerializeField] private Sprite scoutIcon;
     [SerializeField] private Sprite bomberIcon;
     [SerializeField] private Sprite builderIcon;
+    [SerializeField] private Sprite tankerIcon;
+    [SerializeField] private Sprite shooterIcon;
     [SerializeField] private Sprite defaultIcon;
 
     [Header("Settings")]
@@ -81,6 +83,10 @@ public class EnemyHPDisplay : MonoBehaviour
             iconToUse = bomberIcon;
         else if (lowerType.Contains("builder"))
             iconToUse = builderIcon;
+        else if (lowerType.Contains("tanker"))
+            iconToUse = tankerIcon;
+        else if (lowerType.Contains("shooter"))
+            iconToUse = shooterIcon;
 
         unitIconImage.sprite = iconToUse != null ? iconToUse : defaultIcon;
     }

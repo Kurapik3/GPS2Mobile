@@ -4561,9 +4561,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5798178682580584112}
     m_Modifications:
+    - target: {fileID: 2960850777213768678, guid: 469586e1b3285754ca3f84acde8618fb, type: 3}
+      propertyPath: hpText
+      value: 
+      objectReference: {fileID: 3123385815013843093}
+    - target: {fileID: 2960850777213768678, guid: 469586e1b3285754ca3f84acde8618fb, type: 3}
+      propertyPath: baseIconImage
+      value: 
+      objectReference: {fileID: 3952006254135085665}
     - target: {fileID: 4932612609339057407, guid: 469586e1b3285754ca3f84acde8618fb, type: 3}
       propertyPath: m_Name
       value: TreeBaseHpDisplayPrefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 7329136682257192883, guid: 469586e1b3285754ca3f84acde8618fb, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8717883888260199269, guid: 469586e1b3285754ca3f84acde8618fb, type: 3}
       propertyPath: m_Pivot.x
@@ -4645,7 +4657,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2960850777213768678, guid: 469586e1b3285754ca3f84acde8618fb, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 8717883888260199269, guid: 469586e1b3285754ca3f84acde8618fb, type: 3}

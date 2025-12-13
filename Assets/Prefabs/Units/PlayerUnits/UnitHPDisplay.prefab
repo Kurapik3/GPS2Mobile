@@ -122,6 +122,8 @@ MonoBehaviour:
   scoutIcon: {fileID: 21300000, guid: beaf999be00e020498be0ea7de4d44f2, type: 3}
   bomberIcon: {fileID: 21300000, guid: 84f2a975b7117de46a22a1bd2c76036f, type: 3}
   builderIcon: {fileID: 21300000, guid: 6831de6254e408d4d9d99595e6f5b567, type: 3}
+  shooterIcon: {fileID: 21300000, guid: ef1660b3b355abe428cabae80c44760c, type: 3}
+  tankerIcon: {fileID: 21300000, guid: e275a047f4adcf74d87be897f225033f, type: 3}
   defaultIcon: {fileID: 0}
   displayOffset: {x: 0, y: 1, z: 0}
   canvasScale: 0.006

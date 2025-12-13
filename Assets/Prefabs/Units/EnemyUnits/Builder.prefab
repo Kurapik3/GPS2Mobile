@@ -1685,6 +1685,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemyHPDisplayCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 7329136682257192883, guid: c607efbe9b42fff48b5e4509c8daff53, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8717883888260199269, guid: c607efbe9b42fff48b5e4509c8daff53, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

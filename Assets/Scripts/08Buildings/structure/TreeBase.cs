@@ -10,7 +10,7 @@ public class TreeBase : BuildingBase
     [SerializeField] private int healthBonusPerUpgrade = 5;
     [SerializeField] public int level = 1;
     [SerializeField] public int currentPop = 0;
-    [SerializeField] public int maxUpgrades = 4;
+    //[SerializeField] public int maxUpgrades = 4;
 
     [Header("Population needed per upgrade")]
     [SerializeField] public int popForLvl2 = 2;
@@ -20,7 +20,8 @@ public class TreeBase : BuildingBase
     [Header("Tree Base Prefabs")]
     public GameObject[] levelModels;
 
-    private EnemyHPDisplay hpDisplay;
+    private EnemyHPDisplay enemyBaseHPDisplay;
+    private TreeBaseHPDisplay treeBaseHPDisplay;
 
     private int currentUnitsTrained = 0;
     public int TreeBaseId { get; private set; }
@@ -95,17 +96,17 @@ public class TreeBase : BuildingBase
         currentPop += amount;
         Debug.Log($"Gained {amount} population. Total: {currentPop}");
 
-        if (CanUpgrade())
+        while (CanUpgrade())
         {
             ApplyUpgradeBase();
             ShowUpgradePopup();
         }
 
         TreeBaseHPDisplay hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
+        hpDisplay.OnPopulationChanged();
         if (hpDisplay != null)
         {
             Debug.Log("[TreeBase] Found TreeBaseHPDisplay, calling OnPopulationChanged");
-            hpDisplay.OnPopulationChanged();
         }
         else
         {
@@ -115,12 +116,6 @@ public class TreeBase : BuildingBase
 
     public bool CanUpgrade()
     {
-        if (level >= maxUpgrades)
-        {
-            Debug.Log("Tree Base is fully upgraded!");
-            return false;
-        }
-
         int requiredPop = level switch
         {
             1 => popForLvl2,
@@ -149,20 +144,11 @@ public class TreeBase : BuildingBase
         };
 
         currentPop -= requiredPop;
-
         level++;
         baseHealth += healthBonusPerUpgrade;
         health = baseHealth;
 
         UpdateModel();
-
-        //TreeBaseHPDisplay hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
-        //if (hpDisplay != null)
-        //{
-        //    hpDisplay.ShowUpgradePopup();
-        //    hpDisplay.OnLevelChanged();
-        //}
-
         var hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
         hpDisplay?.OnLevelChanged();
 
@@ -171,25 +157,29 @@ public class TreeBase : BuildingBase
 
     private void ShowUpgradePopup()
     {
-        var hpDisplay = FindObjectOfType<TreeBaseHPDisplay>();
-        hpDisplay?.ShowUpgradePopup(level);
+        var upgradeUI = FindObjectOfType<TreeBaseUpgradeProgressUI>();
+        if (upgradeUI != null)
+        {
+            upgradeUI.ShowPopup(level);
+        }
+        else
+        {
+            Debug.LogWarning("[TreeBase] TreeBaseUpgradeProgressUI not found in scene!");
+        }
     }
 
     public void ChooseScore()
     {
-        //ApplyUpgradeBase();
         PlayerTracker.Instance.addScore(1000);
     }
 
     public void ChooseApPerTurn()
     {
-        //ApplyUpgradeBase();
         apPerTurn += apBonusPerUpgrade;
     }
 
     public void ChooseTurfUp()
     {
-        //ApplyUpgradeBase();
         turfRadius++;
         TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
     }
@@ -229,9 +219,10 @@ public class TreeBase : BuildingBase
         health -= amount;
         Debug.Log($"[TreeBase] Tree Base took {amount} damage (HP: {health})");
 
-        if (hpDisplay != null)
+        if (enemyBaseHPDisplay != null || treeBaseHPDisplay !=null)
         {
-            hpDisplay.UpdateHPDisplay();
+            enemyBaseHPDisplay.UpdateHPDisplay();
+            treeBaseHPDisplay.UpdateHPDisplay();
         }
 
         if (health <= 0)
@@ -266,7 +257,8 @@ public class TreeBase : BuildingBase
 
     public void SetLevelDirect(int targetLevel)
     {
-        level = targetLevel > 0 ? Mathf.Clamp(targetLevel, 1, maxUpgrades) : 1;
+        //level = targetLevel > 0 ? Mathf.Clamp(targetLevel, 1, maxUpgrades) : 1;
+        level = targetLevel > 0 ? targetLevel : 1;
 
         baseHealth = 20 + (healthBonusPerUpgrade * (level - 1));
         health = baseHealth;
