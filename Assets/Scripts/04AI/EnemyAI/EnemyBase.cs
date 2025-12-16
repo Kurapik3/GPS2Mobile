@@ -62,7 +62,12 @@ public class EnemyBase : MonoBehaviour
 
         //Register this base
         if (EnemyBaseManager.Instance != null)
-            baseId = EnemyBaseManager.Instance.RegisterBase(this);
+        {
+            if (baseId == 0) // NEW base only
+                baseId = EnemyBaseManager.Instance.RegisterBase(this);
+            else
+                EnemyBaseManager.Instance.RegisterExistingBase(baseId, this);
+        }
         else
             Debug.LogError("[EnemyBase] EnemyBaseManager not found in scene!");
 

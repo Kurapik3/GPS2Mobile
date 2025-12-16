@@ -97,4 +97,9 @@ public class SeaMonsterSpawner : MonoBehaviour
         }
         return false;
     }
+    public GameObject GetPrefabByName(string name)
+    {
+        return monsterPrefabs.Find(p => p.name == name);
+    }
+
 }

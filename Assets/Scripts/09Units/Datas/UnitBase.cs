@@ -83,6 +83,9 @@ public abstract class UnitBase : MonoBehaviour
 
     public virtual void Attack(HexTile target)
     {
+        if (HasAttackThisTurn)
+            return;
+
         if (currentTile == null || target == null)
         {
             Debug.LogWarning("Either attacker or target is not on a tile!");
@@ -94,6 +97,8 @@ public abstract class UnitBase : MonoBehaviour
         // Check if target is within attack range
         if (distance > range)
             return;
+
+        HasAttackThisTurn = true;
 
         HideAttackIndicators();
 
@@ -233,18 +238,14 @@ public abstract class UnitBase : MonoBehaviour
         if (target.currentEnemyUnit != null)
         {
             target.currentEnemyUnit.TakeDamage(attack);
-            //Debug.Log($"{unitName} attacked {target.currentEnemyUnit.unitType} for {attack} damage!");
             if (target.currentEnemyUnit.unitType == "Tanker")
             {
                 this.TakeDamage(damage);
             }
-            HasAttackThisTurn = false;
         }
         else if (target.currentEnemyBase != null)
         {
             target.currentEnemyBase.TakeDamage(attack);
-            //Debug.Log($"{unitName} attacked {target.currentEnemyBase} for {attack} damage!");
-            HasAttackThisTurn = false;
         }
         else if (target.currentSeaMonster != null)
         {
@@ -253,8 +254,6 @@ public abstract class UnitBase : MonoBehaviour
             {
                 target.currentSeaMonster.TakeDamage(5);
             }
-            //Debug.Log($"{unitName} attacked {target.currentSeaMonster.MonsterName} for {attack} damage!");
-            HasAttackThisTurn = false;
         }
     }
 

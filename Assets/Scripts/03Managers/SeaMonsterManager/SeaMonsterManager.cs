@@ -455,4 +455,37 @@ public class SeaMonsterManager : MonoBehaviour
                 sm.Tame();
         }
     }
+    public SeaMonsterBase SpawnMonsterFromLoad(string monsterType,int monsterId,Vector2Int hexPos)
+    {
+        if (spawner == null)
+        {
+            Debug.LogError("[SeaMonsterManager] Spawner missing.");
+            return null;
+        }
+
+        // Find prefab by type name (Kraken / TurtleWall)
+        GameObject prefab = spawner.GetPrefabByName(monsterType);
+        if (prefab == null)
+        {
+            Debug.LogError($"[SeaMonsterManager] No prefab for {monsterType}");
+            return null;
+        }
+
+        HexTile tile = MapManager.Instance.GetTile(hexPos.x, hexPos.y);
+        if (tile == null)
+        {
+            Debug.LogError("[SeaMonsterManager] Invalid tile for monster load.");
+            return null;
+        }
+
+        GameObject obj = Instantiate(prefab, tile.transform.position, Quaternion.identity);
+        SeaMonsterBase monster = obj.GetComponent<SeaMonsterBase>();
+
+        monster.SetMonsterId(monsterId);
+        monster.SetTile(tile);
+
+        RegisterMonster(monster);
+        return monster;
+    }
+
 }

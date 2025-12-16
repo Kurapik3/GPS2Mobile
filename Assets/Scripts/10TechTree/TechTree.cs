@@ -51,7 +51,7 @@ public class TechTree : MonoBehaviour
             case "metal scrap": return IsFishing && !IsMetalScraps;
             case "armor": return IsMetalScraps && !IsArmor;
             case "scouting": return !IsScouting;
-            case "camoflage": return IsScouting && !IsCamouflage;
+            case "camouflage": return IsScouting && !IsCamouflage;
             case "clear sight": return IsCamouflage && !IsClearSight;
             case "home defense": return !IsHomeDef;
             case "shooter unit": return IsHomeDef && !IsShooter;
@@ -66,10 +66,10 @@ public class TechTree : MonoBehaviour
 
     private void Start()
     {
-        if (IsTaming)
-        {
-            EventBus.Publish(new SeaMonsterEvents.TamingUnlockedEvent());
-        }
+        //if (IsTaming)
+        //{
+        //    EventBus.Publish(new SeaMonsterEvents.TamingUnlockedEvent());
+        //}
     }
 
     // Main unlock method that checks both prerequisites and AP
@@ -334,5 +334,43 @@ public class TechTree : MonoBehaviour
             Debug.Log("Not enough AP, prerequisites not met, or already unlocked!");
         }
     }
+    public void RestoreFromSave(GameSaveData.TechTreeSave saved)
+    {
+        IsFishing = saved.IsFishing;
+        IsMetalScraps = saved.IsMetalScraps;
+        IsArmor = saved.IsArmor;
+
+        IsScouting = saved.IsScouting;
+        IsCamouflage = saved.IsCamouflage;
+        IsClearSight = saved.IsClearSight;
+
+        IsHomeDef = saved.IsHomeDef;
+        IsShooter = saved.IsShooter;
+        IsNavalWarfare = saved.IsNavalWarfare;
+
+        IsCreaturesResearch = saved.IsCreaturesResearch;
+        IsMutualism = saved.IsMutualism;
+        IsHunterMask = saved.IsHunterMask;
+        IsTaming = saved.IsTaming;
+
+        // Fire side-effects manually
+        if (IsClearSight)
+        {
+            foreach (var unit in UnitManager.Instance.GetAllUnits())
+                unit.fogRevealRadius = 2;
+        }
+
+        if (IsHomeDef)
+        {
+            foreach (var treeBase in FindObjectsOfType<TreeBase>())
+                treeBase.ApplyHomeDefenseBonus();
+        }
+
+        if (IsTaming)
+            EventBus.Publish(new SeaMonsterEvents.TamingUnlockedEvent());
+
+        OnTechResearched?.Invoke();
+    }
+
 }
 

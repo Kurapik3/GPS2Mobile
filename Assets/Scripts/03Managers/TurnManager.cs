@@ -17,7 +17,7 @@ public class TurnManager : MonoBehaviour
     private bool isProcessingTurn = false;
     private int currentTurn = 0;
     private bool isPlayerTurn = true;
-
+    public bool LoadedFromSave { get; set; }
 
     public int CurrentTurn
     {
@@ -57,9 +57,21 @@ public class TurnManager : MonoBehaviour
         }
 
 
-        EventBus.Publish(new TurnUpdatedEvent(0, maxTurns));
+        if (!LoadedFromSave)
+        {
+            EventBus.Publish(new TurnUpdatedEvent(0, maxTurns));
+            StartPlayerTurn();
+        }
+
+    }
+
+    public void ForceStartPlayerTurnFromLoad()
+    {
+        isProcessingTurn = false;
+        isPlayerTurn = true;
+
+        EventBus.Publish(new TurnUpdatedEvent(currentTurn, maxTurns));
         StartPlayerTurn();
-        
     }
 
     private void StartPlayerTurn()

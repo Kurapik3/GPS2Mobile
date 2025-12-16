@@ -173,4 +173,10 @@ public class EnemyBaseManager : MonoBehaviour
             return;
         bases[evt.BaseId].OnUnitSpawned();
     }
+    public void RegisterExistingBase(int id, EnemyBase baseRef)
+    {
+        bases[id] = baseRef;
+        nextBaseId = Mathf.Max(nextBaseId, id + 1);
+    }
+
 }

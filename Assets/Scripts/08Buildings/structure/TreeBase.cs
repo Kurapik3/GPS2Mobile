@@ -25,8 +25,9 @@ public class TreeBase : BuildingBase
 
     private int currentUnitsTrained = 0;
     public int TreeBaseId { get; private set; }
+    public void SetTreeBaseId(int id) => TreeBaseId = id;
 
-    [SerializeField] private int turfRadius = 2;
+    [SerializeField] public int turfRadius = 2;
 
     private void Start()
     {

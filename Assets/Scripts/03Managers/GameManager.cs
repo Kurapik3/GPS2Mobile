@@ -5,6 +5,10 @@ using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static GameSaveData;
+using static EnemyUnitManager;
+
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -34,11 +38,7 @@ public class GameManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
-    //void Start()
-    //{
-    //    player = PlayerTracker.Instance;
-    //    enemy = EnemyTracker.Instance;
-    //}
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -83,13 +83,13 @@ public class GameManager : MonoBehaviour
         }
         if (File.Exists(savePath))
         {
-            // Read save file into cache (do not apply yet)
             try
             {
                 var json = File.ReadAllText(savePath);
                 cachedLoadData = JsonConvert.DeserializeObject<GameSaveData>(json);
                 waitingForMapReady = true;
-
+                if (turnManager != null)
+                    turnManager.LoadedFromSave = true;
                 var runtimeMap = ScriptableObject.CreateInstance<MapData>();
                 runtimeMap.tiles = cachedLoadData.mapTiles.Select(t => t.Clone()).ToList();
                 mapGenerator.SetMapData(runtimeMap);
@@ -116,29 +116,7 @@ public class GameManager : MonoBehaviour
         fogSystem.InitializeFog();
         EventBus.Publish(new AllEnemyBasesDestroyed(false));
         Debug.Log($"UnitManager found: {FindFirstObjectByType<UnitManager>() != null}");
-        //else
-        //{
-        //    // No runtime save: start a fresh game. Use editor-saved base map if available, else default
-        //    MapData loadedData = MapSaveLoad.Load("MySavedMap");
-        //    if (loadedData == null)
-        //        loadedData = Resources.Load<MapData>("DefaultBaseMap");
-
-        //    if (loadedData == null)
-        //    {
-        //        Debug.LogError("[GameManager] No base map found to start a new game.");
-        //        return;
-        //    }
-
-        //    mapGenerator.SetMapData(loadedData);
-        //    mapGenerator.GenerateFromData();
-
-        //    // initialize runtime systems for a fresh start
-        //    dynamicTileGen.GenerateDynamicElements();
-        //    fogSystem.InitializeFog();
-        //    EventBus.Publish(new AllEnemyBasesDestroyed(false));
-
-        //    Debug.Log("[GameManager] Started new game (no runtime save).");
-        //}
+      
     }
 
     private void OnSaveGame(SaveGameEvent evt) => SaveGame();
@@ -147,8 +125,6 @@ public class GameManager : MonoBehaviour
 
     private void StartNewGame()
     {
-        //MapData loadedData = Resources.Load<MapData>("DefaultBaseMap");
-        //MapData loadedData = MapSaveLoad.Load("MySavedMap");
         MapData loadedData = MapSaveLoad.Load("MySavedMap");
 
         if (loadedData == null)
@@ -202,7 +178,109 @@ public class GameManager : MonoBehaviour
             // Save dynamic tiles
             dynamicTileGen.SaveDynamicObjects(data);
 
+            // treebase
+            foreach (var tile in FindObjectsOfType<HexTile>())
+            {
+                // ---------- PLAYER / GROVE ----------
+                if (tile.currentBuilding != null)
+                {
+                    var save = new GameSaveData.BaseSave
+                    {
+                        q = tile.q,
+                        r = tile.r,
+                        baseId = 0,
+                        owner = 0,
+                        level = 1,
+                        currentPop = 0,
+                        health = 0,
+                        apPerTurn = 0,
+                        turfRadius = 0,
+                        isDefaultBase = false
+                    };
+
+                    if (tile.currentBuilding is TreeBase tb)
+                    {
+                        save.baseId = tb.TreeBaseId;
+                        save.owner = 1;
+                        save.level = tb.level;
+                        save.currentPop = tb.currentPop;
+                        save.health = tb.health;
+                        save.apPerTurn = tb.apPerTurn;
+                        save.turfRadius = tb.turfRadius;
+                    }
+                    else if (tile.currentBuilding is GroveBase gb)
+                    {
+                        save.baseId = gb.GetInstanceID();
+                        save.owner = 0;
+                        save.level = gb.GetFormerLevel();
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    data.bases.Add(save);
+                }
+
+                // ---------- ENEMY BASE ----------
+                if (tile.currentEnemyBase != null)
+                {
+                    EnemyBase eb = tile.currentEnemyBase;
+
+                    data.bases.Add(new GameSaveData.BaseSave
+                    {
+                        q = tile.q,
+                        r = tile.r,
+                        baseId = eb.baseId,
+                        owner = 2,
+                        level = eb.level,
+                        currentPop = 0,
+                        health = eb.health,
+                        turfRadius = 1,
+                        isDefaultBase = false
+                    });
+                }
+            }
+
+            //tech tree
+            data.techTree.IsFishing = TechTree.Instance.IsFishing;
+            data.techTree.IsMetalScraps = TechTree.Instance.IsMetalScraps;
+            data.techTree.IsArmor = TechTree.Instance.IsArmor;
+
+            data.techTree.IsScouting = TechTree.Instance.IsScouting;
+            data.techTree.IsCamouflage = TechTree.Instance.IsCamouflage;
+            data.techTree.IsClearSight = TechTree.Instance.IsClearSight;
+
+            data.techTree.IsHomeDef = TechTree.Instance.IsHomeDef;
+            data.techTree.IsShooter = TechTree.Instance.IsShooter;
+            data.techTree.IsNavalWarfare = TechTree.Instance.IsNavalWarfare;
+
+            data.techTree.IsCreaturesResearch = TechTree.Instance.IsCreaturesResearch;
+            data.techTree.IsMutualism = TechTree.Instance.IsMutualism;
+            data.techTree.IsHunterMask = TechTree.Instance.IsHunterMask;
+            data.techTree.IsTaming = TechTree.Instance.IsTaming;
+
             //save other states here
+
+            //sea creature
+            if (SeaMonsterManager.Instance != null)
+            {
+                foreach (var sm in SeaMonsterManager.Instance.ActiveMonsters)
+                {
+                    if (sm == null || sm.currentTile == null) continue;
+
+                    data.seaMonsters.Add(new SeaMonsterSave
+                    {
+                        monsterId = sm.MonsterId,
+                        monsterType = sm.GetType().Name, // Kraken / TurtleWall
+                        q = sm.currentTile.HexCoords.x,
+                        r = sm.currentTile.HexCoords.y,
+                        hp = sm.health,
+                        isTamed = sm.State == SeaMonsterState.Tamed
+                    });
+                }
+            }
+
 
             // Player + enemy units
             foreach (var unit in UnitManager.Instance.GetAllUnits())
@@ -219,17 +297,27 @@ public class GameManager : MonoBehaviour
                 });
             }
 
-            foreach (var unit in EnemyUnitManager.Instance.GetAllUnits())
+            foreach (var id in EnemyUnitManager.Instance.GetOwnedUnitIds())
             {
-                data.enemyUnits.Add(new GameSaveData.UnitData
+                var pos = EnemyUnitManager.Instance.GetUnitPosition(id);
+                var type = EnemyUnitManager.Instance.GetUnitType(id);
+                var obj = EnemyUnitManager.Instance.UnitObjects[id];
+                var enemyUnit = obj.GetComponent<EnemyUnit>();
+
+                data.enemyUnits.Add(new EnemyUnitSave
                 {
-                    unitName = unit.unitName,
-                    q = unit.currentTile.HexCoords.x,
-                    r = unit.currentTile.HexCoords.y,
-                    hp = unit.hp
+                    id = id,
+                    unitName = type,
+                    q = pos.x,
+                    r = pos.y,
+                    baseId = EnemyUnitManager.Instance.GetBaseId(id),
+                    hp = enemyUnit.currentHP,
+                    aiState = (int)EnemyUnitManager.Instance.GetUnitState(id),
+                    justSpawned = EnemyUnitManager.Instance.IsJustSpawned(id)
                 });
             }
 
+            data.nextEnemyId = EnemyUnitManager.Instance.NextUnitId;
             data.currentTurn = turnManager.CurrentTurn;
             data.playerScore = PlayerTracker.Instance?.getScore() ?? 0;
             data.playerAP = PlayerTracker.Instance?.getAp() ?? 0;
@@ -238,15 +326,14 @@ public class GameManager : MonoBehaviour
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText(savePath, json);
             Debug.Log($"Game saved to {savePath}");
+
         }
         catch (Exception ex)
         {
             Debug.LogError($"[GameManager] Save failed: {ex}");
         }
     }
-    // --- Loading flow control ---
-    // Called from EventBus if player triggers a load mid-game
-    // We will decode file and set cachedLoadData, then regenerate the map to trigger OnMapReady.
+
     private void ForceLoadNow()
     {
         if (!File.Exists(savePath))
@@ -281,88 +368,7 @@ public class GameManager : MonoBehaviour
         }
         cachedLoadData = JsonConvert.DeserializeObject<GameSaveData>(File.ReadAllText(savePath));
 
-        // Map will load dynamic elements only AFTER map is ready
         waitingForMapReady = true;
-        //string json = File.ReadAllText(savePath);
-        //GameSaveData data = JsonConvert.DeserializeObject<GameSaveData>(json);
-
-        //if (mapGenerator.MapData == null)
-        //{
-        //    var baseMap = Resources.Load<MapData>("DefaultBaseMap");
-        //    mapGenerator.SetMapData(baseMap);
-        //    mapGenerator.GenerateFromData();
-        //}
-
-        //// Reveal fog tiles
-        //fogSystem.InitializeFog();
-        //foreach (var tileData in data.revealedTiles)
-        //{
-        //    fogSystem.RevealTilesAround(new Vector2Int(tileData.q, tileData.r), 0);
-        //}
-
-        //// Load units
-        //UnitManager.Instance.ClearAllUnits();
-        //foreach (var u in data.playerUnits)
-        //{
-        //    GameObject prefab = null;
-
-        //    // Match the prefab based on unitName
-        //    if (u.unitName == "Builder")
-        //    {
-        //        prefab = unitSpawner.BuilderPrefab;
-        //    }
-        //    else if (u.unitName == "Scout")
-        //    {
-        //        prefab = unitSpawner.ScoutPrefab;
-        //    }
-        //    // add more if you have other unit types
-
-        //    if (prefab == null)
-        //    {
-        //        Debug.LogWarning($"Prefab for {u.unitName} not found, skipping.");
-        //        continue;
-        //    }
-
-        //    // Find CSV index for this unit
-        //    int csvIndex = unitSpawner.unitDatabase.GetAllUnits().FindIndex(d => d.unitName == u.unitName);
-        //    if (csvIndex < 0)
-        //    {
-        //        Debug.LogWarning($"Unit {u.unitName} not found in database, skipping.");
-        //        continue;
-        //    }
-
-        //    unitSpawner.CreateUnit(prefab, csvIndex);
-        //    var spawnedUnit = UnitManager.Instance.GetAllUnits().Last();
-
-        //    spawnedUnit.SetPositionToTile(u.q, u.r);
-        //}
-
-        //EnemyUnitManager.Instance.ClearAll();
-        //foreach (var u in data.enemyUnits)
-        //{
-        //    var prefab = EnemyUnitManager.Instance.unitPrefabs
-        //        .Find(p => p.name == u.unitName);
-        //    if (prefab != null)
-        //        EnemyUnitManager.Instance.RegisterUnit(
-        //            Instantiate(prefab),
-        //            0,
-        //            u.unitName,
-        //            new Vector2Int(u.q, u.r)
-        //        );
-        //}
-
-        //turnManager.CurrentTurn = data.currentTurn;
-        //player.currentScore = data.playerScore;
-        //player.currentAP = data.playerAP;
-        //enemy.currentScore = data.enemyScore;
-
-        //// Load dynamic objects
-        //// dynamicTileGen.LoadDynamicObjects(data);
-        //cachedLoadData = data;            
-        //waitForMapReady= true;
-
-        //EnemyUnitManager.Instance.UpdateEnemyVisibility();
-        //Debug.Log("Game loaded!");
     }
 
     bool allEnemyBasesDestroyed = false;
@@ -460,18 +466,6 @@ public class GameManager : MonoBehaviour
             //Restore fog
             if (fogSystem != null)
             {
-                //fogSystem.InitializeFog(); // hide all fog
-                //fogSystem.revealedTiles = cachedLoadData.revealedTiles
-                //.Select(t => new Vector2Int(t.q, t.r))
-                //.ToList();
-                //foreach (var tileData in cachedLoadData.revealedTiles)
-                //{
-                //    Vector2Int coord = new Vector2Int(tileData.q, tileData.r);
-                //    if (MapManager.Instance.TryGetTile(coord, out HexTile tile))
-                //    {
-                //        tile.RemoveFog();
-                //    }
-                //}
                 fogSystem.InitializeFog();
                 foreach (var tileData in cachedLoadData.revealedTiles)
                 {
@@ -509,6 +503,15 @@ public class GameManager : MonoBehaviour
                         Debug.LogWarning($"[GameManager] Unit {u.unitName} not found in database, skipping.");
                         continue;
                     }
+                    var tileCoords = new Vector2Int(u.q, u.r);
+                    if (MapManager.Instance.TryGetTile(tileCoords, out HexTile destTile))
+                    {
+                        if (destTile.IsOccupiedByUnit)
+                        {
+                            Debug.LogWarning($"[Load] Tile {tileCoords} already occupied, skipping spawn for {u.unitName}");
+                            continue;
+                        }
+                    }
                     int countBefore = UnitManager.Instance.GetAllUnits().Count;
                     unitSpawner.SpawnUnit(prefab, csvIndex, new Vector2Int(u.q, u.r));
 
@@ -528,33 +531,33 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            EnemyUnitManager.Instance.FullReset();
+            EnemyUnitManager.Instance.SetNextUnitId(cachedLoadData.nextEnemyId);
 
             // Spawn enemy units
-            if (EnemyUnitManager.Instance != null)
+            foreach (var u in cachedLoadData.enemyUnits)
             {
-                foreach (var u in cachedLoadData.enemyUnits)
-                {
-                    var prefab = EnemyUnitManager.Instance.unitPrefabs.Find(p => p.name == u.unitName);
-                    if (prefab != null)
-                    {
-                        EnemyUnitManager.Instance.RegisterUnit(
-                            Instantiate(prefab),
-                            0,
-                            u.unitName,
-                            new Vector2Int(u.q, u.r)
-                        );
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[GameManager] Prefab for {u.unitName} not found (enemy).");
-                    }
-                }
+                var prefab = EnemyUnitManager.Instance.unitPrefabs.Find(p => p.name == u.unitName);
+                if (prefab == null) continue;
+
+                EnemyUnitManager.Instance.SpawnLoadedUnit(
+                    prefab,
+                    u.id,
+                    u.baseId,
+                    u.unitName,
+                    new Vector2Int(u.q, u.r),
+                    u.hp,
+                    (AIState)u.aiState,
+                    u.justSpawned
+                );
             }
 
             // Restore turn / scores / AP
             if (turnManager != null)
             {
+                turnManager.LoadedFromSave = true;
                 turnManager.CurrentTurn = cachedLoadData.currentTurn;
+                turnManager.ForceStartPlayerTurnFromLoad();
             }
             if (PlayerTracker.Instance != null)
             {
@@ -571,6 +574,90 @@ public class GameManager : MonoBehaviour
             {
                 dynamicTileGen.LoadDynamicObjects(cachedLoadData);
             }
+
+            //bases
+            foreach (var baseSave in cachedLoadData.bases)
+            {
+                var tile = MapManager.Instance.GetTile(baseSave.q, baseSave.r);
+                if (tile == null) continue;
+
+                /* ---------- PLAYER / GROVE BUILDINGS ---------- */
+                BuildingBase building = tile.currentBuilding;
+
+                if (building is TreeBase treeBase)
+                {
+                    treeBase.SetTreeBaseId(baseSave.baseId);
+                    treeBase.SetLevelDirect(baseSave.level);
+                    treeBase.currentPop = baseSave.currentPop;
+                    treeBase.health = baseSave.health;
+                    treeBase.apPerTurn = baseSave.apPerTurn;
+                    treeBase.turfRadius = baseSave.turfRadius;
+                }
+                else if (building is GroveBase grove)
+                {
+                    var origin = baseSave.owner == 2
+                        ? GroveBase.BaseOrigin.Enemy
+                        : GroveBase.BaseOrigin.Player;
+
+                    grove.SetFormerLevel(baseSave.level, origin);
+                }
+
+                /* ---------- ENEMY BASE---------- */
+                EnemyBase enemyBase = tile.currentEnemyBase;
+                if (enemyBase != null)
+                {
+                    enemyBase.baseId = baseSave.baseId;
+                    enemyBase.level = baseSave.level;
+                    enemyBase.health = baseSave.health;
+
+                    // optional: add setter if you want to persist population
+                    // enemyBase.SetCurrentPop(baseSave.currentPop);
+
+                    // register only if missing
+                    if (!EnemyBaseManager.Instance.Bases.ContainsKey(enemyBase.baseId))
+                    {
+                        EnemyBaseManager.Instance.RegisterBase(enemyBase);
+                    }
+                }
+
+            }
+
+            //techtree
+            TechTree tech = FindFirstObjectByType<TechTree>();
+            if (tech != null && cachedLoadData != null)
+            {
+                tech.RestoreFromSave(cachedLoadData.techTree);
+                foreach (var node in FindObjectsOfType<TechNode>(true))
+                {
+                    node.UpdateAll();
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] TechTree instance not found during load.");
+            }
+
+
+            //sea creature
+            if (SeaMonsterManager.Instance != null && cachedLoadData.seaMonsters != null)
+            {
+                foreach (var smSave in cachedLoadData.seaMonsters)
+                {
+                    var monster = SeaMonsterManager.Instance.SpawnMonsterFromLoad(
+                        smSave.monsterType,
+                        smSave.monsterId,
+                        new Vector2Int(smSave.q, smSave.r)
+                    );
+
+                    monster.SetHP(smSave.hp);
+
+                    if (smSave.isTamed)
+                        monster.Tame();
+                    else
+                        monster.Untame();
+                }
+            }
+
 
             // Refresh enemy visibility
             StartCoroutine(DelayedUpdateEnemyVisibility());
