@@ -40,6 +40,7 @@ public class Scout : UnitBase
     }
     protected override IEnumerator PerformAttack(HexTile target)
     {
+        ManagerAudio.instance.PlaySFX("ShooterShooting");
         yield return PlayAttackAnimation(target, true);
     }
 }

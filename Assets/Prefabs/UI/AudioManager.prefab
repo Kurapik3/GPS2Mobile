@@ -181,20 +181,56 @@ MonoBehaviour:
   sfxs:
   - name: ButtonPressed
     clip: {fileID: 8300000, guid: d642d1be8655df749a77657039e49421, type: 3}
-  - name: UnitSelected
-    clip: {fileID: 8300000, guid: d39c1ffbbe57f404b927b6293dcbb3cf, type: 3}
+  - name: TileSelect
+    clip: {fileID: 8300000, guid: 9209d75e14fe48b45ab9eb10138d195e, type: 3}
   - name: StructureSelected
     clip: {fileID: 8300000, guid: a049e360840d01c428cd1a4b316bff66, type: 3}
+  - name: UnitSelected
+    clip: {fileID: 8300000, guid: 8b8a89d3e8e709841996377e713ba169, type: 3}
   - name: UnitSpawn
-    clip: {fileID: 8300000, guid: 2603a47c4e21ce94fa1005c6b2deb968, type: 3}
+    clip: {fileID: 8300000, guid: 194b590eaaacf6c4498fa020f04728fe, type: 3}
   - name: UnitMove
     clip: {fileID: 8300000, guid: 20b26be2e29e8804d93b5ddd3d13ffff, type: 3}
+  - name: UnitDie
+    clip: {fileID: 8300000, guid: 80631735044051246b816e9c69e2d343, type: 3}
+  - name: UnitMeleeAttack
+    clip: {fileID: 8300000, guid: ca76e2d00aa134641a1cdc282c0ed586, type: 3}
   - name: BuilderBuilding
     clip: {fileID: 8300000, guid: 64197803de4238e469736bbeff1d2fab, type: 3}
-  - name: BomberBoming
+  - name: BomberBombing
     clip: {fileID: 8300000, guid: 04ace0dddd9faa940a110f0b7a600e38, type: 3}
+  - name: ShooterShooting
+    clip: {fileID: 8300000, guid: bf6e3b7f8e45e2f43b5ee930f4f7fb69, type: 3}
   - name: BeginTurn
     clip: {fileID: 8300000, guid: 65a3b3e395a80b247b0966d049c03bc5, type: 3}
+  - name: SeaMonsterSpawn
+    clip: {fileID: 8300000, guid: e0641b7c438dc404cb364b9d3fcb1360, type: 3}
+  - name: KrakenMove
+    clip: {fileID: 8300000, guid: 83f23b5a0271d334c9de5ea819165a4b, type: 3}
+  - name: KrakenAttack
+    clip: {fileID: 8300000, guid: 27169960b9c86b947bf139034618a677, type: 3}
+  - name: KrakenDie
+    clip: {fileID: 8300000, guid: e8fc0225fb624904aa45ff4a62e49170, type: 3}
+  - name: KrakenSpawn
+    clip: {fileID: 8300000, guid: e0641b7c438dc404cb364b9d3fcb1360, type: 3}
+  - name: TurtleMove
+    clip: {fileID: 8300000, guid: ee2386cd2ac16fb46af5aea68bc8af29, type: 3}
+  - name: TurtleDie
+    clip: {fileID: 8300000, guid: 5ce340fa03a9fd64abc05b3f50886811, type: 3}
+  - name: GameOverLose
+    clip: {fileID: 8300000, guid: 8d1545fb9cb5aec438e571790e19466c, type: 3}
+  - name: GameOverWin
+    clip: {fileID: 8300000, guid: cb015e59444f20a43a857dcd5b4053fa, type: 3}
+  - name: DevelopTileExtract
+    clip: {fileID: 8300000, guid: 4e3306a485d97d34bbf15fe35ec5337c, type: 3}
+  - name: FogReveal
+    clip: {fileID: 8300000, guid: c06d41e84dba53d41933230408b9cbde, type: 3}
+  - name: TechTreeButton
+    clip: {fileID: 8300000, guid: e3ae169e0e05b5a499a3834c60584cd7, type: 3}
+  - name: TechTreeLearn
+    clip: {fileID: 8300000, guid: b4483379026207b4a94caee9445c2997, type: 3}
+  - name: Tutorial
+    clip: {fileID: 8300000, guid: 7da190a8eef513347967af199a27c7ab, type: 3}
   musicSource: {fileID: 8341383607153499847}
   sfxSource: {fileID: 6733325836681459888}
 --- !u!1 &8621646360622128158

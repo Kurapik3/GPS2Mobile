@@ -110,6 +110,7 @@ public abstract class UnitBase : MonoBehaviour
     protected virtual IEnumerator PerformAttack(HexTile target)
     {
         //Default: Melee attack
+        ManagerAudio.instance.PlaySFX("UnitMeleeAttack");
         yield return PlayAttackAnimation(target, false);
     }
 

@@ -224,7 +224,7 @@ public class EnemyActionExecutor : MonoBehaviour
 
         //Dash to target position
         yield return LerpPosition(attacker.transform, startPos, targetPos, dashDuration);
-
+        ManagerAudio.instance.PlaySFX("UnitMeleeAttack");
         //Hit Target
         Knockback(target, attacker.transform.forward, () =>
         {
@@ -255,7 +255,7 @@ public class EnemyActionExecutor : MonoBehaviour
 
         bool isBomber = EnemyUnitManager.Instance.GetUnitType(attackerId) == "Bomber";
         GameObject rangeObj = Instantiate(isBomber ? canonBallPrefab : projectilePrefab, start, Quaternion.identity);
-
+        ManagerAudio.instance.PlaySFX(isBomber ? "BomberBombing" : "ShooterShooting");
         float duration = 1f;
         float time = 0f;
 
@@ -444,6 +444,9 @@ public class EnemyActionExecutor : MonoBehaviour
         // Fish
         if (tile.fishTile != null)
         {
+            if(EnemyUnitManager.Instance.IsUnitVisibleToPlayer(unitId))
+                ManagerAudio.instance.PlaySFX("DevelopTileExtract");
+
             Destroy(tile.fishTile.gameObject);
             tile.fishTile = null;
             success = true;
@@ -452,6 +455,9 @@ public class EnemyActionExecutor : MonoBehaviour
         // Debris
         else if (tile.debrisTile != null)
         {
+            if (EnemyUnitManager.Instance.IsUnitVisibleToPlayer(unitId))
+                ManagerAudio.instance.PlaySFX("DevelopTileExtract");
+
             Destroy(tile.debrisTile.gameObject);
             tile.debrisTile = null;
             success = true;
