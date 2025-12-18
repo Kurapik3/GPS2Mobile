@@ -95,6 +95,7 @@ public class TechNode : MonoBehaviour
         if (state == TechState.Available)
         {
             TechTreeUI.instance.OpenConfirmPopup(this);
+            ManagerAudio.instance.PlaySFX("TechTreeButton");
         }
     }
 

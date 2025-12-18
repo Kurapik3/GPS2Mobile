@@ -2,13 +2,9 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
-using UnityEngine.UI;
-using TMPro;
-using static TileSelector;
+
 public class SelectionOfStructureManager : MonoBehaviour
 {
     public static SelectionOfStructureManager instance;

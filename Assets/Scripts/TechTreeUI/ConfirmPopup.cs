@@ -117,6 +117,7 @@ public class ConfirmPopup : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+        ManagerAudio.instance.PlaySFX("TechTreeLearn");
     }
 
     public void OnBack()
