@@ -40,7 +40,11 @@ public class FishTile : MonoBehaviour
 
     private bool TryDevelop()
     {
-        CheckIfWithinTurf();
+        if (!CheckIfWithinTurf())
+        {
+            Debug.Log("Cannot develop FishTile: not inside turf.");
+            return false;
+        }
 
         if (techTree == null)
         {
@@ -85,31 +89,46 @@ public class FishTile : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void CheckIfWithinTurf()
+    private bool CheckIfWithinTurf()
     {
         if (myHex == null)
         {
             Debug.LogWarning("FishTile has no HexTile parent!");
-            return;
+            return false;
         }
-        if (TurfManager.Instance.IsInsideTurf(myHex))
-        {
-            nearbyBase = FindNearestBase(myHex);
-            if (nearbyBase != null)
-            {
-                Debug.Log("Found nearby TreeBase for FishTile.");
-            }
-            else
-            {
-                Debug.Log("No TreeBase in turf nearby.");
-            }
-        }
-        else
+        //if (TurfManager.Instance.IsInsideTurf(myHex))
+        //{
+        //    nearbyBase = FindNearestBase(myHex);
+        //    if (nearbyBase != null)
+        //    {
+        //        Debug.Log("Found nearby TreeBase for FishTile.");
+        //    }
+        //    else
+        //    {
+        //        Debug.Log("No TreeBase in turf nearby.");
+        //    }
+        //}
+        //else
+        //{
+        //    nearbyBase = null;
+        //    Debug.Log("FishTile is NOT inside turf!");
+        //}
+        if (!TurfManager.Instance.IsInsideTurf(myHex))
         {
             nearbyBase = null;
             Debug.Log("FishTile is NOT inside turf!");
+            return false;
         }
 
+        nearbyBase = FindNearestBase(myHex);
+
+        if (nearbyBase == null)
+        {
+            Debug.Log("FishTile is inside turf but no TreeBase found.");
+            return false;
+        }
+
+        return true;
     }
     private TreeBase FindNearestBase(HexTile tile)
     {

@@ -30,12 +30,14 @@ public class TreeBase : BuildingBase
     public int TreeBaseId { get; private set; }
     public void SetTreeBaseId(int id) => TreeBaseId = id;
     private List<HexTile> ownedTurfTiles = new List<HexTile>();
+    public static int ActiveTreeBaseCount = 0;
 
     [SerializeField] public int turfRadius = 2;
 
     private void Start()
     {
         TreeBaseId = GetInstanceID();
+        ActiveTreeBaseCount++;
         Debug.Log($"[TreeBase] Initialized with ID: {TreeBaseId}");
 
         if (currentTile == null && MapManager.Instance != null)
@@ -199,6 +201,9 @@ public class TreeBase : BuildingBase
         HexTile tile = currentTile;
 
         TurfManager.Instance.RemoveTurfArea(ownedTurfTiles);
+        ActiveTreeBaseCount--;
+        Debug.Log($"[TreeBase] Destroyed. Remaining TreeBases: {ActiveTreeBaseCount}");
+
 
         Destroy(gameObject);
         Debug.Log("Tree Base destroyed! Becomes Grove.");
