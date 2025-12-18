@@ -322,14 +322,18 @@ public abstract class UnitBase : MonoBehaviour
         {
             ShowRangeIndicators();
             EventBus.Publish(new SeaMonsterEvents.UnitSelectedEvent(this, selected));
-        } 
-        if (isSelected && HasAttackThisTurn)
-        {
-            HideAttackIndicators();
         }
         else
         {
             HideRangeIndicators();
+        }
+        if (isSelected && !HasAttackThisTurn)
+        {
+            ShowAttackIndicators();
+        }
+        else
+        {
+            HideAttackIndicators();
         }
     }
     private void UpdateSelectionVisual()
