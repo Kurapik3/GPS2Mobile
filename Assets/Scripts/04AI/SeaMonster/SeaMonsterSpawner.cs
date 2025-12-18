@@ -1,10 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// Handles spawning of neutral Sea Monsters (Kraken, TurtleWall).
-/// Ensures spawn rules: only water tiles, no nearby bases.
-/// </summary>
 public class SeaMonsterSpawner : MonoBehaviour
 {
     public static SeaMonsterSpawner Instance { get; private set; }

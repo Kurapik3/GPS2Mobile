@@ -4,10 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using static EnemyAIEvents;
 
-/// <summary>
-/// Global Builder AI module, attached in hierarchy.
-/// Manages all Enemy Builder units on the map during Builder phase.
-/// </summary>
 public class BuilderAction : MonoBehaviour
 {
     private EnemyUnitManager unitManager => EnemyUnitManager.Instance;

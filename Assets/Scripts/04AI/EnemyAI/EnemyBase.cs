@@ -1,11 +1,5 @@
-﻿using NUnit.Framework.Internal;
-using Unity.VisualScripting;
-using UnityEngine;
+﻿using UnityEngine;
 
-/// <summary>
-/// Represents an AI-controlled enemy base on the map.
-/// Does not generate AP; used for enemy spawning and AI logic.
-/// </summary>
 public class EnemyBase : MonoBehaviour
 {
     [Header("Enemy Base Settings")]

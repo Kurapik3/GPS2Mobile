@@ -20,33 +20,33 @@ public class TurfManager : MonoBehaviour
     }
 
 
-    public void AddTurfArea(HexTile centerTile, int radius)
+    public List<HexTile> AddTurfArea(HexTile centerTile, int radius)
     {
+        List<HexTile> claimedTiles = new List<HexTile>();
+
         if (centerTile == null)
         {
             Debug.LogError("AddTurfArea: centerTile is null!");
-            return;
+            return claimedTiles;
         }
 
         var tiles = MapManager.Instance.GetNeighborsWithinRadius(centerTile.q, centerTile.r, radius);
-        tiles.Add(centerTile); // also add the center tile
+        tiles.Add(centerTile);
 
         foreach (var t in tiles)
         {
             if (!MapManager.Instance.IsTileClaimed(t.HexCoords))
             {
                 turfTiles.Add(t);
-                t.SetTurf(true);  // mark the tile as part of turf
-            }
-            else
-            {
-                Debug.Log($"Tile ({t.q},{t.r}) skipped, already claimed.");
+                t.SetTurf(true);
+                claimedTiles.Add(t);   
             }
         }
 
         OnTurfChanged?.Invoke();
-        Debug.Log($"Turf claimed at center ({centerTile.q},{centerTile.r}) with radius {radius}");
+        return claimedTiles;
     }
+
 
     public bool IsInsideTurf(HexTile tile)
     {
@@ -67,6 +67,17 @@ public class TurfManager : MonoBehaviour
     public IEnumerable<HexTile> GetAllTurfTiles()
     {
         return turfTiles;
+    }
+
+    public void RemoveTurfArea(List<HexTile> tiles)
+    {
+        foreach (var t in tiles)
+        {
+            t.SetTurf(false);
+            turfTiles.Remove(t);
+        }
+
+        OnTurfChanged?.Invoke();
     }
 
 }

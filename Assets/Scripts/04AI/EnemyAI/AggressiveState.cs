@@ -1,14 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EnemyAIEvents;
 
-/// <summary>
-/// Aggressive logic for visible units.
-/// Prioritizes bases > sea monsters > units when choosing targets.
-/// </summary>
 public class AggressiveState : MonoBehaviour
 {
     [SerializeField] private float stepDelay = 1f;

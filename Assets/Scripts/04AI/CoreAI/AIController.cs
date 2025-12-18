@@ -3,10 +3,6 @@ using System.Collections;
 using UnityEngine;
 using static EnemyAIEvents;
 
-/// <summary>
-/// Coordinates AI turn phases by publishing phase events.
-/// Not a singleton; subscribes to EventBus for turn start.
-/// </summary>
 public class AIController : MonoBehaviour
 {
     [SerializeField] private float aiSpeedMultiplier = 2.5f;

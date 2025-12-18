@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class TreeBase : BuildingBase
 {
+    private bool tutorial = true;
+
     [Header("Tree Base Properties")]
     [SerializeField] private int maxUnits = 3;
     [SerializeField] private int baseHealth = 20;
@@ -26,6 +29,7 @@ public class TreeBase : BuildingBase
     private int currentUnitsTrained = 0;
     public int TreeBaseId { get; private set; }
     public void SetTreeBaseId(int id) => TreeBaseId = id;
+    private List<HexTile> ownedTurfTiles = new List<HexTile>();
 
     [SerializeField] public int turfRadius = 2;
 
@@ -43,7 +47,7 @@ public class TreeBase : BuildingBase
         if (currentTile != null)
         {
             currentTile.SetBuilding(this);
-            TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
+            ownedTurfTiles = TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
             Debug.Log($"{buildingName} placed at Hex ({currentTile.q},{currentTile.r}) with turf radius {turfRadius}");
         }
     }
@@ -65,7 +69,8 @@ public class TreeBase : BuildingBase
         UpdateModel();
 
         // Claim turf on initialization
-        TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
+        ownedTurfTiles = TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
+
     }
 
     public override void OnTurnStart()
@@ -153,6 +158,11 @@ public class TreeBase : BuildingBase
         hpDisplay?.OnLevelChanged();
 
         Debug.Log($"[TreeBase] Upgraded to Level {level}, currentPop = {currentPop}");
+        if (tutorial == true)
+        {
+            TutorialUI.instance.UpdateNotification(TutorialStage.TapTree);
+            tutorial = false;
+        }
     }
 
     private void ShowUpgradePopup()
@@ -188,7 +198,7 @@ public class TreeBase : BuildingBase
     {
         HexTile tile = currentTile;
 
-        TurfManager.Instance.ClearTurf();
+        TurfManager.Instance.RemoveTurfArea(ownedTurfTiles);
 
         Destroy(gameObject);
         Debug.Log("Tree Base destroyed! Becomes Grove.");
@@ -267,7 +277,6 @@ public class TreeBase : BuildingBase
 
         UpdateModel();
     }
-
 
 
 }
