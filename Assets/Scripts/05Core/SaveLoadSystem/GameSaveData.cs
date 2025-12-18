@@ -19,6 +19,12 @@ public class GameSaveData
     public int playerAP;
     public int enemyScore;
     public int nextEnemyId;
+    public enum BaseType
+    {
+        Grove,
+        TreeBase,
+        EnemyBase
+    }
 
     [Serializable]
     public class DynamicObjectData
@@ -63,6 +69,8 @@ public class GameSaveData
     [Serializable]
     public class BaseSave
     {
+        public BaseType baseType;
+
         public int baseId;
         public int owner; // 0=neutral, 1=player, 2=enemy
         public int q;
@@ -73,7 +81,6 @@ public class GameSaveData
         public int health;
         public int apPerTurn;
         public int turfRadius;
-        public bool isDefaultBase;
     }
 
     [Serializable]

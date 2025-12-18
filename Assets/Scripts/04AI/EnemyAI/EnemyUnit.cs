@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 /// <summary>
 /// Represents an AI-controlled enemy base on the map.
@@ -66,6 +67,10 @@ public class EnemyUnit : MonoBehaviour
         Debug.Log($"[EnemyUnit] {unitType} destroyed!");
         ManagerAudio.instance.PlaySFX("UnitDie");
         EnemyUnitManager.Instance?.KillUnit(unitId);
+        if(currentTile != null)
+        {
+            currentTile.currentEnemyUnit = null;
+        }
     }
 
     public void UpdatePosition(HexTile newTile)
