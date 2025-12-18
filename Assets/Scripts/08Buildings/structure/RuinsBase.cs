@@ -20,16 +20,6 @@ public class Ruin : BuildingBase
         Debug.Log($"Initialized Ruin at ({tile.q}, {tile.r}) with {apPerTurn} AP/turn.");
     }
 
-    //public override void OnTurnStart() // need Turf to work
-    //{
-    //    // Only provide AP if ruin is inside a turf
-    //    if (currentTile != null && currentTile.IsWithinTurf)
-    //    {
-    //        playeraddAP(apPerTurn);
-    //        Debug.Log($"{buildingName} (Ruin) generated {apPerTurn} AP this turn.");
-    //    }
-    //}
-
     public void Develop(UnitBase developer)
     {
         if (isDeveloped)

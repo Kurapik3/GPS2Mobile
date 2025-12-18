@@ -84,7 +84,11 @@ public abstract class UnitBase : MonoBehaviour
     public virtual void Attack(HexTile target)
     {
         if (HasAttackThisTurn)
+        {
+            HideAttackIndicators();
             return;
+        }
+            
 
         if (currentTile == null || target == null)
         {
@@ -318,6 +322,10 @@ public abstract class UnitBase : MonoBehaviour
         {
             ShowRangeIndicators();
             EventBus.Publish(new SeaMonsterEvents.UnitSelectedEvent(this, selected));
+        } 
+        if (isSelected && HasAttackThisTurn)
+        {
+            HideAttackIndicators();
         }
         else
         {
@@ -676,6 +684,7 @@ public abstract class UnitBase : MonoBehaviour
 
         activeAttackIndicators.Clear();
         tilesInAttackRange.Clear();
+       
     }
 
     private void CalculateTilesInAttackRange()

@@ -64,6 +64,7 @@ public class FishTile : MonoBehaviour
         }
 
         player.useAP(apCost);
+        PlayerTracker.Instance.addScore(200);
 
         // Give population to nearby base if found
         if (nearbyBase != null)
@@ -96,23 +97,7 @@ public class FishTile : MonoBehaviour
             Debug.LogWarning("FishTile has no HexTile parent!");
             return false;
         }
-        //if (TurfManager.Instance.IsInsideTurf(myHex))
-        //{
-        //    nearbyBase = FindNearestBase(myHex);
-        //    if (nearbyBase != null)
-        //    {
-        //        Debug.Log("Found nearby TreeBase for FishTile.");
-        //    }
-        //    else
-        //    {
-        //        Debug.Log("No TreeBase in turf nearby.");
-        //    }
-        //}
-        //else
-        //{
-        //    nearbyBase = null;
-        //    Debug.Log("FishTile is NOT inside turf!");
-        //}
+       
         if (!TurfManager.Instance.IsInsideTurf(myHex))
         {
             nearbyBase = null;

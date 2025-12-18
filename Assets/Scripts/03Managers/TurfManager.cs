@@ -31,19 +31,25 @@ public class TurfManager : MonoBehaviour
         }
 
         var tiles = MapManager.Instance.GetNeighborsWithinRadius(centerTile.q, centerTile.r, radius);
-        tiles.Add(centerTile);
+        tiles.Add(centerTile); // also add the center tile
 
         foreach (var t in tiles)
         {
             if (!MapManager.Instance.IsTileClaimed(t.HexCoords))
             {
                 turfTiles.Add(t);
-                t.SetTurf(true);
-                claimedTiles.Add(t);   
+                t.SetTurf(true);  // mark the tile as part of turf
+                claimedTiles.Add(t); // track tiles claimed by this call
+            }
+            else
+            {
+                Debug.Log($"Tile ({t.q},{t.r}) skipped, already claimed.");
             }
         }
 
         OnTurfChanged?.Invoke();
+        Debug.Log($"Turf claimed at center ({centerTile.q},{centerTile.r}) with radius {radius}");
+
         return claimedTiles;
     }
 
@@ -76,7 +82,6 @@ public class TurfManager : MonoBehaviour
             t.SetTurf(false);
             turfTiles.Remove(t);
         }
-
         OnTurfChanged?.Invoke();
     }
 

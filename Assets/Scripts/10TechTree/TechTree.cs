@@ -182,6 +182,7 @@ public class TechTree : MonoBehaviour
         if (IsMetalScraps && !IsArmor && player.getAp() >= cost)
         {
             player.useAP(cost);
+            PlayerTracker.Instance.addScore(500);
             IsArmor = true;
         }
         else
@@ -225,8 +226,8 @@ public class TechTree : MonoBehaviour
             foreach (var unit in UnitManager.Instance.GetAllUnits())
             {
                 unit.fogRevealRadius = 2;
-                //if (unit.currentTile != null)
-                //    unit.RevealNearbyFog(unit.currentTile);
+
+                PlayerTracker.Instance.addScore(500);
             }
         }
         else
@@ -280,6 +281,7 @@ public class TechTree : MonoBehaviour
         {
             player.useAP(cost);
             IsNavalWarfare = true;
+            PlayerTracker.Instance.addScore(500);
         }
         else
         {
@@ -332,7 +334,7 @@ public class TechTree : MonoBehaviour
         {
             player.useAP(cost);
             IsTaming = true;
-
+            PlayerTracker.Instance.addScore(500);
             EventBus.Publish(new SeaMonsterEvents.TamingUnlockedEvent());
         }
         else
