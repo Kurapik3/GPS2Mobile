@@ -77,6 +77,11 @@ public class EnemyBase : MonoBehaviour
 
         UpdateModel();
         Debug.Log($"[EnemyBase] Spawned {baseName} with {health} HP.");
+
+        health = Random.Range(20, 36);
+
+        var hpDisplay = GetComponentInChildren<EnemyBaseHPDisplay>();
+        hpDisplay?.UpdateHPDisplay(); 
     }
 
     private void OnDestroy()
