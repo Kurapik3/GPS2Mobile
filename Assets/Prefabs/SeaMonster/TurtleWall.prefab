@@ -12214,7 +12214,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectData:
     objectName: Turtle
-    description: Testing
+    description: A gentle creature that blocks movement and sight
     icon: {fileID: 21300000, guid: a9670a2921b6e8448b06c9259282d10c, type: 3}
     objectType: 9
     apCost: 0

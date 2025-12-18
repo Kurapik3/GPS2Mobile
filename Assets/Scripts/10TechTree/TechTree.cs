@@ -52,7 +52,7 @@ public class TechTree : MonoBehaviour
             case "metal scrap": return IsFishing && !IsMetalScraps;
             case "armor": return IsMetalScraps && !IsArmor;
             case "scouting": return !IsScouting;
-            case "camouflage": return IsScouting && !IsCamouflage;
+            case "camoflage": return IsScouting && !IsCamouflage;
             case "clear sight": return IsCamouflage && !IsClearSight;
             case "home defense": return !IsHomeDef;
             case "shooter unit": return IsHomeDef && !IsShooter;

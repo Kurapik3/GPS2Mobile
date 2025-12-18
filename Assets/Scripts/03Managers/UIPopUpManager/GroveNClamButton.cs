@@ -4,37 +4,6 @@ using UnityEngine.UI;
 
 public class GroveNClamButton : MonoBehaviour
 {
-    //[SerializeField] private GameObject harvestButton; // Assign in inspector
-    //private HexTile cachedTile;
-
-    //void Start()
-    //{
-    //    // Find the HexTile this resource sits on (should be parent or sibling)
-    //    cachedTile = GetComponentInParent<HexTile>();
-    //    if (cachedTile == null)
-    //    {
-    //        Debug.LogError("ResourceHarvestUI: No HexTile found in parent hierarchy!", this);
-    //        return;
-    //    }
-
-    //    // Ensure button is hidden at start
-    //    if (harvestButton != null)
-    //        harvestButton.SetActive(false);
-    //}
-
-    //void Update()
-    //{
-    //    if (cachedTile == null) return;
-
-    //    bool unitIsOnTile = cachedTile.currentUnit != null;
-    //    bool shouldShow = unitIsOnTile;
-
-    //    if (harvestButton != null && harvestButton.activeSelf != shouldShow)
-    //    {
-    //        harvestButton.SetActive(shouldShow);
-    //    }
-    //}
-
     [Header("UI References")]
     [SerializeField] private Canvas worldCanvas; // Assign this in inspector
     [SerializeField] private Image buttonIcon;   // Your button’s icon (e.g., clam/shell)
@@ -110,13 +79,12 @@ public class GroveNClamButton : MonoBehaviour
 
     private void SetIcon()
     {
-        if (buttonIcon != null && defaultIcon != null)
-            buttonIcon.sprite = defaultIcon;
+        if (buttonIcon != null && defaultIcon != null) buttonIcon.sprite = defaultIcon;
     }
 
     private void UpdateVisibility()
     {
-        bool shouldShow = cachedTile.currentUnit != null;
+        bool shouldShow = cachedTile.currentUnit != null && cachedTile.isPlayerTurf;
 
         if (worldCanvas != null)
         {

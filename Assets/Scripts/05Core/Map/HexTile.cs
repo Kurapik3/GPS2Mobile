@@ -404,7 +404,9 @@ public class HexTile : MonoBehaviour
     {
         //Select tile
         TileSelector.SelectTile(this);
+        ManagerAudio.instance.PlaySFX("TileSelect");
     }
+
     public GameObject GetOutlineTarget()
     {
         if (currentBuilding != null) return currentBuilding.gameObject;
