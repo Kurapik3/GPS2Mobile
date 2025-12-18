@@ -86,8 +86,14 @@ public class TurfHexOverlayRenderer : MonoBehaviour
             }
             GameObject highlight = Instantiate(turfHighlightPrefab, tile.transform);
             highlight.transform.localPosition = Vector3.up * heightOffset;
-            activeTurfHighlights.Add(highlight);
 
+            if (!highlight.CompareTag("TurfVisual"))
+            {
+                highlight.tag = "TurfVisual";
+            }
+
+            activeTurfHighlights.Add(highlight);
+            
             // Calculate edge mask
             int edgeMask = 0;
             for (int i = 0; i < 6; i++)
@@ -106,6 +112,14 @@ public class TurfHexOverlayRenderer : MonoBehaviour
             else
             {
                 Debug.LogWarning($"TurfHighlight prefab missing component: {highlight.name}");
+            }
+
+            if (tile.IsFogged)
+            {
+                foreach (var renderer in highlight.GetComponentsInChildren<Renderer>())
+                {
+                    renderer.enabled = false;
+                }
             }
         }
     }

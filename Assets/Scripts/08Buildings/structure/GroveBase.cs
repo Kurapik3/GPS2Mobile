@@ -80,5 +80,8 @@ public class GroveBase : BuildingBase
 
         Destroy(gameObject);
     }
-
+    public BaseOrigin GetOrigin()
+    {
+        return Origin;
+    }
 }

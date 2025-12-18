@@ -55,6 +55,7 @@ public class EnemyBase : MonoBehaviour
                 return;
             }
             currentTile.currentEnemyBase = this;
+            transform.SetParent(currentTile.transform, true);
         }
 
         //Randomize HP between 20 and 35
@@ -118,6 +119,7 @@ public class EnemyBase : MonoBehaviour
         Vector3 spawnPos = tile.transform.position;
         spawnPos.y += 2;
         GameObject groveObj = Instantiate(grovePrefab, spawnPos, Quaternion.identity);
+        groveObj.transform.SetParent(tile.transform);
         GroveBase newGroveBase = groveObj.GetComponent<GroveBase>();
 
         //Pass the current EnemyBase level to the Grove
@@ -125,6 +127,14 @@ public class EnemyBase : MonoBehaviour
 
         newGroveBase.Initialize(BuildingFactory.Instance.GroveData, currentTile);
         currentTile.SetBuilding(newGroveBase);
+        if (!groveObj.CompareTag("Grove"))
+        {
+            groveObj.tag = "Grove";
+        }
+        if (tile.IsFogged)
+        {
+            tile.SetContentsVisible(false);
+        }
         Debug.Log($"[EnemyBase] Spawned Groove at {tile.HexCoords}");
     }
 
@@ -215,6 +225,12 @@ public class EnemyBase : MonoBehaviour
 
         //If tile is fogged, force - hide the upgraded model
         if (currentTile != null && currentTile.IsFogged)
+        {
             currentTile.SetContentsVisible(false);
+            //foreach (var renderer in levelModels[idx].GetComponentsInChildren<Renderer>())
+            //{
+            //    renderer.enabled = false;
+            //}
+        }
     }
 }

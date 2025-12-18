@@ -254,7 +254,6 @@ public class EnemyUnitManager : MonoBehaviour
         }
     }
 
-
     //For savedd states - Ashley
     public List<UnitBase> GetAllUnits()
     {

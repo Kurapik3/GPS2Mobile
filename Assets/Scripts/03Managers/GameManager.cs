@@ -211,8 +211,10 @@ public class GameManager : MonoBehaviour
                     else if (tile.currentBuilding is GroveBase gb)
                     {
                         save.baseId = gb.GetInstanceID();
-                        save.owner = 0;
+                        save.owner = gb.GetOrigin() == GroveBase.BaseOrigin.Player ? 1 :
+                                     gb.GetOrigin() == GroveBase.BaseOrigin.Enemy ? 2 : 0;
                         save.level = gb.GetFormerLevel();
+                        Debug.Log($"[Save] Grove at ({tile.q},{tile.r}) - Origin: {gb.GetOrigin()}, Owner: {save.owner}, Level: {save.level}");
                     }
                     else
                     {
@@ -573,6 +575,16 @@ public class GameManager : MonoBehaviour
             if (dynamicTileGen != null)
             {
                 dynamicTileGen.LoadDynamicObjects(cachedLoadData);
+                foreach (var tile in FindObjectsOfType<HexTile>())
+                {
+                    if (tile.IsFogged && tile.dynamicInstance != null)
+                    {
+                        foreach (var renderer in tile.dynamicInstance.GetComponentsInChildren<Renderer>())
+                        {
+                            renderer.enabled = false;
+                        }
+                    }
+                }
             }
 
             //bases
@@ -595,10 +607,12 @@ public class GameManager : MonoBehaviour
                 }
                 else if (building is GroveBase grove)
                 {
-                    var origin = baseSave.owner == 2
-                        ? GroveBase.BaseOrigin.Enemy
-                        : GroveBase.BaseOrigin.Player;
-
+                    GroveBase.BaseOrigin origin = baseSave.owner switch
+                    {
+                        1 => GroveBase.BaseOrigin.Player,
+                        2 => GroveBase.BaseOrigin.Enemy,
+                        _ => GroveBase.BaseOrigin.Player
+                    };
                     grove.SetFormerLevel(baseSave.level, origin);
                 }
 
