@@ -1,16 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using static EnemyAIEvents;
 
-/// <summary>
-/// Handles auxiliary actions: 
-///  - ID 3: Developing 1 tile (fish/debris)
-///  - ID 6: Unlocking Tech (score only)
-/// Each successful action gives score via EnemyTracker.
-/// </summary>
 public class EnemyAuxiliaryActions : MonoBehaviour
 {
     [SerializeField] private float stepDelay = 0.5f;

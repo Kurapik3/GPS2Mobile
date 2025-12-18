@@ -4,10 +4,6 @@ using DG.Tweening;
 using UnityEngine;
 using static EnemyAIEvents;
 
-/// <summary>
-/// Handles executing enemy actions: spawn, move, attack.
-/// Publishes corresponding notifications, but delegates all unit data/state to EnemyUnitManager.
-/// </summary>
 public class EnemyActionExecutor : MonoBehaviour
 {
     [SerializeField] private GameObject projectilePrefab;

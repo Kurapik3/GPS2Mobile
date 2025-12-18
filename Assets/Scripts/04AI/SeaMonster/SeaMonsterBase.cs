@@ -8,10 +8,6 @@ public enum SeaMonsterState
     Tamed
 }
 
-/// <summary>
-/// Base class for all Sea Monsters (Kraken, TurtleWall)
-/// Handles movement, turn logic, damage, and blocking.
-/// </summary>
 public abstract class SeaMonsterBase : MonoBehaviour
 {
     [Header("Stats")]

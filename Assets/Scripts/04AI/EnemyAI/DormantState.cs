@@ -4,10 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using static EnemyAIEvents;
 
-/// <summary>
-/// Dormant movement logic:
-/// For units that are not visible to player, move 50% towards origin, 50% away.
-/// </summary>
 public class DormantState : MonoBehaviour
 {
     [SerializeField] private float stepDelay = 1f;

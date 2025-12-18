@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
-using static EnemyAIEvents;
 using static SeaMonsterEvents;
 
-/// <summary>
-/// Manages all active sea monsters, their spawn, death, and provides a central list for AI.
-/// </summary>
 public class SeaMonsterManager : MonoBehaviour
 {
     public static SeaMonsterManager Instance { get; private set; }

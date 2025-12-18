@@ -262,6 +262,7 @@ public abstract class UnitBase : MonoBehaviour
             if (target.currentSeaMonster.health <= 0)
             {
                 PlayerTracker.Instance.addScore(target.currentSeaMonster.killPoints);
+                PlayerTracker.Instance.addAP(target.currentSeaMonster.killAP);
             }
         }
     }
