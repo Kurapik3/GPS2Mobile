@@ -32,7 +32,7 @@ public class TechTree : MonoBehaviour
     public static TechTree instance { get; private set; } // Keep the lowercase version too
 
     private bool tutorial = true;
-    private void Awake()
+    private void Awake() 
     {
         if (Instance != null && Instance != this)
         {
@@ -145,7 +145,7 @@ public class TechTree : MonoBehaviour
     // Keep your original methods but make them private/internal
     private void Fishing(int cost)
     {
-        if (tutorial == true)
+        if (tutorial && TutorialUI.instance != null)
         {
             TutorialUI.instance.UpdateNotification(TutorialStage.UnlockFishing);
             tutorial = false;

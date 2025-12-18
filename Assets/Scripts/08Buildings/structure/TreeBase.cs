@@ -32,7 +32,6 @@ public class TreeBase : BuildingBase
     private List<HexTile> ownedTurfTiles = new List<HexTile>();
     public static int ActiveTreeBaseCount = 0;
 
-
     [SerializeField] public int turfRadius = 2;
 
     private void Start()
@@ -204,6 +203,7 @@ public class TreeBase : BuildingBase
         TurfManager.Instance.RemoveTurfArea(ownedTurfTiles);
         ActiveTreeBaseCount--;
         Debug.Log($"[TreeBase] Destroyed. Remaining TreeBases: {ActiveTreeBaseCount}");
+
 
         Destroy(gameObject);
         Debug.Log("Tree Base destroyed! Becomes Grove.");
