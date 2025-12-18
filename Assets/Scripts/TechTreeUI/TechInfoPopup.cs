@@ -62,7 +62,7 @@ public class TechInfoPopup : MonoBehaviour
                 return "Produces 1 population. Can be used to help upgrade bases.";
             case "metal scrap":
                 return "Produces 2 population. Can be used to help upgrade bases.";
-            case "camouflage":
+            case "camoflage":
                 return "The Scout Unit will be able to be invisible undetectable by sea creatures or Enemies.";
             case "clear sight":
                 return "All Boat Units will get to see 1 tile further into fog.";

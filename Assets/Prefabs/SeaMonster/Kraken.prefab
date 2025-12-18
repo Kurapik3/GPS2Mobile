@@ -63,7 +63,6 @@ MonoBehaviour:
   hasAttackedThisTurn: 0
   untamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: 29673dfd5bae14a48bbbf4df52020536, type: 3}
   tamedRangeIndicatorPrefab: {fileID: 7388899633677801674, guid: a949b268732d84540a64bb647e3796f1, type: 3}
-  anim: {fileID: 0}
 --- !u!114 &7156800315396222806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78,8 +77,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectData:
     objectName: Kraken
-    description: Testyiong
-    icon: {fileID: 21300000, guid: 5f2f32777a953cb4fa73380e8bfef9dc, type: 3}
+    description: Defeat the Kraken to earn valuable rewards!
+    icon: {fileID: 21300000, guid: 9f044a744192f5b4a8a91811894cdd83, type: 3}
     objectType: 6
     apCost: 0
   selectionIndicator: {fileID: 0}

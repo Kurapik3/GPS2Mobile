@@ -119,7 +119,7 @@ public class TechNode : MonoBehaviour
             "metal scrap" => TechTree.Instance.IsMetalScraps,
             "armor" => TechTree.Instance.IsArmor,
             "scouting" => TechTree.Instance.IsScouting,
-            "camouflage" => TechTree.Instance.IsCamouflage,
+            "camoflage" => TechTree.Instance.IsCamouflage,
             "clear sight" => TechTree.Instance.IsClearSight,
             "home defense" => TechTree.Instance.IsHomeDef,
             "shooter unit" => TechTree.Instance.IsShooter,

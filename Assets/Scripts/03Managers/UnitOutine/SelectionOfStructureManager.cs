@@ -33,11 +33,6 @@ public class SelectionOfStructureManager : MonoBehaviour
     [SerializeField] private Ease easing;
     [SerializeField] private float moveDuration = 1f;
 
-    [Header("UI Positions")]
-    [SerializeField] private Vector2 centrePos = new Vector2(0, 200);
-    [SerializeField] private Vector2 bottomPos = new Vector2(0, 200);
-    [SerializeField] private Vector2 offScreenPos = new Vector2(0, -300);
-
     [Header("UI Elements")]
     [SerializeField] private CanvasGroup infoBar;
     [SerializeField] private CanvasGroup panel;
@@ -85,15 +80,6 @@ public class SelectionOfStructureManager : MonoBehaviour
     private void Start()
     {
         cam = Camera.main;
-
-        // Set initial positions off-screen
-        //structureInfoPanelMove.anchoredPosition = offScreenPos;
-        //structureStatusWindowMove.anchoredPosition = offScreenPos;
-        //builderSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
-        //scoutSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
-        //bomberSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
-        //tankerSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
-        //shooterSpawnConfirmationWindowMove.anchoredPosition = offScreenPos;
 
         structureInfoPanelMove.SetActive(false);
         structureStatusWindowMove.SetActive(false);
@@ -210,70 +196,7 @@ public class SelectionOfStructureManager : MonoBehaviour
     {
         DeselectAll();
         structureSelected.Add(structure);
-        //TriggerSelectionIndicator(structure, true);
     }
-
-    //private void TriggerSelectionIndicator(GameObject structure, bool isVisible)
-    //{
-    //    //if (structure != null && structure.transform.childCount > 0)
-    //    //{
-    //    //    structure.transform.GetChild(0).gameObject.SetActive(isVisible);
-    //    //}
-
-    //    if (structure == null) return;
-
-    //    // Method 1: Find by tag (RECOMMENDED)
-    //    Transform indicator = structure.transform.Find("SelectionIndicator");
-    //    if (indicator != null)
-    //    {
-    //        indicator.gameObject.SetActive(isVisible);
-    //        return;
-    //    }
-
-    //    // Method 2: Find by tag if named differently
-    //    foreach (Transform child in structure.transform)
-    //    {
-    //        if (child.CompareTag(selectionIndicatorTag))
-    //        {
-    //            child.gameObject.SetActive(isVisible);
-    //            return;
-    //        }
-    //    }
-
-    //    // Method 3: Fallback - look for specific indicator names
-    //    string[] indicatorNames = { "SelectionIndicator", "Indicator", "Selection", "Ring" };
-    //    foreach (string name in indicatorNames)
-    //    {
-    //        Transform found = structure.transform.Find(name);
-    //        if (found != null)
-    //        {
-    //            found.gameObject.SetActive(isVisible);
-    //            return;
-    //        }
-    //    }
-
-    //    Debug.LogWarning($"No selection indicator found on {structure.name}. Add a child named 'SelectionIndicator' or tag it with '{selectionIndicatorTag}'");
-    //}
-
-    //private void StructureInfoPanelMove()
-    //{
-    //    structureInfoPanelMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
-    //}
-
-    //private void StructureStatusWindowMove()
-    //{
-    //    structureStatusWindowMove.DOAnchorPos(centrePos, moveDuration).SetEase(Ease.OutBack);
-    //}
-
-    //private void CloseStructureStatusWindow()
-    //{
-    //    structureStatusWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
-    //}
-
-    //private void CloseStructureInfoPanel()
-    //{
-    //    structureInfoPanelMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.InBack);
-    //}
 
     public void OpenStatusWindow()
     {
@@ -302,18 +225,15 @@ public class SelectionOfStructureManager : MonoBehaviour
         DeselectAll();
     }
 
-    // Optional: Multi-select support for future
     public void SelectMultiple(GameObject structure)
     {
         if (structureSelected.Contains(structure))
         {
             structureSelected.Remove(structure);
-            //TriggerSelectionIndicator(structure, false);
         }
         else
         {
             structureSelected.Add(structure);
-            //TriggerSelectionIndicator(structure, true);
         }
     }
 
@@ -337,47 +257,6 @@ public class SelectionOfStructureManager : MonoBehaviour
         TreeBase tb = selectedObj.GetComponent<TreeBase>();
         return tb; // returns null if not a TreeBase
     }
-    //private void OpenBuilderConfirmationPopupMovement()
-    //{
-    //    builderSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
-    //}
-    //private void OpenScoutConfirmationPopupMovement()
-    //{
-    //    scoutSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
-    //}
-    //private void OpenBomberConfirmationPopupMovement()
-    //{
-    //    bomberSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
-    //}
-    //private void OpenTankerConfirmationPopupMovement()
-    //{
-    //    tankerSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
-    //}
-    //private void OpenShooterConfirmationPopupMovement()
-    //{
-    //    shooterSpawnConfirmationWindowMove.DOAnchorPosY(0.0f, moveDuration).SetEase(Ease.OutBack);
-    //}
-
-    //private void CloseBuilderConfirmationPopupMovement()
-    //{
-    //    builderSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
-    //}
-    //private void CloseScoutConfirmationPopupMovement()
-    //{
-    //    scoutSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
-    //}
-    //private void CloseBomberConfirmationPopupMovement()
-    //{
-    //    bomberSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
-    //}
-    //private void CloseTankerConfirmationPopupMovement()
-    //{
-    //    tankerSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
-    //}
-    //private void CloseShooterConfirmationPopupMovement()
-    //{
-    //    shooterSpawnConfirmationWindowMove.DOAnchorPos(offScreenPos, moveDuration).SetEase(Ease.OutBack);
-    //}
 
     public void OpenBuilderConfirmationPopup()
     {
