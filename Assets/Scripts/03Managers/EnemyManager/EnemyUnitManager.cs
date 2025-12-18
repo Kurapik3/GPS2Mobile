@@ -1,10 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Represents an AI-controlled enemy unit on the map.
-/// HP, type from UnitDataBase.
-/// </summary>
 public class EnemyUnitManager : MonoBehaviour
 {
     public static EnemyUnitManager Instance { get; private set; }

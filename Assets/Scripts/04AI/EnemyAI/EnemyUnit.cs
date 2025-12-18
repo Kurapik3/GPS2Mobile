@@ -1,10 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-/// <summary>
-/// Represents an AI-controlled enemy base on the map.
-/// Does not generate AP; used for enemy spawning and AI logic.
-/// </summary>
 public class EnemyUnit : MonoBehaviour
 {
     [Header("Enemy Base Settings")]

@@ -4,10 +4,6 @@ using DG.Tweening;
 using UnityEngine;
 using static EnemyAIEvents;
 
-/// <summary>
-/// Handles executing enemy actions: spawn, move, attack.
-/// Publishes corresponding notifications, but delegates all unit data/state to EnemyUnitManager.
-/// </summary>
 public class EnemyActionExecutor : MonoBehaviour
 {
     [SerializeField] private GameObject projectilePrefab;
@@ -342,6 +338,10 @@ public class EnemyActionExecutor : MonoBehaviour
             }
 
             Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to PlayerUnit {unit.name}, HP now {unit.hp}");
+
+            if(unit.hp <= 0)
+                EnemyTracker.Instance.AddScore(200);
+
             EventBus.Publish(new EnemyAttackedEvent(attackerId, unit.gameObject));
             return;
         }
@@ -360,6 +360,8 @@ public class EnemyActionExecutor : MonoBehaviour
         {
             sm.TakeDamage(damage);
             Debug.Log($"[EnemyActionExecutor] Dealt {damage} damage to SeaMonster {sm.name}");
+            if (sm.health <= 0)
+                EnemyTracker.Instance.AddScore(sm.killPoints);
             EventBus.Publish(new EnemyAttackedEvent(attackerId, sm.gameObject));
             return;
         }

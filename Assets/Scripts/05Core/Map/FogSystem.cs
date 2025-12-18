@@ -1,5 +1,8 @@
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 public class FogSystem : MonoBehaviour
 {
     [Header("Fog Settings")]
@@ -17,6 +20,11 @@ public class FogSystem : MonoBehaviour
     [SerializeField] private Vector2Int startingOrigin = new Vector2Int(0, 0);
 
     [HideInInspector] public List<Vector2Int> revealedTiles = new List<Vector2Int>();
+
+    [Header("Fog Animation")]
+    [SerializeField] private float fogRevealDuration = 1.5f;
+    [SerializeField] private GameObject fogRevealModel;
+
     private bool mapReady = false;
     private void OnEnable()
     {
@@ -93,7 +101,7 @@ public class FogSystem : MonoBehaviour
                 if (!revealedTiles.Contains(coord))
                 {
                     revealedTiles.Add(coord);
-                    tile.RemoveFog();
+                    RevealFogWithAnimation(tile);
                     PlayerTracker.Instance.addScore(50);
                     anyNewRevealed = true;
                 }
@@ -105,6 +113,43 @@ public class FogSystem : MonoBehaviour
         {
             EnemyUnitManager.Instance?.UpdateEnemyVisibility();
             SeaMonsterManager.Instance?.UpdateSeaMonsterVisibility();
+        }
+    }
+
+    private void RevealFogWithAnimation(HexTile tile)
+    {
+        if (tile == null || tile.fogInstance == null)
+            return;
+
+        Vector3 fogRevealPos = tile.fogInstance.transform.position;
+        fogRevealPos.y += fogYOffset;
+
+        GameObject fogRevealGO = Instantiate(fogRevealModel, fogRevealPos, Quaternion.identity);
+        Animator anim = fogRevealGO.GetComponentInChildren<Animator>();
+        if (anim != null)
+        {
+            anim.SetBool("isRevealing", true);
+            StartCoroutine(PlayFogAnimationThenRemove(tile, fogRevealGO, fogRevealDuration));
+        }
+        else
+        {
+            tile.RemoveFog(); //fallback
+        }
+    }
+
+    private IEnumerator PlayFogAnimationThenRemove(HexTile tile, GameObject fogRevealGO, float duration)
+    {
+        yield return new WaitForSeconds(0.3f);
+
+        if (tile != null)
+        {
+            tile.RemoveFog();
+        }
+
+        yield return new WaitForSeconds(duration);
+        if (fogRevealGO != null)
+        {
+            Destroy(fogRevealGO);
         }
     }
 

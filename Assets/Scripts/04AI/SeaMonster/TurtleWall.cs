@@ -2,9 +2,6 @@
 using UnityEngine;
 using static SeaMonsterEvents;
 
-/// <summary>
-/// Defensive sea monster that blocks tiles but can move slowly.
-/// </summary>
 public class TurtleWall : SeaMonsterBase
 {
     private Vector2Int? blockedBackTile = null;

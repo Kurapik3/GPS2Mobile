@@ -1,17 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Unity.Burst.Intrinsics;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
+using DG.Tweening;
 using UnityEngine;
 using static SeaMonsterEvents;
-using static UnityEngine.GraphicsBuffer;
 
 public class Kraken : SeaMonsterBase
 {
     private bool isTargeting = false;
     private GameObject currentTarget;
     private HexTile cachedNextMove = null;
-    [SerializeField] private Animator anim;
+
     protected override void Awake()
     {
         base.Awake();
@@ -145,13 +143,37 @@ public class Kraken : SeaMonsterBase
 
         Debug.Log($"[Kraken] Attacks {currentTarget.name}!");
 
-        //Animation here
-        //animator.SetTrigger();
-        
-        OnAttackHit(); //Need to remove after adding animation 
+        yield return StartCoroutine(SimpleAttackEffect(currentTarget));
     }
 
-    //Event for animator to call when playing the animation
+    private IEnumerator SimpleAttackEffect(GameObject target)
+    {
+        if (target == null)
+            yield break;
+
+        Vector3 dir = target.transform.position - transform.position;
+        dir.y = 0;
+        dir.Normalize();
+
+        transform.rotation = Quaternion.LookRotation(dir);
+
+        Vector3 originPos = transform.position;
+        Vector3 attackPos = originPos + dir * 0.25f;
+        Vector3 originScale = transform.localScale;
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOMove(attackPos, 0.12f).SetEase(Ease.OutQuad));
+        seq.Join(transform.DOScale(originScale * 1.08f, 0.12f));
+        seq.AppendInterval(0.05f);
+
+        seq.AppendCallback(OnAttackHit);
+
+        seq.Append(transform.DOMove(originPos, 0.15f).SetEase(Ease.InQuad));
+        seq.Join(transform.DOScale(originScale, 0.15f));
+
+        yield return seq.WaitForCompletion();
+    }
+
     public void OnAttackHit()
     {
         if (currentTarget == null) 

@@ -1,11 +1,5 @@
-﻿using NUnit.Framework.Internal;
-using Unity.VisualScripting;
-using UnityEngine;
+﻿using UnityEngine;
 
-/// <summary>
-/// Represents an AI-controlled enemy base on the map.
-/// Does not generate AP; used for enemy spawning and AI logic.
-/// </summary>
 public class EnemyBase : MonoBehaviour
 {
     [Header("Enemy Base Settings")]
@@ -78,6 +72,11 @@ public class EnemyBase : MonoBehaviour
 
         UpdateModel();
         Debug.Log($"[EnemyBase] Spawned {baseName} with {health} HP.");
+
+        health = Random.Range(20, 36);
+
+        var hpDisplay = GetComponentInChildren<EnemyBaseHPDisplay>();
+        hpDisplay?.UpdateHPDisplay(); 
     }
 
     private void OnDestroy()
