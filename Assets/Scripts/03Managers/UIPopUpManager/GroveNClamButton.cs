@@ -84,12 +84,24 @@ public class GroveNClamButton : MonoBehaviour
 
     private void UpdateVisibility()
     {
-        bool shouldShow = cachedTile.currentUnit != null && cachedTile.isPlayerTurf;
+        if (cachedTile == null || worldCanvas == null) return;
 
-        if (worldCanvas != null)
+        bool hasUnit = cachedTile.currentUnit != null;
+        bool isPlayerTurf = cachedTile.isPlayerTurf;
+        string tag = gameObject.tag;
+
+        bool shouldShow = false;
+
+        if (tag == "Grove")
         {
-            worldCanvas.gameObject.SetActive(shouldShow);
+            shouldShow = hasUnit;
         }
+        else if (tag == "Cache" || tag == "Ruins")
+        {
+            shouldShow = hasUnit && isPlayerTurf;
+        }
+
+        worldCanvas.gameObject.SetActive(shouldShow);
     }
     
     public void OnHarvestClicked()
@@ -139,7 +151,7 @@ public class GroveNClamButton : MonoBehaviour
             return;
         }
         BuilderUnit builder = unitOnTile as BuilderUnit;
-        grove.Develop(builder); // Develop Grove back into TreeBase
+        grove.Develop(builder); 
         Debug.Log($"Grove developed back into TreeBase at ({cachedTile.q},{cachedTile.r})!");
     }
 
