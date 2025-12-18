@@ -17,12 +17,11 @@ public class EnemyTracker : MonoBehaviour
     {
         return currentScore;
     }
+
     public void AddScore(int amount)
     {
         currentScore += amount;
 
         OnScoreChanged?.Invoke();
-
-        //Debug.Log($"<color=purple>EnemyScore is now {currentScore}.</color>");
     }
 }

@@ -243,6 +243,10 @@ public abstract class UnitBase : MonoBehaviour
             {
                 this.TakeDamage(damage);
             }
+            if(target.currentEnemyUnit.currentHP <= 0)
+            {
+                PlayerTracker.Instance.addScore(200);
+            }
         }
         else if (target.currentEnemyBase != null)
         {
@@ -254,6 +258,10 @@ public abstract class UnitBase : MonoBehaviour
             if(TechTree.Instance.IsHunterMask)
             {
                 target.currentSeaMonster.TakeDamage(5);
+            }
+            if (target.currentSeaMonster.health <= 0)
+            {
+                PlayerTracker.Instance.addScore(target.currentSeaMonster.killPoints);
             }
         }
     }
