@@ -25,12 +25,12 @@ namespace TurfSystem
                 return;
             }
 
-            edgeSections[0].SetActive((edgeMask & 0x01) != 0); // E
-            edgeSections[1].SetActive((edgeMask & 0x02) != 0); // SE
-            edgeSections[2].SetActive((edgeMask & 0x04) != 0); // SW
-            edgeSections[3].SetActive((edgeMask & 0x08) != 0); // W
-            edgeSections[4].SetActive((edgeMask & 0x10) != 0); // NW
-            edgeSections[5].SetActive((edgeMask & 0x20) != 0); // NE
+            edgeSections[0].SetActive((edgeMask & 0x01) != 0);
+            edgeSections[1].SetActive((edgeMask & 0x02) != 0);
+            edgeSections[2].SetActive((edgeMask & 0x04) != 0);
+            edgeSections[3].SetActive((edgeMask & 0x08) != 0);
+            edgeSections[4].SetActive((edgeMask & 0x10) != 0);
+            edgeSections[5].SetActive((edgeMask & 0x20) != 0);
         }
     }
 }

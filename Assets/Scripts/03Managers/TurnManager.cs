@@ -193,31 +193,6 @@ public class TurnManager : MonoBehaviour
         StartPlayerTurn();
     }
 
-    //private void OnEnemyTurnEnd(EnemyAIEvents.EnemyTurnEndEvent evt)
-    //{
-    //    Debug.Log($"[TurnManager] OnEnemyTurnEnd - Enemy Turn {evt.Turn} Ended. CurrentTurn before increment: {currentTurn}");
-
-    //    EnemyUnitManager.Instance.ClearJustSpawnedUnits();
-    //    currentTurn++;
-    //    Debug.Log($"[TurnManager] OnEnemyTurnEnd - CurrentTurn incremented to: {currentTurn}");
-
-    //    isProcessingTurn = false;
-
-    //    foreach (var building in allBuildings) // gain AP
-    //        building.OnTurnStart();
-
-    //    // --- NEW LOGIC: Check for End Game Condition ---
-    //    if (currentTurn >= maxTurns)
-    //    {
-    //        Debug.Log("[TurnManager] Max turns reached! Game Over.");
-    //        EndGame(); // Call the EndGame method to show the screen
-    //    }
-    //    else
-    //    {
-    //        // If game didn't end, start the next player turn
-    //        StartPlayerTurn();
-    //    }
-    //}
 
     public void EndTurn()
     {
@@ -233,13 +208,6 @@ public class TurnManager : MonoBehaviour
         }
         StartEnemyTurn();
     }
-
-    //private void EndGame()
-    //{
-    //    Debug.Log("Game Over! Max turns reached.");
-    //    // Here you can add code to calculate score, show summary UI, etc.
-    //    GameManager.Instance.CheckEnding();
-    //}
 
     private void EndGame()
     {
