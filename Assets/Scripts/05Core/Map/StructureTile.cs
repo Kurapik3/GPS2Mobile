@@ -32,8 +32,6 @@ public class StructureTile : MonoBehaviour
         Transform meshChild = transform.Find("Mesh");
         Transform parentTarget = meshChild != null ? meshChild : transform;
 
-
-        //remove old
         Transform old = parentTarget.Find("Structure");
         if (old != null)
         {
@@ -47,22 +45,17 @@ public class StructureTile : MonoBehaviour
         GameObject inst = null;
         if (inPrefabStage)
         {
-            // Prefab Mode (editing the prefab contents scene) — instantiate without parent,
-            // move to the prefab contents scene, then parent it to the Mesh child.
             inst = (GameObject)PrefabUtility.InstantiatePrefab(data.prefab);
             SceneManager.MoveGameObjectToScene(inst, stage.scene);
             inst.transform.SetParent(parentTarget, false);
         }
         else if (!isPrefabAsset)
         {
-            // Scene instance — safe to instantiate directly with parent
             inst = (GameObject)PrefabUtility.InstantiatePrefab(data.prefab, parentTarget);
         }
         else
         {
-            // Prefab asset in Project inspector — this is a tricky case and we don't modify asset here.
             Debug.LogWarning($"Cannot instantiate structure into prefab asset directly. Open the prefab in Prefab Mode or place the map in a scene and apply there: {name}");
-            // still update metadata on HexTile if present
         }
 
         if (inst != null)

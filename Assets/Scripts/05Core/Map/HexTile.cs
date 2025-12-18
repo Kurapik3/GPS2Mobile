@@ -312,32 +312,38 @@ public class HexTile : MonoBehaviour
     public void SetContentsVisible(bool visible)
     {
         // Override visibility if developer setting says to show everything
+        bool finalVisible = visible;
         if (MapVisibiilitySettings.Instance != null && MapVisibiilitySettings.Instance.showAllContents)
         {
-            visible = true;
+            finalVisible = true;
+        }
+        if (!visible)
+        {
+            finalVisible = false;
         }
         //For dynamic tile
-        HideObjectsWithTagRecursive(transform, "Debris", visible);
-        HideObjectsWithTagRecursive(transform, "Fish", visible);
-        HideObjectsWithTagRecursive(transform, "Cache", visible);
+        HideObjectsWithTagRecursive(transform, "Debris", finalVisible);
+        HideObjectsWithTagRecursive(transform, "Fish", finalVisible);
+        HideObjectsWithTagRecursive(transform, "Cache", finalVisible);
         // For Grove
-        HideObjectsWithTagRecursive(transform, "Grove", visible);
+        HideObjectsWithTagRecursive(transform, "Grove", finalVisible);
         // for Turf
-        HideObjectsWithTagRecursive(transform, "TurfVisual", visible);
+        HideObjectsWithTagRecursive(transform, "TurfVisual", finalVisible);
         //For structures using layer
         int structureLayer = LayerMask.NameToLayer("structure");
         foreach (Transform child in transform)
         {
             if (child.gameObject.layer == structureLayer)
             {
-                ToggleRenderersAndColliders(child.gameObject, visible);
+                ToggleRenderersAndColliders(child.gameObject, finalVisible);
             }
         }
         // For enemies using tag
-        HideObjectsWithTagRecursive(transform, "EnemyBase", visible);
+        HideObjectsWithTagRecursive(transform, "EnemyBase", finalVisible);
         //For ruins using tag
-        HideObjectsWithTagRecursive(transform, "Ruin", visible);
+        HideObjectsWithTagRecursive(transform, "Ruin", finalVisible);
     }
+
     private void HideObjectsInLayerRecursive(Transform parent, int layer, bool visible)
     {
         foreach (Transform child in parent)

@@ -49,10 +49,11 @@ public class EnemyBase : MonoBehaviour
                 return;
             }
             currentTile.currentEnemyBase = this;
+            transform.SetParent(currentTile.transform, true);
         }
 
         //Randomize HP between 20 and 35
-        health = Random.Range(20, 36);
+        //health = Random.Range(20, 36);
 
         //Register this base
         if (EnemyBaseManager.Instance != null)
@@ -65,9 +66,12 @@ public class EnemyBase : MonoBehaviour
         else
             Debug.LogError("[EnemyBase] EnemyBaseManager not found in scene!");
 
+        //if (EnemyTurfManager.Instance != null && currentTile != null)
+        //    EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius, this);
         if (EnemyTurfManager.Instance != null && currentTile != null)
-            EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius, this);
-
+        {
+            RefreshTurf();
+        }
 
         UpdateModel();
         Debug.Log($"[EnemyBase] Spawned {baseName} with {health} HP.");
@@ -117,6 +121,7 @@ public class EnemyBase : MonoBehaviour
         Vector3 spawnPos = tile.transform.position;
         spawnPos.y += 2;
         GameObject groveObj = Instantiate(grovePrefab, spawnPos, Quaternion.identity);
+        groveObj.transform.SetParent(tile.transform);
         GroveBase newGroveBase = groveObj.GetComponent<GroveBase>();
 
         //Pass the current EnemyBase level to the Grove
@@ -124,6 +129,14 @@ public class EnemyBase : MonoBehaviour
 
         newGroveBase.Initialize(BuildingFactory.Instance.GroveData, currentTile);
         currentTile.SetBuilding(newGroveBase);
+        if (!groveObj.CompareTag("Grove"))
+        {
+            groveObj.tag = "Grove";
+        }
+        if (tile.IsFogged)
+        {
+            tile.SetContentsVisible(false);
+        }
         Debug.Log($"[EnemyBase] Spawned Groove at {tile.HexCoords}");
     }
 
@@ -214,6 +227,24 @@ public class EnemyBase : MonoBehaviour
 
         //If tile is fogged, force - hide the upgraded model
         if (currentTile != null && currentTile.IsFogged)
+        {
             currentTile.SetContentsVisible(false);
+            //foreach (var renderer in levelModels[idx].GetComponentsInChildren<Renderer>())
+            //{
+            //    renderer.enabled = false;
+            //}
+        }
+    }
+    public void RefreshTurf()
+    {
+        if (EnemyTurfManager.Instance == null || currentTile == null)
+        {
+            return;
+        }
+        // Remove old turf
+        EnemyTurfManager.Instance.UnregisterBaseArea( currentTile.HexCoords, currentTurfRadius ); 
+        // Re-register turf based on CURRENT radius
+        EnemyTurfManager.Instance.RegisterBaseArea( currentTile.HexCoords, currentTurfRadius, this );
+        Debug.Log($"[EnemyBase] Turf refreshed at {currentTile.HexCoords} (radius {currentTurfRadius})"); 
     }
 }

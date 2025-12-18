@@ -137,7 +137,7 @@ public class MapGenerator : MonoBehaviour
             hex.StructureName = tileInfo.hasStructure ? tileInfo.structureName : null;
 
             // runtime structure spawn
-            if (tileInfo.hasStructure && structureDatabase != null)
+            if (tileInfo.hasStructure && structureDatabase != null && !tileInfo.hasSavedBuilding)
             {
                 StructureData data = structureDatabase.GetByName(tileInfo.structureName);
                 if (data != null)

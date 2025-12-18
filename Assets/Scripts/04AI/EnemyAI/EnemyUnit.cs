@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class EnemyUnit : MonoBehaviour
 {
@@ -62,6 +63,10 @@ public class EnemyUnit : MonoBehaviour
         Debug.Log($"[EnemyUnit] {unitType} destroyed!");
         ManagerAudio.instance.PlaySFX("UnitDie");
         EnemyUnitManager.Instance?.KillUnit(unitId);
+        if(currentTile != null)
+        {
+            currentTile.currentEnemyUnit = null;
+        }
     }
 
     public void UpdatePosition(HexTile newTile)

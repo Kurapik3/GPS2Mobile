@@ -17,11 +17,11 @@ public class TreeBaseUpgradeProgressUI : MonoBehaviour
     void Start()
     {
         treeBase = FindObjectOfType<TreeBase>();
-        if (treeBase == null)
-        {
-            Debug.LogError("TreeBaseUpgradePopup: Could not find TreeBase in scene!");
-            return;
-        }
+        //if (treeBase == null)
+        //{
+        //    Debug.LogError("TreeBaseUpgradePopup: Could not find TreeBase in scene!");
+        //    return;
+        //}
 
         popupPanel.SetActive(false);
 
@@ -33,7 +33,14 @@ public class TreeBaseUpgradeProgressUI : MonoBehaviour
     public void ShowPopup(int nextLevel)
     {
         if (popupPanel == null) return;
-
+        if (treeBase == null)
+        {
+            treeBase = FindObjectOfType<TreeBase>();
+            if (treeBase == null)
+            {
+                Debug.LogWarning("[TreeBaseUpgradePopup] TreeBase still not found when showing popup!");
+            }
+        }
         popupPanel.SetActive(true);
         titleText.text = $"Base Leveled Up";
         descriptionText.text = $"Base has been upgraded to level {nextLevel}. Base health increased by +5. You also get to pick additional rewards.";
@@ -45,7 +52,15 @@ public class TreeBaseUpgradeProgressUI : MonoBehaviour
 
     private void ChooseReward(string rewardType)
     {
-        if (treeBase == null) return;
+        if (treeBase == null)
+        {
+            treeBase = FindObjectOfType<TreeBase>();
+        }
+        if (treeBase == null)
+        {
+            Debug.LogError("[TreeBaseUpgradePopup] Cannot choose reward - TreeBase not found!");
+            return;
+        }
 
         switch (rewardType)
         {
