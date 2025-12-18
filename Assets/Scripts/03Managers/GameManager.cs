@@ -776,6 +776,7 @@ public class GameManager : MonoBehaviour
                             }
 
                             eb.UpdateModel();
+                            eb.RefreshTurf();
 
                             if (tile.IsFogged)
                                 tile.SetContentsVisible(false);

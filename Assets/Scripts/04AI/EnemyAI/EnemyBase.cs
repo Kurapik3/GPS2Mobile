@@ -53,7 +53,7 @@ public class EnemyBase : MonoBehaviour
         }
 
         //Randomize HP between 20 and 35
-        health = Random.Range(20, 36);
+        //health = Random.Range(20, 36);
 
         //Register this base
         if (EnemyBaseManager.Instance != null)
@@ -66,9 +66,12 @@ public class EnemyBase : MonoBehaviour
         else
             Debug.LogError("[EnemyBase] EnemyBaseManager not found in scene!");
 
+        //if (EnemyTurfManager.Instance != null && currentTile != null)
+        //    EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius, this);
         if (EnemyTurfManager.Instance != null && currentTile != null)
-            EnemyTurfManager.Instance.RegisterBaseArea(currentTile.HexCoords, currentTurfRadius, this);
-
+        {
+            RefreshTurf();
+        }
 
         UpdateModel();
         Debug.Log($"[EnemyBase] Spawned {baseName} with {health} HP.");
@@ -231,5 +234,17 @@ public class EnemyBase : MonoBehaviour
             //    renderer.enabled = false;
             //}
         }
+    }
+    public void RefreshTurf()
+    {
+        if (EnemyTurfManager.Instance == null || currentTile == null)
+        {
+            return;
+        }
+        // Remove old turf
+        EnemyTurfManager.Instance.UnregisterBaseArea( currentTile.HexCoords, currentTurfRadius ); 
+        // Re-register turf based on CURRENT radius
+        EnemyTurfManager.Instance.RegisterBaseArea( currentTile.HexCoords, currentTurfRadius, this );
+        Debug.Log($"[EnemyBase] Turf refreshed at {currentTile.HexCoords} (radius {currentTurfRadius})"); 
     }
 }
