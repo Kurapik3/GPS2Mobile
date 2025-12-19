@@ -250,7 +250,6 @@ public class EnemyUnitManager : MonoBehaviour
         }
     }
 
-    //For savedd states - Ashley
     public void ClearAll()
     {
         foreach (var obj in unitObjects.Values)
