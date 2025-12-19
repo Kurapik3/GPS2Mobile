@@ -158,7 +158,7 @@ public class TreeBase : BuildingBase
         hpDisplay?.OnLevelChanged();
 
         Debug.Log($"[TreeBase] Upgraded to Level {level}, currentPop = {currentPop}");
-        if (tutorial == true)
+        if (tutorial && TutorialUI.instance != null)
         {
             TutorialUI.instance.UpdateNotification(TutorialStage.TapTree);
             tutorial = false;

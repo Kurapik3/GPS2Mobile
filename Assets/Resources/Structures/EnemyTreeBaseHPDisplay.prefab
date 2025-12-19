@@ -225,7 +225,7 @@ GameObject:
   - component: {fileID: 5398616065629721809}
   m_Layer: 5
   m_Name: EnemyTreeBaseHPDisplay
-  m_TagString: Untagged
+  m_TagString: EnemyBase
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

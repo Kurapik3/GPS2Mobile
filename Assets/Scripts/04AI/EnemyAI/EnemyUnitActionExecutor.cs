@@ -302,7 +302,7 @@ public class EnemyActionExecutor : MonoBehaviour
         }
     }
 
-    public void Knockback(GameObject target, Vector3 direction, System.Action onComplete = null)
+    private void Knockback(GameObject target, Vector3 direction, System.Action onComplete = null)
     {
         if (target == null)
             return;

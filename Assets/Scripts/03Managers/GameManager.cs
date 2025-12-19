@@ -8,7 +8,6 @@ using UnityEngine.SceneManagement;
 using static GameSaveData;
 using static EnemyUnitManager;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -25,6 +24,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     private GameSaveData cachedLoadData;
     private bool waitingForMapReady = false;
+    private bool forceNewGame = false;
 
     private TribeStatsUI tribeStats;
 
@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
         {
             EnemyUnitManager.Instance.RefreshReferences();
         }
-        if (File.Exists(savePath))
+        if (!forceNewGame && File.Exists(savePath))
         {
             try
             {
@@ -116,7 +116,7 @@ public class GameManager : MonoBehaviour
         fogSystem.InitializeFog();
         EventBus.Publish(new AllEnemyBasesDestroyed(false));
         Debug.Log($"UnitManager found: {FindFirstObjectByType<UnitManager>() != null}");
-      
+        forceNewGame = false;
     }
 
     private void OnSaveGame(SaveGameEvent evt) => SaveGame();
@@ -210,70 +210,6 @@ public class GameManager : MonoBehaviour
             dynamicTileGen.SaveDynamicObjects(data);
 
             // treebase
-            //foreach (var tile in FindObjectsOfType<HexTile>())
-            //{
-            //    // ---------- PLAYER / GROVE ----------
-            //    if (tile.currentBuilding != null)
-            //    {
-            //        var save = new GameSaveData.BaseSave
-            //        {
-            //            q = tile.q,
-            //            r = tile.r,
-            //            baseId = 0,
-            //            owner = 0,
-            //            level = 1,
-            //            currentPop = 0,
-            //            health = 0,
-            //            apPerTurn = 0,
-            //            turfRadius = 0,
-            //            isDefaultBase = false
-            //        };
-
-            //        if (tile.currentBuilding is TreeBase tb)
-            //        {
-            //            save.baseId = tb.TreeBaseId;
-            //            save.owner = 1;
-            //            save.level = tb.level;
-            //            save.currentPop = tb.currentPop;
-            //            save.health = tb.health;
-            //            save.apPerTurn = tb.apPerTurn;
-            //            save.turfRadius = tb.turfRadius;
-            //        }
-            //        else if (tile.currentBuilding is GroveBase gb)
-            //        {
-            //            save.baseId = gb.GetInstanceID();
-            //            save.owner = gb.GetOrigin() == GroveBase.BaseOrigin.Player ? 1 :
-            //                         gb.GetOrigin() == GroveBase.BaseOrigin.Enemy ? 2 : 0;
-            //            save.level = gb.GetFormerLevel();
-            //            Debug.Log($"[Save] Grove at ({tile.q},{tile.r}) - Origin: {gb.GetOrigin()}, Owner: {save.owner}, Level: {save.level}");
-            //        }
-            //        else
-            //        {
-            //            continue;
-            //        }
-
-            //        data.bases.Add(save);
-            //    }
-
-            //    // ---------- ENEMY BASE ----------
-            //    if (tile.currentEnemyBase != null)
-            //    {
-            //        EnemyBase eb = tile.currentEnemyBase;
-
-            //        data.bases.Add(new GameSaveData.BaseSave
-            //        {
-            //            q = tile.q,
-            //            r = tile.r,
-            //            baseId = eb.baseId,
-            //            owner = 2,
-            //            level = eb.level,
-            //            currentPop = 0,
-            //            health = eb.health,
-            //            turfRadius = 1,
-            //            isDefaultBase = false
-            //        });
-            //    }
-            //}
             foreach (var tile in FindObjectsOfType<HexTile>())
             {
                 // PLAYER TREE BASE
@@ -470,6 +406,7 @@ public class GameManager : MonoBehaviour
             File.Delete(savePath);
             Debug.Log("Save data cleared!");
         }
+        forceNewGame = true;
     }
 
 
@@ -785,200 +722,7 @@ public class GameManager : MonoBehaviour
                         }
                 }
             }
-            //foreach (var baseSave in cachedLoadData.bases)
-            //{
-            //    var tile = MapManager.Instance.GetTile(baseSave.q, baseSave.r);
-            //    if (tile == null) continue;
-
-            //    /* ---------- PLAYER BUILDINGS (TreeBase or Grove) ---------- */
-            //    if (baseSave.owner == 1)
-            //    {
-            //        BuildingBase existingBuilding = tile.currentBuilding;
-
-            //        // If Grove already exists from map gen, update it
-            //        if (existingBuilding is GroveBase existingGrove)
-            //        {
-            //            existingGrove.SetFormerLevel(baseSave.level, GroveBase.BaseOrigin.Player);
-            //            Debug.Log($"[Load] Updated existing Grove at ({baseSave.q},{baseSave.r}) - level={baseSave.level}");
-            //        }
-            //        // If TreeBase already exists from map gen, update it
-            //        else if (existingBuilding is TreeBase existingTreeBase)
-            //        {
-            //            existingTreeBase.SetTreeBaseId(baseSave.baseId);
-            //            existingTreeBase.SetLevelDirect(baseSave.level);
-            //            existingTreeBase.currentPop = baseSave.currentPop;
-            //            existingTreeBase.health = baseSave.health;
-            //            existingTreeBase.apPerTurn = baseSave.apPerTurn;
-            //            existingTreeBase.turfRadius = baseSave.turfRadius;
-            //            Debug.Log($"[Load] Updated existing TreeBase at ({baseSave.q},{baseSave.r}) - level={baseSave.level}");
-            //        }
-            //        // No building exists, need to spawn based on level
-            //        else
-            //        {
-            //            // Level 0 means it was a destroyed base (Grove)
-            //            if (baseSave.level == 0)
-            //            {
-            //                GameObject groveObj = Instantiate(
-            //                    BuildingFactory.Instance.GrovePrefab,
-            //                    tile.transform.position + Vector3.up * 2,
-            //                    Quaternion.identity
-            //                );
-            //                groveObj.transform.SetParent(tile.transform);
-
-            //                GroveBase newGrove = groveObj.GetComponent<GroveBase>();
-            //                if (!groveObj.CompareTag("Grove"))
-            //                {
-            //                    groveObj.tag = "Grove";
-            //                }
-
-            //                newGrove.Initialize(BuildingFactory.Instance.GroveData, tile);
-            //                newGrove.SetFormerLevel(0, GroveBase.BaseOrigin.Player);
-            //                tile.SetBuilding(newGrove);
-
-            //                if (tile.IsFogged)
-            //                {
-            //                    tile.SetContentsVisible(false);
-            //                }
-
-            //                Debug.Log($"[Load] Spawned Grove (destroyed base) at ({baseSave.q},{baseSave.r})");
-            //            }
-            //            // Level > 0 means it's an active TreeBase
-            //            else
-            //            {
-            //                GameObject treeBaseObj = Instantiate(
-            //                    BuildingFactory.Instance.TreeBasePrefab,
-            //                    tile.transform.position + Vector3.up * 2,
-            //                    Quaternion.identity
-            //                );
-            //                treeBaseObj.transform.SetParent(tile.transform);
-
-            //                TreeBase newTreeBase = treeBaseObj.GetComponent<TreeBase>();
-            //                newTreeBase.Initialize(BuildingFactory.Instance.TreeBaseData, tile);
-
-            //                // Set all the saved properties
-            //                newTreeBase.SetTreeBaseId(baseSave.baseId);
-            //                newTreeBase.SetLevelDirect(baseSave.level);
-            //                newTreeBase.currentPop = baseSave.currentPop;
-            //                newTreeBase.health = baseSave.health;
-            //                newTreeBase.apPerTurn = baseSave.apPerTurn;
-            //                newTreeBase.turfRadius = baseSave.turfRadius;
-
-            //                tile.SetBuilding(newTreeBase);
-
-            //                if (tile.IsFogged)
-            //                {
-            //                    tile.SetContentsVisible(false);
-            //                }
-
-            //                Debug.Log($"[Load] Spawned TreeBase at ({baseSave.q},{baseSave.r}) - level={baseSave.level}");
-            //            }
-            //        }
-            //    }
-            //    /* ---------- ENEMY BUILDINGS (Grove from destroyed enemy base) ---------- */
-            //    else if (baseSave.owner == 2 && baseSave.level == 0)
-            //    {
-            //        // This is a Grove that was formerly an enemy base
-            //        BuildingBase existingBuilding = tile.currentBuilding;
-
-            //        if (existingBuilding is GroveBase existingGrove)
-            //        {
-            //            existingGrove.SetFormerLevel(baseSave.level, GroveBase.BaseOrigin.Enemy);
-            //            Debug.Log($"[Load] Updated existing Grove (enemy) at ({baseSave.q},{baseSave.r})");
-            //        }
-            //        else if (existingBuilding == null)
-            //        {
-            //            GameObject groveObj = Instantiate(
-            //                BuildingFactory.Instance.GrovePrefab,
-            //                tile.transform.position + Vector3.up * 2,
-            //                Quaternion.identity
-            //            );
-            //            groveObj.transform.SetParent(tile.transform);
-
-            //            GroveBase newGrove = groveObj.GetComponent<GroveBase>();
-            //            if (!groveObj.CompareTag("Grove"))
-            //            {
-            //                groveObj.tag = "Grove";
-            //            }
-
-            //            newGrove.Initialize(BuildingFactory.Instance.GroveData, tile);
-            //            newGrove.SetFormerLevel(0, GroveBase.BaseOrigin.Enemy);
-            //            tile.SetBuilding(newGrove);
-
-            //            if (tile.IsFogged)
-            //            {
-            //                tile.SetContentsVisible(false);
-            //            }
-
-            //            Debug.Log($"[Load] Spawned Grove (destroyed enemy base) at ({baseSave.q},{baseSave.r})");
-            //        }
-            //    }
-            //    /* ---------- ENEMY BASE (Active enemy base) ---------- */
-            //    else if (baseSave.owner == 2 && baseSave.level > 0)
-            //    {
-            //        EnemyBase existingEnemyBase = tile.currentEnemyBase;
-
-            //        // If enemy base already exists from map gen, update it
-            //        if (existingEnemyBase != null)
-            //        {
-            //            existingEnemyBase.baseId = baseSave.baseId;
-            //            existingEnemyBase.level = baseSave.level;
-            //            existingEnemyBase.health = baseSave.health;
-
-            //            // Register only if missing
-            //            if (!EnemyBaseManager.Instance.Bases.ContainsKey(existingEnemyBase.baseId))
-            //            {
-            //                EnemyBaseManager.Instance.RegisterBase(existingEnemyBase);
-            //            }
-
-            //            Debug.Log($"[Load] Updated existing EnemyBase at ({baseSave.q},{baseSave.r}) - level={baseSave.level}");
-            //        }
-            //        // No enemy base exists, need to spawn it
-            //        else
-            //        {
-            //            // Find the EnemyBase prefab - you'll need to add this to BuildingFactory
-            //            // For now, try to find it in Resources or add a reference
-            //            GameObject enemyBasePrefab = Resources.Load<GameObject>("Structures/EnemyBase");
-
-            //            if (enemyBasePrefab == null)
-            //            {
-            //                Debug.LogError($"[Load] EnemyBase prefab not found! Cannot spawn enemy base at ({baseSave.q},{baseSave.r})");
-            //                continue;
-            //            }
-
-            //            GameObject enemyBaseObj = Instantiate(
-            //                enemyBasePrefab,
-            //                tile.transform.position + Vector3.up * 2,
-            //                Quaternion.identity
-            //            );
-            //            enemyBaseObj.transform.SetParent(tile.transform);
-
-            //            EnemyBase newEnemyBase = enemyBaseObj.GetComponent<EnemyBase>();
-            //            newEnemyBase.currentTile = tile;
-            //            newEnemyBase.baseId = baseSave.baseId;
-            //            newEnemyBase.level = baseSave.level;
-            //            newEnemyBase.health = baseSave.health;
-
-            //            tile.currentEnemyBase = newEnemyBase;
-
-            //            // The EnemyBase.Start() will handle registration, but since we're setting baseId manually,
-            //            // we need to use RegisterExistingBase instead
-            //            if (!EnemyBaseManager.Instance.Bases.ContainsKey(newEnemyBase.baseId))
-            //            {
-            //                EnemyBaseManager.Instance.RegisterExistingBase(baseSave.baseId, newEnemyBase);
-            //            }
-
-            //            // Update the model to match the level
-            //            newEnemyBase.UpdateModel();
-
-            //            if (tile.IsFogged)
-            //            {
-            //                tile.SetContentsVisible(false);
-            //            }
-
-            //            Debug.Log($"[Load] Spawned EnemyBase at ({baseSave.q},{baseSave.r}) - level={baseSave.level}, baseId={baseSave.baseId}");
-            //        }
-            //    }
-            //}
+            
 
             //techtree
             TechTree tech = FindFirstObjectByType<TechTree>();
@@ -1019,7 +763,7 @@ public class GameManager : MonoBehaviour
 
             // Refresh enemy visibility
             StartCoroutine(DelayedUpdateEnemyVisibility());
-
+            StartCoroutine(ApplyFogAfterOneFrame());
             Debug.Log("[GameManager] Runtime save restored successfully.");
         }
         catch (Exception ex)
@@ -1032,6 +776,31 @@ public class GameManager : MonoBehaviour
             waitingForMapReady = false;
         }
     }
+    private IEnumerator ApplyFogAfterOneFrame()
+    {
+        yield return null;
+        yield return null;
+
+        ApplyFogVisibilityToAllTiles();
+
+        Debug.Log("[Fog] Re-applied fog visibility after load.");
+    }
+
+    private void ApplyFogVisibilityToAllTiles()
+    {
+        foreach (var tile in FindObjectsOfType<HexTile>())
+        {
+            if (tile.IsFogged)
+            {
+                tile.SetContentsVisible(false);
+            }
+            else
+            {
+                tile.SetContentsVisible(true);
+            }
+        }
+    }
+
     private void OnApplicationQuit()
     {
         SaveGame();
