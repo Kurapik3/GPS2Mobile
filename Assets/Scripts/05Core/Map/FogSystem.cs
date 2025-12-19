@@ -24,7 +24,7 @@ public class FogSystem : MonoBehaviour
     [SerializeField] private float fogRevealDuration = 1.5f;
     [SerializeField] private GameObject fogRevealModel;
 
-    private bool mapReady = false;
+    public bool mapReady = false;
     private void OnEnable()
     {
         MapGenerator.OnMapReady += HandleMapReady;
