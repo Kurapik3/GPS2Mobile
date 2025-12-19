@@ -67,12 +67,15 @@ public class UnitTouchController : MonoBehaviour
         DeselectUnit();
         selectedUnit = unit;
         selectedUnit.SetSelected(true);
+
     }
 
     private void DeselectUnit()
     {
         if (selectedUnit != null)
+        {
             selectedUnit.SetSelected(false);
+        }
 
         selectedUnit = null;
     }

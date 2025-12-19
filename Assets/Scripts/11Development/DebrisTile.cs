@@ -38,7 +38,11 @@ public class DebrisTile : MonoBehaviour
 
     private bool TryDevelop()
     {
-        CheckIfWithinTurf();
+        if (!CheckIfWithinTurf())
+        {
+            Debug.Log("Cannot develop FishTile: not inside turf.");
+            return false;
+        }
         if (techTree == null)
         {
             Debug.LogError("TechTree is null! Cannot develop tile.");
@@ -57,6 +61,7 @@ public class DebrisTile : MonoBehaviour
         }
 
         player.useAP(apCost);
+        PlayerTracker.Instance.addScore(200);
 
         if (nearbyBase != null)
         {
@@ -80,31 +85,30 @@ public class DebrisTile : MonoBehaviour
         Debug.Log("Removed Debris Tile");
         Destroy(gameObject);
     }
-    private void CheckIfWithinTurf()
+    private bool CheckIfWithinTurf()
     {
         if (myHex == null)
         {
             Debug.LogWarning("DebrisTile has no HexTile parent!");
-            return;
+            return false;
         }
-        if (TurfManager.Instance.IsInsideTurf(myHex))
-        {
-            nearbyBase = FindNearestBase(myHex);
-            if (nearbyBase != null)
-            {
-                Debug.Log("Found nearby TreeBase for DebrisTile.");
-            }
-            else
-            {
-                Debug.Log("No TreeBase in turf nearby.");
-            }
-        }
-        else
+       
+        if (!TurfManager.Instance.IsInsideTurf(myHex))
         {
             nearbyBase = null;
             Debug.Log("DebrisTile is NOT inside turf!");
+            return false;
         }
 
+        nearbyBase = FindNearestBase(myHex);
+
+        if (nearbyBase == null)
+        {
+            Debug.Log("DebrisTile is inside turf but no TreeBase found.");
+            return false;
+        }
+
+        return true;
     }
     private TreeBase FindNearestBase(HexTile tile)
     {

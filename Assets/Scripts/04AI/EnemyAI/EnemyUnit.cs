@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class EnemyUnit : MonoBehaviour
 {
@@ -18,11 +17,6 @@ public class EnemyUnit : MonoBehaviour
     private EnemyHPDisplay hpDisplay;
     // -------------------
 
-    private float GetHeightOffset(HexTile tile)
-    {
-        return 2.0f;
-    }
-
     public void Initialize(int id, string type, int hp, HexTile tile)
     {
         unitId = id;
@@ -35,7 +29,7 @@ public class EnemyUnit : MonoBehaviour
             currentTile.currentEnemyUnit = this;
 
         Vector3 pos = MapManager.Instance.HexToWorld(tile.HexCoords);
-        pos.y += GetHeightOffset(tile);
+        pos.y += baseHeightOffset;
         transform.position = pos;
 
         // ---- KENNETH'S ----
@@ -78,7 +72,7 @@ public class EnemyUnit : MonoBehaviour
         currentTile.currentEnemyUnit = this;
 
         Vector3 pos = MapManager.Instance.HexToWorld(newTile.HexCoords);
-        pos.y += GetHeightOffset(newTile);
+        pos.y += baseHeightOffset;
         transform.position = pos;
     }
 }

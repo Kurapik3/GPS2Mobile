@@ -84,7 +84,11 @@ public abstract class UnitBase : MonoBehaviour
     public virtual void Attack(HexTile target)
     {
         if (HasAttackThisTurn)
+        {
+            HideAttackIndicators();
             return;
+        }
+            
 
         if (currentTile == null || target == null)
         {
@@ -322,6 +326,14 @@ public abstract class UnitBase : MonoBehaviour
         else
         {
             HideRangeIndicators();
+        }
+        if (isSelected && !HasAttackThisTurn)
+        {
+            ShowAttackIndicators();
+        }
+        else
+        {
+            HideAttackIndicators();
         }
     }
     private void UpdateSelectionVisual()
@@ -676,6 +688,7 @@ public abstract class UnitBase : MonoBehaviour
 
         activeAttackIndicators.Clear();
         tilesInAttackRange.Clear();
+       
     }
 
     private void CalculateTilesInAttackRange()

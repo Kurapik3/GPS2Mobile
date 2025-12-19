@@ -29,9 +29,8 @@ public class TreeBase : BuildingBase
     private int currentUnitsTrained = 0;
     public int TreeBaseId { get; private set; }
     public void SetTreeBaseId(int id) => TreeBaseId = id;
+    public int ActiveTreeBaseCount = 0;
     private List<HexTile> ownedTurfTiles = new List<HexTile>();
-    public static int ActiveTreeBaseCount = 0;
-
     [SerializeField] public int turfRadius = 2;
 
     private void Start()
@@ -49,7 +48,7 @@ public class TreeBase : BuildingBase
         if (currentTile != null)
         {
             currentTile.SetBuilding(this);
-            ownedTurfTiles = TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
+            TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
             Debug.Log($"{buildingName} placed at Hex ({currentTile.q},{currentTile.r}) with turf radius {turfRadius}");
         }
     }
@@ -72,7 +71,6 @@ public class TreeBase : BuildingBase
 
         // Claim turf on initialization
         ownedTurfTiles = TurfManager.Instance.AddTurfArea(currentTile, turfRadius);
-
     }
 
     public override void OnTurnStart()
@@ -200,10 +198,7 @@ public class TreeBase : BuildingBase
     {
         HexTile tile = currentTile;
 
-        TurfManager.Instance.RemoveTurfArea(ownedTurfTiles);
-        ActiveTreeBaseCount--;
-        Debug.Log($"[TreeBase] Destroyed. Remaining TreeBases: {ActiveTreeBaseCount}");
-
+        TurfManager.Instance.ClearTurf();
 
         Destroy(gameObject);
         Debug.Log("Tree Base destroyed! Becomes Grove.");
@@ -224,6 +219,8 @@ public class TreeBase : BuildingBase
 
 
             tile.SetBuilding(groveScript);
+            ActiveTreeBaseCount--;
+            TurfManager.Instance.ClearTurf();
         }
     }
 

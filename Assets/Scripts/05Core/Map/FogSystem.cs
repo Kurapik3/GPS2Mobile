@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 public class FogSystem : MonoBehaviour
 {
     [Header("Fog Settings")]
@@ -25,7 +24,7 @@ public class FogSystem : MonoBehaviour
     [SerializeField] private float fogRevealDuration = 1.5f;
     [SerializeField] private GameObject fogRevealModel;
 
-    private bool mapReady = false;
+    public bool mapReady = false;
     private void OnEnable()
     {
         MapGenerator.OnMapReady += HandleMapReady;

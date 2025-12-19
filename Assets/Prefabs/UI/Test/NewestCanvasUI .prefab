@@ -38264,9 +38264,6 @@ MonoBehaviour:
   shooterSpawnConfirmationWindowMove: {fileID: 1092869903681285604}
   easing: 28
   moveDuration: 0.5
-  centrePos: {x: 0, y: 0}
-  bottomPos: {x: 0, y: -160}
-  offScreenPos: {x: 0, y: -1000}
   infoBar: {fileID: 4744231479432464984}
   panel: {fileID: 8160990968845914186}
   selectionIndicatorTag: SelectionIndicator
