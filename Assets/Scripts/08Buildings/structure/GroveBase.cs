@@ -7,6 +7,7 @@ public class GroveBase : BuildingBase
 
     private int formerTreeLevel = 1;
     private int formerEnemyBaseLevel = 1;
+    private bool tutorial = true;
 
     public override void Initialize(BuildingData data, HexTile tile)
     {
@@ -77,7 +78,11 @@ public class GroveBase : BuildingBase
         newTreeBase.SetLevelDirect(formerLevel);
 
         Debug.Log($"Grove developed back into Tree Base at level {formerLevel}!");
-
+        if (tutorial && TutorialButtons.instance != null)
+        {
+            TutorialButtons.instance.lastPart();
+            tutorial = false;
+        }
         Destroy(gameObject);
     }
     public BaseOrigin GetOrigin()

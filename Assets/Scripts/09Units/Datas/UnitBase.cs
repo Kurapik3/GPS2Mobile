@@ -40,6 +40,8 @@ public abstract class UnitBase : MonoBehaviour
 
     [Header("Fog of War Settings")]
     [SerializeField] public int fogRevealRadius = 1;
+    private bool tutorial = true;
+
 
     // ---- KENNETH'S ----
     private UnitHPDisplay hpDisplay;
@@ -411,6 +413,11 @@ public abstract class UnitBase : MonoBehaviour
 
         Debug.Log($"{unitName} moved to ({currentTile.q}, {currentTile.r})");
         hasMovedThisTurn = true;
+        if (tutorial && TutorialUI.instance != null)
+        {
+            TutorialUI.instance.UpdateNotification(TutorialStage.WowGrove);
+            tutorial = false;
+        }
         RevealNearbyFog(currentTile);
         EventBus.Publish(new ActionMadeEvent());
     }

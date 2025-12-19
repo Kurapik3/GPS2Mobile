@@ -38,14 +38,23 @@ public class UnitSpawner : MonoBehaviour
     // --------------------- Kenneth's --------------------------
 
     private TreeBase selectedTreeBase = null;
+    private bool tutorial = true;
     private void Awake()
     {
         Instance = this;
     }
     public void Start()
     {
-        if (builderButton != null)
-            builderButton.onClick.AddListener(() => TrySpawnUnit(BuilderPrefab, 0, 2));
+        builderButton.onClick.AddListener(() =>
+        {
+            if (tutorial && TutorialUI.instance != null)
+            {
+                TutorialUI.instance.UpdateNotification(TutorialStage.Endturn);
+                tutorial = false;
+            }
+            TrySpawnUnit(BuilderPrefab, 0, 2);
+        });
+
 
         if (scoutButton != null)
             scoutButton.onClick.AddListener(OnScoutButtonClicked);

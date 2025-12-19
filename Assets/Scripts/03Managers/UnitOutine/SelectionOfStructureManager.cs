@@ -46,6 +46,8 @@ public class SelectionOfStructureManager : MonoBehaviour
     private Vector2 touchStartPos;
     private float touchStartTime;
 
+    private bool tutorial = true;
+    public bool afterFishing = false;
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -119,7 +121,10 @@ public class SelectionOfStructureManager : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, structure))
         {
             handledByThisManager = true;
+
             HexTile tile = hit.collider.GetComponentInParent<HexTile>();
+
+            TryTriggerTreeBaseTutorial(hit.collider.gameObject);
             if (tile != null)
             {
                 if (tile.currentUnit != null)
@@ -135,6 +140,7 @@ public class SelectionOfStructureManager : MonoBehaviour
                     tile.OnTileClicked();
                 }
             }
+
             SelectByClicking(hit.collider.gameObject);
             structureInfoPanelMove.SetActive(true);
 
@@ -294,6 +300,21 @@ public class SelectionOfStructureManager : MonoBehaviour
     public void CloseShooterConfirmationPopup()
     {
         shooterSpawnConfirmationWindowMove.SetActive(false);
+    }
+
+    private void TryTriggerTreeBaseTutorial(GameObject hitObject)
+    {
+        if (!tutorial) return;
+        if (TutorialUI.instance == null) return;
+
+        TreeBase treeBase = hitObject.GetComponentInParent<TreeBase>();
+        if (treeBase == null) return;
+        if (afterFishing == true)
+        {
+            TutorialUI.instance.UpdateNotification(TutorialStage.BuildUnit);
+            tutorial = false;
+        }
+        else return;
     }
 
 }

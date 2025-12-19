@@ -57,13 +57,20 @@ public class ManagerOfScene : MonoBehaviour
     //}
     public void GameStart()
     {
-        //LoadNextScene("GameplayScene");
-        //LoadNextScene("PrototypeScene");
+        bool tutorialDone = PlayerPrefs.GetInt("TutorialComplete", 0) == 1;
+
+        if (!tutorialDone)
+        {
+
+            SceneManager.LoadScene("TutorialScene");
+            return;
+        }
+
         SceneManager.LoadScene("PrototypeScene");
         ManagerAudio.instance.PlaySFX("ButtonPressed");
         ManagerAudio.instance.StopMusic();
-
     }
+
     public void ResumeGame()
     {
         EventBus.Publish(new LoadGameEvent());

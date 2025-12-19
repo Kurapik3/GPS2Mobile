@@ -35,6 +35,7 @@ public class TurnManager : MonoBehaviour
      public TreeBase treeBase;
 
     [SerializeField] private TribeStatsUI tribeStats;
+    private bool tutorial = true;
 
     private void OnEnable()
     {
@@ -196,6 +197,11 @@ public class TurnManager : MonoBehaviour
 
     public void EndTurn()
     {
+        if (tutorial && TutorialUI.instance != null)
+        {
+            TutorialUI.instance.UpdateNotification(TutorialStage.MoveUnit);
+            tutorial = false;
+        }
         if (!isPlayerTurn || isProcessingTurn)
         {
             return; // prevent double-clicks or AI triggers
