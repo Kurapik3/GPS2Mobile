@@ -146,57 +146,7 @@ public class Interactablemanager : MonoBehaviour
                 TileSelector.Hide();
             }
         }
-        //if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
-        //{
-        //    handledByThisManager = true;
-        //    SeaMonsterBase monster = hit.collider.GetComponentInParent<SeaMonsterBase>();
-        //    if (monster != null)
-        //    {
-        //        if (monster.State == SeaMonsterState.Tamed)
-        //        {
-        //            SeaMonsterTouchController seaMonsterController = FindAnyObjectByType<SeaMonsterTouchController>();
-        //            seaMonsterController?.TrySelectMonster(monster);
-        //        }
-        //        else
-        //        {
-        //            SelectObject(monster.GetComponent<InteractableObject>());
-        //            return;
-        //        }
-        //    }
-        //    HexTile tile = hit.collider.GetComponentInParent<HexTile>();
-        //    if (tile != null)
-        //    {
-        //        if (tile.currentUnit != null)
-        //        {
-        //            if (!tile.currentUnit.hasMovedThisTurn)
-        //            {
-        //                Debug.Log("Unit on tile still has movement left — block development popup");
-        //                return;
-        //            }
-        //        }
-        //        tile.OnTileClicked();
-        //    }
-        //    // Try to get InteractableObject component
-        //    InteractableObject interactable = hit.collider.GetComponent<InteractableObject>();
-
-        //    if (interactable != null)
-        //    {
-        //        SelectObject(interactable);
-        //        popupPanel.ShowPopup(interactable.objectData);
-        //    }
-        //}
-        //else
-        //{
-        //    if (!handledByThisManager) return;
-        //    handledByThisManager = false;
-        //    // Tapped empty space - deselect and close popup
-        //    DeselectObject();
-        //    popupPanel.HidePopup();
-        //    if (TileSelector.CurrentTile != null)
-        //    {
-        //        TileSelector.Hide();
-        //    }
-        //}
+        
     }
 
     private bool IsPointerOverUI(Vector2 screenPosition)
@@ -212,20 +162,6 @@ public class Interactablemanager : MonoBehaviour
 
     private void SelectObject(InteractableObject obj)
     {
-        //// Deselect previous object if any
-        //if (currentSelectedObject != null)
-        //{
-        //    InteractableObject prevInteractable = currentSelectedObject.GetComponent<InteractableObject>();
-        //    if (prevInteractable != null)
-        //    {
-        //        prevInteractable.OnDeselected();
-        //    }
-        //}
-
-        //currentSelectedObject = obj.gameObject;
-        //obj.OnSelected();
-
-        // Deselect previous object if any
         if (currentSelectedObject != null)
         {
             InteractableObject prevInteractable = currentSelectedObject.GetComponent<InteractableObject>();
