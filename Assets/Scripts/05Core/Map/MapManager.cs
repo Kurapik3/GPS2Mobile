@@ -126,7 +126,17 @@ public class MapManager : MonoBehaviour
     public bool IsTileClaimed(Vector2Int coord)
     {
         HexTile tile = GetTile(coord);
-        return (tile != null && TurfManager.Instance.IsInsideTurf(tile)) || EnemyTurfManager.Instance.IsInTurf(coord);
+        bool playerClaimed =
+       tile != null &&
+       TurfManager.Instance != null &&
+       TurfManager.Instance.IsInsideTurf(tile);
+
+        bool enemyClaimed =
+            EnemyTurfManager.Instance != null &&
+            EnemyTurfManager.Instance.IsInTurf(coord);
+
+        return playerClaimed || enemyClaimed;
+        //return (tile != null && TurfManager.Instance.IsInsideTurf(tile)) || EnemyTurfManager.Instance.IsInTurf(coord);
     }
 
     public void SetUnitOccupied(Vector2Int coord, bool occupied)
