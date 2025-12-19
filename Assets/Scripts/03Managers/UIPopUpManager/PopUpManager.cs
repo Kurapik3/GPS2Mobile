@@ -26,6 +26,7 @@ public class PopUpManager : MonoBehaviour
     public TextMeshProUGUI notTameCreatureDescriptionText;   
     public Button notTameCreaturebackButton;
     public Button notTameCreatureTechTreeButton;
+    public Image notTamedCreatureIcon;
     [SerializeField] private GameObject creatureInfoPopup;
 
     [Header("Object-Specific Buttons")]
@@ -139,7 +140,6 @@ public class PopUpManager : MonoBehaviour
                 break;
         }
         UpdateButtonVisibility();
-        //blockedPanel.blocksRaycasts = true;
         gameObject.SetActive(true);
     }
 
@@ -147,7 +147,6 @@ public class PopUpManager : MonoBehaviour
     {
         currentData = null;
 
-        //blockedPanel.blocksRaycasts = false;
         gameObject.SetActive(false);
         HideAllButtons();
     }
@@ -209,7 +208,7 @@ public class PopUpManager : MonoBehaviour
                 {
                     notTameCreatureTitleText.text = currentData.objectName;
                     notTameCreatureDescriptionText.text = currentData.description;
-                    creatureIconImage.sprite = currentData.icon;
+                    notTamedCreatureIcon.sprite = currentData.icon;
 
                     creatureInfoPopup?.SetActive(true);
                 }
@@ -219,12 +218,8 @@ public class PopUpManager : MonoBehaviour
 
     private void ShowRuinsInfoPanel()
     {
-        // Optional: you could show description again, but it's already in main popup
-        // For now, just show an acknowledgment panel
         if (ruinsInfoPopup != null)
             ruinsInfoPopup.SetActive(true);
-        // If you want dynamic text:
-        // ruinsInfoText.text = currentData.description;
     }
 
 
